@@ -194,14 +194,18 @@ static void clear_sparse(uniform Sieve * uniform s, uniform int p) {
 
 // Clear all odd multiples of factor p.
 static void clear_factor(uniform Sieve * uniform s, uniform int p) {
-    if (p >= DENSE_LIMIT) { clear_sparse(s, p); return; }
-    switch (p) {
-        D(3)   D(5)   D(7)   D(9)   D(11)  D(13)  D(15)  D(17)  D(19)  D(21)  D(23)  D(25)
-        D(27)  D(29)  D(31)  D(33)  D(35)  D(37)  D(39)  D(41)  D(43)  D(45)  D(47)  D(49)
-        D(51)  D(53)  D(55)  D(57)  D(59)  D(61)  D(63)  D(65)  D(67)  D(69)  D(71)  D(73)
-        D(75)  D(77)  D(79)  D(81)  D(83)  D(85)  D(87)  D(89)  D(91)  D(93)  D(95)  D(97)
-        D(99)  D(101) D(103) D(105) D(107) D(109) D(111) D(113) D(115) D(117) D(119) D(121)
-        D(123) D(125) D(127)
+    // clear_factor isn't inlined, so ISPC would compile it for an unknown execution mask and
+    // mask every vector load and store in the dense code. Callers run with all lanes on.
+    unmasked {
+        if (p >= DENSE_LIMIT) { clear_sparse(s, p); return; }
+        switch (p) {
+            D(3)   D(5)   D(7)   D(9)   D(11)  D(13)  D(15)  D(17)  D(19)  D(21)  D(23)  D(25)
+            D(27)  D(29)  D(31)  D(33)  D(35)  D(37)  D(39)  D(41)  D(43)  D(45)  D(47)  D(49)
+            D(51)  D(53)  D(55)  D(57)  D(59)  D(61)  D(63)  D(65)  D(67)  D(69)  D(71)  D(73)
+            D(75)  D(77)  D(79)  D(81)  D(83)  D(85)  D(87)  D(89)  D(91)  D(93)  D(95)  D(97)
+            D(99)  D(101) D(103) D(105) D(107) D(109) D(111) D(113) D(115) D(117) D(119) D(121)
+            D(123) D(125) D(127)
+        }
     }
 }
 
