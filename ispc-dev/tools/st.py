@@ -1,6 +1,7 @@
 #!/usr/bin/env -S python3 -W ignore
 # st.py <json-patch-python-expr...>: edit ispc-dev/status.json. Usage examples:
 #   st.py event "text" [level]
+#   st.py decide ID "what I decided" "why" ["what I passed over"] ["what I expect"]
 #   st.py current ID PHASE "detail" | st.py current none
 #   st.py set run.state running
 #   st.py exp '{"id":..}'   (upsert by id)
@@ -8,10 +9,16 @@
 import json, sys, datetime, csv
 import os
 P=os.path.join(os.path.dirname(os.path.abspath(__file__)),"..","status.json")
-d=json.load(open(P)); now=datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+d=json.load(open(P)); now=datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 a=sys.argv[1:]
 if a[0]=="event":
     d["events"].append({"utc":now,"level":a[2] if len(a)>2 else "info","text":a[1]}); d["events"]=d["events"][-50:]
+elif a[0]=="decide":
+    f=dict(zip(["id","what","why","instead","expect"],a[1:6]))
+    t=f"{f.get('id')}: {f.get('what','').rstrip('.')}. Why: {f.get('why','').rstrip('.')}."
+    if f.get("instead"): t+=f" Passed over: {f['instead'].rstrip('.')}."
+    if f.get("expect"): t+=f" Expect: {f['expect'].rstrip('.')}."
+    d["events"].append({"utc":now,"level":"decision","text":t,**{k:v for k,v in f.items() if v}}); d["events"]=d["events"][-50:]
 elif a[0]=="current":
     d["current"]=None if a[1]=="none" else {"id":a[1],"phase":a[2],"detail":a[3]}
 elif a[0]=="set":

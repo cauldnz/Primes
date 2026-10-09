@@ -67,6 +67,7 @@ itself (section 2b).
 2. For every newly finished output: run `analyze.py`, decide under section 4, update the ledger,
    `status.json` and, for a KEEP, `hc/champion`.
 3. For every agent that has reported (section 2b): check its work and, if it passes, submit it.
+   Record every decision you make in steps 2 to 5 with `st.py decide` (section 2c).
 4. Check the stop conditions (section 9) and the spend limit.
 5. Submit what should run next with `hc-pool.sh submit` (never `run`, which blocks), and hand
    new long local work to agents. Keep the pools busy, within the limits in `CLOUD-RUNBOOK.md`.
@@ -113,6 +114,31 @@ record that in the event.
 
 **Fallback.** If background agents aren't available, split the work into steps under 10 minutes,
 commit each step to the experiment's branch, and carry on from there in the next tick.
+
+## 2c. Record your reasoning
+
+Chris and the workshop see only what you push: they can't read this chat. So every decision goes
+on the record with its reason, at the moment you make it:
+
+```bash
+python3 ispc-dev/tools/st.py decide hc-047 "submit on Zen 3 and Zen 5" \
+  "the profile puts 35% of wheel cycles in the fused groups; this cuts a load per word" \
+  "hc-048 (lower expected gain)" "2-4% at 1T on both"
+```
+
+The fields are: the experiment or `run`; what you decided; why; what you passed over (optional);
+what you expect (optional). Decisions worth recording:
+- choosing the next experiment, and the alternatives you weighed;
+- keep, revert or rerun, when the call isn't mechanical (a borderline result, a noisy round);
+- parking a line of attack, or changing course after the hourly review;
+- starting or stopping an agent, and why that work;
+- anything Chris asked for, and how you acted on it.
+
+One or two sentences each, plain and specific, under `WRITING.md`. They show on the page as
+decisions, and go into `results/hc/EVENTS.jsonl` for good. A new experiment or verdict with no
+decision recorded gets a warning in the log. Reasoning is public like everything else: section 7a
+applies. Agent briefs count as reasoning too: the brief you give an agent goes in the decision
+that starts it.
 
 ## 3. Search strategy
 

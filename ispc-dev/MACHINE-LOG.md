@@ -128,6 +128,15 @@ last. Public, like the rest of the repo.
   this it does three jobs at once: it reaches the hardware, it cleans up after itself on a
   deadline, and it keeps results safe while the climber sleeps.
 
+### 10 October, 09:35: the climber's reasoning goes on the record
+
+- The workshop can't see the climber's chat, only what it pushes. Results were all on record; the
+  reasons behind each choice weren't, unless a commit message happened to carry them. That's the
+  most interesting part of the trajectory for the write-up, and the hardest to rebuild later.
+- The climber now records each decision with its reason, what it passed over and what it
+  expects (`st.py decide`). The log flags any verdict made with no reasoning, so a lapse shows
+  rather than relying on memory (lesson 2 again).
+
 ## Lessons so far
 
 1. Controls in every round matter more than any optimisation. Without them, machine noise

@@ -11,7 +11,8 @@ remembering to call `st.py event`.
 
 What counts as a change: a new experiment, a verdict change (with deltas and the note), the
 current experiment moving phase, a scoreboard number moving, and the run changing state.
-Heartbeats and spend refreshes are not logged.
+Heartbeats and spend refreshes are not logged. A new experiment or verdict with no `st.py decide`
+event since the last publish gets a warning in the log, so missing reasoning shows.
 """
 import json, os, subprocess, sys, datetime
 
@@ -89,6 +90,15 @@ def cmd_diff():
     # events added by hand since the last commit go to the full log too
     seen = {(e.get("utc"), e.get("text")) for e in (old or {}).get("events") or []}
     manual = [e for e in new.get("events") or [] if (e.get("utc"), e.get("text")) not in seen]
+    # a verdict or a new experiment with no reasoning recorded since the last publish is flagged
+    decided = {e.get("id") for e in manual if e.get("level") == "decision"}
+    for l, t in list(changes(old, new)):
+        xid = t.split(" ", 1)[0].rstrip(":")
+        if xid.startswith(("hc-", "z")) and xid not in decided and not any(
+                e.get("level") == "decision" and xid in (e.get("text") or "") for e in manual):
+            evs.append({"utc": now, "level": "warn", "auto": True,
+                        "text": f"{xid} changed with no reasoning recorded (st.py decide)."})
+            decided.add(xid)
     if not evs and not manual:
         return
     new["events"] = ((new.get("events") or []) + evs)[-KEEP:]

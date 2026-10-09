@@ -130,7 +130,7 @@ def build_log(evs):
     css = CSS_ROOT + """
 .log{list-style:none;padding:0;margin:0} .log li{font-size:13px;padding:5px 0;border-top:1px solid var(--line)}
 .log time{color:var(--muted);margin-right:8px;font-variant-numeric:tabular-nums;white-space:nowrap}
-.log .warn{color:var(--warn)} .log .error{color:var(--down)} a{color:var(--accent)}"""
+.log .warn{color:var(--warn)} .log .error{color:var(--down)} a{color:var(--accent)} .log .decision{border-left:3px solid var(--accent);padding-left:8px}"""
     return f"""<!doctype html>
 <html lang="en-AU"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -192,7 +192,7 @@ td.m{{white-space:nowrap}} td.m b{{font-size:13px;margin-left:6px}} .up b{{color
 .hyp{{margin:3px 0}} .v{{font-size:12px;font-weight:600;padding:1px 7px;border-radius:6px;border:1px solid currentColor}}
 .v.kept,.v.confirmed{{color:var(--up)}} .v.rejected,.v.reverted,.v.failed{{color:var(--down)}} .v.queued,.v.running{{color:var(--warn)}}
 .log li{{font-size:13px;padding:4px 0;border-top:1px solid var(--line)}} .log li:first-child{{border-top:0}}
-.log time{{color:var(--muted);margin-right:8px;font-variant-numeric:tabular-nums}} .log .warn{{color:var(--warn)}} .log .error{{color:var(--down)}}
+.log time{{color:var(--muted);margin-right:8px;font-variant-numeric:tabular-nums}} .log .warn{{color:var(--warn)}} .log .error{{color:var(--down)}} .log .decision{{border-left:3px solid var(--accent);padding-left:8px}}
 .next li{{padding:4px 0}} .next li::before{{content:"→ ";color:var(--muted)}}
 .btn{{display:inline-block;padding:8px 14px;border-radius:8px;border:1px solid var(--accent);color:var(--accent);text-decoration:none;font-weight:600;font-size:14px}}
 footer{{color:var(--muted);font-size:12px;text-align:center;margin:18px 0 8px}}
