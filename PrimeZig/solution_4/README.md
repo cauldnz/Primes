@@ -43,11 +43,14 @@ Each thread allocates from its own `std.heap.ArenaAllocator` over page memory an
 
 Each thread runs its own sieves. Results are reported for one thread, then all, half and a quarter of the hardware threads, because SMT siblings share an L1 cache and fewer threads can finish more passes.
 
-### Portability
+### Target CPU
 
-The build targets each architecture's baseline CPU: SSE2 on x86-64 and Armv8-A on arm64. The benchmark machines include an SSE4-only Celeron and a Raspberry Pi 4, and the drag race builds one image per architecture, so a build tuned for the build machine could fail on the others. Zig 0.13 has no per-function target attributes or run-time dispatch.
-
-That costs the wheel. On the Xeon below, an `x86_64_v3` (AVX2) build ran it 43% faster at one thread, about 102,000 passes against 71,000 over three interleaved rounds. The base entry gained nothing. `ZIG_CPU`, set for `build.sh` or as a Docker build argument, overrides the target, for example `ZIG_CPU=native`.
+The build targets the CPU it runs on (`-mcpu=native`). The drag race builds each image on the
+machine that benchmarks it, and the C++ and Rust base entries build the same way
+(`-march=native`, `target-cpu=native`). On the Xeon below, an AVX2 build ran the wheel 43%
+faster than a baseline SSE2 build at one thread, about 102,000 passes against 71,000; the base
+entry gained nothing. `ZIG_CPU`, set for `build.sh` or as a Docker build argument, overrides
+the target, for example `ZIG_CPU=baseline` for a portable binary.
 
 ## How this was built
 
