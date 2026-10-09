@@ -14,7 +14,9 @@
 //    instantiated for every odd factor below the limit with the factor as a compile-time
 //    constant, so those 64 positions and single-bit masks become immediates. It covers every
 //    odd value, not only primes: the program uses no knowledge of which numbers are prime
-//    beyond 2 being the only even one.
+//    beyond 2 being the only even one. For factors below 119 the same ORs are written per
+//    SIMD lane, over a block of consecutive words, so the compiler emits vector ORs with
+//    constant masks: the effect LLVM's SLP vectoriser has on the Rust entry's dense resetter.
 //  * Sparse (larger factors): the same idea over bytes. 8 multiples repeat every p bytes,
 //    each with a fixed bit position; their byte offsets are computed per factor and the 8
 //    masks are compile-time constants selected by p mod 16.
@@ -55,6 +57,7 @@ static inline uniform double now() {
 #define DENSE_LIMIT 128
 static uniform int64 TF[256];
 static uniform int64 T_scan=0,T_dense=0,T_sparse=0,T_create=0,T_destroy=0,T_total=0;      // factors below this use the dense routine
+#define VEC_LIMIT 119        // ...and the vector form below this (larger ones exceed LLVM's unroll limit)
 
 // ---------------------------------------------------------------------------------------
 // The sieve "class": a struct holding all of a sieve's state, plus the functions below that
@@ -89,8 +92,8 @@ static inline uniform bool is_composite_index(const uniform Sieve * uniform s, u
 // every chunk the 64 multiples sit at the same offsets t_j = P/2 + j*P (j = 0..63).
 // Clearing starts at the chunk holding P*P; any smaller multiples in that chunk are
 // composite too, except P itself, which is restored afterwards.
-static inline void clear_dense(uniform uint64 * uniform w, uniform int nwords, const uniform int P) {
-    uniform int c = ((P * P / 2) / 64 / P) * P;
+static inline void clear_dense_from(uniform uint64 * uniform w, uniform int nwords, const uniform int P,
+                                    uniform int c) {
     for (; c + P <= nwords; c += P) {
         #pragma unroll
         for (uniform int j = 0; j < 64; j++) {
@@ -107,6 +110,35 @@ static inline void clear_dense(uniform uint64 * uniform w, uniform int nwords, c
     if ((f >> 6) < nwords) w[f >> 6] &= ~(((uniform uint64)1) << (f & 63));
 }
 
+static inline void clear_dense(uniform uint64 * uniform w, uniform int nwords, const uniform int P) {
+    clear_dense_from(w, nwords, P, ((P * P / 2) / 64 / P) * P);
+}
+
+// Vector dense clearing for small factors. A block of programCount chunks (programCount * P
+// words, a whole number of vectors) is cleared one vector of consecutive words at a time: each
+// composite in the block gets its own single-bit OR, applied in the lane that holds its word.
+// With P and programIndex both compile-time constants, LLVM folds a vector's single-bit ORs into
+// one constant, as it does for the scalar routine above. Words left over after the last whole
+// block go to the scalar routine.
+static inline void clear_dense_vec(uniform uint64 * uniform w, uniform int nwords, const uniform int P) {
+    uniform int c = ((P * P / 2) / 64 / P) * P;
+    for (; c + programCount * P <= nwords; c += programCount * P) {
+        #pragma unroll
+        for (uniform int kb = 0; kb < programCount * P; kb += programCount) {
+            const int k = kb + programIndex;                        // word of the block
+            uint64 x = w[c + k];
+            const uniform int n0 = (64 * kb - P / 2) / P;          // first composite near these words
+            #pragma unroll
+            for (uniform int i = 0; i < 64 * programCount / P + 2; i++) {
+                const uniform int t = P / 2 + (n0 + i) * P;
+                x |= ((t >> 6) == k) ? ((uniform uint64)1) << (t & 63) : 0;   // one composite
+            }
+            w[c + k] = x;
+        }
+    }
+    clear_dense_from(w, nwords, P, c);
+}
+
 // Sparse clearing over bytes for an odd factor p > 16. Chunks of p bytes start at byte
 // multiples of p; in each, the 8 multiples sit at bit offsets t_j = p/2 + j*p (j = 0..7).
 // Their bit-in-byte positions depend only on p mod 16 (E), so the masks are constants.
@@ -120,19 +152,22 @@ static inline void clear_sparse_e(uniform uint8 * uniform bytes, uniform int nby
     const uniform uint8 m2 = 1 << ((E / 2 + 2 * E) & 7), m3 = 1 << ((E / 2 + 3 * E) & 7);
     const uniform uint8 m4 = 1 << ((E / 2 + 4 * E) & 7), m5 = 1 << ((E / 2 + 5 * E) & 7);
     const uniform uint8 m6 = 1 << ((E / 2 + 6 * E) & 7), m7 = 1 << ((E / 2 + 7 * E) & 7);
-    uniform int c = ((p * p / 2) / 8 / p) * p;
-    for (; c + p <= nbytes; c += p) {                               // one composite each
-        bytes[c + o0] |= m0; bytes[c + o1] |= m1; bytes[c + o2] |= m2; bytes[c + o3] |= m3;
-        bytes[c + o4] |= m4; bytes[c + o5] |= m5; bytes[c + o6] |= m6; bytes[c + o7] |= m7;
+    // Walk a pointer over the chunks: each OR is then one instruction with a register offset.
+    // Indexing with a 32-bit chunk offset cost a sign extension and an add per composite.
+    uniform uint8 * uniform q = bytes + ((p * p / 2) / 8 / p) * p;
+    uniform uint8 * uniform end = bytes + nbytes;
+    for (; q + p <= end; q += p) {                                  // one composite each
+        q[o0] |= m0; q[o1] |= m1; q[o2] |= m2; q[o3] |= m3;
+        q[o4] |= m4; q[o5] |= m5; q[o6] |= m6; q[o7] |= m7;
     }
-    if (c + o0 < nbytes) bytes[c + o0] |= m0; else return;          // partial last chunk
-    if (c + o1 < nbytes) bytes[c + o1] |= m1; else return;
-    if (c + o2 < nbytes) bytes[c + o2] |= m2; else return;
-    if (c + o3 < nbytes) bytes[c + o3] |= m3; else return;
-    if (c + o4 < nbytes) bytes[c + o4] |= m4; else return;
-    if (c + o5 < nbytes) bytes[c + o5] |= m5; else return;
-    if (c + o6 < nbytes) bytes[c + o6] |= m6; else return;
-    if (c + o7 < nbytes) bytes[c + o7] |= m7;
+    if (q + o0 < end) q[o0] |= m0; else return;                     // partial last chunk
+    if (q + o1 < end) q[o1] |= m1; else return;
+    if (q + o2 < end) q[o2] |= m2; else return;
+    if (q + o3 < end) q[o3] |= m3; else return;
+    if (q + o4 < end) q[o4] |= m4; else return;
+    if (q + o5 < end) q[o5] |= m5; else return;
+    if (q + o6 < end) q[o6] |= m6; else return;
+    if (q + o7 < end) q[o7] |= m7;
 }
 
 static void clear_sparse(uniform Sieve * uniform s, uniform int p) {
@@ -150,7 +185,8 @@ static void clear_sparse(uniform Sieve * uniform s, uniform int p) {
     }
 }
 
-#define D(P) case P: clear_dense(s->bits, s->nwords, P); break;
+#define D(P) case P: if (P < VEC_LIMIT) clear_dense_vec(s->bits, s->nwords, P); \
+                     else clear_dense(s->bits, s->nwords, P); break;
 
 // Clear all odd multiples of factor p.
 static void clear_factor(uniform Sieve * uniform s, uniform int p) {
