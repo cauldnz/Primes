@@ -9,7 +9,7 @@ your own work and how to report. Read it first. Set up by the local Claude Code 
 
 | Limit | Value |
 |---|---|
-| Time box | 4 hours from the first experiment, then stop and report |
+| Time box | 8 hours from the session start (16:07 AEST on 9 October, so until 00:07 AEST), then stop and report. Extended from 4 hours by Chris at 16:20 AEST; the NZ$30 budget is unchanged |
 | Azure budget | NZ$30 for the session, counted from `results/cost-log.csv` |
 | Azure scope | service principal `primes-hc-cloud`: Contributor on `rg-chris-batch-llm` only; secret expires 2026-10-10 03:34 AEST |
 | Compute | Batch Spot only (`MODE=batch`), account `batchllmwestus2gves`, 128 Spot vCPUs; at most 4 pools at once; `MAX_MINUTES` 60 or less per pool |

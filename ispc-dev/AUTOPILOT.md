@@ -160,7 +160,7 @@ Chris if it hasn't updated for 45 minutes, so a silent gap reads as a crash.
 
 ## 9. Stopping
 
-Stop at the 4-hour time box, or earlier if:
+Stop at the 8-hour time box (extended from 4 hours by Chris; the NZ$30 budget is unchanged), or earlier if:
 - three experiments in a row have failed on every open backlog line;
 - you would need a "never without Chris" action;
 - the backlog is empty.
