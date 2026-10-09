@@ -10,7 +10,7 @@
 set -e
 ISPC="${ISPC:-ispc}"
 case "$(uname -m)" in
-    x86_64|amd64)  TARGETS="${ISPC_TARGETS:-sse4-i32x8,avx2-i32x16,avx512skx-x16}" ;;
+    x86_64|amd64)  TARGETS="${ISPC_TARGETS:-avx2-i32x16}" ;;
     aarch64|arm64) TARGETS="${ISPC_TARGETS:-neon-i32x8}" ;;
     *) echo "unsupported architecture $(uname -m)" >&2; exit 1 ;;
 esac
