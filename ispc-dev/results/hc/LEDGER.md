@@ -32,8 +32,8 @@ sparse loop was bound by instruction count, not stores. Zen 4 gained 3.6% at 1T 
 On AVX-512 masked stores are cheap, so the padding and overrun only add work there. Next: keep
 the change for AVX2 targets only, which can't move Zen 5. That can't pass the "both machines"
 rule by construction, so it needs Chris's call if it wins on Zen 3.
-| 007 | 2026-10-09 | wheel | hc-005 for SSE and AVX2 targets only (Zen 3 run against `4d35020`; the Zen 4 run was stopped because it started after hc-004 merged, then rerun as 007-r on the rebased branch); AVX-512 code byte-identical to the champion | Zen 3 and AVX2-only Zen 4 +3% to +5%; Zen 5 exactly 0 | Zen 3 (7763, vs `4d35020`): 84.4k / 729.9k, +3.7% / +4.4%, 4/5 at 1T, 5/5 at 16T, A/A within 2.8% | n/a (identical code) | AVX2 Zen 4 rerun pending; then Chris decides (cannot move Zen 5 by design) | `hc/007-wheel-unmasked-avx2` |
-| 008 | 2026-10-09 | wheel | Copy the 7·11 tile by doubling with memcpy; the foreach copy compiled to scalar moves | +1% to +3% 1T on Zen; local Xeon inconclusive (2 of 4) | pending | pending | pending | `hc/008-wheel-tile-memcpy` |
+| 007 | 2026-10-09 | wheel | hc-005 for SSE and AVX2 targets only (Zen 3 run against `4d35020`; the Zen 4 run was stopped because it started after hc-004 merged, then rerun as 007-r on the rebased branch); AVX-512 code byte-identical to the champion | Zen 3 and AVX2-only Zen 4 +3% to +5%; Zen 5 exactly 0 | Zen 3 (7763, vs `4d35020`): 84.4k / 729.9k, +3.7% / +4.4%, 4/5 at 1T, 5/5 at 16T, A/A within 2.8% | AVX2-only Zen 4 (9V74, rebased, vs `0175d18`): 82.3k / 696.4k, +5.3% / +3.8%, 5/5; Zen 5 code byte-identical | Chris to decide: recommend KEEP (gains on every AVX2 machine, no change with AVX-512) | `hc/007-wheel-unmasked-avx2` |
+| 008 | 2026-10-09 | wheel | Copy the 7·11 tile by doubling with memcpy; the foreach copy compiled to scalar moves | +1% to +3% 1T on Zen; local Xeon inconclusive (2 of 4) | Zen 3 run stopped after two rounds once Zen 5 came back flat | Zen 5: 149.9k / 1.29M, +0.1% / −0.1%, 3/5 | REVERT (no gain) | `hc/008-wheel-tile-memcpy` |
 
 **004, lone prime.** Predicted +1% to +3%, measured +4% to +9%. The research agent's phase
 count (13 costs 70% of a full group) was right; my prediction discounted it.
@@ -45,3 +45,13 @@ now on each candidate is merged with the current champion first and `BASE` is pi
 commit hash.
 | 009 | 2026-10-09 | base | Next-prime scan a word at a time with count-trailing-zeros | +1% to +3% 1T (scan is 2–4% of a pass) | pending | pending | pending | `hc/009-base-scan-ctz` |
 | 006b | 2026-10-09 | wheel | hc-006 rerun on Zen 3 against champion `0175d18` | as 006 | Zen 3 (7763): 87.1k / 754.0k, +1.9% / +3.5%, 4/5 at 1T, 5/5 at 16T, control within 1.1% | Zen 5 from 006: +4.0% / +3.4%, 5/5 | KEEP, merged | `hc/champion` |
+
+**006, 64-bit addressing.** One build flag: +2% to +4% on Zen 3 and Zen 5. Useless for the base
+entry, whose sparse loop already walks a pointer.
+
+**007, unmasked stores on AVX2 only.** +3.7% / +4.4% on Zen 3 and +5.3% / +3.8% on AVX2-only
+Zen 4; the AVX-512 code is byte-identical, so Zen 5 can't move. The acceptance rule asks for
+2% on Zen 5 as well, so this waits for Chris rather than merging. It matters for runner 74,
+which is AVX2-only.
+
+**008, tile memcpy.** No gain on Zen 5. The copy is too small a share of the pass to matter.

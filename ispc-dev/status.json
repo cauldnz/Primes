@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T08:05:13Z",
+  "updated_utc": "2026-10-09T08:13:34Z",
   "run": {
     "id": "ap-20261009T0607Z",
     "state": "running",
@@ -8,13 +8,13 @@
     "mode_reason": "Service principal login and az batch pool list worked at 06:07 UTC.",
     "started_utc": "2026-10-09T06:07:00Z",
     "time_box_hours": 8,
-    "spend_nzd": 1.1,
+    "spend_nzd": 1.55,
     "spend_cap_nzd": 30
   },
   "current": {
-    "id": "hc-006b",
+    "id": "hc-009",
     "phase": "evaluate",
-    "detail": "hc-006b Zen 3, hc-007 Zen 3 and AVX2 Zen 4, hc-008 Zen 5"
+    "detail": "hc-009 (base scan) on Zen 3 and Zen 5; hc-010 profile on Zen 5"
   },
   "scoreboard": [
     {
@@ -147,19 +147,21 @@
       "id": "hc-007",
       "entry": "wheel",
       "hypothesis": "Unmasked group loop and tail overrun, AVX2/SSE only",
-      "verdict": "running",
-      "where": "Zen 3 +3.7%/+4.4%; AVX2 Zen 4 rerun running; Zen 5 identical code",
-      "note": "Cannot pass the both-machines rule by design. Will go to Chris with a recommendation.",
-      "delta_1t": 3.7,
-      "delta_mt": 4.4
+      "verdict": "queued",
+      "where": "Zen 3 +3.7%/+4.4%, AVX2 Zen 4 +5.3%/+3.8%, Zen 5 identical code",
+      "note": "Waiting for Chris: the rule needs 2% on Zen 5, which this change cannot move. Recommend keep.",
+      "delta_1t": 5.3,
+      "delta_mt": 3.8
     },
     {
       "id": "hc-008",
       "entry": "wheel",
       "hypothesis": "Tile copy by doubling memcpy (was scalar 8-byte moves)",
-      "verdict": "running",
-      "where": "Zen 5 now, Zen 3 next",
-      "note": "Local Xeon inconclusive."
+      "verdict": "rejected",
+      "where": "Zen 5 flat; Zen 3 stopped",
+      "note": "Tile copy too small to matter.",
+      "delta_1t": 0.1,
+      "delta_mt": -0.1
     },
     {
       "id": "hc-006b",
@@ -175,9 +177,16 @@
       "id": "hc-009",
       "entry": "base",
       "hypothesis": "Next-prime scan a word at a time (count trailing zeros)",
-      "verdict": "queued",
-      "where": "waiting for a pool",
+      "verdict": "running",
+      "where": "Zen 3 now, Zen 5 next",
       "note": "Local Xeon too noisy to rank."
+    },
+    {
+      "id": "hc-010",
+      "entry": "both",
+      "hypothesis": "Re-profile both champions on Zen 5 (TSC phase builds and perf)",
+      "verdict": "running",
+      "where": "Zen 5"
     }
   ],
   "azure_queue": 3,
@@ -286,6 +295,16 @@
       "utc": "2026-10-09T08:05:13Z",
       "level": "info",
       "text": "hc-006 KEPT and merged: wheel --addressing=64, Zen 3 +3.5% 16T, Zen 5 +4.0% 1T."
+    },
+    {
+      "utc": "2026-10-09T08:13:34Z",
+      "level": "info",
+      "text": "hc-007 to Chris: AVX2-only unmasked stores +4% to +5% on Zen 3 and Zen 4, Zen 5 code identical."
+    },
+    {
+      "utc": "2026-10-09T08:13:34Z",
+      "level": "info",
+      "text": "hc-008 rejected (tile memcpy flat on Zen 5). hc-010 re-profile launched."
     }
   ],
   "research": {
