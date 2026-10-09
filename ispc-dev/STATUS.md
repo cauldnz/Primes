@@ -140,6 +140,13 @@ Earlier entries:
 
 ## Autopilot hourly review
 
+**Run ap-20261009T1115Z, 22:40 AEST (hour 1.5).**
+- Worked: persistent pools (tasks take 9–20 minutes instead of 25), davepl as a rival, r-01 (Rust AVX-512, +2.4% 1T on Zen 5), and the Zig first pass, whose wheel beats our ISPC wheel by 13% to 18% at 1T.
+- Didn't: r-02 (new Rust toolchain, −2.2%), r-03 (alignment), hc-023 (dense pointer walk), hc-025 (NEON vector dense). hc-024 (no masks) is +1.2% on Zen 5 only; a ten-round rerun is queued.
+- Found: davepl's C++ is not the top base entry. At 1T we lead it by 51% (Zen 3), 35% to 39% (Zen 5) and 28% (Cobalt); at all threads by 40% (Zen 3) and 42% (Zen 5). Rust already tops the official base table on all five runners except Threadripper 1T.
+- Protocol: the first pool-scaling design (queue metric) never scaled up, and the node meter logged nothing for 40 minutes; both fixed, costs backfilled.
+- Spend: about NZ$2 this run. Next: hc-026, hc-027, r-04/r-05, Zig base candidates, then the final scoreboard and README numbers.
+
 **20:00 AEST (hour 4).**
 - Worked: hc-015 (wheel sparse loop without the spill, +5% to +7% on both machines at 1T and 16T) and hc-016 (no lead-ins, +2.6% to +5%) merged. The target-specific pair (hc-019) gives Zen 5 +6.4% at 1T on top.
 - Didn't: dense 160 (hc-017), base sparse ×2 (hc-018), a faster pattern build (local only, worse). Base now matches Rust phase for phase on Zen 5; the easy base levers are spent.

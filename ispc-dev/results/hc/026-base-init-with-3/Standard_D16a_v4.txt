@@ -32,3 +32,8 @@ mike-barber_bit-extreme-hybrid;411879;5.0003805161;16;algorithm=base,faithful=ye
 davepl_array_optimized;36286;5.0002;1;algorithm=base,faithful=yes,bits=1
 davepl_array_optimized;307239;5.00134;16;algorithm=base,faithful=yes,bits=1
 == round 1 ctrl
+mike-barber_bit-extreme-hybrid;52926;5.0000371933;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;210720;5.0001149178;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;420880;5.0002412796;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;411213;5.0003962517;16;algorithm=base,faithful=yes,bits=1
+== round 1 cand

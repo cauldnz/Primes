@@ -14,3 +14,13 @@ cauldnz-ispc-base;1007815;5.000226;16;algorithm=base,faithful=yes,bits=1
 cauldnz-ispc-base;914923;5.000095;8;algorithm=base,faithful=yes,bits=1
 cauldnz-ispc-base;483807;5.000033;4;algorithm=base,faithful=yes,bits=1
 == round warmup champ
+cauldnz-ispc-base;128318;5.000006;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;1005007;5.000194;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;910499;5.000108;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;479888;5.000045;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ2
+cauldnz-ispc-base;128542;5.000020;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;1004760;5.000222;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;911097;5.000103;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;480563;5.000050;4;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl
