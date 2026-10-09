@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T07:01:22Z",
+  "updated_utc": "2026-10-09T07:08:00Z",
   "run": {
     "id": "ap-20261009T0607Z",
     "state": "running",
@@ -128,6 +128,14 @@
       "verdict": "running",
       "where": "Zen 3 (D16a_v4), Zen 5",
       "note": "Local Xeon +2% to +19% over 4 rounds; 148 masked moves in apply_group down to 0."
+    },
+    {
+      "id": "hc-006",
+      "entry": "wheel",
+      "hypothesis": "Build with --addressing=64 (no sign extension per strided OR)",
+      "verdict": "queued",
+      "where": "waiting for a pool",
+      "note": "Local Xeon +4% to +8%. Neutral on the base entry."
     }
   ],
   "azure_queue": 0,

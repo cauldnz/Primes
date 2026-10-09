@@ -5,3 +5,51 @@ BIOS Model name:                         AMD EPYC 7763 64-Core Processor        
 AVX-512: no
 entry=1 rounds=5
 build cand
+build champ
+build ctrl
+control=rogiervandam_extend
+self-test cand: 8 ok, 0 bad, exit=0
+self-test champ: 8 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-ispc;89992;5.000009;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;733509;5.000314;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;683284;5.000150;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;348271;5.000130;4;algorithm=wheel,faithful=yes,bits=1
+== round warmup champ
+cauldnz-ispc;83713;5.000020;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;700397;5.000293;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;642613;5.000138;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;333618;5.000128;4;algorithm=wheel,faithful=yes,bits=1
+== round warmup champ2
+cauldnz-ispc;84572;5.000019;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;701294;5.000294;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;639816;5.000174;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;326826;5.000110;4;algorithm=wheel,faithful=yes,bits=1
+== round warmup ctrl
+rogiervandam_extend_epar;535379;5.000082;16;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;518519;5.000041;8;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;265443;5.000036;4;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;133150;5.000032;2;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend;67818;5.000069;1;algorithm=other,faithful=yes,bits=1
+== round 1 cand
+cauldnz-ispc;85285;5.000031;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;730608;5.000341;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;656448;5.000161;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;338667;5.000097;4;algorithm=wheel,faithful=yes,bits=1
+== round 1 champ
+cauldnz-ispc;77072;5.000017;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;702735;5.000276;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;647360;5.000169;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;318154;5.000096;4;algorithm=wheel,faithful=yes,bits=1
+== round 1 ctrl
+rogiervandam_extend_epar;533399;5.000048;16;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;514687;5.000043;8;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;260859;5.000015;4;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;130449;5.000030;2;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend;65403;5.000006;1;algorithm=other,faithful=yes,bits=1
+== round 1 champ2
+cauldnz-ispc;80607;5.000016;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;701006;5.000274;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;642954;5.000167;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;334651;5.000091;4;algorithm=wheel,faithful=yes,bits=1
+== round 2 ctrl
