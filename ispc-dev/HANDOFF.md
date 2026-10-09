@@ -3,6 +3,8 @@
 Working notes for continuing the ISPC drag-race entry, started in a Claude.ai session on
 2026-10-09. Read this first.
 
+> **Latest status (2026-10-09):** see `ispc-dev/STATUS-2026-10-09.md` — Azure results, new capabilities, next tasks.
+
 ## Goal
 
 Submit a PrimeISPC solution to PlummersSoftwareLLC/Primes that wins the faithful, 1-bit
