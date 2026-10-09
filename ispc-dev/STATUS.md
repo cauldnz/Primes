@@ -21,7 +21,15 @@ Autopilot lock: ap-20261009T0607Z 2026-10-09T06:07Z
 - Spend: NZ$0.54 so far.
 - Next: confirm hc-002 on fresh nodes (gain above 20%), then the wheel (hc-005 running, hc-004 queued). That's the best use of the time: wheel is objective 2 and base has closed most of its gap.
 
-## Where the cycles go (hc-001, 16:15–16:28 AEST)
+## Where the cycles go
+
+**Update, hc-010 (18:13–18:24 AEST, Zen 5, current champions).** The base entry now matches
+Rust phase for phase: dense 38k, sparse 61k and scan 4k cycles a pass in both TSC builds
+(120.1k against 119.3k passes). Without timers it runs 123k–125k passes at 1T against Rust's
+125k. The wheel's largest phase is now the sparse loop at 52% of perf samples, then the fused
+groups at 35% and the tile plus 13 at 12%.
+
+### hc-001 (16:15–16:28 AEST)
 
 Measured on Batch Spot nodes at 1T. Raw output in `results/hc/001-profile/`.
 
