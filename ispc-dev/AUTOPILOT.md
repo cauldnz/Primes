@@ -78,7 +78,7 @@ round, record it as inconclusive and move on.
 Use the protocol in `HILL-CLIMB.md`: the champion and a control in every round, interleaved,
 round 1 discarded.
 
-- **Azure mode:** `SUITE=ab` on Batch Spot, champion `BASE=origin/hc/champion`, Zen 3 and Zen 5
+- **Azure mode:** `SUITE=ab` on Batch Spot, champion `BASE=<the champion commit hash>` (pin it: a merge during a run must not change the champion under it), Zen 3 (`D16a_v4`) and Zen 5
   at minimum, five counted rounds (see "Running one experiment" in `CLOUD-RUNBOOK.md`). Decide
   with `analyze.py`: KEEP merges the candidate into `hc/champion`, RERUN repeats it with 10
   rounds, REVERT leaves it on its own branch. Its A/A check (champion against itself) is your

@@ -51,6 +51,19 @@ Keep a change only if all of these hold:
 
 When a result falls between 0 and 2%, rerun it with ten rounds before deciding.
 
+**Target-specific changes** (agreed with Chris, 2026-10-09). A change that alters the code for
+some instruction sets only (for example `#if defined(ISPC_TARGET_AVX512SKX)`) is kept if it
+gains at least 2% on the machines whose code changes, and the generated assembly for every
+other target is byte-identical to the champion's. Show the identity with an `--emit-asm` diff.
+
+**arm64 gate.** Any change to shared code or to a NEON target gets a Cobalt 100
+(`D4ps_v6`) A/B run before it merges. On 2026-10-09 hc-002 merged without one and made the base
+entry 39% slower on arm64, because ISPC's NEON target scalarised the vector dense code (fixed
+by hc-020).
+
+**SSE4.** For changes that touch SSE4 code paths, check the SSE4 build against the champion
+locally (`ISPC_TARGETS=sse4-...`) before merging; the Celeron runner has nothing newer.
+
 ## Rules gate
 
 Check this before timing, and again before merging:

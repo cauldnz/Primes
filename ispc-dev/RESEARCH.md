@@ -330,6 +330,8 @@ Don't build solution_3 now.
 
 Revisit after the PR merges, and only if the wheel's lead over C5 holds on the official runners.
 
+**Decision (Chris, 2026-10-09):** agreed; no solution_3 for now.
+
 ## 7. Proposed additions to the HILL-CLIMB backlog
 
 ### Base (solution_2)

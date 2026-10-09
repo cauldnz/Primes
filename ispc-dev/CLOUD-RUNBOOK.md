@@ -76,7 +76,7 @@ git fetch origin hc/champion
 git checkout -b hc/007-gang-g12 origin/hc/champion   # candidate branch
 # ...edit PrimeISPC/solution_1 or _2, commit...
 BASE=origin/hc/champion                              # champion = accepted winners so far
-for SIZE in Standard_D16as_v5 Standard_D16as_v7; do   # Zen 3 and Zen 5 are mandatory
+for SIZE in Standard_D16a_v4 Standard_D16as_v7; do    # Zen 3 and Zen 5 are mandatory
   MODE=batch SUITE=ab ENTRY=1 ROUNDS=5 MAX_MINUTES=45 BASE=$BASE \
   OUT=$PWD/ispc-dev/results/hc/007-gang-g12 \
   bash ispc-dev/azure-epyc-bench.sh $SIZE > /tmp/hc007-$SIZE.log 2>&1 &
@@ -96,6 +96,18 @@ as it is, for the record.
 - Each run takes about 20 minutes on a 16-vCPU node: boot, builds, a warm-up round, then five
   rounds.
 
+## Which size gives which CPU (observed 2026-10-09)
+
+| Size | CPU | SIMD |
+|---|---|---|
+| `Standard_D16a_v4` | EPYC 7763 (Zen 3) | AVX2 |
+| `Standard_D16as_v5` | EPYC 9V74 (Zen 4) in all four runs, AVX-512 hidden; earlier it gave a 7763 | AVX2 |
+| `Standard_D16as_v6` | EPYC 9V74 (Zen 4) | AVX-512 |
+| `Standard_D16as_v7` | EPYC 9V45 (Zen 5) | AVX-512 |
+| `Standard_D4ps_v6` | Cobalt 100 (Neoverse N2) | NEON |
+
+Check the `Model name` line of every log; `analyze.py` prints it as the machine name.
+
 ## Budget accounting
 
 `results/cost-log.csv` gets one line per pool: date, mode, size, minutes. Spot prices in
@@ -103,6 +115,7 @@ westus2, in US dollars per hour:
 
 | Size | USD/h |
 |---|---|
+| Standard_D16a_v4 | 0.13 (estimate) |
 | Standard_D16as_v5 | 0.127 |
 | Standard_D16as_v6 | 0.134 |
 | Standard_D16as_v7 | 0.134 |
