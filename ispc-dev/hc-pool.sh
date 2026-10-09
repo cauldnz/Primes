@@ -16,6 +16,8 @@
 #        copying its stdout to <outdir>/<size>.txt as it grows.
 #   hc-pool.sh down <size>                              delete the pool and its job
 #   hc-pool.sh status                                   list pools, nodes and tasks
+#   hc-pool.sh collect                                  fetch output of tasks whose watcher died
+#        (after a container pause); safe to run any time, prints one line per pending task
 #   FLOOR=1 hc-pool.sh floor <size>                      keep at least FLOOR nodes until the deadline
 #        (saves an 8-minute start task per batch; FLOOR=0 releases them)
 #
@@ -32,6 +34,7 @@ set -euo pipefail
 BATCH_ACCOUNT="${BATCH_ACCOUNT:-batchllmwestus2gves}"
 BATCH_RG="${BATCH_RG:-rg-chris-batch-llm}"
 REPO="$(git rev-parse --show-toplevel)"
+PENDING="${PENDING:-/tmp/hc-pending}"   # one file per submitted task, until its output is collected
 HERE="$REPO/ispc-dev"
 COSTLOG="$HERE/results/cost-log.csv"
 azs() { az "$@" --subscription "$SUB"; }
@@ -201,6 +204,7 @@ json.dump({"id": tid,
           open(f"{d}/task.json", "w"))
 PY
   az batch task create --job-id "$P" --json-file "$D/task.json" -o none
+  mkdir -p "$PENDING"; echo "$P $ID $SIZE $KIND $OUT" > "$PENDING/$ID"   # for collect, if this watcher dies
   kick "$P"
   echo "### $SIZE $KIND task $ID on $P $(date -u +%T)"
   local SHOWN=0 LAST= T0; T0=$(date +%s)
@@ -224,8 +228,36 @@ PY
       | python3 -c "import sys,datetime as d;a=sys.stdin.read().split();f=lambda s:d.datetime.fromisoformat(s.replace('Z','+00:00'));print(int((f(a[1])-f(a[0])).total_seconds()//60)+1 if len(a)==2 else 1)")
   echo "$(date -u +%Y-%m-%dT%H:%M:%SZ),$SIZE,$KIND,$ID,$MINS" >> "$HERE/results/hc/tasks.log"   # node cost comes from hc-meter.sh
   st blob delete -c primes-bench -n "$ID.tgz" -o none 2>/dev/null || true
-  kick "$P"; rm -rf "$D"
+  kick "$P"; rm -rf "$D" "$PENDING/$ID"
   echo "### done $SIZE $KIND $(date -u +%T)"
+}
+
+# collect: finish the bookkeeping for tasks whose watcher (cmd_run) died, e.g. when the session's
+# container paused between turns. Downloads each pending task's output (partial while it runs),
+# and for completed tasks logs the minutes, deletes the staged blob and drops the pending entry.
+# Prints one line per task: "<id> <size> <kind> <state> <rounds seen> <outdir>".
+cmd_collect() {
+  [ -d "$PENDING" ] || return 0
+  for f in "$PENDING"/*; do
+    [ -e "$f" ] || continue
+    local P ID SIZE KIND OUT STATE N MINS
+    read -r P ID SIZE KIND OUT < "$f"
+    STATE=$(az batch task show --job-id "$P" --task-id "$ID" --query state -o tsv 2>/dev/null || echo gone)
+    if [ "$STATE" = running ] || [ "$STATE" = completed ]; then
+      mkdir -p "$OUT"
+      az batch task file download --job-id "$P" --task-id "$ID" --file-path stdout.txt \
+         --destination "$OUT/$SIZE.txt.part" -o none 2>/dev/null && mv -f "$OUT/$SIZE.txt.part" "$OUT/$SIZE.txt"
+    fi
+    N=$(grep -c "^== round [0-9]" "$OUT/$SIZE.txt" 2>/dev/null || echo 0)
+    echo "$ID $SIZE $KIND $STATE $N $OUT"
+    if [ "$STATE" = completed ] || [ "$STATE" = gone ]; then
+      MINS=$(az batch task show --job-id "$P" --task-id "$ID" --query "[executionInfo.startTime, executionInfo.endTime]" -o tsv 2>/dev/null \
+        | python3 -c "import sys,datetime as d;a=sys.stdin.read().split();f=lambda s:d.datetime.fromisoformat(s.replace('Z','+00:00'));print(int((f(a[1])-f(a[0])).total_seconds()//60)+1 if len(a)==2 else 1)")
+      [ "$STATE" = completed ] && echo "$(date -u +%Y-%m-%dT%H:%M:%SZ),$SIZE,$KIND,$ID,$MINS" >> "$HERE/results/hc/tasks.log"
+      st blob delete -c primes-bench -n "$ID.tgz" -o none 2>/dev/null || true
+      rm -f "$f"
+    fi
+  done
 }
 
 cmd_down() {
@@ -245,5 +277,5 @@ cmd_status() {
 case "${1:-}" in
   floor) shift; kick "$(pool_id "$1")" ;;
   up) shift; cmd_up "$@" ;; run) shift; cmd_run "$@" ;; down) shift; cmd_down "$@" ;;
-  status) cmd_status ;; *) sed -n '2,30p' "$0"; exit 2 ;;
+  status) cmd_status ;; collect) cmd_collect ;; *) sed -n '2,30p' "$0"; exit 2 ;;
 esac

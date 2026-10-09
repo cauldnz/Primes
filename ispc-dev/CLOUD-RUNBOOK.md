@@ -47,10 +47,12 @@ In claude.ai/code, create an environment for `cauldnz/Primes` (branch `ispc-dev`
    deletion is blocked. The app can also open PRs, so the kickoff prompt forbids that explicitly.
 
 **Idle pause.** A cloud VM pauses after about 5 minutes of inactivity, which kills any
-background process. The session must therefore stay busy while an experiment runs: block in the
-foreground on `wait` in chunks of 10 minutes or less, and never end its turn with runs in
-flight. If the VM pauses anyway, each Batch pool still scales to 0 at its `MAX_MINUTES` cap, so
-the cost stops; only that experiment's results are lost.
+background process, including the `hc-pool.sh run` watchers. The Batch tasks themselves keep
+running in Azure. A run therefore ends its turn while experiments run and wakes itself with a
+scheduled `send_later` message; `hc-pool.sh collect` then fetches whatever the dead watchers
+missed (see "Short turns" in `AUTOPILOT.md`). This is also what lets Chris's chat messages in:
+they only reach the session between turns. Each pool still drains to 0 at its deadline, so a
+session that never wakes costs time, not money.
 
 ## In-session login
 
@@ -185,6 +187,8 @@ Read, in order:
   ispc-dev/WRITING.md         (house style for everything you write)
 
 Then follow AUTOPILOT.md from section 2. Where it and the runbook disagree, the runbook's limits
-win. Stay busy until a stop condition is met: never end your turn with runs in flight.
+win. Work in short turns: while Batch tasks run, schedule a wake-up with send_later and end
+the turn, so Chris's messages get through ("Short turns" in AUTOPILOT.md). Keep going until a
+stop condition is met.
 Other sessions may push to ispc-dev too, so always pull --rebase before pushing.
 ```
