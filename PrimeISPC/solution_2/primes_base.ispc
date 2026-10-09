@@ -168,9 +168,28 @@ static inline void clear_sparse_e(uniform uint8 * uniform bytes, uniform int nby
     if (q + o7 < end) q[o7] |= m7;
 }
 
+// Factors below 384 get their own copy of the sparse routine, so the eight byte
+// offsets are immediates. Every odd factor has a case, prime or not.
+#define S(P) case P: clear_sparse_e(b, nbytes, P, P & 15); return;
+
 static void clear_sparse(uniform Sieve * uniform s, uniform int p) {
     uniform uint8 * uniform b = (uniform uint8 * uniform)s->bits;
     uniform int nbytes = s->nwords * 8;
+    switch (p) {
+        S(129) S(131) S(133) S(135) S(137) S(139) S(141) S(143) S(145) S(147)
+        S(149) S(151) S(153) S(155) S(157) S(159) S(161) S(163) S(165) S(167)
+        S(169) S(171) S(173) S(175) S(177) S(179) S(181) S(183) S(185) S(187)
+        S(189) S(191) S(193) S(195) S(197) S(199) S(201) S(203) S(205) S(207)
+        S(209) S(211) S(213) S(215) S(217) S(219) S(221) S(223) S(225) S(227)
+        S(229) S(231) S(233) S(235) S(237) S(239) S(241) S(243) S(245) S(247)
+        S(249) S(251) S(253) S(255) S(257) S(259) S(261) S(263) S(265) S(267)
+        S(269) S(271) S(273) S(275) S(277) S(279) S(281) S(283) S(285) S(287)
+        S(289) S(291) S(293) S(295) S(297) S(299) S(301) S(303) S(305) S(307)
+        S(309) S(311) S(313) S(315) S(317) S(319) S(321) S(323) S(325) S(327)
+        S(329) S(331) S(333) S(335) S(337) S(339) S(341) S(343) S(345) S(347)
+        S(349) S(351) S(353) S(355) S(357) S(359) S(361) S(363) S(365) S(367)
+        S(369) S(371) S(373) S(375) S(377) S(379) S(381) S(383)
+    }
     switch (p & 15) {
         case 1:  clear_sparse_e(b, nbytes, p, 1);  break;
         case 3:  clear_sparse_e(b, nbytes, p, 3);  break;
