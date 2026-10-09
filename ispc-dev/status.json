@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T22:00:24Z",
+  "updated_utc": "2026-10-09T22:12:24Z",
   "run": {
     "id": "ap-20261009T2033Z",
     "state": "running",
@@ -14,7 +14,7 @@
   "current": {
     "id": "final3",
     "phase": "evaluate",
-    "detail": "final scoreboard: champion 4c7dc69 vs start, Zen 3/4/5 + Cobalt 100"
+    "detail": "final scoreboard running; z05 10-round rerun; hc-044 queued"
   },
   "scoreboard": [
     {
@@ -628,6 +628,14 @@
       "note": "Unroll spills; the champion loop stays.",
       "delta_1t": -4.2,
       "delta_mt": -18.9
+    },
+    {
+      "id": "hc-044",
+      "entry": "wheel",
+      "hypothesis": "Branch-free single tail mark per plane in sparse_prime",
+      "verdict": "running",
+      "where": "Zen 3, Zen 5, Cobalt 100",
+      "note": "Phase: sparse (40-44%). 8 near-random 0/1-trip loops per prime x 114 primes. Predict +2-6%."
     }
   ],
   "azure_queue": 0,

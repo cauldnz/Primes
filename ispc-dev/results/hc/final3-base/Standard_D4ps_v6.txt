@@ -1,0 +1,38 @@
+Architecture:                            aarch64
+CPU(s):                                  4
+Model name:                              Neoverse-N2
+BIOS Model name:                         Cobalt 100 None CPU @ 3.4GHz
+AVX-512: no
+kind=base rounds=6 id=2154067501
+build cand
+build champ
+self-test cand: 13 ok, 0 bad, exit=0
+self-test champ: 13 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-ispc-base;41044;5.000030;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;163979;5.000141;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;82069;5.000162;2;algorithm=base,faithful=yes,bits=1
+== round warmup champ
+cauldnz-ispc-base;41037;5.000085;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;163659;5.000144;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;81935;5.000145;2;algorithm=base,faithful=yes,bits=1
+== round warmup champ2
+cauldnz-ispc-base;41024;5.000041;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;163704;5.000148;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;81935;5.000129;2;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl
+mike-barber_bit-extreme-hybrid;42909;5.0001063347;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;85775;5.0002355576;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;171359;5.0001549721;4;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl2
+davepl_array_optimized;32202;5.0002;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;128582;5.00049;4;algorithm=base,faithful=yes,bits=1
+== round 1 champ2
+cauldnz-ispc-base;40990;5.000011;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;163553;5.000116;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;81927;5.000210;2;algorithm=base,faithful=yes,bits=1
+== round 1 ctrl
+mike-barber_bit-extreme-hybrid;42928;5.0000872612;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;85768;5.0001888275;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;171350;5.0001401901;4;algorithm=base,faithful=yes,bits=1
+== round 1 champ
