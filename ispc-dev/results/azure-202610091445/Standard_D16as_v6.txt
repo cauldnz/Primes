@@ -1,0 +1,43 @@
+Architecture:                            x86_64
+CPU(s):                                  16
+Model name:                              AMD EPYC 9V74 80-Core Processor
+BIOS Model name:                         AMD EPYC 9V74 80-Core Processor                 None CPU @ 2.6GHz
+AVX-512: yes
+build w-default [default]
+build w-avx2x8 [avx2-i32x8]
+build w-avx2x16 [avx2-i32x16]
+build w-avx512x8 [avx512skx-x8]
+build w-avx512x16 [avx512skx-x16]
+build b-default [default]
+build b-avx512 [sse4-i32x4,avx2-i32x8,avx512skx-x16]
+build c5
+build rust
+build chapel
+self-test w-default: 8 ok, 0 bad, exit=0
+self-test w-avx2x8: 8 ok, 0 bad, exit=0
+self-test w-avx2x16: 8 ok, 0 bad, exit=0
+self-test w-avx512x8: 8 ok, 0 bad, exit=0
+self-test w-avx512x16: 8 ok, 0 bad, exit=0
+self-test b-default: 13 ok, 0 bad, exit=0
+self-test b-avx512: 13 ok, 0 bad, exit=0
+== round 1 w-default
+cauldnz-ispc;98432;5.000044;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;833071;5.000272;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;790397;5.000153;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;396151;5.000099;4;algorithm=wheel,faithful=yes,bits=1
+== round 1 w-avx2x8
+cauldnz-ispc;87263;5.000018;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;720878;5.000260;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;696318;5.000154;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;350033;5.000114;4;algorithm=wheel,faithful=yes,bits=1
+== round 1 w-avx2x16
+cauldnz-ispc;98406;5.000009;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;834151;5.000268;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;778744;5.000169;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;391629;5.000102;4;algorithm=wheel,faithful=yes,bits=1
+== round 1 w-avx512x8
+cauldnz-ispc;92297;5.000053;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;749101;5.000274;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;738154;5.000158;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;369059;5.000119;4;algorithm=wheel,faithful=yes,bits=1
+== round 1 w-avx512x16

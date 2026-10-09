@@ -1,0 +1,32 @@
+Architecture:                            x86_64
+CPU(s):                                  16
+Model name:                              AMD EPYC 7763 64-Core Processor
+BIOS Model name:                         AMD EPYC 7763 64-Core Processor                 None CPU @ 2.4GHz
+AVX-512: no
+build w-default [default]
+build w-avx2x8 [avx2-i32x8]
+build w-avx2x16 [avx2-i32x16]
+build b-default [default]
+build c5
+build rust
+build chapel
+self-test w-default: 8 ok, 0 bad, exit=0
+self-test w-avx2x8: 8 ok, 0 bad, exit=0
+self-test w-avx2x16: 8 ok, 0 bad, exit=0
+self-test b-default: 13 ok, 0 bad, exit=0
+== round 1 w-default
+cauldnz-ispc;81636;5.000007;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;700574;5.000300;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;646939;5.000197;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;322304;5.000138;4;algorithm=wheel,faithful=yes,bits=1
+== round 1 w-avx2x8
+cauldnz-ispc;73093;5.000024;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;611725;5.000324;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;576315;5.000153;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;293814;5.000094;4;algorithm=wheel,faithful=yes,bits=1
+== round 1 w-avx2x16
+cauldnz-ispc;81301;5.000001;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;704006;5.000440;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;639060;5.000171;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;319243;5.000124;4;algorithm=wheel,faithful=yes,bits=1
+== round 1 C5

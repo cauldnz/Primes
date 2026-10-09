@@ -1,0 +1,33 @@
+Architecture:                            x86_64
+CPU(s):                                  16
+Model name:                              AMD EPYC 9V45 96-Core Processor
+BIOS Model name:                         AMD EPYC 9V45 96-Core Processor                 None CPU @ 2.6GHz
+AVX-512: yes
+build w-default [default]
+build w-avx2x8 [avx2-i32x8]
+build w-avx2x16 [avx2-i32x16]
+build w-avx512x8 [avx512skx-x8]
+build w-avx512x16 [avx512skx-x16]
+build b-default [default]
+build b-avx512 [sse4-i32x4,avx2-i32x8,avx512skx-x16]
+build c5
+build rust
+build chapel
+self-test w-default: 8 ok, 0 bad, exit=0
+self-test w-avx2x8: 8 ok, 0 bad, exit=0
+self-test w-avx2x16: 8 ok, 0 bad, exit=0
+self-test w-avx512x8: 8 ok, 0 bad, exit=0
+self-test w-avx512x16: 8 ok, 0 bad, exit=0
+self-test b-default: 13 ok, 0 bad, exit=0
+self-test b-avx512: 13 ok, 0 bad, exit=0
+== round 1 w-default
+cauldnz-ispc;125729;5.000017;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1097647;5.000234;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;967397;5.000134;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;507723;5.000081;4;algorithm=wheel,faithful=yes,bits=1
+== round 1 w-avx2x8
+cauldnz-ispc;109186;5.000044;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;901674;5.000241;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;838139;5.000112;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;436277;5.000073;4;algorithm=wheel,faithful=yes,bits=1
+== round 1 w-avx2x16
