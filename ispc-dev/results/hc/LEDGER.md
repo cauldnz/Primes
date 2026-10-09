@@ -82,9 +82,10 @@ where two threads share a core's load ports. hc-015 frees one register and remov
 
 **015, the spill fixed.** Freeing one register turned hc-012's −2.1% at 16T on Zen 5 into
 +6.8%, and lifted 1T too (+6.9%). The 16T loss had been the reloads, as suspected.
-| 017 | 2026-10-09 | wheel | Dense threshold 160 instead of 256, now that sparse is cheaper | ±2%; local Xeon medians favour 160 by 6% (noisy) | pending | pending | pending | `hc/017-wheel-dense160` |
+| 017 | 2026-10-09 | wheel | Dense threshold 160 instead of 256, now that sparse is cheaper | ±2%; local Xeon medians favour 160 by 6% (noisy) | Zen 3 (7763): −1.2% / −1.8%, 0/3 at 16T, stopped after 3 rounds | Zen 5: −0.7% / −0.0%, stopped | REVERT; 256 stays | `hc/017-wheel-dense160` |
 | 018 | 2026-10-09 | base | Sparse loop clears two chunks a trip | 0% to +3% on Zen 5; nothing on the sandbox earlier | pending | pending | pending | `hc/018-base-sparse-x2` |
 
 **016, no lead-ins.** +5% on Zen 3 and +2.6% on Zen 5, at every thread count. The fused loop now
 starts all members together, which also removed most of the masked stores that hc-007 targets
 on AVX2; hc-007's remaining value needs a fresh measurement on top of this.
+| 019 | 2026-10-09 | wheel | hc-007 and hc-014 together on top of the current champion (`64e94aa`), for Chris | Zen 3 +2% to +4% (hc-007, less now that hc-016 removed lead-ins); Zen 5 +3% to +5% (hc-014) | pending | pending | measurement for Chris | `hc/champion-plus-target-specific-2` |

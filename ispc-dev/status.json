@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T09:26:09Z",
+  "updated_utc": "2026-10-09T09:30:07Z",
   "run": {
     "id": "ap-20261009T0607Z",
     "state": "running",
@@ -12,9 +12,9 @@
     "spend_cap_nzd": 30
   },
   "current": {
-    "id": "hc-016",
+    "id": "hc-019",
     "phase": "evaluate",
-    "detail": "hc-016 (no lead-ins) and hc-017 (dense 160) on Zen 3 and Zen 5"
+    "detail": "hc-018 (base sparse x2) and hc-019 (target-specific pair) on Zen 3 and Zen 5"
   },
   "scoreboard": [
     {
@@ -255,8 +255,11 @@
       "id": "hc-017",
       "entry": "wheel",
       "hypothesis": "Dense threshold 160 instead of 256 after the faster sparse loop",
-      "verdict": "running",
-      "where": "Zen 3, Zen 5"
+      "verdict": "rejected",
+      "where": "Zen 3 -1.2%/-1.8%, Zen 5 -0.7%/0",
+      "delta_1t": -1.2,
+      "delta_mt": -1.8,
+      "note": "256 stays. Stopped after 3 rounds."
     },
     {
       "id": "hc-018",
@@ -264,6 +267,13 @@
       "hypothesis": "Sparse loop unrolled by two chunks",
       "verdict": "running",
       "where": "Zen 5"
+    },
+    {
+      "id": "hc-019",
+      "entry": "wheel",
+      "hypothesis": "hc-007 + hc-014 on top of the current champion (measurement for Chris)",
+      "verdict": "running",
+      "where": "Zen 3, Zen 5; Zen 4 AVX-512 next"
     }
   ],
   "azure_queue": 3,
@@ -422,6 +432,11 @@
       "utc": "2026-10-09T09:26:09Z",
       "level": "info",
       "text": "hc-016 KEPT and merged: wheel without lead-ins, +5% Zen 3, +2.6% Zen 5."
+    },
+    {
+      "utc": "2026-10-09T09:30:07Z",
+      "level": "info",
+      "text": "hc-017 rejected (dense 160 slower). hc-019 measures the target-specific pair on the current champion."
     }
   ],
   "research": {
