@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T20:33:20Z",
+  "updated_utc": "2026-10-09T21:07:56Z",
   "run": {
     "id": "ap-20261009T2033Z",
     "state": "running",
@@ -12,9 +12,9 @@
     "spend_cap_nzd": 30
   },
   "current": {
-    "id": "harness",
-    "phase": "implement",
-    "detail": "danielspaangberg rival added; pools starting"
+    "id": "hc-042",
+    "phase": "evaluate",
+    "detail": "queued on Zen 3, Zen 5, Cobalt 100"
   },
   "scoreboard": [
     {
@@ -580,6 +580,32 @@
       "note": "256 stays.",
       "delta_1t": -6.9,
       "delta_mt": -6.6
+    },
+    {
+      "id": "diag-phases",
+      "entry": "wheel",
+      "hypothesis": "Phase profile: ISPC wheel against the Zig wheel (TSC timers, diagnostic builds)",
+      "verdict": "done",
+      "where": "Zen 3, Zen 5, Cobalt 100",
+      "note": "Zig leads 15-19% (Zen 3), 10-13% (Zen 5), 10-12% (arm), spread over dense AND sparse alike; allocation ruled out locally."
+    },
+    {
+      "id": "hc-041",
+      "entry": "wheel",
+      "hypothesis": "Probe: avx2 build tuned with --cpu=znver3 vs untuned (single target)",
+      "verdict": "probe",
+      "where": "Zen 3",
+      "delta_1t": 3.7,
+      "delta_mt": -3.1,
+      "note": "Mixed; scheduling model is not the Zig gap. Multi-target builds cannot take --cpu."
+    },
+    {
+      "id": "hc-042",
+      "entry": "wheel",
+      "hypothesis": "Two gangs per step on top of hc-035 (fixed rows free the registers hc-033 lacked)",
+      "verdict": "running",
+      "where": "Zen 3, Zen 5, Cobalt 100",
+      "note": "avx2 loop 230 -> 155 instr per 32 words. Phase: dense, 48-50% of the pass. Predict +3-6% Zen 3, 0-3% Zen 5, arm -2..+1%."
     }
   ],
   "azure_queue": 0,

@@ -1,0 +1,66 @@
+Architecture:                            aarch64
+CPU(s):                                  4
+Model name:                              Neoverse-N2
+BIOS Model name:                         Cobalt 100 None CPU @ 3.4GHz
+AVX-512: no
+kind=wheel rounds=1 id=20381225191
+build cand
+build champ
+self-test cand: 8 ok, 0 bad, exit=0
+self-test champ: 8 ok, 0 bad, exit=0
+== round warmup cand
+profile;ispc-wheel;create;90
+profile;ispc-wheel;run;54021
+profile;ispc-wheel;tile;1588
+profile;ispc-wheel;thirteen;2017
+profile;ispc-wheel;dense;28151
+profile;ispc-wheel;sparse;20473
+profile;ispc-wheel;scan;1763
+profile;ispc-wheel;count;267136
+profile;ispc-wheel;destroy;43
+cauldnz-ispc;92318;5.000015;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;354249;5.000117;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;183380;5.000136;2;algorithm=wheel,faithful=yes,bits=1
+== round warmup champ
+cauldnz-ispc;94259;5.000027;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;376401;5.000105;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;188397;5.000050;2;algorithm=wheel,faithful=yes,bits=1
+== round warmup champ2
+cauldnz-ispc;94145;5.000048;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;371259;5.000099;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;188273;5.000138;2;algorithm=wheel,faithful=yes,bits=1
+== round warmup ctrl
+mike-barber_bit-extreme-hybrid;42908;5.0000228882;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;85748;5.0001487732;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;171337;5.0001850128;4;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl2
+danielspaangberg_5760of30030_owrb;42796;5.000037;1;algorithm=wheel,faithful=yes,bits=1
+danielspaangberg_5760of30030_epar;170273;5.000515;4;algorithm=wheel,faithful=yes,bits=1
+== round 1 ctrl2
+danielspaangberg_5760of30030_owrb;42498;5.000056;1;algorithm=wheel,faithful=yes,bits=1
+danielspaangberg_5760of30030_epar;170170;5.000507;4;algorithm=wheel,faithful=yes,bits=1
+== round 1 cand
+profile;ispc-wheel;create;91
+profile;ispc-wheel;run;54004
+profile;ispc-wheel;tile;1586
+profile;ispc-wheel;thirteen;2019
+profile;ispc-wheel;dense;28125
+profile;ispc-wheel;sparse;20482
+profile;ispc-wheel;scan;1764
+profile;ispc-wheel;count;266608
+profile;ispc-wheel;destroy;44
+cauldnz-ispc;92384;5.000020;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;352113;5.000105;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;182710;5.000081;2;algorithm=wheel,faithful=yes,bits=1
+== round 1 champ2
+cauldnz-ispc;94215;5.000010;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;376258;5.000125;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;188347;5.000132;2;algorithm=wheel,faithful=yes,bits=1
+== round 1 champ
+cauldnz-ispc;94179;5.000024;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;376363;5.000116;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;188408;5.000118;2;algorithm=wheel,faithful=yes,bits=1
+== round 1 ctrl
+mike-barber_bit-extreme-hybrid;42859;5.0000019073;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;85750;5.0002098083;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;171352;5.0001616478;4;algorithm=base,faithful=yes,bits=1
