@@ -97,3 +97,11 @@ hc-013 this closes the obvious base levers: it now matches Rust phase for phase 
 +1.1% / +2.3% and Zen 5 +6.4% / +1.6%, with +7% to +8% at 4 and 8 threads on Zen 5. That
 passes the acceptance rule, but the brief says to combine winners only after each passes on its
 own, so the branch waits for Chris.
+| 020 | 2026-10-09 | base | Keep the scalar dense routine on NEON (regression fix) | Cobalt 100 back to at least the start of the run; x86 code identical | n/a (identical x86 code) | n/a (identical x86 code) | running on Cobalt 100 | `hc/020-base-neon-scalar-dense` |
+
+**Protocol miss: arm64.** HILL-CLIMB asks for an arm64 run on any change to shared code. I
+didn't run one for hc-002 or hc-003, and the final scoreboard caught the cost: on Cobalt 100
+the base champion ran 25.1k at 1T against 41.0k at the start of the run (−38.9%). ISPC's NEON
+target turns the vector dense code into per-lane scalar loads. hc-020 restores the scalar
+routine on NEON only; the x86 assembly is unchanged. From now on every base or shared-code
+change gets a Cobalt 100 run before it merges.

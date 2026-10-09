@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T10:31:10Z",
+  "updated_utc": "2026-10-09T10:40:58Z",
   "run": {
     "id": "ap-20261009T0607Z",
     "state": "running",
@@ -12,9 +12,9 @@
     "spend_cap_nzd": 30
   },
   "current": {
-    "id": "final",
+    "id": "hc-020",
     "phase": "evaluate",
-    "detail": "Final scoreboard: base on Zen 4 round 3 of 5; Cobalt 100 rounds 1-2"
+    "detail": "Regression fix on Cobalt 100: against the champion and against the start"
   },
   "scoreboard": [
     {
@@ -280,6 +280,14 @@
       "delta_1t": 6.4,
       "delta_mt": 1.6,
       "note": "Passes the rule as one change; waits for Chris because its parts were not accepted separately. Recommend merge."
+    },
+    {
+      "id": "hc-020",
+      "entry": "base",
+      "hypothesis": "Regression fix: scalar dense routine on NEON",
+      "verdict": "running",
+      "where": "Cobalt 100, against the champion and against the start",
+      "note": "Final run found base -38.9% on Cobalt 100 vs the start: NEON scalarises the vector dense code. My miss: no arm64 run for hc-002/003."
     }
   ],
   "azure_queue": 3,
@@ -473,6 +481,11 @@
       "utc": "2026-10-09T10:25:08Z",
       "level": "info",
       "text": "Final: wheel champion +13.0% 1T on Zen 4 (AVX-512); lead over C5 at 1T now 15.5% (was 2%)."
+    },
+    {
+      "utc": "2026-10-09T10:40:58Z",
+      "level": "warn",
+      "text": "Final run found a regression: base -38.9% on Cobalt 100 (arm64). Cause: NEON scalarises the vector dense code. Fix hc-020 running."
     }
   ],
   "research": {
