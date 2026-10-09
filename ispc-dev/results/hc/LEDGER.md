@@ -261,3 +261,5 @@ a pass): `start_bit` runs eight times per prime, for 162 primes a pass, and each
 and `/ 30` costs a sign correction on top of the multiply. The profiles pointed at the phase;
 reading the Zig source line by line found the cause. Lesson for the harness: when a port is
 faster, diff the ports' arithmetic types before their loop shapes.
+| final4 | 2026-10-10 | both | Final scoreboard: `hc/champion` against the start (`ispc-dev` code), wheel at `059b8f3`, base at `4c7dc69` (final3) | n/a | wheel 110.1k / 938.9k, +35.7% / +33.8%; base 56.0k / 431.8k, +25.3% / +26.0% | wheel 207.6k / 1.57M, +38.0% / +26.6%; base 128.1k / 1.02M, +48.0% / +47.7% | measurement; Zen 4: wheel +21.5%, base +30.0%; Cobalt 100: wheel +55.6%, base +0.2% | `results/hc/final4-wheel`, `final3-base` |
+| zig-vs | 2026-10-10 | wheel | The Zig wheel against the new champion (`059b8f3`), same node, 4 rounds | n/a | Zig 119.0k against 110.6k (+7.6%) | Zig 218.7k against 209.0k (+4.6%) | measurement: the gap halved (was 15–19% and 10–13%) | `results/hc/zig-vs-champion-059b8f3` |

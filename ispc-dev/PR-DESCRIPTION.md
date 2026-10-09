@@ -1,8 +1,9 @@
 <!--
 PR text for PlummersSoftwareLLC/Primes, target branch drag-race.
 Title: [ISPC] Add ISPC solutions: wheel (solution_1) and base (solution_2)
-Results table filled on 2026-10-09 from results/hc/final2-wheel and final2-base (hc/champion
-5170556). The ispc branch must carry hc/champion before posting. Check every number
+Results table filled on 2026-10-10 from results/hc/final4-wheel (hc/champion 059b8f3) and
+final3-base (4c7dc69; base code unchanged since). hc/ispc-landing (77a197b) carries this code
+onto ispc; land it before posting. Check every number
 against ispc-dev/results/, and apply the house-style and economist-style skills to any edit.
 Everything below the comment is the PR body.
 -->
@@ -25,18 +26,18 @@ A sieve's small primes produce dense bit patterns that repeat; its large primes 
 
 In the wheel entry, ISPC vectorises the pattern streaming directly. The loop reads like scalar code, and the `uniform` and `varying` keywords show which values are shared across lanes. ISPC also exposes gang width, a setting C has no equivalent for: compiling for 16 program instances on 8-lane AVX2 (`avx2-i32x16`) was 12% to 16% faster than the natural width on Zen 3, Zen 4 and Zen 5.
 
-The base entry has to clear one composite per operation, which seems to leave the lanes nothing to do. For small factors it doesn't: each composite's single-bit OR can be written in the lane that holds its word, and the compiler merges a vector's ORs into one constant mask, the same code LLVM's SLP vectoriser produces for mike-barber's Rust entry. That put the base entry 6% ahead of the Rust entry on Zen 3 and Zen 4 at one thread, 3% behind it on Zen 5, and 14% ahead there on all threads.
+The base entry has to clear one composite per operation, which seems to leave the lanes nothing to do. For small factors it doesn't: each composite's single-bit OR can be written in the lane that holds its word, and the compiler merges a vector's ORs into one constant mask, the same code LLVM's SLP vectoriser produces for mike-barber's Rust entry. That puts the base entry 7% ahead of the Rust entry on Zen 3 at one thread, 8% ahead on Zen 4 and 2% ahead on Zen 5, and 16% ahead on Zen 5 on all threads. On Cobalt 100 (arm64) it trails by 4%.
 
 ## Results
 
-Passes in five seconds, median of five interleaved rounds, 16 vCPUs (eight cores with SMT):
+Passes in five seconds, median of six interleaved rounds, 16 vCPUs (eight cores with SMT):
 
 | Machine | solution_1 1T / all | solution_2 1T / all | rogiervandam C 1T / all | mike-barber Rust 1T / all |
 |---|---|---|---|---|
-| AMD EPYC 7763 (Zen 3, AVX2) | 103,500 / 850,400 | 58,100 / 428,000 | 66,800 / 534,400 | 55,100 / 411,900 |
-| AMD EPYC 9V74 (Zen 4, AVX-512) | 115,100 / 952,900 | 81,400 / 649,800 | 97,000 / 769,900 | 76,600 / 607,800 |
-| AMD EPYC 9V45 (Zen 5, AVX-512) | 191,000 / 1,470,000 | 122,700 / 996,000 | 139,200 / 1,160,000 | 126,400 / 876,000 |
-| Azure Cobalt 100 (Neoverse N2, 4 vCPUs) | 94,400 / 377,100 | 41,100 / 164,000 | n/a | 42,900 / 171,300 |
+| AMD EPYC 7763 (Zen 3, AVX2) | 110,100 / 938,900 | 56,000 / 431,800 | 65,200 / 534,100 | 52,500 / 411,500 |
+| AMD EPYC 9V74 (Zen 4, AVX-512) | 120,900 / 1,013,000 | 82,900 / 656,000 | 97,000 / 769,900 | 76,500 / 608,300 |
+| AMD EPYC 9V45 (Zen 5, AVX-512) | 207,600 / 1,565,000 | 128,100 / 1,018,700 | 139,100 / 1,182,100 | 125,600 / 880,000 |
+| Azure Cobalt 100 (Neoverse N2, 4 vCPUs) | 98,500 / 393,200 | 41,100 / 163,800 | n/a | 42,900 / 171,300 |
 
 ## How these were built
 
