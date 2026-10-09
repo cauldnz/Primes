@@ -56,3 +56,13 @@ cauldnz-ispc-base;987958;5.000214;16;algorithm=base,faithful=yes,bits=1
 cauldnz-ispc-base;882855;5.000106;8;algorithm=base,faithful=yes,bits=1
 cauldnz-ispc-base;465849;5.000054;4;algorithm=base,faithful=yes,bits=1
 == round 2 ctrl
+mike-barber_bit-extreme-hybrid;126046;5.0000228882;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;470883;5.0000624657;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;888945;5.0001320839;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;875482;5.0002703667;16;algorithm=base,faithful=yes,bits=1
+== round 2 champ2
+cauldnz-ispc-base;124575;5.000007;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;986608;5.000210;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;881710;5.000087;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;464346;5.000053;4;algorithm=base,faithful=yes,bits=1
+== round 2 cand

@@ -7,6 +7,13 @@ Autopilot lock: ap-20261009T0607Z 2026-10-09T06:07Z
 
 ## Autopilot hourly review
 
+**19:00 AEST (hour 3).**
+- Worked: hc-006 (wheel 64-bit addressing) merged after a clean Zen 3 rerun. hc-010 showed the base entry now level with Rust on Zen 5, phase for phase.
+- Didn't: hc-008 (tile memcpy) flat, hc-009 (base word scan) slightly negative, hc-011 (G=6) and hc-012 (64-bit sparse indices) each lost on one machine and thread count. Both point to target-specific or register-pressure fixes (hc-014, hc-015), which are running.
+- Protocol: followed. Two changes (hc-007, hc-014) only touch one instruction set, so they can't meet the "2% on Zen 3 and Zen 5" rule; they go to Chris rather than being forced through.
+- Spend: NZ$2.13.
+- Next: hc-013 to hc-015, then a final scoreboard run from about 21:30 AEST, leaving time for the report.
+
 **18:05 AEST (hour 2).**
 - Worked: hc-002 confirmed on fresh nodes (+22% to +24% at 1T on Zen 3 and Zen 5) and merged; hc-004 (wheel, lone prime 13) gained 4.9% to 8.7% and merged.
 - Didn't: hc-005 (wheel unmasked stores) lost 1.7% on Zen 5; hc-006 hit a noisy Zen 3 node (control swung 36k–59k) and is being rerun.
