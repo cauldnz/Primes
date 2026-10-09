@@ -74,7 +74,14 @@ static void sieve_create(uniform Sieve * uniform s, uniform int64 size) {
     s->nwords = (s->nbits + 63) >> 6;
     uniform int64 bytes = (((uniform int64)s->nwords * 8 + 63) / 64) * 64;
     s->bits = (uniform uint64 * uniform)aligned_alloc(64, bytes);
+#if defined(ISPC_TARGET_NEON)
     foreach (k = 0 ... s->nwords) s->bits[k] = 0;
+#else
+    // Only word 0 is cleared here, so the scan can read the bit for 3. The first factor the
+    // scan finds is always 3, and its dense pass writes every word instead of reading it
+    // (clear_dense_vec with INIT), so the rest of the sieve is initialised there.
+    s->bits[0] = 0;
+#endif
 }
 
 static void sieve_destroy(uniform Sieve * uniform s) {
@@ -118,13 +125,14 @@ static inline void clear_dense(uniform uint64 * uniform w, uniform int nwords, c
 // With P and programIndex both compile-time constants, LLVM folds a vector's single-bit ORs into
 // one constant, as it does for the scalar routine above. Words left over after the last whole
 // block go to the scalar routine.
-static inline void clear_dense_vec(uniform uint64 * uniform w, uniform int nwords, const uniform int P) {
+static inline void clear_dense_vec(uniform uint64 * uniform w, uniform int nwords, const uniform int P,
+                                   const uniform bool INIT) {
     uniform int c = ((P * P / 2) / 64 / P) * P;
     for (; c + programCount * P <= nwords; c += programCount * P) {
         #pragma unroll
         for (uniform int kb = 0; kb < programCount * P; kb += programCount) {
             const int k = kb + programIndex;                        // word of the block
-            uint64 x = w[c + k];
+            uint64 x = INIT ? 0 : w[c + k];                          // INIT: first factor, no load
             const uniform int n0 = (64 * kb - P / 2) / P;          // first composite near these words
             #pragma unroll
             for (uniform int i = 0; i < 64 * programCount / P + 2; i++) {
@@ -134,6 +142,7 @@ static inline void clear_dense_vec(uniform uint64 * uniform w, uniform int nword
             w[c + k] = x;
         }
     }
+    if (INIT) for (uniform int k = c; k < nwords; k++) w[k] = 0;   // words after the last block
     clear_dense_from(w, nwords, P, c);
 }
 
@@ -188,20 +197,24 @@ static void clear_sparse(uniform Sieve * uniform s, uniform int p) {
 #if defined(ISPC_TARGET_NEON)
 #define D(P) case P: clear_dense(s->bits, s->nwords, P); break;
 #else
-#define D(P) case P: if (P < VEC_LIMIT) clear_dense_vec(s->bits, s->nwords, P); \
+#define D(P) case P: if (P < VEC_LIMIT) clear_dense_vec(s->bits, s->nwords, P, P == 3); \
                      else clear_dense(s->bits, s->nwords, P); break;
 #endif
 
 // Clear all odd multiples of factor p.
 static void clear_factor(uniform Sieve * uniform s, uniform int p) {
-    if (p >= DENSE_LIMIT) { clear_sparse(s, p); return; }
-    switch (p) {
-        D(3)   D(5)   D(7)   D(9)   D(11)  D(13)  D(15)  D(17)  D(19)  D(21)  D(23)  D(25)
-        D(27)  D(29)  D(31)  D(33)  D(35)  D(37)  D(39)  D(41)  D(43)  D(45)  D(47)  D(49)
-        D(51)  D(53)  D(55)  D(57)  D(59)  D(61)  D(63)  D(65)  D(67)  D(69)  D(71)  D(73)
-        D(75)  D(77)  D(79)  D(81)  D(83)  D(85)  D(87)  D(89)  D(91)  D(93)  D(95)  D(97)
-        D(99)  D(101) D(103) D(105) D(107) D(109) D(111) D(113) D(115) D(117) D(119) D(121)
-        D(123) D(125) D(127)
+    // clear_factor isn't inlined, so ISPC would compile it for an unknown execution mask and
+    // mask every vector load and store in the dense code. Callers run with all lanes on.
+    unmasked {
+        if (p >= DENSE_LIMIT) { clear_sparse(s, p); return; }
+        switch (p) {
+            D(3)   D(5)   D(7)   D(9)   D(11)  D(13)  D(15)  D(17)  D(19)  D(21)  D(23)  D(25)
+            D(27)  D(29)  D(31)  D(33)  D(35)  D(37)  D(39)  D(41)  D(43)  D(45)  D(47)  D(49)
+            D(51)  D(53)  D(55)  D(57)  D(59)  D(61)  D(63)  D(65)  D(67)  D(69)  D(71)  D(73)
+            D(75)  D(77)  D(79)  D(81)  D(83)  D(85)  D(87)  D(89)  D(91)  D(93)  D(95)  D(97)
+            D(99)  D(101) D(103) D(105) D(107) D(109) D(111) D(113) D(115) D(117) D(119) D(121)
+            D(123) D(125) D(127)
+        }
     }
 }
 
