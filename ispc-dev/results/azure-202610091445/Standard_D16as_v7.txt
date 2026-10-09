@@ -46,3 +46,22 @@ cauldnz-ispc;1105394;5.000213;16;algorithm=wheel,faithful=yes,bits=1
 cauldnz-ispc;1058450;5.000107;8;algorithm=wheel,faithful=yes,bits=1
 cauldnz-ispc;579297;5.000052;4;algorithm=wheel,faithful=yes,bits=1
 == round 1 C5
+rogiervandam_extend_epar;1192000;5.000028;16;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;961621;5.000022;8;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;504270;5.000032;4;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;276655;5.000022;2;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend;139330;5.000010;1;algorithm=other,faithful=yes,bits=1
+rogiervandam_base;32980;5.000013;1;algorithm=base,faithful=yes,bits=1
+rogiervandam_classic64bit;18232;5.000223;1;algorithm=base,faithful=yes,bits=1
+rogiervandam_classic8bit;17605;5.000240;1;algorithm=base,faithful=yes,bits=1
+== round 1 b-default
+cauldnz-ispc-base;87311;5.000041;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;689749;5.000211;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;630848;5.000091;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;330597;5.000072;4;algorithm=base,faithful=yes,bits=1
+== round 1 b-avx512
+cauldnz-ispc-base;87239;5.000021;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;686866;5.000214;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;631272;5.000123;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;330677;5.000079;4;algorithm=base,faithful=yes,bits=1
+== round 1 Rust

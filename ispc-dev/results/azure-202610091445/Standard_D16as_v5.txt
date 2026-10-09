@@ -39,3 +39,21 @@ rogiervandam_base;17217;5.000132;1;algorithm=base,faithful=yes,bits=1
 rogiervandam_classic64bit;7058;5.000505;1;algorithm=base,faithful=yes,bits=1
 rogiervandam_classic8bit;9333;5.000081;1;algorithm=base,faithful=yes,bits=1
 == round 1 b-default
+cauldnz-ispc-base;44631;5.000077;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;341472;5.000401;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;356075;5.000179;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;178499;5.000133;4;algorithm=base,faithful=yes,bits=1
+== round 1 Rust
+mike-barber_bit-rotate;10163;5.0000095367;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-unrolled-hybrid;52152;5.0000314713;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;52440;5.0000772476;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-rotate;40702;5.0005125999;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-unrolled-hybrid;209057;5.0001001358;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;210275;5.0001044273;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-rotate;81181;5.0004014969;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-unrolled-hybrid;418059;5.0002341270;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;420185;5.0002236366;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-rotate;87280;5.0006866455;16;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-unrolled-hybrid;407889;5.0003981590;16;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;410349;5.0004172325;16;algorithm=base,faithful=yes,bits=1
+== round 1 Chapel

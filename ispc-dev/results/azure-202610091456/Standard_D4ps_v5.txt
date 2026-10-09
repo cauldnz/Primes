@@ -1,0 +1,6 @@
+Architecture:                            aarch64
+CPU(s):                                  4
+Model name:                              Neoverse-N1
+BIOS Model name:                         Ampere(R) Altra(R) Processor None CPU @ 3.0GHz
+AVX-512: no
+build w-default [default]
