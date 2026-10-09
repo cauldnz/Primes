@@ -31,6 +31,10 @@ the Economist: short words, active voice, specific numbers, no salesmanship.
   transformative, pivotal, crucial, key (as an adjective), journey, landscape, comprehensive,
   powerful, innovative.
 
+## The repo is public
+
+Everything here is public, history included. See AUTOPILOT.md section 7a for what never goes in.
+
 ## Check before committing prose
 
 Read it aloud. If it sounds like a brochure or a press release, rewrite it.

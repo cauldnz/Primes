@@ -1,9 +1,20 @@
 # Next steps for Claude Code (from the Claude.ai session)
 
-**Last updated:** 2026-10-10 08:30 AEST.
+**Last updated:** 2026-10-10 08:45 AEST.
 `git log -p ispc-dev/NEXT-STEPS.md`.
 
 ## Changes since last update
+
+**08:45: the repo is public, so treat it that way.** A scan of every branch found no secrets or
+IDs, but did find Chris's email on 112 commits, his account details (subscription type, offer,
+credit balance) in notes, and Azure resource names in 21 places. New rules in AUTOPILOT.md 7a.
+For the next session (not mid-run, because the live run copies these scripts):
+1. Commit as `cauldnz <cauldnz@users.noreply.github.com>`.
+2. Move the Batch account, resource group and principal names out of `hc-pool.sh`,
+   `azure-epyc-bench.sh`, `hc-meter.sh`, `CLOUD-RUNBOOK.md` and the other tools into environment
+   variables set in the cloud environment, and use "the Batch account" in prose.
+3. Prune the `hc/*` branches that have nothing left to keep, once Chris agrees.
+
 
 **08:30: the file inbox is gone.** Chris spotted the risk: `INBOX.md` was linked from the
 public status page, and anything able to push to `ispc-dev` (any session, the Copilot agent, a

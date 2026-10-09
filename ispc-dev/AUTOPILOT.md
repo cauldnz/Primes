@@ -154,6 +154,21 @@ Chris if it hasn't updated for 45 minutes, so a silent gap reads as a crash.
 - Everything you write follows `WRITING.md`: the ledger, STATUS, commit messages and any README
   text.
 
+## 7a. The repo is public
+
+`cauldnz/Primes` and the status page are public, and git history is permanent: anything
+committed stays readable even after it's deleted. Never commit or publish:
+- secrets, keys, tokens, connection strings or `.env` contents;
+- subscription, tenant, client or object IDs;
+- Azure resource, account, pool or principal names: use `$BATCH_ACCOUNT`, `$BATCH_RG` and similar
+  environment variables in scripts, and "the Batch account" in prose;
+- account details: subscription types, offers, credit balances, billing;
+- personal details: email addresses, machine names, local paths, anything about Chris beyond
+  his GitHub handle.
+
+Commits use the identity `cauldnz <cauldnz@users.noreply.github.com>`. Spend in NZ$ for a run is
+fine. Before every push, check the diff for any of the above.
+
 ## 8. Never without Chris
 
 - Pushing to the `ispc` branch, merging solution code into `ispc-dev`, or opening or editing a
