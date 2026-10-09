@@ -207,12 +207,12 @@ static void dense_primes(uniform Sieve * uniform s, const uniform int * uniform 
 static void sparse_prime(uniform Sieve * uniform s, uniform int p) {
     uniform int nbits = s->mbits, pw = s->pw;
     uniform uint64 * uniform base = s->bits;
-    uniform int i[8];
+    uniform int64 i[8];                            // 64-bit, so no sign extension per OR
     uniform int hi = 0;
     for (uniform int pl = 0; pl < 8; pl++) {
         uniform int sb = start_bit(p, RES[pl], p);
         hi = max(hi, sb);
-        i[pl] = sb + pl * pw * 64;                 // bit index within the whole buffer
+        i[pl] = sb + (uniform int64)pl * pw * 64;  // bit index within the whole buffer
     }
     // rounds in which all 8 streams are still inside their plane
     uniform int rounds = (hi < nbits) ? (nbits - 1 - hi) / p + 1 : 0;
@@ -223,8 +223,8 @@ static void sparse_prime(uniform Sieve * uniform s, uniform int p) {
         }
     }
     for (uniform int pl = 0; pl < 8; pl++) {
-        uniform int end = pl * pw * 64 + nbits;
-        for (uniform int x = i[pl]; x < end; x += p) base[x >> 6] |= ((uniform uint64)1) << (x & 63);
+        uniform int64 end = (uniform int64)pl * pw * 64 + nbits;
+        for (uniform int64 x = i[pl]; x < end; x += p) base[x >> 6] |= ((uniform uint64)1) << (x & 63);
     }
 }
 
