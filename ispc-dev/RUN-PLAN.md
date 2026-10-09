@@ -1,5 +1,25 @@
 # Run plan: 4-hour unsupervised run (agreed with Chris, 2026-10-10)
 
+## Next run (written at the end of ap-20261009T2033Z)
+
+Run ap-20261009T2033Z worked through the plan below; its results are in the morning report
+in `STATUS.md`. For the next run, in order:
+
+1. **Rust port of the ISPC wheel** (Chris, 2026-10-10 08:20; see `NEXT-STEPS.md`): the same
+   mod-30 planes, fused fixed-row patterns (as in hc-035) and interleaved sparse loop, on
+   `hc/rust-wheel` branches, never touching mike-barber's solution. Same self-test and
+   5,396-size count sweep. Measure it in the same rounds as the ISPC and Zig wheels. A `zig`
+   task with `CTRL_REF` shows how to put two builds on one node; add a `rustwheel` kind.
+2. **The Zig wheel's lead, continued.** Same-node profiles put it in sparse marking on Zen 5
+   (24.0k against 29.9k cycles) and in both big phases on Zen 3. Loop shape (hc-042, hc-043),
+   tails (hc-044) and start-bit arithmetic (hc-045) are tested. Untested: sparse per-prime
+   set-up beyond `start_bit`, code alignment, and `-mcpu` tuning (hc-041: +3.7% at 1T, −3.1%
+   at 16T on Zen 3, single target only). A diagnostic build that times the sparse set-up and
+   the main loop separately is the next measurement.
+3. Harness backlog items 3 (two-stage screen) and 4 (several candidates per task).
+
+The plan for ap-20261009T2033Z follows, kept for the record.
+
 Read this after `AUTOPILOT.md`. It sets this run's priorities, time box and end-of-run steps.
 Everything else in the brief, the runbook and `HILL-CLIMB.md` still applies, including the
 "Never without Chris" list.
