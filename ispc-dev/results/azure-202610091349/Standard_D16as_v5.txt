@@ -94,3 +94,35 @@ GordonBGood_extreme;86589;5.00034;4;algorithm=base,faithful=yes,bits=1
 GordonBGood_extreme_hybrid;191972;5.00026;4;algorithm=base,faithful=yes,bits=1
 == round 3 new
 cauldnz-ispc;71099;5.000022;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;608100;5.000348;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;557704;5.000171;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;289452;5.000118;4;algorithm=wheel,faithful=yes,bits=1
+== round 3 old
+cauldnz-ispc;64842;5.000037;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;547868;5.000344;16;algorithm=wheel,faithful=yes,bits=1
+== round 3 avx2
+cauldnz-ispc;72840;5.000038;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;611533;5.000324;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;579441;5.000163;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;293011;5.000099;4;algorithm=wheel,faithful=yes,bits=1
+== round 3 C5
+rogiervandam_extend_epar;534123;5.000065;16;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;517348;5.000040;8;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;260151;5.000048;4;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;130201;5.000043;2;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend;64971;5.000049;1;algorithm=other,faithful=yes,bits=1
+rogiervandam_base;17199;5.000183;1;algorithm=base,faithful=yes,bits=1
+rogiervandam_classic64bit;7058;5.000545;1;algorithm=base,faithful=yes,bits=1
+rogiervandam_classic8bit;9325;5.000343;1;algorithm=base,faithful=yes,bits=1
+== round 3 Chapel
+GordonBGood_bittwiddle;9490;5.00032;1;algorithm=base,faithful=yes,bits=1
+GordonBGood_stride8;13536;5.00044;1;algorithm=base,faithful=yes,bits=1
+GordonBGood_stride8_block16K;14330;5.00049;1;algorithm=base,faithful=yes,bits=1
+GordonBGood_extreme;21377;5.00037;1;algorithm=base,faithful=yes,bits=1
+GordonBGood_extreme_hybrid;47311;5.00021;1;algorithm=base,faithful=yes,bits=1
+GordonBGood_bittwiddle;38337;5.00036;4;algorithm=base,faithful=yes,bits=1
+GordonBGood_stride8;54477;5.00047;4;algorithm=base,faithful=yes,bits=1
+GordonBGood_stride8_block16K;57873;5.00046;4;algorithm=base,faithful=yes,bits=1
+GordonBGood_extreme;86539;5.00038;4;algorithm=base,faithful=yes,bits=1
+GordonBGood_extreme_hybrid;191742;5.00025;4;algorithm=base,faithful=yes,bits=1
+== C2
