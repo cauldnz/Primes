@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T15:12:59Z",
+  "updated_utc": "2026-10-09T15:49:35Z",
   "run": {
     "id": "ap-20261009T1349Z",
     "state": "running",
@@ -554,26 +554,32 @@
     {
       "id": "hc-037",
       "entry": "wheel",
-      "hypothesis": "G=8 on AVX-512 on top of hc-035 (fewer live registers now)",
-      "verdict": "running",
-      "where": "Zen 5 vs hc-035",
-      "note": "Probe. Predict 0-4%."
+      "hypothesis": "G=8 on AVX-512 on top of hc-035",
+      "verdict": "rejected",
+      "where": "Zen 5 -4.8%/-2.0% vs hc-035",
+      "note": "G=6 stays on AVX-512.",
+      "delta_1t": -4.8,
+      "delta_mt": -2.0
     },
     {
       "id": "hc-038",
       "entry": "wheel",
       "hypothesis": "Wheel dense limit 192 (was 256)",
-      "verdict": "running",
-      "where": "Zen 3, Zen 5",
-      "note": "Sweep with hc-039. Predict within 2%."
+      "verdict": "rejected",
+      "where": "Zen 3 -1.7%/-3.1%, Zen 5 -0.9%/+1.1%",
+      "note": "256 stays.",
+      "delta_1t": -1.7,
+      "delta_mt": -3.1
     },
     {
       "id": "hc-039",
       "entry": "wheel",
       "hypothesis": "Wheel dense limit 320 (was 256)",
-      "verdict": "running",
-      "where": "Zen 3, Zen 5",
-      "note": "Sweep with hc-038. Predict within 2%."
+      "verdict": "rejected",
+      "where": "Zen 3 -6.9%/-6.6%",
+      "note": "256 stays.",
+      "delta_1t": -6.9,
+      "delta_mt": -6.6
     }
   ],
   "azure_queue": 0,

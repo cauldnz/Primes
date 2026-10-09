@@ -193,3 +193,13 @@ group (`g + j*8704 + 8*r[j]`), so a member costs one register. hc-035 copies tha
 bracketed: 128 is right for the vector dense code on both machines. The base's dense and
 sparse limits are done; the reviews' largest predicted gain (+5–13% from 192–256) was the
 wrong direction.
+| 037 | 2026-10-10 | wheel | G = 8 on AVX-512 on top of hc-035 (probe; measured against hc-035) | 0–4% | n/a (code identical) | 183.6k / 1.48M, −4.8% / −2.0% (0/6) | rejected | `hc/037-wheel-g8-avx512` |
+
+**037, G = 8 on AVX-512.** Fewer live registers didn't make the bigger group pay. hc-011's
+reason may be the extra pattern streams rather than spills: eight 64-byte loads a step
+compete with the sieve's own load and store. G = 6 stays.
+| 038 | 2026-10-10 | wheel | Wheel dense limit 192 (was 256) | within 2% | 97.2k / 825.7k, −1.7% / −3.1% (0/6) | 188.4k / 1.48M, −0.9% / +1.1% | rejected | `hc/038-wheel-dense-192` |
+| 039 | 2026-10-10 | wheel | Wheel dense limit 320 (was 256) | within 2% | 93.4k / 798.4k, −6.9% / −6.6% (0/6) | see note | rejected | `hc/039-wheel-dense-320` |
+
+**038 and 039, wheel dense limit.** 256 is still the optimum with the x16 gangs: 192 loses up
+to 3% on Zen 3 and 320 loses 7%. (039's Zen 5 run finished after Zen 3 had already decided it.)
