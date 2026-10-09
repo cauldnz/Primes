@@ -76,6 +76,19 @@ last. Public, like the rest of the repo.
   does the design owe to the language", and led to the plan to run one design in four
   languages.
 
+### 10 October, 09:15: steering by the person, between ticks
+
+- Chris asked for a secure way to steer a climb while it runs. The answer turned out to be the
+  chat he already had: his messages queued only because a whole run was one long turn.
+- **The climber became a loop of short ticks.** Each tick collects results, decides, submits the
+  next Batch tasks, publishes, schedules its own wake-up and ends its turn. Chris's messages land
+  between ticks as ordinary turns, with his authority and nothing to forge.
+- **The change also fixed the reason for the stay-busy waits.** All long work already ran in Azure
+  Batch, but results came back through local followers that died if the VM paused. Tasks now
+  upload their output when they end, and every tick rebuilds its state from git and Batch.
+- A unit test of the new cost tally caught a generator bug (a literal newline written into
+  embedded Python) before it reached a run.
+
 ## Lessons so far
 
 1. Controls in every round matter more than any optimisation. Without them, machine noise
@@ -87,3 +100,5 @@ last. Public, like the rest of the repo.
 4. Write predictions down first. Most of them miss, and the misses are the information.
 5. Separate the workshop from the climber. The climber is best when it doesn't decide what to
    climb or how the machine works.
+6. To make an agent steerable, make its turns short. A long-running agent can't hear you;
+   one that wakes, works and sleeps can.

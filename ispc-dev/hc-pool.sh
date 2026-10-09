@@ -14,6 +14,14 @@
 #   hc-pool.sh run <size> <kind> <cand-ref> <champ-ref> <outdir> [rounds=5]
 #        kind: wheel | base | rust | zig. Submits one task and follows it until it completes,
 #        copying its stdout to <outdir>/<size>.txt as it grows.
+#   hc-pool.sh submit <size> <kind> <cand-ref> <champ-ref> <outdir> [rounds=5]
+#        Same as run, but returns as soon as the task is queued. The task is recorded in
+#        results/hc/jobs.tsv, and its stdout and stderr upload to blob storage when it ends, so
+#        nothing depends on this machine staying awake. Use with collect (tick-based runs).
+#   hc-pool.sh collect                                  for every open job in jobs.tsv: copy partial
+#        output while it runs, fetch the final output when it ends, then mark it done
+#   hc-pool.sh tally                                    add node-minutes since the last tally to
+#        results/cost-log.csv (replaces hc-meter.sh in tick-based runs)
 #   hc-pool.sh down <size>                              delete the pool and its job
 #   hc-pool.sh status                                   list pools, nodes and tasks
 #   FLOOR=1 hc-pool.sh floor <size>                      keep at least FLOOR nodes until the deadline
@@ -150,7 +158,9 @@ ctx_from() {  # $1 ref, $2 path in repo, $3 destination
   mkdir -p "$3"; git -C "$REPO" archive "$1" "$2" | tar -x -C "$3" --strip-components=$(echo "$2" | tr -cd / | wc -c | awk '{print $1+1}')
 }
 
-cmd_run() {
+JOBS="$HERE/results/hc/jobs.tsv"
+
+cmd_submit() {
   local SIZE=$1 KIND=$2 CAND=$3 CHAMP=$4 OUT=$5 ROUNDS=${6:-5} P; P=$(pool_id "$SIZE")
   local ID; ID="$(date -u +%H%M%S)$RANDOM"; local D; D=$(mktemp -d); local S="$D/stage"; mkdir -p "$S" "$OUT"
   local CTRL_REF="${CTRL_REF:-origin/hc/champion}" SELF=1 X86=1
@@ -188,10 +198,16 @@ cmd_run() {
   st blob upload -c primes-bench -n "$ID.tgz" -f "$D/$ID.tgz" --overwrite -o none
   local URL; URL=$(st blob generate-sas -c primes-bench -n "$ID.tgz" --permissions r \
         --expiry "$(date -u -d '+6 hours' +%Y-%m-%dT%H:%MZ)" --https-only --full-uri -o tsv)
-  python3 - "$ID" "$URL" "$KIND" "$ROUNDS" "${SELF:+1}" "$D" <<'PY'
+  local CURL; CURL=$(st container generate-sas -n primes-bench --permissions cw \
+        --expiry "$(date -u -d '+8 hours' +%Y-%m-%dT%H:%MZ)" --https-only -o tsv)
+  CURL="https://$SA.blob.core.windows.net/primes-bench?$CURL"
+  python3 - "$ID" "$URL" "$KIND" "$ROUNDS" "${SELF:+1}" "$D" "$CURL" <<'PY'
 import json, sys
-tid, url, kind, rounds, selftest, d = sys.argv[1:]
+tid, url, kind, rounds, selftest, d, curl = sys.argv[1:]
 json.dump({"id": tid,
+           "outputFiles": [{"filePattern": "../std*.txt",
+                            "destination": {"container": {"containerUrl": curl, "path": f"out/{tid}"}},
+                            "uploadOptions": {"uploadCondition": "taskCompletion"}}],
            "commandLine": "/bin/bash -c 'tar xzf stage.tgz && bash stage/run.sh'",
            "resourceFiles": [{"httpUrl": url, "filePath": "stage.tgz"}],
            "environmentSettings": [{"name": "KIND", "value": kind}, {"name": "ROUNDS", "value": rounds},
@@ -202,7 +218,18 @@ json.dump({"id": tid,
 PY
   az batch task create --job-id "$P" --json-file "$D/task.json" -o none
   kick "$P"
+  mkdir -p "$(dirname "$JOBS")"
+  [ -f "$JOBS" ] || printf 'id\tpool\tsize\tkind\toutdir\tsubmitted\tstate\n' > "$JOBS"
+  printf '%s\t%s\t%s\t%s\t%s\t%s\topen\n' "$ID" "$P" "$SIZE" "$KIND" "${OUT#$REPO/}" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$JOBS"
   echo "### $SIZE $KIND task $ID on $P $(date -u +%T)"
+  rm -rf "$D"
+  SUBMITTED_ID=$ID
+}
+
+cmd_run() {   # submit, then follow the task until it ends (the original, blocking behaviour)
+  local SIZE=$1 KIND=$2 OUT=$5 SUBMITTED_ID=
+  cmd_submit "$@"
+  local ID=$SUBMITTED_ID P; P=$(pool_id "$SIZE"); local D; D=$(mktemp -d)
   local SHOWN=0 LAST= T0; T0=$(date +%s)
   while :; do
     local STATE; STATE=$(az batch task show --job-id "$P" --task-id "$ID" --query state -o tsv 2>/dev/null || echo unknown)
@@ -224,8 +251,75 @@ PY
       | python3 -c "import sys,datetime as d;a=sys.stdin.read().split();f=lambda s:d.datetime.fromisoformat(s.replace('Z','+00:00'));print(int((f(a[1])-f(a[0])).total_seconds()//60)+1 if len(a)==2 else 1)")
   echo "$(date -u +%Y-%m-%dT%H:%M:%SZ),$SIZE,$KIND,$ID,$MINS" >> "$HERE/results/hc/tasks.log"   # node cost comes from hc-meter.sh
   st blob delete -c primes-bench -n "$ID.tgz" -o none 2>/dev/null || true
+  set_job_state "$ID" done
   kick "$P"; rm -rf "$D"
   echo "### done $SIZE $KIND $(date -u +%T)"
+}
+
+set_job_state() {   # set_job_state <id> <state>
+  [ -f "$JOBS" ] || return 0
+  awk -F'\t' -v OFS='\t' -v id="$1" -v st="$2" '$1 == id { $7 = st } { print }' "$JOBS" > "$JOBS.tmp" && mv "$JOBS.tmp" "$JOBS"
+}
+
+cmd_collect() {   # one pass over the open jobs; safe to run from a fresh machine
+  [ -f "$JOBS" ] || { echo "no jobs"; return 0; }
+  local open=0 finished=0
+  while IFS=$'\t' read -r ID P SIZE KIND OUT SUB STATE; do
+    [ "$ID" = id ] && continue; [ "$STATE" = open ] || continue
+    local O="$REPO/$OUT"; mkdir -p "$O"
+    local TS; TS=$(az batch task show --job-id "$P" --task-id "$ID" --query state -o tsv 2>/dev/null || echo gone)
+    if [ "$TS" = running ]; then
+      az batch task file download --job-id "$P" --task-id "$ID" --file-path stdout.txt \
+         --destination "$O/$SIZE.txt.part" -o none 2>/dev/null && mv -f "$O/$SIZE.txt.part" "$O/$SIZE.txt"
+      echo "running  $ID $SIZE $KIND -> $OUT ($(grep -c '^== round' "$O/$SIZE.txt" 2>/dev/null || echo 0) rounds so far)"; open=$((open + 1))
+    elif [ "$TS" = completed ] || [ "$TS" = gone ]; then
+      if st blob download -c primes-bench -n "out/$ID/stdout.txt" -f "$O/$SIZE.txt" -o none 2>/dev/null; then
+        st blob download -c primes-bench -n "out/$ID/stderr.txt" -f "$O/$SIZE.stderr.txt" -o none 2>/dev/null || true
+        local MINS; MINS=$(az batch task show --job-id "$P" --task-id "$ID" --query "[executionInfo.startTime, executionInfo.endTime]" -o tsv 2>/dev/null \
+          | python3 -c "import sys,datetime as d;a=sys.stdin.read().split();f=lambda s:d.datetime.fromisoformat(s.replace('Z','+00:00'));print(int((f(a[1])-f(a[0])).total_seconds()//60)+1 if len(a)==2 else 1)")
+        echo "$(date -u +%Y-%m-%dT%H:%M:%SZ),$SIZE,$KIND,$ID,$MINS" >> "$HERE/results/hc/tasks.log"
+        st blob delete -c primes-bench -n "$ID.tgz" -o none 2>/dev/null || true
+        set_job_state "$ID" done; echo "finished $ID $SIZE $KIND -> $OUT"; finished=$((finished + 1))
+      elif [ "$TS" = gone ]; then
+        set_job_state "$ID" lost; echo "LOST     $ID $SIZE $KIND: no task and no uploaded output"
+      else
+        echo "ending   $ID $SIZE $KIND (output not uploaded yet)"; open=$((open + 1))
+      fi
+    else
+      echo "$TS $ID $SIZE $KIND"; open=$((open + 1))
+    fi
+  done < "$JOBS"
+  echo "open=$open finished_now=$finished"
+}
+
+cmd_tally() {   # node-minutes since the last tally, averaging the node counts at both ends
+  local STATE="$HERE/results/hc/meter-state.tsv" NOW; NOW=$(date -u +%s)
+  az batch pool list --query "[?starts_with(id,'hc-')].[vmSize, currentLowPriorityNodes]" -o tsv 2>/dev/null > /tmp/hc-pools.now || true
+  python3 - "$STATE" "$NOW" /tmp/hc-pools.now "$COSTLOG" <<'PY'
+import sys, os, datetime
+state, now, cur_f, costlog = sys.argv[1], int(sys.argv[2]), sys.argv[3], sys.argv[4]
+cur = {}
+for line in open(cur_f):
+    p = line.split()
+    if len(p) == 2: cur[p[0]] = cur.get(p[0], 0) + int(p[1])
+last_t, last = None, {}
+if os.path.exists(state):
+    for line in open(state):
+        k, v = line.rstrip("\n").split("\t")
+        if k == "@time": last_t = int(v)
+        else: last[k] = int(v)
+if last_t is not None:
+    mins = max(0, (now - last_t) / 60)
+    stamp = datetime.datetime.utcfromtimestamp(now).strftime("%Y-%m-%dT%H:%M:%SZ")
+    with open(costlog, "a") as f:
+        for size in set(cur) | set(last):
+            nm = round(mins * (cur.get(size, 0) + last.get(size, 0)) / 2)
+            if nm > 0: f.write(f"{stamp},batch-tick,{size},{nm}\n")
+with open(state, "w") as f:
+    f.write(f"@time\t{now}\n")
+    for k, v in cur.items(): f.write(f"{k}\t{v}\n")
+print("pools:", cur or "none")
+PY
 }
 
 cmd_down() {
@@ -244,6 +338,7 @@ cmd_status() {
 
 case "${1:-}" in
   floor) shift; kick "$(pool_id "$1")" ;;
-  up) shift; cmd_up "$@" ;; run) shift; cmd_run "$@" ;; down) shift; cmd_down "$@" ;;
+  up) shift; cmd_up "$@" ;; run) shift; cmd_run "$@" ;; submit) shift; cmd_submit "$@" ;;
+  collect) cmd_collect ;; tally) cmd_tally ;; down) shift; cmd_down "$@" ;;
   status) cmd_status ;; *) sed -n '2,30p' "$0"; exit 2 ;;
 esac

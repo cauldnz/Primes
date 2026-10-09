@@ -47,10 +47,10 @@ In claude.ai/code, create an environment for `cauldnz/Primes` (branch `ispc-dev`
    deletion is blocked. The app can also open PRs, so the kickoff prompt forbids that explicitly.
 
 **Idle pause.** A cloud VM pauses after about 5 minutes of inactivity, which kills any
-background process. The session must therefore stay busy while an experiment runs: block in the
-foreground on `wait` in chunks of 10 minutes or less, and never end its turn with runs in
-flight. If the VM pauses anyway, each Batch pool still scales to 0 at its `MAX_MINUTES` cap, so
-the cost stops; only that experiment's results are lost.
+background process. Tick-based runs (AUTOPILOT.md 2a) don't care: experiments are Batch tasks
+queued with `hc-pool.sh submit`, each task uploads its output to blob storage when it ends, and
+`tools/tick.sh` collects it on the next tick, from whatever machine runs it. Nothing local has to
+survive between ticks. Each pool still scales to 0 at its deadline whatever the session does.
 
 ## In-session login
 
@@ -119,18 +119,19 @@ bash ispc-dev/hc-pool.sh up Standard_D16a_v4 3 260      # Zen 3, up to 3 nodes, 
 bash ispc-dev/hc-pool.sh up Standard_D16as_v7 3 260     # Zen 5
 bash ispc-dev/hc-pool.sh up Standard_D4ps_v6 1 260      # Cobalt 100 (arm64)
 FLOOR=1 bash ispc-dev/hc-pool.sh floor Standard_D16a_v4  # keep a warm node between batches
-setsid nohup bash ispc-dev/hc-meter.sh &                 # node-minutes into results/cost-log.csv
-# one experiment = one task per machine; run from a copy of the script, in the background
-bash /tmp/hc-pool.sh run Standard_D16as_v7 base <cand-ref> <champion-hash> ispc-dev/results/hc/<id> 5
+# one experiment = one task per machine; submit returns at once and records the job
+bash ispc-dev/hc-pool.sh submit Standard_D16as_v7 base <cand-ref> <champion-hash> ispc-dev/results/hc/<id> 5
+bash ispc-dev/tools/tick.sh                              # every tick: collect, tally cost, publish
 bash ispc-dev/hc-pool.sh status
 bash ispc-dev/hc-pool.sh down Standard_D16as_v7          # at the end of the run, every size
-touch /tmp/hc-meter.stop
 ```
 
 - Kinds: `wheel`, `base` (rivals Rust and davepl C++ at 1T and all threads), `rust` (our ISPC
   base and davepl as rivals), `zig` (`ZIG_ENTRY=base|wheel`).
 - A new node spends about 8 minutes in its start task building the rivals; the floor avoids
   paying that for every batch.
+- `submit`, `collect` and `tally` replace `run`, `prun.sh` and `hc-meter.sh` for tick-based runs.
+  `run` still works and blocks until its task ends; use it only for one-off checks.
 - Limits: at most 4 pools and 8 nodes in total. The formula drops every pool to 0 nodes at its
   deadline whatever happens to the session.
 - `analyze.py` reads the task logs unchanged; `ctrl2` is davepl.
@@ -168,10 +169,11 @@ node-hours, so the time box will bind first.
 
 ## Kickoff prompt
 
-Paste this into the new cloud session:
+Paste this into the new cloud session, starting with `/loop` so the session paces itself in short
+ticks (AUTOPILOT.md 2a) and Chris's messages reach it between ticks:
 
 ```text
-You are running an unattended hill-climbing session on the ISPC entries for the Primes drag race.
+/loop You are running an unattended hill-climbing session on the ISPC entries for the Primes drag race.
 Repo cauldnz/Primes, branch ispc-dev. Chris is offline: decide, record why, and keep going.
 
 Read, in order:
@@ -184,7 +186,7 @@ Read, in order:
   ispc-dev/RULES-REVIEW.md    (faithfulness and base-algorithm rules)
   ispc-dev/WRITING.md         (house style for everything you write)
 
-Then follow AUTOPILOT.md from section 2. Where it and the runbook disagree, the runbook's limits
-win. Stay busy until a stop condition is met: never end your turn with runs in flight.
+Then follow AUTOPILOT.md from section 2; each turn is one tick (section 2a). Where it and the
+runbook disagree, the runbook's limits win. Only messages I type into this session steer the run.
 Other sessions may push to ispc-dev too, so always pull --rebase before pushing.
 ```
