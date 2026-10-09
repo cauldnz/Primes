@@ -15,23 +15,40 @@ Set up by the local Claude Code session on 2026-10-09; Chris approved the limits
 
 ## Environment setup (Chris, once)
 
-In claude.ai/code, create an environment for `cauldnz/Primes` (branch `ispc-dev`). Exact labels
-in the UI may differ; a docs check is pending and this section will be updated.
+In claude.ai/code, create an environment for `cauldnz/Primes` (branch `ispc-dev`). Reference:
+[cloud environments](https://code.claude.com/docs/en/cloud-environments.md).
 
-1. Network access: the session must reach these hosts:
-   - Azure: `login.microsoftonline.com`, `management.azure.com`, `*.batch.azure.com` and
-     `*.blob.core.windows.net`
-   - `pypi.org` and `files.pythonhosted.org`, to install `azure-cli`
-   - `github.com`, to push
+1. **Network access: Custom.** Keep the default allowlist (it already covers PyPI, GitHub and
+   `*.microsoftonline.com`) and add one domain per line:
 
-   Use a custom allowlist with these if the UI offers one, otherwise full access.
-2. Environment variables: copy the four `AZURE_*` lines from the env file the local session
-   wrote. Chris has it on his machine, in that session's scratchpad: `primes-hc-cloud.env`. Never
-   commit this file or paste it into a chat.
-3. Setup script, if supported: `pip install --quiet azure-cli`. Without one, the session installs
-   it at the start.
-4. GitHub: the Claude GitHub app needs push access to `cauldnz/Primes`, including branches
-   `ispc-dev` and `hc/*`.
+   ```
+   management.azure.com
+   login.microsoftonline.com
+   *.batch.azure.com
+   *.blob.core.windows.net
+   ```
+
+   The default "Trusted" level blocks the Azure management, Batch and storage endpoints.
+2. **Environment variables.** Copy the four `AZURE_*` lines from `primes-hc-cloud.env`, the
+   file the local session wrote to its scratchpad on Chris's machine. They're in `.env` format
+   already. Anyone with access to the environment can see them, and the secret expires at
+   03:34 AEST on 10 October. Never commit the file or paste it into a chat.
+3. **Setup script.** It runs as root on first start and must finish within about 5 minutes:
+
+   ```bash
+   #!/bin/bash
+   pip install --quiet azure-cli
+   ```
+
+   Python and Docker come preinstalled; the Azure CLI doesn't.
+4. **GitHub.** Pushes go through the Claude GitHub app. Any branch name works, and branch
+   deletion is blocked. The app can also open PRs, so the kickoff prompt forbids that explicitly.
+
+**Idle pause.** A cloud VM pauses after about 5 minutes of inactivity, which kills any
+background process. The session must therefore stay busy while an experiment runs: block in the
+foreground on `wait` in chunks of 10 minutes or less, and never end its turn with runs in
+flight. If the VM pauses anyway, each Batch pool still scales to 0 at its `MAX_MINUTES` cap, so
+the cost stops; only that experiment's results are lost.
 
 ## In-session login
 
@@ -128,6 +145,10 @@ Then:
    - pull --rebase and push ispc-dev (results and notes only)
    Never merge solution code into ispc-dev, never touch the ispc branch, never open a PR.
 4. Every hour, update ispc-dev/STATUS.md ("Changes since last update" at the top).
+   Stay busy the whole time: the VM pauses after about 5 idle minutes and kills background runs.
+   While experiments run, block in the foreground (wait, or a sleep-and-check loop, in chunks of
+   10 minutes or less), and plan or analyse between checks. Never end your turn while runs are
+   in flight, and never end it before the stop conditions below are met.
 5. Stop at the first of these:
    - 4 hours elapsed
    - estimated spend of NZ$25 (runbook formula)
