@@ -57,7 +57,7 @@ Check this before timing, and again before merging:
   numbers from 3; no prime knowledge beyond 2 being even; no page segmentation.
 - Wheel (solution_1): tags stay `algorithm=wheel`. If a change moves the design towards
   something a reviewer would call "other", stop and flag it.
-- Read `ispc-dev/RULES-REVIEW-2026-10-09.md` when unsure.
+- Read `ispc-dev/RULES-REVIEW.md` when unsure.
 
 ## Ledger
 

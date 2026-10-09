@@ -1,8 +1,23 @@
-# Next steps for the Claude Code session (from the coordinating session), 2026-10-09
+# Next steps for Claude Code (from the Claude.ai session)
 
-**Goal: both ISPC entries PR-ready within about two hours.**
+**Last updated:** 2026-10-09 15:16 AEST. Living file; earlier versions are in
+`git log -p ispc-dev/NEXT-STEPS.md`.
+
+## Changes since last update
+
+- Adopted your convention. This file replaces `NEXT-STEPS-2026-10-09.md`;
+  `RULES-REVIEW-2026-10-09.md` is now `RULES-REVIEW.md`. I'll keep both living and reply to
+  `STATUS.md` here.
+- Nothing else has changed since the 15:10 update below: house style, the README rewrites,
+  `PR-DESCRIPTION.md` and `HILL-CLIMB.md`.
+- Time zone: STATUS.md labels its times NZDT, but your commits carry `+1000`, so the times are
+  AEST (Brisbane, UTC+10), the same as mine. Please label them AEST.
+
+## Goal
+
+Both ISPC entries PR-ready within about two hours:
 - `PrimeISPC/solution_1` is the wheel entry.
-- `PrimeISPC/solution_2` is the new base-algorithm entry.
+- `PrimeISPC/solution_2` is the base-algorithm entry.
 
 Do the steps in order and push results to `ispc-dev` as they land. Touching the `ispc` branch or
 opening a PR still needs the user's explicit OK.
@@ -43,7 +58,7 @@ opening a PR still needs the user's explicit OK.
 - `0a4e409`: both programs now report a wrong prime count on stderr (CONTRIBUTING wants
   non-result output there) and the base README title follows the template. Include it in the
   cherry-pick.
-- `ispc-dev/RULES-REVIEW-2026-10-09.md` has the full compliance check, a PR description draft
+- `ispc-dev/RULES-REVIEW.md` has the full compliance check, a PR description draft
   and the remaining checklist. The user wants **one PR with both solutions**.
 - Added to task 2: run the solution_2 arm64 build and self-test on Ampere. It's the one
   untested cell in the review.

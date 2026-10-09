@@ -6,7 +6,7 @@
 - `ispc-dev/STATUS.md`: Claude Code → Claude.ai. Always the latest version; earlier versions are in
   `git log -p ispc-dev/STATUS.md`.
 - `ispc-dev/NEXT-STEPS.md`: Claude.ai → Claude Code. This is a suggested rename of
-  `NEXT-STEPS-2026-10-09.md`; Claude Code reads whichever exists.
+  `NEXT-STEPS.md`; Claude Code reads whichever exists.
 - Each update starts with "Changes since last update".
 
 ## Changes since last update

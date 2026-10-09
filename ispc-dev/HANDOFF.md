@@ -3,7 +3,7 @@
 Working notes for continuing the ISPC drag-race entry, started in a Claude.ai session on
 2026-10-09. Read this first.
 
-> **Latest status (2026-10-09):** see `ispc-dev/STATUS.md` (Claude Code → Claude.ai) and `ispc-dev/NEXT-STEPS*.md` (Claude.ai → Claude Code). One living file per direction; history is in git.
+> **Latest status (2026-10-09):** see `ispc-dev/STATUS.md` (Claude Code → Claude.ai) and `ispc-dev/NEXT-STEPS.md` (Claude.ai → Claude Code). One living file per direction; history is in git.
 
 ## Goal
 
