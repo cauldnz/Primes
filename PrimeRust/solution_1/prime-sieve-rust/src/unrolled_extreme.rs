@@ -13,15 +13,36 @@ use crate::{
 /// Performance, as a result, is very similar. This method has a slight edge over the const-generics, and is
 /// primarily included to demonstrate how this approach can be used in Rust.
 pub struct FlagStorageExtremeHybrid {
-    words: Box<[u64]>,
+    lines: Box<[CacheLine]>,
+    num_words: usize,
     length_bits: usize,
+}
+
+/// Eight words on a 64-byte boundary: the flag words start on a cache line.
+#[repr(C, align(64))]
+#[derive(Clone, Copy)]
+struct CacheLine([u64; 8]);
+
+impl FlagStorageExtremeHybrid {
+    #[inline(always)]
+    fn words(&self) -> &[u64] {
+        // Safety: `lines` holds at least `num_words` contiguous u64s.
+        unsafe { std::slice::from_raw_parts(self.lines.as_ptr() as *const u64, self.num_words) }
+    }
+
+    #[inline(always)]
+    fn words_mut(&mut self) -> &mut [u64] {
+        // Safety: as above, and we hold the only reference.
+        unsafe { std::slice::from_raw_parts_mut(self.lines.as_mut_ptr() as *mut u64, self.num_words) }
+    }
 }
 
 impl FlagStorage for FlagStorageExtremeHybrid {
     fn create_true(size: usize) -> Self {
         let num_words = size / 64 + (size % 64).min(1);
         Self {
-            words: vec![0; num_words].into_boxed_slice(),
+            lines: vec![CacheLine([0; 8]); (num_words + 7) / 8].into_boxed_slice(),
+            num_words,
             length_bits: size,
         }
     }
@@ -40,7 +61,7 @@ impl FlagStorage for FlagStorageExtremeHybrid {
                 3,
                 2,
                 17,
-                ResetterSparseU8::<N>::reset_sparse(self.words.as_mut(), skip),
+                ResetterSparseU8::<N>::reset_sparse(self.words_mut(), skip),
                 debug_assert!(
                     false,
                     "this case should not occur skip {} equivalent {}",
@@ -51,7 +72,7 @@ impl FlagStorage for FlagStorageExtremeHybrid {
         }
 
         // dense resets for all odd numbers in {3, 5, ... =129}
-        let words = self.words.as_mut();
+        let words = self.words_mut();
         extreme_reset!(skip);
     }
 
@@ -60,7 +81,7 @@ impl FlagStorage for FlagStorageExtremeHybrid {
         if index >= self.length_bits {
             return false;
         }
-        let word = self.words.get(index / 64).unwrap();
+        let word = self.words().get(index / 64).unwrap();
         *word & (1 << (index % 64)) == 0
     }
 }
