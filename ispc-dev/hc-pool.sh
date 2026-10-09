@@ -114,9 +114,24 @@ PY
   echo "pool $P up (max $MAXN nodes, deadline $DEADLINE)"; rm -rf "$D"
 }
 
-kick() {  # re-apply the formula so the pool evaluates it now, not at the next 5-minute tick
-  local F; F=$(az batch pool show --pool-id "$1" --query autoScaleFormula -o tsv)
-  az batch pool autoscale enable --pool-id "$1" --auto-scale-formula "$F" -o none 2>/dev/null || true
+kick() {  # set the target to the open task count now; it holds 60 minutes, then the queue metric
+  local P=$1 F N
+  F=$(az batch pool show --pool-id "$P" --query autoScaleFormula -o tsv)
+  N=$(az batch task list --job-id "$P" --query "[?state!='completed'] | length(@)" -o tsv 2>/dev/null || echo 0)
+  F=$(python3 - "$F" "$N" <<'PY'
+import re, sys, datetime as dt
+f, n = sys.argv[1], int(sys.argv[2])
+deadline = re.search(r'time\(\) < time\("([^"]+)"\) \? (?:min\((\d+), \$q\)|\$hold)', f) or re.search(r'time\("([^"]+)"\) \?', f)
+dl = re.findall(r'time\("([^"]+)"\)', f)[-1]
+mx = int(re.search(r'min\((\d+),', f).group(1))
+hold = (dt.datetime.now(dt.timezone.utc) + dt.timedelta(minutes=60)).strftime('%Y-%m-%dT%H:%M:%SZ')
+print('$q = max(0, $PendingTasks.GetSample(1));\n'
+      f'$hold = time() < time("{hold}") ? min({mx}, {n}) : min({mx}, $q);\n'
+      f'$TargetLowPriorityNodes = time() < time("{dl}") ? $hold : 0;\n'
+      '$TargetDedicatedNodes = 0;\n$NodeDeallocationOption = taskcompletion;')
+PY
+)
+  az batch pool autoscale enable --pool-id "$P" --auto-scale-formula "$F" -o none || echo "!!! kick failed for $P"
 }
 
 ctx_from() {  # $1 ref, $2 path in repo, $3 destination
