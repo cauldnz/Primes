@@ -245,10 +245,9 @@ static void run_sieve(uniform Sieve * uniform s) {
         tb[0] = start_bit(7, RES[pl], 1);
         tb[1] = start_bit(11, RES[pl], 1);
         apply_group(w, t, s->grp, tb);
-        for (uniform int base = t; base < nw; base += t) {
-            uniform int n = min(t, nw - base);
-            foreach (k = 0 ... n) w[base + k] = w[k];
-        }
+        // Copy by doubling: [0, len) is always a whole number of periods.
+        for (uniform int len = t; len < nw; len *= 2)
+            memcpy(w + len, w, (uniform int)(min(len, nw - len) * sizeof(uniform uint64)));
     }
     s->bits[0]      |= (uniform uint64)1;          // 1 is not prime (plane 1, bit 0)
     s->bits[1 * pw] &= ~((uniform uint64)1);       // 7 is prime
