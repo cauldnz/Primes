@@ -1,21 +1,17 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T13:39:47Z",
+  "updated_utc": "2026-10-09T13:48:04Z",
   "run": {
     "id": "ap-20261009T1112Z",
-    "state": "running",
+    "state": "stopped",
     "mode": "azure",
-    "mode_reason": "Chris asked for a few more hours: ISPC against davepl's C++ base, Rust hill climbing, a first Zig entry.",
+    "mode_reason": "Stopped at 23:50 AEST. All pools deleted. Morning report at the top of ispc-dev/STATUS.md.",
     "started_utc": "2026-10-09T11:12:00Z",
     "time_box_hours": 4,
-    "spend_nzd": 3.39,
+    "spend_nzd": 3.82,
     "spend_cap_nzd": 30
   },
-  "current": {
-    "id": "hc-029",
-    "phase": "evaluate",
-    "detail": "ISPC 1.28 (Ubuntu 26.04): wheel round 2, base building; hc-028 arm gate on Cobalt"
-  },
+  "current": null,
   "scoreboard": [
     {
       "machine": "Zen 3 (EPYC 7763)",
@@ -53,13 +49,13 @@
     {
       "machine": "Zen 3 (EPYC 7763)",
       "entry": "base",
-      "ours_1t": 58200,
-      "ours_mt": 427600,
+      "ours_1t": 58100,
+      "ours_mt": 428000,
       "rival": "mike-barber Rust",
-      "rival_1t": 55300,
-      "rival_mt": 411300,
+      "rival_1t": 55100,
+      "rival_mt": 411900,
       "threads": 16,
-      "source": "final run, hc/champion 64e94aa, D16a_v4 (7763), median of 5; start of run 46.8k / 342.4k"
+      "source": "final2 run, hc/champion 5170556, D16a_v4, median of 5; start 47.0k / 343k; davepl 38.4k / 307k"
     },
     {
       "machine": "Cobalt 100 (arm64)",
@@ -75,24 +71,24 @@
     {
       "machine": "Zen 4 (EPYC 9V74, AVX-512)",
       "entry": "base",
-      "ours_1t": 82000,
-      "ours_mt": 650000,
+      "ours_1t": 81400,
+      "ours_mt": 649800,
       "rival": "mike-barber Rust",
-      "rival_1t": 76500,
-      "rival_mt": 607400,
+      "rival_1t": 76600,
+      "rival_mt": 607800,
       "threads": 16,
-      "source": "final run, hc/champion 64e94aa, D16as_v6, median of 5; start of run 63.7k / 497k"
+      "source": "final2 run, hc/champion 5170556, D16as_v6, median of 5; start 63.8k / 497k; davepl 60.6k / 484k"
     },
     {
       "machine": "Zen 5 (EPYC 9V45)",
       "entry": "base",
-      "ours_1t": 123300,
-      "ours_mt": 986800,
+      "ours_1t": 122700,
+      "ours_mt": 996000,
       "rival": "mike-barber Rust",
-      "rival_1t": 125300,
-      "rival_mt": 872700,
+      "rival_1t": 126400,
+      "rival_mt": 876000,
       "threads": 16,
-      "source": "final run, hc/champion 64e94aa, D16as_v7, median of 5; start of run 86.1k / 686.5k. Rust 1T from its two full-speed rounds (it ran 92k-96k in the other three)"
+      "source": "final2 run, hc/champion 5170556, D16as_v7, median of 5; start 87.3k / 688k; davepl 92.3k / 712k"
     },
     {
       "machine": "Cobalt 100 (arm64)",
@@ -103,7 +99,7 @@
       "rival_1t": 42900,
       "rival_mt": 171300,
       "threads": 4,
-      "source": "hc-020 run, hc/champion c48a327, D4ps_v6, median of 5; level with the start of run"
+      "source": "final2 run, hc/champion, D4ps_v6, median of 5; level with the start; davepl 32.2k / 129k"
     }
   ],
   "experiments": [
@@ -455,22 +451,20 @@
       "id": "hc-029",
       "entry": "both",
       "hypothesis": "Ubuntu 26.04 base image: ISPC 1.28 instead of 1.22",
-      "verdict": "running",
-      "where": "Zen 3, Zen 5, both entries"
+      "verdict": "rejected",
+      "where": "wheel -0.7% Zen 5; base -0.9% Zen 3, +2.4% Zen 5 1T",
+      "delta_1t": -0.9,
+      "delta_mt": -0.4,
+      "note": "ISPC 1.28 no better. 1.22 stays."
     }
   ],
   "azure_queue": 0,
   "next_up": [
-    "ISPC base ideas from research pass 2",
-    "Rust: sparse loop and dense limit",
-    "Zig first pass on Zen"
+    "Chris: merge hc/026-base-init-with-3 (base +4.2% Zen 5)?",
+    "Chris: hc/champion onto ispc and post the PR?",
+    "Find the Zig wheel edge and port it to ISPC"
   ],
   "events": [
-    {
-      "utc": "2026-10-09T06:18:47Z",
-      "level": "info",
-      "text": "Profile (hc-001) launched on Zen pools. D16as_v5 node reported EPYC 9V74 (Zen 4), not the usual 7763."
-    },
     {
       "utc": "2026-10-09T06:18:47Z",
       "level": "info",
@@ -715,6 +709,11 @@
       "utc": "2026-10-09T13:27:36Z",
       "level": "info",
       "text": "Zig base z-04 kept: +15.5% Zen 3, +9.1% Zen 5 at 1T. Zig base now within 1.5-3% of the ISPC base."
+    },
+    {
+      "utc": "2026-10-09T13:48:04Z",
+      "level": "info",
+      "text": "Run stopped at 23:50 AEST. Spend NZ$3.82. No pools left. Morning report in STATUS.md."
     }
   ],
   "research": {

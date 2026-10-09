@@ -1,9 +1,110 @@
 # Status from the Claude Code session
 
-Autopilot lock: ap-20261009T1112Z 2026-10-09T11:12Z
-
-**Last updated:** 2026-10-09 21:10 AEST. Living file; earlier versions are in
+**Last updated:** 2026-10-09 23:50 AEST. Living file; earlier versions are in
 `git log -p ispc-dev/STATUS.md`. Replies go in `ispc-dev/NEXT-STEPS.md`.
+
+## Morning report: run ap-20261009T1115Z (21:15 to 23:50 AEST)
+
+Chris asked for six things and three hill climbs. Nothing went to `ispc` or to a PR. Spend:
+NZ$3.82 of NZ$30. No pools are left running.
+
+### The six items
+
+1. **Merged** hc-019 (unmasked stores on AVX2 and SSE, G = 6 with AVX-512) into
+   `hc/champion`.
+2. **Merged** hc-013 (AVX-512 x8 target for the base entry).
+3. **Fixed** both READMEs on `hc/champion` (`f43fe8b`): new mechanisms, Zen results tables and
+   Output from Zen 5. `PR-DESCRIPTION.md` has its results table. The `ispc` branch still holds
+   the old code; moving `hc/champion` onto it is your call.
+4. **Docs**: the target-specific acceptance rule, the arm64 gate and the SSE4 check in
+   `HILL-CLIMB.md`; a size-to-CPU table and the persistent-pool workflow in
+   `CLOUD-RUNBOOK.md`; pinned `BASE` in `AUTOPILOT.md`.
+5. **solution_3**: skipped, recorded in `RESEARCH.md`.
+6. **davepl's C++** (`PrimeCPP/solution_5`) runs as a rival in every base run, at 1T and all
+   threads. It is not the top base entry: we lead it by 34% to 52% at 1T on Zen, 28% on Cobalt
+   100, and 34% to 42% at all threads. A full leaderboard pull (`results/leaderboard-2026-10-09b.md`)
+   shows mike-barber's Rust tops the faithful 1-bit base table on all five runners except one
+   cell, Threadripper 1T, where a Swift entry leads it by 3.4%. davepl reports only an
+   all-threads line and ranks fifth there.
+
+### Final scoreboard (`hc/champion` against the start of the evening, same rounds)
+
+Passes in 5 s, median of five interleaved rounds, 1T / all threads, change against the start
+of the evening (`ispc-dev` code) measured in the same rounds. Logs in `results/hc/final2-*`.
+
+| Machine | wheel | change | base | change |
+|---|---|---|---|---|
+| Zen 3 (EPYC 7763) | 103.5k / 850k | +24.6% / +21.0% | 58.1k / 428k | +24.1% / +24.9% |
+| Zen 4 (EPYC 9V74, AVX-512) | 115.1k / 953k | +15.5% / +13.5% | 81.4k / 650k | +27.9% / +30.5% |
+| Zen 5 (EPYC 9V45) | 191.0k / 1.47M | +27.2% / +18.4% | 122.7k / 996k | +40.5% / +44.7% |
+| Cobalt 100 (arm64) | 94.4k / 377k | +49.2% / +49.4% | 41.1k / 164k | −0.2% / +0.2% |
+
+The "start of the evening" is the code at the start of *this afternoon's* run too: `ispc-dev`
+never received solution changes. The wheel leads rogiervandam's C by 55% (Zen 3), 19% (Zen 4)
+and 37% (Zen 5) at 1T. The Cobalt 100 wheel gain (+49%) is the largest; the self-test passes
+there, but my wider count sweep only ran on x86 targets, so check it on arm64 before relying on
+it.
+
+### 7a: ISPC against the top base entry
+
+The top base entry is mike-barber's Rust. Ours now beats it by 6% at 1T on Zen 3 and Zen 4,
+trails by 3% at 1T on Zen 5 and leads by 14% at all threads there; on Cobalt 100 it trails by
+4%. This evening's base experiments:
+
+- hc-024 (`unmasked` in `clear_factor`; the dense code carried 13,924 masked moves) and hc-026
+  (the factor-3 pass initialises the sieve): together +4.2% at 1T on Zen 5 and +1.3% on Zen 3
+  (hc-028). That just misses "2% on both machines". **Your call; I recommend merging
+  `hc/026-base-init-with-3`**: it puts the base level with Rust on Zen 5 at 1T as well.
+- Rejected: dense pointer walk (hc-023), NEON vector dense (hc-025).
+
+### 7b: Rust
+
+`hc/rust-champion` = upstream plus r-01 (AVX-512 allowed): +2.4% at 1T and +4.9% at 16T on
+Zen 5, identical code on Zen 3. On Zen 4 with AVX-512 it measured −0.5% at 1T (within the 1% limit). That is most of the 3.4% the Swift entry leads by on
+the Threadripper at 1T. Rejected: a newer toolchain (r-02, −2.2%; with AVX-512, r-05, −62% on
+Zen 5), 64-byte alignment (r-03), a pointer-walk sparse loop (r-04, flat under Rust 1.57).
+Nothing goes upstream without you, and CONTRIBUTING.md expects us to contact mike-barber first.
+
+### 7c: Zig first pass
+
+`hc/zig-first-pass` adds `PrimeZig/solution_4` (Zig 0.13 from Alpine 3.21, built for the
+native CPU like the C++ and Rust entries), one program with a base and a wheel entry.
+- The **Zig wheel is our fastest wheel**: +18% at 1T on Zen 3, +13% on Zen 5 and +12% on
+  Cobalt 100 over the ISPC wheel; +10% at all threads. It is a port of the ISPC design. Why it
+  wins is open: the loop width isn't it (hc-027 lost), and short groups don't occur.
+- The Zig base, after z-04 (64-byte-aligned sieve, leaner sparse loop: +15.5% on Zen 3, +9.1%
+  on Zen 5), sits 3% behind our ISPC base on Zen 3 and 1.5% behind on Zen 5 at 1T, 1.6% ahead
+  at 16T on Zen 5, and 50% ahead of davepl. It is on `hc/zig-champion`.
+- One faithfulness point for you: each thread allocates from an arena that it resets after
+  every pass (musl's malloc cost 20%). Every pass still builds a fresh sieve and writes all its
+  memory before reading it. The README says so.
+
+### Waiting for you
+
+1. Merge `hc/026-base-init-with-3` (hc-024 + hc-026) into `hc/champion`? Recommended.
+2. Put `hc/champion` on `ispc` and post the PR, with the new READMEs and table.
+3. The Rust line: approach mike-barber with r-01, or keep going first?
+4. Zig: a third language entry with a fast wheel. Keep developing it, and submit it?
+5. Rule tweak: 1% to 2% gains that win every one of ten rounds with a tight A/A spread (hc-024
+   on Zen 5) can't pass "2% on both machines". Keep the rule or relax it?
+
+### Also tried tonight and rejected
+
+hc-027 (wheel fused loop two vectors a trip, −6% on Zen 5), hc-029 (ISPC 1.28 on Ubuntu 26.04:
+no gain for either entry), plus the Rust and base rejections above. All are in the ledger.
+
+### Next three experiments
+
+1. Find the Zig wheel's edge (allocation per pass in ISPC, LLVM 18 against 17) and port it.
+2. Zig base: the remaining 3% to 7% gap to the ISPC base, then AVX-512 dispatch for Zig.
+3. Rust: the Threadripper 1T cell (Swift, +3.4%); measure r-01 on a Threadripper-like Zen 5 and
+   look for another 1%.
+
+### Why the run stopped early
+
+I stopped at 23:50 AEST, about 1.5 hours inside the time box: every line Chris asked for has a
+measured result, the final scoreboard is in, and the open items need his decisions.
+
 
 ## Morning report: autopilot run ap-20261009T0607Z (16:07–21:05 AEST)
 

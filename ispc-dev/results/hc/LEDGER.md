@@ -147,5 +147,9 @@ The Zig base trails the ISPC base by 10% to 16% at 1T but beats davepl's C++ by 
 | z04 | 2026-10-09 | zig | Zig base: 64-byte-aligned sieve (the arena header left it at 16 mod 64) and a pointer-bounded sparse loop (16 to 11 instructions per eight ORs, no division) | +5% to +15% 1T, most on Zen 5 | Zen 3 (7763): 57.2k / 421.2k, +15.5% / +10.9%, 3/3; ISPC base −3.2%, davepl +49.6% | Zen 5: 124.1k / 1.01M, +9.1% / +27.5%, 4/4; ISPC base −1.5% / +1.6%; Cobalt 100 +0.7% / +0.8% | KEEP: starts `hc/zig-champion` | `hc/zig-004-align-sparse` |
 | 024b | 2026-10-09 | base | hc-024 rerun, ten rounds | as 024 | Zen 3 (7763): 56.1k / 428.8k, −0.0% / +0.2%, 3/8 at 1T | Zen 5: 127.9k / 1.00M, +1.9% / +1.4%, 8/8 at 1T, A/A within 1.3% | not kept: Zen 3 flat; see hc-028 | `hc/024-base-unmasked` |
 | z01-arm | 2026-10-09 | zig | Zig first pass on Cobalt 100 | | | Cobalt 100: wheel 105.8k / 421.9k, +12.0% / +11.9% over ISPC wheel; base 38.3k / 152.9k, −6.9% / −6.7% vs ISPC base, +18.8% / +18.9% vs davepl | measurement | `hc/zig-first-pass` |
-| 029 | 2026-10-09 | both | Build on Ubuntu 26.04 (ISPC 1.28) instead of 24.04 (ISPC 1.22) | +3% to +10% (24% fewer dense instructions in the base) | pending | pending | pending | `hc/029-ubuntu-2604` |
+| 029 | 2026-10-09 | both | Build on Ubuntu 26.04 (ISPC 1.28) instead of 24.04 (ISPC 1.22) | +3% to +10% (24% fewer dense instructions in the base) | Zen 3 (7763): wheel 104.7k, +0.6% / −0.3%; base 59.5k, −0.9% / −0.4% | Zen 5: wheel 190.3k, −0.7% / −1.0%; base 120.6k, +2.4% / −0.3% | REVERT (stopped after 3–4 rounds); ISPC 1.22 stays | `hc/029-ubuntu-2604` |
 | r01-zen4 | 2026-10-09 | rust | `hc/rust-champion` (r01, AVX-512) against upstream on Zen 4 with AVX-512 | | | Zen 4 (9V74, AVX-512): 76.3k / 608.5k, −0.5% / −0.1%; our ISPC base +6.5% ahead of it; davepl −26% | r01 stands: within 1% on Zen 4, +2.4% / +4.9% on Zen 5 | `hc/rust-champion` |
+
+**029, ISPC 1.28.** Fewer instructions didn't mean more passes: the wheel lost up to 1% and the
+base gained only on Zen 5 at 1T. Ubuntu 24.04 with ISPC 1.22 stays. So the Zig wheel's lead is
+not simply a newer LLVM either; per-pass allocation is the remaining suspect.
