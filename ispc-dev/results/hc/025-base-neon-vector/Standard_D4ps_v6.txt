@@ -93,3 +93,32 @@ cauldnz-ispc-base;40834;5.000028;1;algorithm=base,faithful=yes,bits=1
 cauldnz-ispc-base;163105;5.000155;4;algorithm=base,faithful=yes,bits=1
 cauldnz-ispc-base;81618;5.000098;2;algorithm=base,faithful=yes,bits=1
 == round 4 ctrl
+mike-barber_bit-extreme-hybrid;42942;5.0000901222;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;85770;5.0001354218;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;171447;5.0001311302;4;algorithm=base,faithful=yes,bits=1
+== round 4 champ2
+cauldnz-ispc-base;41080;5.000014;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;164000;5.000153;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;82086;5.000103;2;algorithm=base,faithful=yes,bits=1
+== round 4 ctrl2
+davepl_array_optimized;32206;5.00025;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;128639;5.00079;4;algorithm=base,faithful=yes,bits=1
+== round 5 cand
+cauldnz-ispc-base;40968;5.000047;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;163069;5.000146;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;81613;5.000116;2;algorithm=base,faithful=yes,bits=1
+== round 5 ctrl
+mike-barber_bit-extreme-hybrid;42945;5.0000200272;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;85742;5.0001277924;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;171373;5.0001072884;4;algorithm=base,faithful=yes,bits=1
+== round 5 champ2
+cauldnz-ispc-base;41086;5.000106;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;164017;5.000141;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;82078;5.000189;2;algorithm=base,faithful=yes,bits=1
+== round 5 ctrl2
+davepl_array_optimized;32202;5.00024;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;128634;5.00052;4;algorithm=base,faithful=yes,bits=1
+== round 5 champ
+cauldnz-ispc-base;41054;5.000047;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;163774;5.000181;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;82090;5.000137;2;algorithm=base,faithful=yes,bits=1

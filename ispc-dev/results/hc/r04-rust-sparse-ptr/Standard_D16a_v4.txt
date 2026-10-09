@@ -6,3 +6,38 @@ AVX-512: no
 kind=rust rounds=5 id=1207193930
 build cand
 build champ
+build ctx
+== round warmup cand
+mike-barber_bit-extreme-hybrid;52795;5.0000691414;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;210046;5.0001206398;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;420386;5.0001916885;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;411505;5.0004796982;16;algorithm=base,faithful=yes,bits=1
+== round warmup champ
+mike-barber_bit-extreme-hybrid;52480;5.0000305176;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;210615;5.0001063347;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;420839;5.0001993179;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;411263;5.0004749298;16;algorithm=base,faithful=yes,bits=1
+== round warmup champ2
+mike-barber_bit-extreme-hybrid;52855;5.0000495911;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;210273;5.0001635551;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;420864;5.0002727509;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;411498;5.0004892349;16;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl
+cauldnz-ispc-base;56051;5.000081;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;427797;5.000330;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;444182;5.000154;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;222250;5.000120;4;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl2
+davepl_array_optimized;37261;5.0003;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;306783;5.00074;16;algorithm=base,faithful=yes,bits=1
+== round 1 ctrl
+cauldnz-ispc-base;55858;5.000049;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;427794;5.000377;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;444182;5.000163;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;222266;5.000108;4;algorithm=base,faithful=yes,bits=1
+== round 1 cand
+mike-barber_bit-extreme-hybrid;52880;5.0000305176;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;210040;5.0001153946;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;419822;5.0002341270;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;410762;5.0003652573;16;algorithm=base,faithful=yes,bits=1
+== round 1 champ2

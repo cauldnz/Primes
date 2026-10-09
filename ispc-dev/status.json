@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T12:28:39Z",
+  "updated_utc": "2026-10-09T12:32:40Z",
   "run": {
     "id": "ap-20261009T1112Z",
     "state": "running",
@@ -374,14 +374,20 @@
       "entry": "base",
       "hypothesis": "unmasked clear_factor: 13,924 masked moves to 4 on AVX2",
       "verdict": "running",
-      "where": "Zen 3, Zen 5, Cobalt 100"
+      "where": "Zen 5 +1.2%/+1.3% 5/5, Zen 3 +0.3%, Cobalt flat",
+      "delta_1t": 1.2,
+      "delta_mt": 1.3,
+      "note": "0-2% band: 10-round rerun queued."
     },
     {
       "id": "hc-025",
       "entry": "base",
       "hypothesis": "Vector dense on NEON again (after hc-024)",
-      "verdict": "queued",
-      "where": "Cobalt 100"
+      "verdict": "rejected",
+      "where": "Cobalt 100",
+      "delta_1t": -0.2,
+      "delta_mt": -0.6,
+      "note": "NEON vector dense no faster than scalar."
     },
     {
       "id": "r-04",
