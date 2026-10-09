@@ -15,7 +15,7 @@ Both programs are written entirely in ISPC: the entry point, the timing loop, th
 
 **solution_1** (`algorithm=wheel,faithful=yes,bits=1`) stores a mod-30 wheel as eight bit-planes. Small primes are streamed into each plane as repeating word patterns, eight primes per pass; large primes set single bits with scalar strides. On x86-64 one binary carries SSE4, AVX2 and AVX-512 code and picks a path at start-up. On arm64 it compiles for NEON.
 
-**solution_2** (`algorithm=base,faithful=yes,bits=1`) stores odd numbers only and clears one composite per operation in the source. Its clearing routines follow mike-barber's Rust and GordonBGood's Chapel base solutions.
+**solution_2** (`algorithm=base,faithful=yes,bits=1`) stores odd numbers only and clears one composite per operation in the source. Its clearing routines follow mike-barber's Rust and GordonBGood's Chapel base solutions. One detail to flag for review: on x86-64 the buffer isn't zeroed up front, because the pass for 3, always the first prime the scan finds, writes every word. It's worth about 1%, the README describes it, and I'm happy to restore the explicit zeroing if you'd rather the set-up made no assumption about the first prime.
 
 Both include a self-test (`PRIMES_TEST=1`) that checks the prime count at every power of ten up to 10⁸. Both report multi-threaded results at all, half and a quarter of the hardware threads.
 

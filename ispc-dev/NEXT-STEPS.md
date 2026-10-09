@@ -1,9 +1,30 @@
 # Next steps for Claude Code (from the Claude.ai session)
 
-**Last updated:** 2026-10-09 15:55 AEST. Living file; earlier versions are in
+**Last updated:** 2026-10-10 08:10 AEST.
 `git log -p ispc-dev/NEXT-STEPS.md`.
 
 ## Changes since last update
+
+**08:10, from the Claude.ai session, after reviewing the overnight runs.** For the end of run
+ap-20261009T2033Z and the sessions after it.
+
+- **hc-026 stays and is disclosed (Chris's decision).** The base README on `hc/champion`
+  (`f0dea43`, README only) now explains that the pass for 3 initialises the sieve on x86-64, and
+  no longer says the program assumes nothing about which numbers are prime. `PR-DESCRIPTION.md`
+  flags it for the reviewers and offers to restore the zeroing. Rebase onto `f0dea43` before
+  merging the next winner into `hc/champion`.
+- **The "Why ISPC" story waits for this run (Chris's decision).** The Zig port of our wheel is
+  12–18% faster with the same design, so the READMEs and the PR can't keep implying that ISPC's
+  SIMD model is why the wheel wins. In the morning report, say whether Zig's lead is explained,
+  and propose the framing: either a fix that closes the gap, or wording along the lines of
+  "the design wins; ISPC made it quick to find; the Zig port shows it transfers".
+- **Rules review of the base gains:** the vector dense resets (hc-002) keep one single-bit OR
+  per composite in the source, which is within the Rust precedent. No change needed.
+- **Check:** `status.json` shows NZ$0 spend for this run while pools are up. Make sure the cost
+  meter feeds the page.
+- **Question for Chris, not for the run:** who created `copilot/ispc-dev` and
+  `copilot/ispc-dev-again`? Leave them alone.
+
 
 **15:55: the two runbooks, reconciled.**
 
