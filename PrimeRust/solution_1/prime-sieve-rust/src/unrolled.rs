@@ -265,18 +265,27 @@ impl<const EQUIVALENT_SKIP: usize> ResetterSparseU8<EQUIVALENT_SKIP> {
             start_chunk_offset
         );
 
-        let mut chunks = bytes[start_chunk_offset..].chunks_exact_mut(skip);
-        (&mut chunks).for_each(|chunk| {
-            #[allow(clippy::needless_range_loop)]
-            for i in 0..8 {
-                let word_idx = relative_indices[i];
-                // Safety: relative indices are all smaller than `skip` by construction
-                unsafe {
-                    *chunk.get_unchecked_mut(word_idx) |= Self::SINGLE_BIT_MASK_SET[i];
-                }
+        // pointer walk over whole chunks: one base pointer, eight fixed offsets
+        let len = bytes.len();
+        let n_chunks = (len - start_chunk_offset) / skip;
+        let m = Self::SINGLE_BIT_MASK_SET;
+        let [o0, o1, o2, o3, o4, o5, o6, o7] = relative_indices;
+        unsafe {
+            let mut ptr = bytes.as_mut_ptr().add(start_chunk_offset);
+            let end = ptr.add(n_chunks * skip);
+            while ptr < end {
+                *ptr.add(o0) |= m[0];
+                *ptr.add(o1) |= m[1];
+                *ptr.add(o2) |= m[2];
+                *ptr.add(o3) |= m[3];
+                *ptr.add(o4) |= m[4];
+                *ptr.add(o5) |= m[5];
+                *ptr.add(o6) |= m[6];
+                *ptr.add(o7) |= m[7];
+                ptr = ptr.add(skip);
             }
-        });
-
+        }
+        let chunks = bytes[start_chunk_offset + n_chunks * skip..].chunks_exact_mut(skip);
         let remainder = chunks.into_remainder();
         #[allow(clippy::needless_range_loop)]
         for i in 0..8 {
