@@ -6,3 +6,15 @@ AVX-512: yes
 kind=rust rounds=5 id=12072217582
 build cand
 build champ
+build ctx
+== round warmup cand
+mike-barber_bit-extreme-hybrid;49072;5.0000777245;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;184934;5.0001316071;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;353385;5.0001645088;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;368892;5.0002875328;16;algorithm=base,faithful=yes,bits=1
+== round warmup champ
+mike-barber_bit-extreme-hybrid;127685;5.0000267029;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;483585;5.0000915527;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;915727;5.0001616478;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;920421;5.0003924370;16;algorithm=base,faithful=yes,bits=1
+== round warmup champ2

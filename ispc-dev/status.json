@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T12:36:08Z",
+  "updated_utc": "2026-10-09T12:38:29Z",
   "run": {
     "id": "ap-20261009T1112Z",
     "state": "running",
@@ -8,13 +8,13 @@
     "mode_reason": "Chris asked for a few more hours: ISPC against davepl's C++ base, Rust hill climbing, a first Zig entry.",
     "started_utc": "2026-10-09T11:12:00Z",
     "time_box_hours": 4,
-    "spend_nzd": 1.74,
+    "spend_nzd": 2.16,
     "spend_cap_nzd": 30
   },
   "current": {
     "id": "queue",
     "phase": "evaluate",
-    "detail": "r-03 round 2, hc-024 round 2 (Cobalt), Zig and hc-024 on Zen starting"
+    "detail": "r-04/r-05 Rust, hc-026, hc-027, hc-024 10-round rerun, Zig on Cobalt"
   },
   "scoreboard": [
     {

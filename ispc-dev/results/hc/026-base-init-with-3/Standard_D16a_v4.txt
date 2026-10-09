@@ -37,3 +37,34 @@ mike-barber_bit-extreme-hybrid;210720;5.0001149178;4;algorithm=base,faithful=yes
 mike-barber_bit-extreme-hybrid;420880;5.0002412796;8;algorithm=base,faithful=yes,bits=1
 mike-barber_bit-extreme-hybrid;411213;5.0003962517;16;algorithm=base,faithful=yes,bits=1
 == round 1 cand
+cauldnz-ispc-base;56734;5.000066;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;432022;5.000336;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;447722;5.000163;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;223840;5.000091;4;algorithm=base,faithful=yes,bits=1
+== round 1 champ2
+cauldnz-ispc-base;56380;5.000022;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;429120;5.000316;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;443788;5.000152;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;222485;5.000088;4;algorithm=base,faithful=yes,bits=1
+== round 1 ctrl2
+davepl_array_optimized;37025;5.00029;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;306848;5.00085;16;algorithm=base,faithful=yes,bits=1
+== round 1 champ
+cauldnz-ispc-base;56014;5.000030;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;428815;5.000353;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;444566;5.000158;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;222178;5.000108;4;algorithm=base,faithful=yes,bits=1
+== round 2 champ
+cauldnz-ispc-base;56071;5.000037;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;428754;5.000344;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;444914;5.000163;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;222606;5.000099;4;algorithm=base,faithful=yes,bits=1
+== round 2 cand
+cauldnz-ispc-base;56600;5.000040;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;431688;5.000335;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;447508;5.000146;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;223923;5.000108;4;algorithm=base,faithful=yes,bits=1
+== round 2 ctrl2
+davepl_array_optimized;36416;5.00036;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;307210;5.00116;16;algorithm=base,faithful=yes,bits=1
+== round 2 champ2
