@@ -84,10 +84,22 @@ calls are the same kind every C entry makes.
 
 ## Disclosure
 
-Development was AI-assisted (Claude), and the commits carry `Co-Authored-By` trailers. Nothing
-in CONTRIBUTING forbids this. Its AI clause targets AI-generated *languages*. But maintainers
-judge "genuine, good-faith effort", so a short, upfront note plus the verification artefacts
-(self-tests, interleaved benchmark logs) is the safer posture. **The user's call.**
+**Decided: full disclosure, and it is part of the story.** The entries were built by an agentic
+engineering loop:
+
+- a Claude.ai session that did design, prototyping, sandbox benchmarks and coordination;
+- a Claude Code session that benchmarked on Azure (Zen 3, Zen 5, Ampere);
+- Chris directing priorities and making the decisions.
+
+The method was hill-climbing: hypothesis, change, self-test, interleaved benchmark against the
+previous build and the leaders, then keep or revert. Nothing in CONTRIBUTING forbids AI help;
+its AI clause targets AI-generated *languages*. What maintainers judge is genuine effort,
+verifiability and honest representation, so the PR should make the evidence trail easy to
+check:
+
+- `ispc-dev/results/` holds every benchmark log, including the regressions and dead ends;
+- the self-tests;
+- the optimisation history table, from 6.7k to ~150k passes on Zen 5.
 
 ## "Other" lane
 
@@ -136,8 +148,15 @@ That's a candidate follow-up PR (solution_3), not part of this one.
 > Both have a self-test (`PRIMES_TEST=1`) that checks prime counts up to 10^8. Multi-threaded
 > results are reported at all, half and a quarter of the hardware threads.
 >
-> [Optional disclosure line: Developed with AI assistance (Claude); all results were measured
-> on real hardware, and benchmark logs are available on request.]
+> **How these were built.** Both solutions were developed by agentic engineering with Claude
+> (Anthropic): a Claude.ai session for design, prototyping and coordination, and a Claude Code
+> session for benchmarking on Azure (AMD Zen 3 and Zen 5, Ampere arm64), with me directing.
+> The approach was evaluation-driven hill-climbing. Every change was self-tested, then
+> benchmarked against the previous build and the current leaders (rogiervandam's C,
+> GordonBGood's Chapel, mike-barber's Rust) in interleaved runs, and kept only if it won. The
+> full trail is on the `ispc-dev` branch of my fork: results, logs (including regressions and
+> dead ends) and prototypes, from a 6.7k-pass naive version to the final one. Happy to answer
+> questions about any step.
 >
 > * [x] I read the contribution guidelines in CONTRIBUTING.md.
 > * [x] I placed my solution in the correct solution folder.

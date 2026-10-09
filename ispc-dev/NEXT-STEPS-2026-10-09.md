@@ -50,6 +50,28 @@ opening a PR still needs the user's explicit OK.
 - When you finalise targets in task 1, update solution_1's README portability paragraph to
   match.
 
+## Disclosure (user decision)
+
+AI assistance is **disclosed in full** and is part of the story: an evaluation-driven,
+hill-climbing agentic engineering loop. See the updated PR draft in `RULES-REVIEW-2026-10-09.md`.
+
+In task 3, add this section to **both** READMEs, just before "Run instructions". Adjust the
+numbers once they are final:
+
+```
+## How this was built
+
+This solution was developed by agentic engineering with Claude (Anthropic): a Claude.ai session
+for design, prototyping and coordination, a Claude Code session for benchmarking on Azure
+(AMD Zen 3 and Zen 5, Ampere arm64), and the author directing priorities and decisions. The
+method was evaluation-driven hill-climbing: every change was self-tested (`PRIMES_TEST=1`),
+then benchmarked in interleaved runs against the previous build and the leading solutions, and
+kept only if it won. The full record, including regressions and dead ends, is on the
+[`ispc-dev` branch of the author's fork](https://github.com/cauldnz/Primes/tree/ispc-dev/ispc-dev).
+```
+
+Keep `ispc-dev` **public and unsquashed**: it is the evidence trail the PR links to.
+
 ## Tasks
 
 ### 1. Wheel target matrix on Zen 5 and Zen 3 (decides the default targets)
