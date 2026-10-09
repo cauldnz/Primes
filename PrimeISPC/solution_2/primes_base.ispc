@@ -74,7 +74,14 @@ static void sieve_create(uniform Sieve * uniform s, uniform int64 size) {
     s->nwords = (s->nbits + 63) >> 6;
     uniform int64 bytes = (((uniform int64)s->nwords * 8 + 63) / 64) * 64;
     s->bits = (uniform uint64 * uniform)aligned_alloc(64, bytes);
+#if defined(ISPC_TARGET_NEON)
     foreach (k = 0 ... s->nwords) s->bits[k] = 0;
+#else
+    // Only word 0 is cleared here, so the scan can read the bit for 3. The first factor the
+    // scan finds is always 3, and its dense pass writes every word instead of reading it
+    // (clear_dense_vec with INIT), so the rest of the sieve is initialised there.
+    s->bits[0] = 0;
+#endif
 }
 
 static void sieve_destroy(uniform Sieve * uniform s) {
@@ -118,13 +125,14 @@ static inline void clear_dense(uniform uint64 * uniform w, uniform int nwords, c
 // With P and programIndex both compile-time constants, LLVM folds a vector's single-bit ORs into
 // one constant, as it does for the scalar routine above. Words left over after the last whole
 // block go to the scalar routine.
-static inline void clear_dense_vec(uniform uint64 * uniform w, uniform int nwords, const uniform int P) {
+static inline void clear_dense_vec(uniform uint64 * uniform w, uniform int nwords, const uniform int P,
+                                   const uniform bool INIT) {
     uniform int c = ((P * P / 2) / 64 / P) * P;
     for (; c + programCount * P <= nwords; c += programCount * P) {
         #pragma unroll
         for (uniform int kb = 0; kb < programCount * P; kb += programCount) {
             const int k = kb + programIndex;                        // word of the block
-            uint64 x = w[c + k];
+            uint64 x = INIT ? 0 : w[c + k];                          // INIT: first factor, no load
             const uniform int n0 = (64 * kb - P / 2) / P;          // first composite near these words
             #pragma unroll
             for (uniform int i = 0; i < 64 * programCount / P + 2; i++) {
@@ -134,6 +142,7 @@ static inline void clear_dense_vec(uniform uint64 * uniform w, uniform int nword
             w[c + k] = x;
         }
     }
+    if (INIT) for (uniform int k = c; k < nwords; k++) w[k] = 0;   // words after the last block
     clear_dense_from(w, nwords, P, c);
 }
 
@@ -188,7 +197,7 @@ static void clear_sparse(uniform Sieve * uniform s, uniform int p) {
 #if defined(ISPC_TARGET_NEON)
 #define D(P) case P: clear_dense(s->bits, s->nwords, P); break;
 #else
-#define D(P) case P: if (P < VEC_LIMIT) clear_dense_vec(s->bits, s->nwords, P); \
+#define D(P) case P: if (P < VEC_LIMIT) clear_dense_vec(s->bits, s->nwords, P, P == 3); \
                      else clear_dense(s->bits, s->nwords, P); break;
 #endif
 
