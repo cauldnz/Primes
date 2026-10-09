@@ -117,21 +117,21 @@ static inline uniform int start_bit(uniform int p, uniform int R, uniform int km
 }
 
 // Base pattern for p: a bit at every j = 0 (mod p) across one period of p words, extended to
-// L + programCount words. L is a multiple of p that is >= programCount, so advancing the
-// phase by programCount needs only one conditional subtract.
+// L + 2 * programCount words. L is a multiple of p that is >= 2 * programCount, so advancing
+// the phase by up to two vectors needs only one conditional subtract.
 // Any bit offset of a stride-p pattern is a whole-word rotation of this base pattern, since
 // 64 is invertible mod p. tab[t] records the word whose bit t is set (the 64 multiples in
 // one period hit 64 distinct bit positions), which is the starting phase for offset t.
 static inline uniform int build_pattern(uniform uint64 * uniform pat, uniform int16 * uniform tab,
                                         uniform int p) {
     uniform int L = p;
-    while (L < programCount) L += p;
+    while (L < 2 * programCount) L += p;
     foreach (k = 0 ... p) pat[k] = 0;
     for (uniform int j = 0; j < (p << 6); j += p) {
         pat[j >> 6] |= ((uniform uint64)1) << (j & 63);
         tab[j & 63] = (uniform int16)(j >> 6);
     }
-    for (uniform int k = p; k < L + programCount; k++) pat[k] = pat[k - p];
+    for (uniform int k = p; k < L + 2 * programCount; k++) pat[k] = pat[k - p];
     return L;
 }
 
@@ -143,7 +143,7 @@ static inline void build_group(uniform Group * uniform g, const uniform int * un
             g->L[j] = build_pattern(g->buf[j], g->tab[j], primes[j]);
             g->pp[j] = g->buf[j];
         } else {
-            g->L[j] = programCount;
+            g->L[j] = 2 * programCount;
             g->pp[j] = g->zero;
         }
     }
@@ -193,7 +193,19 @@ static void apply_group(uniform uint64 * uniform w, uniform int nw,
         } else r[j] = 0;
     }
     uniform int k = start;
-    for (; k + programCount <= nw; k += programCount) {
+    for (; k + 2 * programCount <= nw; k += 2 * programCount) {   // two vectors per step
+        uint64 v0 = w[k + programIndex];
+        uint64 v1 = w[k + programCount + programIndex];
+        for (uniform int j = 0; j < G; j++) {
+            v0 |= g->pp[j][r[j] + programIndex];
+            v1 |= g->pp[j][r[j] + programCount + programIndex];
+            uniform int t = r[j] + 2 * programCount;
+            r[j] = (t >= g->L[j]) ? t - g->L[j] : t;
+        }
+        w[k + programIndex] = v0;
+        w[k + programCount + programIndex] = v1;
+    }
+    if (k + programCount <= nw) {
         uint64 v = w[k + programIndex];
         for (uniform int j = 0; j < G; j++) {
             v |= g->pp[j][r[j] + programIndex];
@@ -201,6 +213,7 @@ static void apply_group(uniform uint64 * uniform w, uniform int nw,
             r[j] = (t >= g->L[j]) ? t - g->L[j] : t;
         }
         w[k + programIndex] = v;
+        k += programCount;
     }
     if (TAIL_OVERRUN ? k < nw : k + programIndex < nw) {
         uint64 v = w[k + programIndex];
