@@ -134,6 +134,25 @@ That's a candidate follow-up PR (solution_3), not part of this one.
 > used in production in Unreal Engine (Chaos physics, animation) and in Intel's Embree and
 > OSPRay. It is installed from Ubuntu 24.04's `ispc` package; no custom toolchain.
 >
+> **Why ISPC is interesting here.** A sieve has a part that SIMD loves (small primes: dense,
+> regular, repeating bit patterns) and a part it can't touch (large primes: scattered single
+> bits). ISPC makes that split explicit, so the two entries double as an experiment:
+>
+> - **Explicit SPMD, no intrinsics.** Scalar-looking code runs across every SIMD lane, and the
+>   `uniform`/`varying` split makes the cost model visible. The wheel's pattern streaming
+>   vectorises by construction, not by hoping an auto-vectoriser cooperates.
+> - **One source, every runner's ISA.** The benchmark machines range from an SSE4-only Celeron
+>   to an AVX-512 Zen 5 and a NEON Raspberry Pi. One build carries SSE4, AVX2 and AVX-512 paths
+>   with runtime dispatch (NEON on arm64), so each runner gets code compiled for it.
+> - **Gang width is a tuning knob C doesn't have.** Running 16 logical lanes on 8-lane AVX2
+>   hardware (`avx2-i32x16`) was ~25% faster than the natural width: more independent
+>   loads and stores in flight. The hill-climbing loop found it.
+> - **The same language shows where SIMD stops helping.** The wheel entry beats the fastest C
+>   entries where SIMD is legal. The base entry follows the one-operation-per-composite rule,
+>   which leaves SIMD nothing to do. There ISPC lands at parity with C/Rust/Chapel, and the
+>   AVX-512 path is even ~18% slower, so the base build leaves it out. It's the same LLVM
+>   backend as C, Rust and Zig, so the difference comes from how parallelism is expressed.
+>
 > Both programs are written entirely in ISPC (entry point, timing loop, pthreads, sieve and
 > output). They only call the C library, for the clock, allocation and threads.
 >

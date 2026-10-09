@@ -70,6 +70,38 @@ kept only if it won. The full record, including regressions and dead ends, is on
 [`ispc-dev` branch of the author's fork](https://github.com/cauldnz/Primes/tree/ispc-dev/ispc-dev).
 ```
 
+Also add a **"Why ISPC"** section to both READMEs, after the opening paragraph. Fill in the
+final numbers.
+
+solution_1 (wheel):
+
+```
+## Why ISPC
+
+A sieve has a part SIMD loves - small primes, whose multiples form dense, repeating bit patterns -
+and a part it can't touch - large primes, which set scattered single bits. ISPC writes the first
+part as ordinary-looking code that runs across every SIMD lane, with the `uniform`/`varying` split
+making the cost model explicit, instead of relying on an auto-vectoriser. One build carries SSE4,
+AVX2 and AVX-512 code paths with runtime dispatch (NEON on arm64), so every benchmark machine,
+from an SSE4-only Celeron to an AVX-512 Zen 5, gets code compiled for it. And ISPC exposes a
+tuning knob C doesn't: gang width. Running 16 logical lanes on 8-lane AVX2 hardware
+(`avx2-i32x16`) was about 25% faster than the natural width, because more independent loads and
+stores are in flight.
+```
+
+solution_2 (base):
+
+```
+## Why ISPC, for the base algorithm
+
+This entry is the counterpoint to [solution_1](../solution_1). The base algorithm requires one
+operation per composite, which leaves SIMD essentially nothing to do, so ISPC compiles this to
+the same kind of scalar code as C, Rust or Chapel (same LLVM backend) and performs at about
+their level. The vector targets even hurt: the AVX-512 build measured about 18% slower, so it is
+left out. Read side by side, the two entries show where explicit SPMD pays off and where the
+rules take it off the table.
+```
+
 Keep `ispc-dev` **public and unsquashed**: it is the evidence trail the PR links to.
 
 ## Tasks
