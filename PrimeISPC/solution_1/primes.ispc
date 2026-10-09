@@ -108,10 +108,13 @@ static void sieve_destroy(uniform Sieve * uniform s) {
 }
 
 // First bit index in plane R of a multiple p*k with k >= kmin.
+// Unsigned throughout: division and remainder by 30 then need no sign fix-ups (it runs for every
+// prime and plane, about 1,300 times a pass).
 static inline uniform int start_bit(uniform int p, uniform int R, uniform int kmin) {
-    uniform int kr = (R * INV30[p % 30]) % 30;          // k must be = kr (mod 30)
-    uniform int k = kmin + ((kr - kmin % 30) + 30) % 30;
-    return (p * k - R) / 30;
+    uniform unsigned int up = p, uR = R, uk = kmin;
+    uniform unsigned int kr = (uR * (uniform unsigned int)INV30[up % 30]) % 30;   // k = kr (mod 30)
+    uniform unsigned int k = uk + (kr + 30 - uk % 30) % 30;
+    return (uniform int)((up * k - uR) / 30);
 }
 
 // Base pattern for p: a bit at every j = 0 (mod p) across one period of p words, extended to
