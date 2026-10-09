@@ -23,6 +23,9 @@ Two kinds of session work on this project, each with its own job.
 - fix only what blocks a run. A bigger change to the harness goes into `HARNESS-BACKLOG.md` or
   the run's retrospective as a proposal for the workshop.
 
+The workshop keeps `MACHINE-LOG.md`, a running record of how the machine was built and why, for
+a later write-up.
+
 Two rules keep them apart:
 - **No changes under a running climb.** A run works from the commit it started on. Harness,
   brief and plan changes land between runs, and the next run picks them up at start-up. A run
