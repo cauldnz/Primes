@@ -199,6 +199,20 @@ static void clear_factor(uniform Sieve * uniform s, uniform int p) {
     }
 }
 
+// Index of the first clear bit at or after i (nbits if none): the next unmarked odd number.
+// Reads a word at a time and skips set bits with count-trailing-zeros.
+static inline uniform int next_clear(const uniform Sieve * uniform s, uniform int i) {
+    if (i >= s->nbits) return s->nbits;
+    uniform int k = i >> 6;
+    uniform uint64 x = ~s->bits[k] >> (i & 63);
+    if (x != 0) return min(i + (uniform int)count_trailing_zeros(x), s->nbits);
+    for (k++; k < s->nwords; k++) {
+        x = ~s->bits[k];
+        if (x != 0) return min((k << 6) + (uniform int)count_trailing_zeros(x), s->nbits);
+    }
+    return s->nbits;
+}
+
 // The base algorithm: find the next prime, clear its multiples, repeat up to sqrt(size).
 static void run_sieve(uniform Sieve * uniform s) {
     uniform int q = (uniform int)sqrt((uniform double)s->size);
@@ -207,7 +221,7 @@ static void run_sieve(uniform Sieve * uniform s) {
     uniform int factor = 3;
     while (factor <= q) {
         uniform int i = factor >> 1;
-        while (i < s->nbits && is_composite_index(s, i)) i++;     // next prime
+        i = next_clear(s, i);                                      // next prime
         factor = 2 * i + 1;
         if (factor > q) break;
         clear_factor(s, factor);
