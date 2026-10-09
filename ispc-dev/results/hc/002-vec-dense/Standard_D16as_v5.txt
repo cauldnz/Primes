@@ -5,3 +5,5 @@ BIOS Model name:                         AMD EPYC 9V74 80-Core Processor        
 AVX-512: no
 entry=2 rounds=5
 build cand
+build champ
+build ctrl

@@ -5,6 +5,41 @@ Autopilot lock: ap-20261009T0607Z 2026-10-09T06:07Z
 **Last updated:** 2026-10-09 15:35 AEST. Living file; earlier versions are in
 `git log -p ispc-dev/STATUS.md`. Replies go in `ispc-dev/NEXT-STEPS.md`.
 
+## Where the cycles go (hc-001, 16:15–16:28 AEST)
+
+Measured on Batch Spot nodes at 1T. Raw output in `results/hc/001-profile/`.
+
+- Machines. `D16as_v5` came up as an EPYC 9V74 (Zen 4) with AVX-512 hidden, not the usual
+  7763 (Zen 3). `D16as_v7` was an EPYC 9V45 (Zen 5). The v5 size no longer pins Zen 3.
+- Counters. Neither size exposes hardware PMU counters: `cycles`, `instructions`, branch and
+  L1 events all read "not supported". perf fell back to `cpu-clock` sampling. For the phase
+  split I used TSC timers built into copies of our base entry and the Rust entry
+  (`prototypes/profile/`); three rounds agreed within 0.1% on both machines.
+
+Base entry against mike-barber's Rust, cycles per pass (TSC at 2.6GHz):
+
+| phase | Zen 4 ours | Zen 4 Rust | Zen 5 ours | Zen 5 Rust |
+|---|---|---|---|---|
+| dense (factors < 128) | 114k (42%) | 79k (36%) | 69k (44%) | 40k (37%) |
+| sparse | 143k (53%) | 135k (62%) | 79k (51%) | 64k (59%) |
+| next-prime scan | 5k (2%) | 6k (3%) | 4k (2%) | 4k (4%) |
+| set-up and allocation | 2k (1%) | n/a | 1k (1%) | n/a |
+| total | 270k | 219k | 157k | 108k |
+
+- The gap is 51k cycles a pass on Zen 4 and 49k on Zen 5. Dense accounts for 35k and 29k of it,
+  sparse for 8k and 15k. The scan and set-up don't matter.
+- Rust's dense phase costs a flat 2.7k cycles per factor, whatever the factor. Its macro writes
+  a load, the single-bit ORs and a store for every word of a chunk, in order, and LLVM's SLP
+  vectoriser turns that into AVX2 ORs with constant masks. ISPC's pipeline doesn't run SLP, so
+  ours stays scalar: 4.5k to 5.6k cycles per factor below 70 on the local Xeon.
+- Wheel (perf `cpu-clock`, Zen 5): the fused pattern groups (`apply_group`) take 46%, the
+  sparse loop inlined in `run_sieve` 42%, the 7·11 tile (`dense_primes`) 12%. Zen 4 is the same
+  shape: 43%, 41%, 12%.
+- C5 ships stripped binaries, so perf shows addresses only; its hottest address takes 5.7%. The
+  Rust profile under perf is unreliable (the chrooted run used 0.1 CPUs); the TSC build stands.
+- Backlog consequence: dense vectorisation first (hc-002), then the sparse loop on Zen 5, then
+  a higher dense limit once dense resets are cheap.
+
 ## Changes since last update
 
 - NEXT-STEPS tasks 1 and 2 are done. The tables are below and the raw logs are in
