@@ -1,0 +1,23 @@
+Architecture:                            x86_64
+CPU(s):                                  16
+Model name:                              AMD EPYC 9V45 96-Core Processor
+BIOS Model name:                         AMD EPYC 9V45 96-Core Processor                 None CPU @ 2.6GHz
+AVX-512: yes
+entry=2 rounds=5
+build cand
+build champ
+build ctrl
+control=mike-barber_bit-extreme-hybrid
+self-test cand: 13 ok, 0 bad, exit=0
+self-test champ: 13 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-ispc-base;97825;5.000037;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;696618;5.000213;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;703985;5.000106;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;369085;5.000077;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ
+cauldnz-ispc-base;86958;5.000035;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;689827;5.000216;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;629706;5.000108;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;328543;5.000062;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ2

@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T06:36:25Z",
+  "updated_utc": "2026-10-09T06:41:01Z",
   "run": {
     "id": "ap-20261009T0607Z",
     "state": "running",
@@ -14,7 +14,7 @@
   "current": {
     "id": "hc-002",
     "phase": "evaluate",
-    "detail": "A/B on D16as_v5 and D16as_v7, 5 rounds each; hc-001 Zen 5 profile finishing"
+    "detail": "hc-002 round 4 of 5 on Zen 4; hc-003 building"
   },
   "scoreboard": [
     {
@@ -100,13 +100,37 @@
       "verdict": "running",
       "where": "Zen 4 (v5), Zen 5",
       "note": "Predicted +10% to +18% 1T. Local Xeon: 4 of 4 rounds won."
+    },
+    {
+      "id": "hc-003",
+      "entry": "base",
+      "hypothesis": "Pointer walk over sparse chunks (27 to 11 instructions per 8 ORs)",
+      "verdict": "running",
+      "where": "Zen 4 (v5), Zen 5",
+      "note": "Predicted Zen 5 +4-8%."
+    },
+    {
+      "id": "hc-004",
+      "entry": "wheel",
+      "hypothesis": "Lone prime 13 skips the fused group loop",
+      "verdict": "queued",
+      "where": "waiting for a pool",
+      "note": "Local Xeon +0.4% to +5.8%."
+    },
+    {
+      "id": "hc-005",
+      "entry": "wheel",
+      "hypothesis": "No masked stores in the group loop and tails",
+      "verdict": "queued",
+      "where": "waiting for a pool",
+      "note": "Local Xeon +2% to +19% over 4 rounds; 148 masked moves in apply_group down to 0."
     }
   ],
   "azure_queue": 0,
   "next_up": [
-    "Base: profile against Rust on Zen 5 (dense, sparse, next-prime scan)",
-    "Base: word-at-a-time next-prime scan",
-    "Wheel: fusion group size G against gang width"
+    "Wheel: hc-005 unmasked stores (queued)",
+    "Wheel: hc-004 lone-prime fast path (queued)",
+    "Base: dense limit sweep with vector resets (after hc-002)"
   ],
   "events": [
     {
