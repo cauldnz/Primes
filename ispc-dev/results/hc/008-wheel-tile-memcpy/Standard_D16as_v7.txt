@@ -68,3 +68,36 @@ cauldnz-ispc;1258774;5.000209;16;algorithm=wheel,faithful=yes,bits=1
 cauldnz-ispc;1133467;5.000087;8;algorithm=wheel,faithful=yes,bits=1
 cauldnz-ispc;586574;5.000053;4;algorithm=wheel,faithful=yes,bits=1
 == round 2 ctrl
+rogiervandam_extend_epar;1162880;5.000024;16;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;945706;5.000022;8;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;503701;5.000032;4;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;262967;5.000008;2;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend;131041;5.000011;1;algorithm=other,faithful=yes,bits=1
+== round 3 ctrl
+rogiervandam_extend_epar;1134032;5.000034;16;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;938677;5.000017;8;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;497173;5.000017;4;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;255206;5.000018;2;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend;131262;5.000035;1;algorithm=other,faithful=yes,bits=1
+== round 3 champ
+cauldnz-ispc;149281;5.000028;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1266386;5.000268;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1131811;5.000134;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;585273;5.000105;4;algorithm=wheel,faithful=yes,bits=1
+== round 3 cand
+cauldnz-ispc;149431;5.000031;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1288640;5.000253;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1144669;5.000149;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;579610;5.000069;4;algorithm=wheel,faithful=yes,bits=1
+== round 3 champ2
+cauldnz-ispc;148200;5.000031;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1277885;5.000294;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1139545;5.000131;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;580917;5.000062;4;algorithm=wheel,faithful=yes,bits=1
+== round 4 ctrl
+rogiervandam_extend_epar;1129911;5.000036;16;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;948978;5.000017;8;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;507854;5.000014;4;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;270091;5.000019;2;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend;136346;5.000003;1;algorithm=other,faithful=yes,bits=1
+== round 4 champ2

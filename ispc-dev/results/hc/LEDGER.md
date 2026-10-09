@@ -44,3 +44,4 @@ candidate without hc-004 against a champion with it. I stopped it before any rou
 now on each candidate is merged with the current champion first and `BASE` is pinned to a
 commit hash.
 | 009 | 2026-10-09 | base | Next-prime scan a word at a time with count-trailing-zeros | +1% to +3% 1T (scan is 2–4% of a pass) | pending | pending | pending | `hc/009-base-scan-ctz` |
+| 006b | 2026-10-09 | wheel | hc-006 rerun on Zen 3 against champion `0175d18` | as 006 | Zen 3 (7763): 87.1k / 754.0k, +1.9% / +3.5%, 4/5 at 1T, 5/5 at 16T, control within 1.1% | Zen 5 from 006: +4.0% / +3.4%, 5/5 | KEEP, merged | `hc/champion` |

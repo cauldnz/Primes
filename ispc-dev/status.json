@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T08:00:53Z",
+  "updated_utc": "2026-10-09T08:05:13Z",
   "run": {
     "id": "ap-20261009T0607Z",
     "state": "running",
@@ -137,9 +137,9 @@
       "id": "hc-006",
       "entry": "wheel",
       "hypothesis": "Build with --addressing=64 (no sign extension per strided OR)",
-      "verdict": "inconclusive",
+      "verdict": "kept",
       "where": "Zen 5 +4.0%/+3.4% clean; Zen 3 noisy node",
-      "note": "Zen 3 rerun as hc-006b against the new champion.",
+      "note": "Accepted via the clean Zen 3 rerun (hc-006b).",
       "delta_1t": 4.0,
       "delta_mt": 3.4
     },
@@ -165,8 +165,11 @@
       "id": "hc-006b",
       "entry": "wheel",
       "hypothesis": "hc-006 (--addressing=64) rerun on Zen 3, rebased on champion 0175d18",
-      "verdict": "running",
-      "where": "Zen 3 (D16a_v4)"
+      "verdict": "kept",
+      "where": "Zen 3 +1.9%/+3.5% (clean node); Zen 5 +4.0%/+3.4% from hc-006",
+      "delta_1t": 1.9,
+      "delta_mt": 3.5,
+      "note": "Merged into hc/champion."
     },
     {
       "id": "hc-009",
@@ -278,6 +281,11 @@
       "utc": "2026-10-09T07:46:49Z",
       "level": "info",
       "text": "Harness: candidates now rebased on the current champion and BASE pinned to a commit."
+    },
+    {
+      "utc": "2026-10-09T08:05:13Z",
+      "level": "info",
+      "text": "hc-006 KEPT and merged: wheel --addressing=64, Zen 3 +3.5% 16T, Zen 5 +4.0% 1T."
     }
   ],
   "research": {
