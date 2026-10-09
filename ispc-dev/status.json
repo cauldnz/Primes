@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T07:53:18Z",
+  "updated_utc": "2026-10-09T08:00:53Z",
   "run": {
     "id": "ap-20261009T0607Z",
     "state": "running",
@@ -148,8 +148,10 @@
       "entry": "wheel",
       "hypothesis": "Unmasked group loop and tail overrun, AVX2/SSE only",
       "verdict": "running",
-      "where": "Zen 3 (D16a_v4); AVX2 Zen 4 next",
-      "note": "Can not meet the both-machines rule by design: needs Chris if it wins."
+      "where": "Zen 3 +3.7%/+4.4%; AVX2 Zen 4 rerun running; Zen 5 identical code",
+      "note": "Cannot pass the both-machines rule by design. Will go to Chris with a recommendation.",
+      "delta_1t": 3.7,
+      "delta_mt": 4.4
     },
     {
       "id": "hc-008",
