@@ -106,3 +106,33 @@ cauldnz-ispc;839781;5.000238;16;algorithm=wheel,faithful=yes,bits=1
 cauldnz-ispc;787718;5.000129;8;algorithm=wheel,faithful=yes,bits=1
 cauldnz-ispc;397547;5.000122;4;algorithm=wheel,faithful=yes,bits=1
 == round 4 cand
+cauldnz-ispc;112901;5.000020;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;946231;5.000264;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;891528;5.000140;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;446929;5.000114;4;algorithm=wheel,faithful=yes,bits=1
+== round 4 champ2
+cauldnz-ispc;98437;5.000030;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;839809;5.000271;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;791189;5.000148;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;395017;5.000120;4;algorithm=wheel,faithful=yes,bits=1
+== round 5 champ2
+cauldnz-ispc;99683;5.000046;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;840030;5.000267;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;792320;5.000139;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;393936;5.000073;4;algorithm=wheel,faithful=yes,bits=1
+== round 5 cand
+cauldnz-ispc;112183;5.000014;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;947434;5.000290;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;895353;5.000153;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;445433;5.000108;4;algorithm=wheel,faithful=yes,bits=1
+== round 5 champ
+cauldnz-ispc;99235;5.000010;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;836887;5.000264;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;791382;5.000167;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;395703;5.000110;4;algorithm=wheel,faithful=yes,bits=1
+== round 5 ctrl
+rogiervandam_extend_epar;770793;5.000037;16;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;775592;5.000025;8;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;387833;5.000039;4;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;193905;5.000023;2;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend;97125;5.000007;1;algorithm=other,faithful=yes,bits=1
