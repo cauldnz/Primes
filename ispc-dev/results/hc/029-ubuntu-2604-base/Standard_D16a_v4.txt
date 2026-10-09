@@ -6,3 +6,21 @@ AVX-512: no
 kind=base rounds=5 id=13281822385
 build cand
 build champ
+self-test cand: 13 ok, 0 bad, exit=0
+self-test champ: 13 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-ispc-base;59572;5.000076;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;430523;5.000303;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;445466;5.000154;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;230463;5.000092;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ
+cauldnz-ispc-base;60120;5.000027;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;429225;5.000335;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;449110;5.000169;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;226474;5.000102;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ2
+cauldnz-ispc-base;60027;5.000005;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;433285;5.000282;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;446846;5.000155;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;233437;5.000094;4;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl
