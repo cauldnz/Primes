@@ -44,7 +44,7 @@ SP_NAME=${SP_NAME:-$BATCH_RG-climber}
 
 die() { echo "azure-setup: $*" >&2; exit 1; }
 say() { echo "== $*"; }
-command -v az >/dev/null || die "the Azure CLI is not installed (https://aka.ms/azcli)"
+case "$CMD" in up|rotate|check|down) command -v az >/dev/null || die "the Azure CLI is not installed (https://aka.ms/azcli)" ;; esac
 
 sub() {
     SUB=${AZURE_SUBSCRIPTION_ID:-$(az account show --query id -o tsv 2>/dev/null)} \
