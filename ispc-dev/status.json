@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T12:05:05Z",
+  "updated_utc": "2026-10-09T12:07:24Z",
   "run": {
     "id": "ap-20261009T1112Z",
     "state": "running",
@@ -12,9 +12,9 @@
     "spend_cap_nzd": 30
   },
   "current": {
-    "id": "hc-023",
+    "id": "queue",
     "phase": "evaluate",
-    "detail": "hc-023 (dense pointer walk) on Cobalt, Zen 3, Zen 5; Rust r-01/r-02 running"
+    "detail": "Queue: r-03, Zig x4, hc-024 x3, hc-025, r-04 x2, r-05 x2"
   },
   "scoreboard": [
     {
@@ -378,6 +378,20 @@
       "hypothesis": "Vector dense on NEON again (after hc-024)",
       "verdict": "queued",
       "where": "Cobalt 100"
+    },
+    {
+      "id": "r-04",
+      "entry": "rust",
+      "hypothesis": "Rust pointer-walk sparse loop",
+      "verdict": "queued",
+      "where": "Zen 3, Zen 5"
+    },
+    {
+      "id": "r-05",
+      "entry": "rust",
+      "hypothesis": "r-04 plus Rust 1.88 toolchain",
+      "verdict": "queued",
+      "where": "Zen 3, Zen 5"
     }
   ],
   "azure_queue": 0,
