@@ -83,7 +83,7 @@ static void sieve_create(uniform Sieve * uniform s, uniform int64 size, uniform 
     s->size = size;
     s->mbits = (uniform int)(size / 30) + 1;
     s->nw = (s->mbits + 63) >> 6;
-    s->pw = (s->nw + 7) & ~7;
+    s->pw = (s->nw + programCount - 1 + 7) & ~7;   // room for a vector that runs past nw
     s->dense_max = min(dense_max, MAXPAT);
     s->bits = (uniform uint64 * uniform)aligned_alloc(64, (uniform int64)8 * s->pw * 8);
     s->grp = (uniform Group * uniform)aligned_alloc(64, ((sizeof(uniform Group) + 63) / 64) * 64);
@@ -149,7 +149,10 @@ static inline uniform int apply_range(uniform uint64 * uniform w, const uniform 
         r += programCount;
         r = (r >= L) ? r - L : r;
     }
-    if (k + programIndex < wend) w[k + programIndex] |= pat[r + programIndex];
+    // Last partial vector: run past wend unmasked (masked stores are slow on Zen 2 to Zen 4).
+    // The extra words get this prime's own pattern, which is correct for them, and ORing it
+    // again later changes nothing; past nw they land in the plane's padding.
+    if (k < wend) w[k + programIndex] |= pat[r + programIndex];
     r += wend - k; r = (r >= L) ? r - L : r;
     return r;
 }
@@ -158,31 +161,33 @@ static inline uniform int apply_range(uniform uint64 * uniform w, const uniform 
 // each sieve word. b[j] is member j's first bit in this plane.
 static void apply_group(uniform uint64 * uniform w, uniform int nw,
                         const uniform Group * uniform g, const uniform int * uniform b) {
-    uniform int n = g->n;
-    uniform int r[G];
-    uniform int start = 0;
-    for (uniform int j = 0; j < n; j++) start = max(start, (b[j] >> 6) + 1);
-    start = min(start, nw);
-    for (uniform int j = 0; j < G; j++) {
-        if (j < n) {
-            uniform int r0 = g->tab[j][b[j] & 63];
-            r[j] = apply_range(w, g->pp[j], g->L[j], r0, b[j], start);   // lead-in
-        } else r[j] = 0;
-    }
-    uniform int k = start;
-    for (; k + programCount <= nw; k += programCount) {
-        uint64 v = w[k + programIndex];
+    unmasked {   // callers run with every lane on; without this each store is masked
+        uniform int n = g->n;
+        uniform int r[G];
+        uniform int start = 0;
+        for (uniform int j = 0; j < n; j++) start = max(start, (b[j] >> 6) + 1);
+        start = min(start, nw);
         for (uniform int j = 0; j < G; j++) {
-            v |= g->pp[j][r[j] + programIndex];
-            uniform int t = r[j] + programCount;
-            r[j] = (t >= g->L[j]) ? t - g->L[j] : t;
+            if (j < n) {
+                uniform int r0 = g->tab[j][b[j] & 63];
+                r[j] = apply_range(w, g->pp[j], g->L[j], r0, b[j], start);   // lead-in
+            } else r[j] = 0;
         }
-        w[k + programIndex] = v;
-    }
-    if (k + programIndex < nw) {
-        uint64 v = w[k + programIndex];
-        for (uniform int j = 0; j < G; j++) v |= g->pp[j][r[j] + programIndex];
-        w[k + programIndex] = v;
+        uniform int k = start;
+        for (; k + programCount <= nw; k += programCount) {
+            uint64 v = w[k + programIndex];
+            for (uniform int j = 0; j < G; j++) {
+                v |= g->pp[j][r[j] + programIndex];
+                uniform int t = r[j] + programCount;
+                r[j] = (t >= g->L[j]) ? t - g->L[j] : t;
+            }
+            w[k + programIndex] = v;
+        }
+        if (k < nw) {                          // unmasked, into the padding, as in apply_range
+            uint64 v = w[k + programIndex];
+            for (uniform int j = 0; j < G; j++) v |= g->pp[j][r[j] + programIndex];
+            w[k + programIndex] = v;
+        }
     }
 }
 
