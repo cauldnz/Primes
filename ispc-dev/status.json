@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T10:20:21Z",
+  "updated_utc": "2026-10-09T10:22:37Z",
   "run": {
     "id": "ap-20261009T0607Z",
     "state": "running",
@@ -14,7 +14,7 @@
   "current": {
     "id": "final",
     "phase": "evaluate",
-    "detail": "Final scoreboard: base on Zen 3 and Zen 5, both entries on Zen 4 (AVX-512); Cobalt 100 next"
+    "detail": "Final scoreboard: Zen 4 (AVX-512) wheel round 4, base round 1; Cobalt 100 building"
   },
   "scoreboard": [
     {

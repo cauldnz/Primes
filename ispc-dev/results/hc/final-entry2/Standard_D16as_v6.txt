@@ -26,3 +26,8 @@ cauldnz-ispc-base;497215;5.000314;16;algorithm=base,faithful=yes,bits=1
 cauldnz-ispc-base;510437;5.000157;8;algorithm=base,faithful=yes,bits=1
 cauldnz-ispc-base;255112;5.000130;4;algorithm=base,faithful=yes,bits=1
 == round warmup ctrl
+mike-barber_bit-extreme-hybrid;76564;5.0000319481;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;305944;5.0001311302;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;612390;5.0002021790;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;608843;5.0003781319;16;algorithm=base,faithful=yes,bits=1
+== round 1 ctrl
