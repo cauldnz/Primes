@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T09:15:03Z",
+  "updated_utc": "2026-10-09T09:26:09Z",
   "run": {
     "id": "ap-20261009T0607Z",
     "state": "running",
@@ -8,7 +8,7 @@
     "mode_reason": "Service principal login and az batch pool list worked at 06:07 UTC.",
     "started_utc": "2026-10-09T06:07:00Z",
     "time_box_hours": 8,
-    "spend_nzd": 2.33,
+    "spend_nzd": 2.58,
     "spend_cap_nzd": 30
   },
   "current": {
@@ -245,9 +245,11 @@
       "id": "hc-016",
       "entry": "wheel",
       "hypothesis": "No lead-ins in the fused group loop (RESEARCH idea 6)",
-      "verdict": "running",
-      "where": "Zen 3, Zen 5",
-      "note": "Counts match a reference for 5,396 sizes on 3 targets x 3 dense limits."
+      "verdict": "kept",
+      "where": "Zen 3 +5.1%/+5.4%, Zen 5 +2.6%/+2.6%",
+      "note": "Merged on top of hc-015; counts re-checked for 5,396 sizes on 3 targets.",
+      "delta_1t": 2.6,
+      "delta_mt": 2.6
     },
     {
       "id": "hc-017",
@@ -255,6 +257,13 @@
       "hypothesis": "Dense threshold 160 instead of 256 after the faster sparse loop",
       "verdict": "running",
       "where": "Zen 3, Zen 5"
+    },
+    {
+      "id": "hc-018",
+      "entry": "base",
+      "hypothesis": "Sparse loop unrolled by two chunks",
+      "verdict": "running",
+      "where": "Zen 5"
     }
   ],
   "azure_queue": 3,
@@ -408,6 +417,11 @@
       "utc": "2026-10-09T09:12:23Z",
       "level": "info",
       "text": "hc-015 KEPT and merged: wheel sparse loop without the spill, +5% to +7% on Zen 3 and Zen 5 at 1T and 16T."
+    },
+    {
+      "utc": "2026-10-09T09:26:09Z",
+      "level": "info",
+      "text": "hc-016 KEPT and merged: wheel without lead-ins, +5% Zen 3, +2.6% Zen 5."
     }
   ],
   "research": {

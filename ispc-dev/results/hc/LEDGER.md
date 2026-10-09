@@ -78,8 +78,13 @@ the "2% on both Zen 3 and Zen 5" rule by construction.
 **012 and 015, wheel sparse indices.** 64-bit indices gained about 5% at 1T on both machines,
 but the loop spilled and reloaded its base pointer before every OR, and Zen 5 lost 2.1% at 16T,
 where two threads share a core's load ports. hc-015 frees one register and removes the reloads.
-| 016 | 2026-10-09 | wheel | No lead-ins: all group members start at the earliest start word; own bits cleared afterwards | +3% to +8% 1T (64 lead-in calls a group, 6 groups a pass); local Xeon 3/4 | pending | pending | pending | `hc/016-wheel-no-leadin` |
+| 016 | 2026-10-09 | wheel | No lead-ins: all group members start at the earliest start word; own bits cleared afterwards | +3% to +8% 1T; local Xeon 3/4 | Zen 3 (7763): 92.9k / 791.8k, +5.1% / +5.4%, 5/5 | Zen 5: 166.8k / 1.38M, +2.6% / +2.6%, 4/4 | KEEP, merged on top of hc-015; counts re-checked | `hc/champion` |
 
 **015, the spill fixed.** Freeing one register turned hc-012's −2.1% at 16T on Zen 5 into
 +6.8%, and lifted 1T too (+6.9%). The 16T loss had been the reloads, as suspected.
 | 017 | 2026-10-09 | wheel | Dense threshold 160 instead of 256, now that sparse is cheaper | ±2%; local Xeon medians favour 160 by 6% (noisy) | pending | pending | pending | `hc/017-wheel-dense160` |
+| 018 | 2026-10-09 | base | Sparse loop clears two chunks a trip | 0% to +3% on Zen 5; nothing on the sandbox earlier | pending | pending | pending | `hc/018-base-sparse-x2` |
+
+**016, no lead-ins.** +5% on Zen 3 and +2.6% on Zen 5, at every thread count. The fused loop now
+starts all members together, which also removed most of the masked stores that hc-007 targets
+on AVX2; hc-007's remaining value needs a fresh measurement on top of this.
