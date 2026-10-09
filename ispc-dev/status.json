@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T10:56:16Z",
+  "updated_utc": "2026-10-09T11:03:40Z",
   "run": {
     "id": "ap-20261009T0607Z",
     "state": "running",
@@ -8,7 +8,7 @@
     "mode_reason": "Service principal login and az batch pool list worked at 06:07 UTC.",
     "started_utc": "2026-10-09T06:07:00Z",
     "time_box_hours": 8,
-    "spend_nzd": 3.78,
+    "spend_nzd": 4.02,
     "spend_cap_nzd": 30
   },
   "current": {
@@ -285,9 +285,11 @@
       "id": "hc-020",
       "entry": "base",
       "hypothesis": "Regression fix: scalar dense routine on NEON",
-      "verdict": "running",
-      "where": "Cobalt 100, against the champion and against the start",
-      "note": "Final run found base -38.9% on Cobalt 100 vs the start: NEON scalarises the vector dense code. My miss: no arm64 run for hc-002/003."
+      "verdict": "kept",
+      "where": "Cobalt 100 +64% vs champion, level with the start; x86 identical",
+      "note": "Regression fix merged.",
+      "delta_1t": 64.2,
+      "delta_mt": 63.9
     }
   ],
   "azure_queue": 3,
@@ -486,6 +488,11 @@
       "utc": "2026-10-09T10:40:58Z",
       "level": "warn",
       "text": "Final run found a regression: base -38.9% on Cobalt 100 (arm64). Cause: NEON scalarises the vector dense code. Fix hc-020 running."
+    },
+    {
+      "utc": "2026-10-09T11:03:40Z",
+      "level": "info",
+      "text": "hc-020 merged: base on Cobalt 100 back to the start of the run (41.0k); x86 unchanged."
     }
   ],
   "research": {
