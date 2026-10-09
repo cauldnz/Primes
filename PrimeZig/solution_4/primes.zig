@@ -147,11 +147,13 @@ const BaseSieve = struct {
     alloc: Allocator,
     size: u64, // find primes up to and including this number
     nbits: usize, // one bit per odd number 1, 3, 5, ... <= size
-    words: []u64, // a set bit means composite
+    words: []align(64) u64, // a set bit means composite
 
     fn init(alloc: Allocator, size: u64) !BaseSieve {
         const nbits: usize = @intCast((size + 1) / 2);
-        const words = try alloc.alloc(u64, (nbits + 63) / 64);
+        // Cache-line aligned: the arena's own header left the words 16 bytes past a line, so
+        // half the 32-byte and every 64-byte dense vector access split a cache line.
+        const words = try alloc.alignedAlloc(u64, 64, (nbits + 63) / 64);
         @memset(words, 0);
         return .{ .alloc = alloc, .size = size, .nbits = nbits, .words = words };
     }
