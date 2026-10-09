@@ -1,0 +1,9 @@
+Architecture:                            aarch64
+CPU(s):                                  4
+Model name:                              Neoverse-N2
+BIOS Model name:                         Cobalt 100 None CPU @ 3.4GHz
+AVX-512: no
+entry=2 rounds=5
+build cand
+build champ
+build ctrl
