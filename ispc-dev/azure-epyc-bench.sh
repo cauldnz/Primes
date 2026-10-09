@@ -78,6 +78,11 @@ done
 if [ "${SUITE:-default}" = ab ] && diff -rq "$STAGE/cand" "$STAGE/champ" >/dev/null; then
   echo "!!! candidate equals champion (BASE=$BASE): commit the candidate elsewhere or set BASE"; exit 1
 fi
+# SUITE=profile: TSC-instrumented builds of the base entry and of mike-barber's Rust.
+mkdir -p "$STAGE/baseprof" "$STAGE/rustprof"
+cp "$STAGE/base/Dockerfile" "$STAGE/base/build.sh" "$STAGE/baseprof/"
+sed 's/\r$//' "$HERE/prototypes/profile/base_prof.ispc" > "$STAGE/baseprof/primes_base.ispc"
+sed 's/\r$//' "$HERE/prototypes/profile/rust_prof_main.rs" > "$STAGE/rustprof/main.rs"
 cost() { echo "$(date -u +%Y-%m-%dT%H:%M:%SZ),$MODE,$1,$2" >> "$COSTLOG"; }
 
 azs() { az "$@" --subscription "$SUB"; }
@@ -206,8 +211,58 @@ for i in $(seq "$ROUNDS"); do
   for x in $(printf "cand\nchamp\nchamp2\nctrl\n" | shuf); do one "$i" $x; done
 done
 '
+# SUITE=profile: perf on the host (the task runs as root). Each image is exported to a root
+# filesystem and its binary runs under chroot, so perf needs no container privileges and
+# resolves symbols with --symfs. 1T only: timeout stops our two-phase binaries after the 1T run.
+# Entries: our wheel (new = working tree), our base, C5, Rust; then the TSC phase builds.
+REMOTE_PROFILE='
+set -e
+STAGE="${STAGE:-$HOME/stage}"
+export DEBIAN_FRONTEND=noninteractive DOCKER_BUILDKIT=1
+APT="sudo apt-get -o DPkg::Lock::Timeout=600 -qq"
+$APT update && $APT install -y docker.io docker-buildx git >/dev/null
+$APT install -y linux-tools-$(uname -r) linux-tools-generic >/dev/null 2>&1 || $APT install -y linux-tools-generic >/dev/null 2>&1 || true
+PERF=$(ls /usr/lib/linux-tools/*/perf 2>/dev/null | head -1); [ -x "$PERF" ] || PERF=perf
+echo "perf: $PERF ($($PERF --version 2>&1))"; echo "kernel: $(uname -r)"
+sysctl -w kernel.perf_event_paranoid=-1 kernel.kptr_restrict=0 >/dev/null
+lscpu | grep -E "Model name|^CPU\(s\)|^Architecture" || true
+grep -q avx512f /proc/cpuinfo && echo "AVX-512: yes" || echo "AVX-512: no"
+git clone -q --depth 1 -b drag-race https://github.com/PlummersSoftwareLLC/Primes.git
+cd Primes
+cp -r PrimeRust/solution_1 "$STAGE/rustprof/src"; cp "$STAGE/rustprof/main.rs" "$STAGE/rustprof/src/prime-sieve-rust/src/main.rs"
+build() { echo "build $2"; docker build -q -t "$2" "$1" >/dev/null || echo "!!! build $2 failed"; }
+build "$STAGE/new" wheel; build "$STAGE/base" base; build PrimeC/solution_5 c5
+build PrimeRust/solution_1 rust; build "$STAGE/baseprof" baseprof; build "$STAGE/rustprof/src" rustprof
+for i in wheel base c5 rust; do
+  mkdir -p /rf/$i; cid=$(docker create $i); docker export $cid | tar x -C /rf/$i; docker rm $cid >/dev/null
+  mount -t proc proc /rf/$i/proc; mount --bind /sys /rf/$i/sys
+done
+echo "== counters"; $PERF stat -e cycles,instructions,branches,branch-misses,L1-dcache-loads,L1-dcache-load-misses true 2>&1 | grep -E "cycles|instructions|branch|L1|supported" || true
+EV=""; $PERF stat -e cycles true 2>&1 | grep -q "not supported\|<not" && EV="-e cpu-clock" && echo "hardware cycles not available: sampling cpu-clock"
+cmd() { case $1 in
+  wheel|base) echo "cd /opt/app && exec ./primes";;
+  c5) echo "cd /home/sieve && LD_PRELOAD=/usr/lib/libmimalloc.so exec bin/sieve_extend";;
+  rust) echo "cd /app && exec ./prime-sieve-rust --bits-extreme -t 1";; esac; }
+for i in wheel base c5 rust; do
+  echo "=== perf stat $i"
+  timeout -s INT 5.6 $PERF stat -d -- chroot /rf/$i /bin/sh -c "$(cmd $i)" 2>&1 | grep -vE "^$" | tail -40 || true
+  echo "=== perf record $i"
+  timeout -s INT 5.6 $PERF record $EV -g -o /root/$i.data -- chroot /rf/$i /bin/sh -c "$(cmd $i)" 2>&1 | grep ";" || true
+  echo "--- report $i (self, by symbol)"
+  $PERF report -i /root/$i.data --symfs=/rf/$i --no-children --stdio -g none --sort dso,sym 2>/dev/null | grep -vE "^#|^$" | head -25
+  TOP=$($PERF report -i /root/$i.data --symfs=/rf/$i --no-children --stdio -g none --sort sym -F sym 2>/dev/null | grep -vE "^#|^$" | head -1 | sed "s/^ *\[[^]]*\] *//")
+  echo "--- annotate $i: $TOP (lines >= 0.5%)"
+  $PERF annotate -i /root/$i.data --symfs=/rf/$i --stdio "$TOP" 2>/dev/null | awk -F: "\$1+0 >= 0.5" | head -120 || true
+done
+echo "=== TSC phase builds"
+for r in 1 2 3; do
+  echo "== round $r baseprof"; docker run --rm baseprof 2>&1 | grep -E "PROF|^F |;" || true
+  echo "== round $r rustprof"; docker run --rm rustprof --bits-extreme -t 1 2>&1 | grep -E "PROF|^F |;" || true
+done
+'
 case "${SUITE:-default}" in
   default) ;;
+  profile) REMOTE_SCRIPT="$REMOTE_PROFILE" ;;
   targets) REMOTE_SCRIPT="$REMOTE_TARGETS" ;;
   ab) REMOTE_SCRIPT="export ENTRY=$ENTRY ROUNDS=$ROUNDS
 $REMOTE_AB" ;;
