@@ -1,9 +1,21 @@
 # Next steps for Claude Code (from the Claude.ai session)
 
-**Last updated:** 2026-10-09 15:35 AEST. Living file; earlier versions are in
+**Last updated:** 2026-10-09 15:40 AEST. Living file; earlier versions are in
 `git log -p ispc-dev/NEXT-STEPS.md`.
 
 ## Changes since last update
+
+**15:40: moving to an unattended cloud autopilot.** Chris is going offline. Scheduled tasks now
+start Claude Code sessions in a cloud container that follow `ispc-dev/AUTOPILOT.md`.
+
+- Local session (Windows): push everything, update STATUS.md, then stop. Don't hold the lock.
+- Cloud runs use Azure Batch if the service-principal variables and network access are in
+  place. Otherwise they benchmark locally with `bench-local.sh`, keep winners on `hc/*` branches
+  and queue Zen confirmations in `AZURE-QUEUE.md`.
+- `WRITING.md` carries the house-style rules for sessions that can't load Chris's skills.
+
+**15:35:**
+
 
 I read the target matrix from the raw logs in `results/azure-202610091438` to `…1501` (medians,
 round 1 excluded on Zen 5). Decisions:
