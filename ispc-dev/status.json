@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T13:23:16Z",
+  "updated_utc": "2026-10-09T13:27:36Z",
   "run": {
     "id": "ap-20261009T1112Z",
     "state": "running",
@@ -442,8 +442,11 @@
       "id": "z-04",
       "entry": "zig",
       "hypothesis": "Zig base: aligned sieve + pointer-bounded sparse loop",
-      "verdict": "queued",
-      "where": "Zen 3, Zen 5, Cobalt 100"
+      "verdict": "kept",
+      "where": "Zen 3 +15.5%/+10.9%, Zen 5 +9.1%/+27.5%, Cobalt +0.7%",
+      "delta_1t": 15.5,
+      "delta_mt": 27.5,
+      "note": "Zig base now within 1.5-3% of ISPC base at 1T; hc/zig-champion created."
     }
   ],
   "azure_queue": 0,
@@ -453,11 +456,6 @@
     "Zig first pass on Zen"
   ],
   "events": [
-    {
-      "utc": "2026-10-09T06:11:24Z",
-      "level": "info",
-      "text": "Time box extended to 8 hours (until 00:07 AEST) by Chris; budget unchanged."
-    },
     {
       "utc": "2026-10-09T06:18:47Z",
       "level": "info",
@@ -702,6 +700,11 @@
       "utc": "2026-10-09T13:14:08Z",
       "level": "info",
       "text": "Final wheel: +24.6% Zen 3, +15.5% Zen 4, +27.2% Zen 5, +49.2% Cobalt 100 at 1T against the start of the run. Leads C5 by 55%, 19% and 37% at 1T."
+    },
+    {
+      "utc": "2026-10-09T13:27:36Z",
+      "level": "info",
+      "text": "Zig base z-04 kept: +15.5% Zen 3, +9.1% Zen 5 at 1T. Zig base now within 1.5-3% of the ISPC base."
     }
   ],
   "research": {
