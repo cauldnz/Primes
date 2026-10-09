@@ -43,3 +43,4 @@ The first hc-007 Zen 4 run started 17 seconds after hc-004 merged, so it would h
 candidate without hc-004 against a champion with it. I stopped it before any round ran. From
 now on each candidate is merged with the current champion first and `BASE` is pinned to a
 commit hash.
+| 009 | 2026-10-09 | base | Next-prime scan a word at a time with count-trailing-zeros | +1% to +3% 1T (scan is 2–4% of a pass) | pending | pending | pending | `hc/009-base-scan-ctz` |

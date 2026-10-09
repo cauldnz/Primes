@@ -1,0 +1,18 @@
+Architecture:                            x86_64
+CPU(s):                                  16
+Model name:                              AMD EPYC 9V74 80-Core Processor
+BIOS Model name:                         AMD EPYC 9V74 80-Core Processor                 None CPU @ 2.6GHz
+AVX-512: no
+entry=1 rounds=5
+build cand
+build champ
+build ctrl
+control=rogiervandam_extend
+self-test cand: 8 ok, 0 bad, exit=0
+self-test champ: 8 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-ispc;82635;5.000051;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;690511;5.000377;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;647626;5.000164;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;323446;5.000123;4;algorithm=wheel,faithful=yes,bits=1
+== round warmup champ

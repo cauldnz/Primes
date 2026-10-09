@@ -7,6 +7,13 @@ Autopilot lock: ap-20261009T0607Z 2026-10-09T06:07Z
 
 ## Autopilot hourly review
 
+**18:05 AEST (hour 2).**
+- Worked: hc-002 confirmed on fresh nodes (+22% to +24% at 1T on Zen 3 and Zen 5) and merged; hc-004 (wheel, lone prime 13) gained 4.9% to 8.7% and merged.
+- Didn't: hc-005 (wheel unmasked stores) lost 1.7% on Zen 5; hc-006 hit a noisy Zen 3 node (control swung 36k–59k) and is being rerun.
+- Protocol: one slip caught and fixed. A run started 17 seconds after a merge would have compared against the wrong champion; I stopped it before any round, and runs now pin `BASE` to a commit.
+- Spend: NZ$1.10. The four-pool limit binds, not money.
+- Next: finish hc-006b, hc-007 and hc-008 (wheel), then hc-009 (base scan) and a Zen 5 re-profile of the base champion. About two hours before the stop, a final scoreboard run of both champions against their rivals.
+
 **17:05 AEST (hour 1).**
 - Worked: the profile (hc-001) pinned 60–70% of the base gap on the dense phase; hc-002 (vector dense) gained 23% at 1T and hc-003 (sparse pointer walk) 12% on Zen 5.
 - Didn't: a higher dense limit with vector resets; ISPC compile time explodes past factor 128 (over 7 minutes for one target), so it's parked.
