@@ -55,7 +55,7 @@ Zen 4; the AVX-512 code is byte-identical, so Zen 5 can't move. The acceptance r
 which is AVX2-only.
 
 **008, tile memcpy.** No gain on Zen 5. The copy is too small a share of the pass to matter.
-| 011 | 2026-10-09 | wheel | Fusion group size G = 6 instead of 8 | +2% to +5% 1T; local Xeon medians G=6 +5% over G=8 (noisy) | pending | pending | pending | `hc/011-wheel-g6` |
+| 011 | 2026-10-09 | wheel | Fusion group size G = 6 instead of 8 | +2% to +5% 1T; local Xeon medians G=6 +5% over G=8 (noisy) | Zen 3 (7763): 86.7k / 771.4k, −1.2% / +2.8%, 1/5 at 1T, 5/5 at 16T | Zen 5: 167.0k / 1.34M, +4.5% / −0.3%, 5/5 at 1T; +6.2% at 4T, +6.3% at 8T | REVERT (Zen 3 −1.2% at 1T) | `hc/011-wheel-g6` |
 | 009 | 2026-10-09 | base | (result) | | Zen 3 (7763): 55.5k / 427.3k, −0.3% / −0.3%, 0/2, stopped after 3 rounds | Zen 5: 121.6k / 979.1k, −1.4% / −1.2%, 0/1, stopped | REVERT | `hc/009-base-scan-ctz` |
 | 010 | 2026-10-09 | both | Re-profile both champions on Zen 5 | Base gap to Rust mostly gone | n/a | Zen 5: base and Rust both 38k dense, 61k sparse, 4k scan per pass; wheel perf: sparse (in run_sieve) 52%, groups 35%, tile and 13 12% | measurement | `7360392` |
 | 012 | 2026-10-09 | wheel | 64-bit bit indices in the wheel sparse loop (no sign extension per OR) | +2% to +5% 1T; local Xeon +0.5% to +8%, 4/4 | pending | pending | pending | `hc/012-wheel-sparse-i64` |
@@ -67,3 +67,9 @@ scan is already cheap; the extra branches cost more than they save. Stopped earl
 sparse 61k, scan 4k cycles a pass). The uninstrumented base runs 123k–125k passes against
 Rust's 125k at 1T. On the wheel, the sparse loop is the largest phase at 52% of samples.
 | 013 | 2026-10-09 | base | Add the avx512skx-x8 target now that dense resets are vectorised | Zen 5 +2% to +5% (dense is 35% of a pass); no change without AVX-512 | n/a (identical code) | pending | pending | `hc/013-base-avx512` |
+| 014 | 2026-10-09 | wheel | G = 6 with AVX-512 only, 8 otherwise | Zen 5 as hc-011, Zen 3 unchanged | identical code to champion | as hc-011 (identical AVX-512 code): +4.5% / −0.3%, +6% at 4T and 8T | Chris to decide; Zen 4 AVX-512 (D16as_v6) check pending | `hc/014-wheel-g6-avx512` |
+
+**011 and 014, group size.** G = 6 helps the AVX-512 build on Zen 5 and hurts the AVX2 build
+on Zen 3 at 1T. hc-014 picks G per target; its AVX-512 code is byte-identical to hc-011's and
+its AVX2 code to the champion's, so hc-011's numbers stand for it. Like hc-007 it can't pass
+the "2% on both Zen 3 and Zen 5" rule by construction.

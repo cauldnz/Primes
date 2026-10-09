@@ -69,3 +69,66 @@ rogiervandam_extend_epar;259325;5.000020;4;algorithm=other,faithful=yes,bits=1
 rogiervandam_extend_epar;130134;5.000036;2;algorithm=other,faithful=yes,bits=1
 rogiervandam_extend;65190;5.000073;1;algorithm=other,faithful=yes,bits=1
 == round 2 cand
+cauldnz-ispc;91877;5.000020;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;787344;5.000254;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;739055;5.000164;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;368169;5.000108;4;algorithm=wheel,faithful=yes,bits=1
+== round 3 cand
+cauldnz-ispc;92125;5.000040;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;784390;5.000287;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;738118;5.000156;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;366985;5.000110;4;algorithm=wheel,faithful=yes,bits=1
+== round 3 champ
+cauldnz-ispc;86035;5.000007;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;752008;5.000278;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;696859;5.000163;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;350531;5.000105;4;algorithm=wheel,faithful=yes,bits=1
+== round 3 champ2
+cauldnz-ispc;86973;5.000022;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;750976;5.000301;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;701740;5.000156;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;352471;5.000094;4;algorithm=wheel,faithful=yes,bits=1
+== round 3 ctrl
+rogiervandam_extend_epar;532744;5.000066;16;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;517326;5.000022;8;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;259699;5.000050;4;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;130264;5.000015;2;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend;65265;5.000075;1;algorithm=other,faithful=yes,bits=1
+== round 4 champ
+cauldnz-ispc;87451;5.000037;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;752911;5.000287;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;689968;5.000149;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;346488;5.000106;4;algorithm=wheel,faithful=yes,bits=1
+== round 4 ctrl
+rogiervandam_extend_epar;533466;5.000066;16;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;515086;5.000031;8;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;259277;5.000021;4;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;130297;5.000032;2;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend;65120;5.000032;1;algorithm=other,faithful=yes,bits=1
+== round 4 cand
+cauldnz-ispc;92020;5.000024;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;785449;5.000272;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;732254;5.000186;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;370154;5.000126;4;algorithm=wheel,faithful=yes,bits=1
+== round 4 champ2
+cauldnz-ispc;79605;5.000059;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;755476;5.000264;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;692682;5.000171;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;344795;5.000105;4;algorithm=wheel,faithful=yes,bits=1
+== round 5 cand
+cauldnz-ispc;92691;5.000034;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;783520;5.000281;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;728951;5.000159;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;371065;5.000090;4;algorithm=wheel,faithful=yes,bits=1
+== round 5 ctrl
+rogiervandam_extend_epar;534002;5.000067;16;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;513953;5.000032;8;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;260269;5.000039;4;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;130287;5.000026;2;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend;65335;5.000061;1;algorithm=other,faithful=yes,bits=1
+== round 5 champ
+cauldnz-ispc;88436;5.000003;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;752612;5.000311;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;691206;5.000168;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;347149;5.000094;4;algorithm=wheel,faithful=yes,bits=1
+== round 5 champ2

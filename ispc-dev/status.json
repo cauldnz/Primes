@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T08:40:52Z",
+  "updated_utc": "2026-10-09T08:47:55Z",
   "run": {
     "id": "ap-20261009T0607Z",
     "state": "running",
@@ -195,8 +195,11 @@
       "id": "hc-011",
       "entry": "wheel",
       "hypothesis": "Fusion group size G=6 instead of 8",
-      "verdict": "running",
-      "where": "Zen 5 running, Zen 3 launched"
+      "verdict": "rejected",
+      "where": "Zen 3 -1.2%/+2.8%, Zen 5 +4.5%/-0.3% (+6% at 4-8T)",
+      "delta_1t": -1.2,
+      "delta_mt": 2.8,
+      "note": "Best G differs by target. Follow-up hc-014."
     },
     {
       "id": "hc-012",
@@ -212,6 +215,15 @@
       "hypothesis": "Add the AVX-512 x8 target (vector dense in one zmm)",
       "verdict": "running",
       "where": "Zen 5"
+    },
+    {
+      "id": "hc-014",
+      "entry": "wheel",
+      "hypothesis": "G=6 for AVX-512, 8 otherwise",
+      "verdict": "queued",
+      "delta_1t": 4.5,
+      "where": "Zen 5 via hc-011 (identical code); Zen 4 AVX-512 check pending",
+      "note": "Target-specific: needs Chris, like hc-007."
     }
   ],
   "azure_queue": 3,
@@ -345,6 +357,11 @@
       "utc": "2026-10-09T08:40:52Z",
       "level": "info",
       "text": "hc-011 (G=6) Zen 5: +4.5% 1T, +6% at 4-8T, flat at 16T. Zen 3 running."
+    },
+    {
+      "utc": "2026-10-09T08:47:55Z",
+      "level": "info",
+      "text": "hc-011 rejected (G=6 hurts Zen 3 1T). hc-014 makes G per target; Zen 5 data carries over."
     }
   ],
   "research": {
