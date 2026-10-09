@@ -5,3 +5,28 @@ BIOS Model name:                         AMD EPYC 7763 64-Core Processor        
 AVX-512: no
 kind=wheel rounds=5 id=12521413638
 build cand
+build champ
+self-test cand: 8 ok, 0 bad, exit=0
+self-test champ: 8 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-ispc;106037;5.000029;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;862045;5.000295;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;797094;5.000160;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;413029;5.000121;4;algorithm=wheel,faithful=yes,bits=1
+== round warmup champ
+cauldnz-ispc;88722;5.000057;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;707370;5.000291;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;642953;5.000155;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;333811;5.000095;4;algorithm=wheel,faithful=yes,bits=1
+== round warmup champ2
+cauldnz-ispc;86577;5.000006;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;713515;5.000264;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;645710;5.000169;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;340714;5.000119;4;algorithm=wheel,faithful=yes,bits=1
+== round warmup ctrl
+rogiervandam_extend_epar;541413;5.000055;16;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;519523;5.000040;8;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;270670;5.000023;4;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;131331;5.000057;2;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend;68616;5.000052;1;algorithm=other,faithful=yes,bits=1
+== round 1 champ

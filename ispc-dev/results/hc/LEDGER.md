@@ -144,3 +144,4 @@ loop streams 32 words per iteration (ISPC: 16 with `avx2-i32x16`), and `applyGro
 per member count, so short groups don't stream empty patterns. hc-027 tests the first in ISPC.
 The Zig base trails the ISPC base by 10% to 16% at 1T but beats davepl's C++ by 23% to 28%.
 | 028 | 2026-10-09 | base | hc-024 + hc-026 together against the champion (measurement for Chris) | Zen 5 +2% to +3%, Zen 3 +1% | pending | pending | measurement | `hc/026-base-init-with-3` |
+| z04 | 2026-10-09 | zig | Zig base: 64-byte-aligned sieve (the arena header left it at 16 mod 64) and a pointer-bounded sparse loop (16 to 11 instructions per eight ORs, no division) | +5% to +15% 1T, most on Zen 5 | pending | pending | pending | `hc/zig-004-align-sparse` |

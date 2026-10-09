@@ -82,3 +82,19 @@ cauldnz-zig-wheel;105673;5.000065;1;algorithm=wheel,faithful=yes,bits=1
 cauldnz-zig-wheel;421885;5.000192;4;algorithm=wheel,faithful=yes,bits=1
 cauldnz-zig-wheel;211075;5.000094;2;algorithm=wheel,faithful=yes,bits=1
 == round 4 ctrl
+cauldnz-ispc;94445;5.000037;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;377278;5.000127;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;188781;5.000159;2;algorithm=wheel,faithful=yes,bits=1
+== round 4 champ2
+cauldnz-zig-wheel;105712;5.000049;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;422209;5.000185;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;211393;5.000116;2;algorithm=wheel,faithful=yes,bits=1
+== round 5 champ
+cauldnz-zig-wheel;105703;5.000047;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;422346;5.000223;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;211441;5.000091;2;algorithm=wheel,faithful=yes,bits=1
+== round 5 cand
+cauldnz-zig-wheel;105796;5.000058;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;421951;5.000179;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;211101;5.000182;2;algorithm=wheel,faithful=yes,bits=1
+== round 5 champ2
