@@ -68,3 +68,13 @@ cauldnz-zig-base;152828;5.000212;4;algorithm=base,faithful=yes,bits=1
 cauldnz-zig-base;76687;5.000224;2;algorithm=base,faithful=yes,bits=1
 == round 3 ctrl2
 davepl_array_optimized;32204;5.00042;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;128599;5.00021;4;algorithm=base,faithful=yes,bits=1
+== round 3 champ2
+cauldnz-zig-base;38283;5.000152;1;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;152674;5.000214;4;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;76626;5.000179;2;algorithm=base,faithful=yes,bits=1
+== round 3 cand
+cauldnz-zig-base;38269;5.000042;1;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;152963;5.000258;4;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;76681;5.000168;2;algorithm=base,faithful=yes,bits=1
+== round 3 champ

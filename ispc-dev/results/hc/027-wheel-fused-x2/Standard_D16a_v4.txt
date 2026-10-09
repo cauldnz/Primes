@@ -24,3 +24,14 @@ cauldnz-ispc;858167;5.000296;16;algorithm=wheel,faithful=yes,bits=1
 cauldnz-ispc;796474;5.000139;8;algorithm=wheel,faithful=yes,bits=1
 cauldnz-ispc;412831;5.000117;4;algorithm=wheel,faithful=yes,bits=1
 == round warmup ctrl
+rogiervandam_extend_epar;535437;5.000086;16;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;512768;5.000033;8;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;265832;5.000046;4;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;135295;5.000051;2;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend;70835;5.000039;1;algorithm=other,faithful=yes,bits=1
+== round 1 champ2
+cauldnz-ispc;107855;5.000017;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;858744;5.000322;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;796986;5.000175;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;409401;5.000089;4;algorithm=wheel,faithful=yes,bits=1
+== round 1 ctrl

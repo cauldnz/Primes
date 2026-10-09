@@ -5,3 +5,12 @@ BIOS Model name:                         AMD EPYC 7763 64-Core Processor        
 AVX-512: no
 kind=base rounds=10 id=1232469720
 build cand
+build champ
+self-test cand: 13 ok, 0 bad, exit=0
+self-test champ: 13 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-ispc-base;56471;5.000078;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;429008;5.000349;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;444719;5.000182;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;222297;5.000116;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ

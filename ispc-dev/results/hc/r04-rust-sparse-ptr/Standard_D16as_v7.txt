@@ -113,3 +113,13 @@ mike-barber_bit-extreme-hybrid;483792;5.0000801086;4;algorithm=base,faithful=yes
 mike-barber_bit-extreme-hybrid;916136;5.0001702309;8;algorithm=base,faithful=yes,bits=1
 mike-barber_bit-extreme-hybrid;925779;5.0003271103;16;algorithm=base,faithful=yes,bits=1
 == round 4 champ
+mike-barber_bit-extreme-hybrid;129528;5.0000290871;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;484515;5.0000658035;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;914536;5.0001964569;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;919546;5.0002536774;16;algorithm=base,faithful=yes,bits=1
+== round 4 ctrl
+cauldnz-ispc-base;126140;5.000005;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;1000192;5.000191;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;890761;5.000095;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;470315;5.000059;4;algorithm=base,faithful=yes,bits=1
+== round 5 champ2
