@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T06:18:47Z",
+  "updated_utc": "2026-10-09T06:30:42Z",
   "run": {
     "id": "ap-20261009T0607Z",
     "state": "running",
@@ -12,9 +12,9 @@
     "spend_cap_nzd": 30
   },
   "current": {
-    "id": "hc-001",
+    "id": "hc-002",
     "phase": "evaluate",
-    "detail": "perf profile running on D16as_v5 (came up Zen 4) and D16as_v7"
+    "detail": "A/B on D16as_v5 and D16as_v7, 5 rounds each; hc-001 Zen 5 profile finishing"
   },
   "scoreboard": [
     {
@@ -84,7 +84,24 @@
       "source": "azure 14:45 AEST, medians"
     }
   ],
-  "experiments": [],
+  "experiments": [
+    {
+      "id": "hc-001",
+      "entry": "both",
+      "hypothesis": "Profile: share of cycles per phase, ours against C5 and Rust",
+      "verdict": "running",
+      "where": "Zen 4 (v5 size), Zen 5",
+      "note": "Zen 4 done: base dense 114k vs Rust 79k cycles a pass; no hardware PMU on Azure, cpu-clock sampling used."
+    },
+    {
+      "id": "hc-002",
+      "entry": "base",
+      "hypothesis": "Vector dense resets (per-lane single-bit ORs folded into constant vectors)",
+      "verdict": "running",
+      "where": "Zen 4 (v5), Zen 5",
+      "note": "Predicted +10% to +18% 1T. Local Xeon: 4 of 4 rounds won."
+    }
+  ],
   "azure_queue": 0,
   "next_up": [
     "Base: profile against Rust on Zen 5 (dense, sparse, next-prime scan)",
@@ -116,6 +133,16 @@
       "utc": "2026-10-09T06:18:47Z",
       "level": "info",
       "text": "Research agent started in the background. Dashboard gains Research and Where-the-cycles-go sections."
+    },
+    {
+      "utc": "2026-10-09T06:30:42Z",
+      "level": "info",
+      "text": "hc-001 Zen 4 profile in: 70% of the base gap to Rust is the dense phase."
+    },
+    {
+      "utc": "2026-10-09T06:30:42Z",
+      "level": "info",
+      "text": "hc-002 (vector dense) launched on D16as_v5 and D16as_v7."
     }
   ],
   "research": {
@@ -136,7 +163,7 @@
     "other_lane": null
   },
   "cycles": {
-    "source": "Local 4-vCPU Xeon (Ice Lake class), TSC timers per phase, 1T. Zen numbers replace these when the perf profile lands.",
+    "source": "Zen 4 (EPYC 9V74, AVX2), TSC timers per phase, 1T, 3 rounds within 0.1%. Zen 5 to follow.",
     "phases": [
       "dense",
       "sparse",
@@ -146,30 +173,43 @@
     "rows": [
       {
         "program": "ours base",
-        "machine": "Xeon, local",
+        "machine": "Zen 4",
         "share": {
-          "dense": 40,
-          "sparse": 54,
+          "dense": 42,
+          "sparse": 53,
           "scan": 2,
           "setup": 1
         },
-        "per_pass": "~200k cyc (untimed build)"
+        "per_pass": "270k cycles"
       },
       {
         "program": "Rust extreme-hybrid",
-        "machine": "Xeon, local",
+        "machine": "Zen 4",
         "share": {
-          "dense": 34,
-          "sparse": 63,
+          "dense": 36,
+          "sparse": 62,
           "scan": 3,
           "setup": null
         },
-        "per_pass": "~237k cyc incl. timers"
+        "per_pass": "219k cycles"
+      },
+      {
+        "program": "ours wheel (perf)",
+        "machine": "Zen 4",
+        "share": {
+          "dense": 55,
+          "sparse": 41,
+          "scan": 4,
+          "setup": null
+        },
+        "per_pass": "cpu-clock samples"
       }
     ],
     "notes": [
-      "Dense, factors below 128: ours 128k cycles per pass, Rust 82k. Rust costs a flat ~2.7k per factor; ours 4.5-5.6k for factors under 70.",
-      "Sparse: ours 65k, Rust 60k. Scan: about 7k each."
+      "Base gap to Rust: 51k cycles a pass, of which dense 35k, sparse 8k, scan 0.",
+      "Rust dense costs a flat ~2.7k cycles per factor: LLVM vectorises it. Ours is scalar.",
+      "Wheel: pattern groups (dense) 43%+12%, sparse primes 41%, run_sieve 4% (perf cpu-clock, 1T plus some all-thread time).",
+      "Azure D-series exposes no hardware PMU counters: perf falls back to cpu-clock sampling."
     ]
   }
 }
