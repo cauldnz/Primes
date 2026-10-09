@@ -32,3 +32,5 @@ sparse loop was bound by instruction count, not stores. Zen 4 gained 3.6% at 1T 
 On AVX-512 masked stores are cheap, so the padding and overrun only add work there. Next: keep
 the change for AVX2 targets only, which can't move Zen 5. That can't pass the "both machines"
 rule by construction, so it needs Chris's call if it wins on Zen 3.
+| 007 | 2026-10-09 | wheel | hc-005 for SSE and AVX2 targets only; AVX-512 code byte-identical to the champion | Zen 3 and AVX2-only Zen 4 +3% to +5%; Zen 5 exactly 0 | pending | n/a (identical code) | pending | `hc/007-wheel-unmasked-avx2` |
+| 008 | 2026-10-09 | wheel | Copy the 7·11 tile by doubling with memcpy; the foreach copy compiled to scalar moves | +1% to +3% 1T on Zen; local Xeon inconclusive (2 of 4) | pending | pending | pending | `hc/008-wheel-tile-memcpy` |
