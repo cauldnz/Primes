@@ -183,8 +183,14 @@ static void clear_sparse(uniform Sieve * uniform s, uniform int p) {
     }
 }
 
+// ISPC's NEON targets scalarise the vector dense code (per-lane loads), which made the base
+// entry 39% slower on Cobalt 100; NEON keeps the scalar routine.
+#if defined(ISPC_TARGET_NEON)
+#define D(P) case P: clear_dense(s->bits, s->nwords, P); break;
+#else
 #define D(P) case P: if (P < VEC_LIMIT) clear_dense_vec(s->bits, s->nwords, P); \
                      else clear_dense(s->bits, s->nwords, P); break;
+#endif
 
 // Clear all odd multiples of factor p.
 static void clear_factor(uniform Sieve * uniform s, uniform int p) {
