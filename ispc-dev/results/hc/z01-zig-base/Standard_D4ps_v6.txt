@@ -5,3 +5,66 @@ BIOS Model name:                         Cobalt 100 None CPU @ 3.4GHz
 AVX-512: no
 kind=zig rounds=5 id=12330011344
 build cand
+build champ
+build ctx
+self-test cand: 0 ok, 0 bad, exit=0
+self-test champ: 0 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-zig-base;38105;5.000060;1;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;152672;5.000299;4;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;76671;5.000127;2;algorithm=base,faithful=yes,bits=1
+== round warmup champ
+cauldnz-zig-base;38293;5.000103;1;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;150750;5.000222;4;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;76606;5.000171;2;algorithm=base,faithful=yes,bits=1
+== round warmup champ2
+cauldnz-zig-base;38258;5.000139;1;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;152865;5.000192;4;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;76645;5.000183;2;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl
+cauldnz-ispc-base;41253;5.000114;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;163916;5.000138;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;82080;5.000186;2;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl2
+davepl_array_optimized;32202;5.00025;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;128620;5.00024;4;algorithm=base,faithful=yes,bits=1
+== round 1 ctrl
+cauldnz-ispc-base;41102;5.000055;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;163819;5.000116;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;82087;5.000131;2;algorithm=base,faithful=yes,bits=1
+== round 1 cand
+cauldnz-zig-base;38274;5.000159;1;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;152759;5.000180;4;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;76682;5.000128;2;algorithm=base,faithful=yes,bits=1
+== round 1 champ2
+cauldnz-zig-base;38268;5.000068;1;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;152934;5.000247;4;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;76662;5.000125;2;algorithm=base,faithful=yes,bits=1
+== round 1 champ
+cauldnz-zig-base;38459;5.000041;1;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;152420;5.000248;4;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;76669;5.000232;2;algorithm=base,faithful=yes,bits=1
+== round 1 ctrl2
+davepl_array_optimized;32200;5.00024;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;128574;5.00018;4;algorithm=base,faithful=yes,bits=1
+== round 2 ctrl
+cauldnz-ispc-base;41079;5.000111;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;163961;5.000144;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;82083;5.000063;2;algorithm=base,faithful=yes,bits=1
+== round 2 champ
+cauldnz-zig-base;38267;5.000025;1;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;152928;5.000222;4;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;76646;5.000149;2;algorithm=base,faithful=yes,bits=1
+== round 2 ctrl2
+davepl_array_optimized;32203;5.0003;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;128561;5.00035;4;algorithm=base,faithful=yes,bits=1
+== round 2 champ2
+cauldnz-zig-base;38225;5.000052;1;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;152916;5.000227;4;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;76655;5.000147;2;algorithm=base,faithful=yes,bits=1
+== round 2 cand
+cauldnz-zig-base;38260;5.000113;1;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;152828;5.000212;4;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;76687;5.000224;2;algorithm=base,faithful=yes,bits=1
+== round 3 ctrl2
+davepl_array_optimized;32204;5.00042;1;algorithm=base,faithful=yes,bits=1

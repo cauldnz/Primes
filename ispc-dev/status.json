@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T12:38:29Z",
+  "updated_utc": "2026-10-09T12:44:58Z",
   "run": {
     "id": "ap-20261009T1112Z",
     "state": "running",
@@ -395,22 +395,31 @@
       "id": "r-04",
       "entry": "rust",
       "hypothesis": "Rust pointer-walk sparse loop",
-      "verdict": "queued",
-      "where": "Zen 3, Zen 5"
+      "verdict": "rejected",
+      "where": "flat",
+      "delta_1t": -0.2,
+      "delta_mt": -0.1,
+      "note": "Rust 1.57 already compiles the sparse loop well."
     },
     {
       "id": "r-05",
       "entry": "rust",
       "hypothesis": "r-04 plus Rust 1.88 toolchain",
-      "verdict": "queued",
-      "where": "Zen 3, Zen 5"
+      "verdict": "rejected",
+      "where": "Zen 5 -61.7%, Zen 3 -0.4%",
+      "delta_1t": -61.7,
+      "delta_mt": -59.9,
+      "note": "Rust 1.88 with AVX-512 collapses on Zen 5. Old toolchain stays."
     },
     {
       "id": "hc-026",
       "entry": "base",
       "hypothesis": "Factor-3 pass initialises the sieve (vs hc-024)",
-      "verdict": "queued",
-      "where": "Zen 3, Zen 5"
+      "verdict": "inconclusive",
+      "where": "Zen 3 +1.1%/+0.7%, Zen 5 +0.7%/+0.2% (vs hc-024)",
+      "delta_1t": 1.1,
+      "delta_mt": 0.7,
+      "note": "Small, consistent. Held with hc-024."
     },
     {
       "id": "hc-027",
