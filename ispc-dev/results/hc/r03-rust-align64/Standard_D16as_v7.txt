@@ -80,3 +80,29 @@ mike-barber_bit-extreme-hybrid;920621;5.0002756119;16;algorithm=base,faithful=ye
 davepl_array_optimized;92594;5.00018;1;algorithm=base,faithful=yes,bits=1
 davepl_array_optimized;713646;5.00115;16;algorithm=base,faithful=yes,bits=1
 == round 3 champ2
+mike-barber_bit-extreme-hybrid;129427;5.0000166893;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;484028;5.0000815392;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;915140;5.0001726151;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;921213;5.0003023148;16;algorithm=base,faithful=yes,bits=1
+== round 3 ctrl
+cauldnz-ispc-base;125794;5.000039;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;1000571;5.000196;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;890304;5.000106;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;469378;5.000041;4;algorithm=base,faithful=yes,bits=1
+== round 3 champ
+mike-barber_bit-extreme-hybrid;129342;5.0000200272;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;484225;5.0000715256;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;915563;5.0001606941;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;921535;5.0002918243;16;algorithm=base,faithful=yes,bits=1
+== round 3 cand
+mike-barber_bit-extreme-hybrid;129432;5.0000233650;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;483365;5.0000782013;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;914317;5.0001459122;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;919703;5.0003519058;16;algorithm=base,faithful=yes,bits=1
+== round 4 champ
+mike-barber_bit-extreme-hybrid;129072;5.0000014305;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;484902;5.0000877380;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;916044;5.0001983643;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;924565;5.0003209114;16;algorithm=base,faithful=yes,bits=1
+== round 4 ctrl2
+davepl_array_optimized;92157;5.00017;1;algorithm=base,faithful=yes,bits=1

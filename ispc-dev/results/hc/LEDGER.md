@@ -124,9 +124,10 @@ per-word extensions. The arm64 gap to Rust (4%) lies elsewhere.
 
 **r02, newer Rust toolchain.** Rust 1.88 builds a slower binary than 1.57 for this code on Zen 3
 (−2.2% at 1T, every round). Old LLVM stays.
-| r03 | 2026-10-09 | rust | Rust flag words on a 64-byte boundary (Vec<u64> is 8-byte aligned) | Zen 5 16T +3% to +10%; 1T flat | pending | pending | pending | `hc/rust-003-align64` |
+| r03 | 2026-10-09 | rust | Rust flag words on a 64-byte boundary (Vec<u64> is 8-byte aligned) | Zen 5 16T +3% to +10%; 1T flat | n/a | Zen 5: 129.4k / 919.7k, +0.1% / −0.2%, stopped after 3 rounds; davepl 16T 713.5k | REVERT: alignment is not the 16T gap | `hc/rust-003-align64` |
 | z01 | 2026-10-09 | zig | First Zig entry (`PrimeZig/solution_4`, base and wheel, Zig 0.13, native CPU) against our ISPC entries and davepl | Zig base near ISPC base; Zig wheel 10% to 20% behind ISPC wheel | pending | pending | measurement | `hc/zig-first-pass` |
 | 024 | 2026-10-09 | base | `unmasked` in `clear_factor`: every dense vector load and store was masked (13,924 `vmaskmovpd` on AVX2) | AVX2 Zen +2% to +8%, Zen 5 0% to +2% (research pass 2) | pending | pending | pending | `hc/024-base-unmasked` |
 | 025 | 2026-10-09 | base | Vector dense on NEON again, on top of hc-024 (the mask, not NEON, caused hc-020) | Cobalt 100 +8% to +15% (research pass 2) | n/a (x86 identical) | n/a | pending (Cobalt 100) | `hc/025-base-neon-vector` |
 | r04 | 2026-10-09 | rust | Rust pointer-walk sparse loop (12 to 11 instructions per eight ORs on 1.57) | 0% to +2% | pending | pending | pending | `hc/rust-004-sparse-ptr` |
 | r05 | 2026-10-09 | rust | r04 plus Rust 1.88 on bookworm | +1% to +4% (dense halves under new LLVM) | pending | pending | pending | `hc/rust-005-sparse-ptr-toolchain` |
+| 026 | 2026-10-09 | base | The factor-3 pass initialises the sieve (no separate zeroing); measured against hc-024 | +1.5% to +2.5% (research pass 2) | pending | pending | pending | `hc/026-base-init-with-3` |

@@ -1,0 +1,39 @@
+Architecture:                            x86_64
+CPU(s):                                  16
+Model name:                              AMD EPYC 7763 64-Core Processor
+BIOS Model name:                         AMD EPYC 7763 64-Core Processor                 None CPU @ 2.4GHz
+AVX-512: no
+kind=base rounds=5 id=12045217991
+build cand
+build champ
+self-test cand: 13 ok, 0 bad, exit=0
+self-test champ: 13 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-ispc-base;58224;5.000069;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;428765;5.000343;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;444465;5.000152;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;225959;5.000520;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ
+cauldnz-ispc-base;58010;5.000047;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;427208;5.000343;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;443808;5.000149;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;226722;5.000115;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ2
+cauldnz-ispc-base;58805;5.000066;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;427267;5.000356;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;443839;5.000163;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;224484;5.000090;4;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl
+mike-barber_bit-extreme-hybrid;55256;5.0000300407;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;214038;5.0001883507;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;420936;5.0002107620;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;411453;5.0004544258;16;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl2
+davepl_array_optimized;38644;5.00016;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;307117;5.00042;16;algorithm=base,faithful=yes,bits=1
+== round 1 ctrl
+mike-barber_bit-extreme-hybrid;55322;5.0000090599;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;216783;5.0001721382;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;420818;5.0001983643;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;411942;5.0004749298;16;algorithm=base,faithful=yes,bits=1
+== round 1 champ2
