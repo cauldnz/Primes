@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T12:24:09Z",
+  "updated_utc": "2026-10-09T12:28:39Z",
   "run": {
     "id": "ap-20261009T1112Z",
     "state": "running",
@@ -366,7 +366,8 @@
       "entry": "zig",
       "hypothesis": "First Zig entry: base and wheel vs ISPC and davepl",
       "verdict": "running",
-      "where": "Zen 3, Zen 5"
+      "where": "Zen 3, Zen 5",
+      "note": "Early: Zig wheel beats ISPC wheel by 16.5% (Zen 3) and 12.4% (Zen 5) at 1T; Zig base trails ISPC base by 10-15%. Faithful: patterns built per pass."
     },
     {
       "id": "hc-024",
@@ -400,6 +401,13 @@
       "id": "hc-026",
       "entry": "base",
       "hypothesis": "Factor-3 pass initialises the sieve (vs hc-024)",
+      "verdict": "queued",
+      "where": "Zen 3, Zen 5"
+    },
+    {
+      "id": "hc-027",
+      "entry": "wheel",
+      "hypothesis": "Fused group loop, two vectors a trip (learnt from the Zig port)",
       "verdict": "queued",
       "where": "Zen 3, Zen 5"
     }
@@ -645,6 +653,11 @@
       "utc": "2026-10-09T12:05:05Z",
       "level": "info",
       "text": "Research pass 2 done: Rust already tops base on 5 runners except TR 1T; davepl is not top. Found 13,924 masked moves in our dense code (hc-024)."
+    },
+    {
+      "utc": "2026-10-09T12:28:39Z",
+      "level": "info",
+      "text": "Zig first pass: the Zig wheel beats the ISPC wheel at 1T (+16.5% Zen 3, +12.4% Zen 5). Porting its 32-word loop back to ISPC (hc-027)."
     }
   ],
   "research": {

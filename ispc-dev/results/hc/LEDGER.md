@@ -131,3 +131,4 @@ per-word extensions. The arm64 gap to Rust (4%) lies elsewhere.
 | r04 | 2026-10-09 | rust | Rust pointer-walk sparse loop (12 to 11 instructions per eight ORs on 1.57) | 0% to +2% | pending | pending | pending | `hc/rust-004-sparse-ptr` |
 | r05 | 2026-10-09 | rust | r04 plus Rust 1.88 on bookworm | +1% to +4% (dense halves under new LLVM) | pending | pending | pending | `hc/rust-005-sparse-ptr-toolchain` |
 | 026 | 2026-10-09 | base | The factor-3 pass initialises the sieve (no separate zeroing); measured against hc-024 | +1.5% to +2.5% (research pass 2) | pending | pending | pending | `hc/026-base-init-with-3` |
+| 027 | 2026-10-09 | wheel | Fused group loop: two vectors a trip (Zig streams 32 words and beats the ISPC wheel) | +2% to +8% 1T | pending | pending | pending | `hc/027-wheel-fused-x2` |
