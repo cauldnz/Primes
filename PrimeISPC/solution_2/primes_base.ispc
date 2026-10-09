@@ -14,7 +14,9 @@
 //    instantiated for every odd factor below the limit with the factor as a compile-time
 //    constant, so those 64 positions and single-bit masks become immediates. It covers every
 //    odd value, not only primes: the program uses no knowledge of which numbers are prime
-//    beyond 2 being the only even one.
+//    beyond 2 being the only even one. For factors below 119 the same ORs are written per
+//    SIMD lane, over a block of consecutive words, so the compiler emits vector ORs with
+//    constant masks: the effect LLVM's SLP vectoriser has on the Rust entry's dense resetter.
 //  * Sparse (larger factors): the same idea over bytes. 8 multiples repeat every p bytes,
 //    each with a fixed bit position; their byte offsets are computed per factor and the 8
 //    masks are compile-time constants selected by p mod 16.
@@ -53,6 +55,7 @@ static inline uniform double now() {
 }
 
 #define DENSE_LIMIT 128      // factors below this use the dense routine
+#define VEC_LIMIT 119        // ...and the vector form below this (larger ones exceed LLVM's unroll limit)
 
 // ---------------------------------------------------------------------------------------
 // The sieve "class": a struct holding all of a sieve's state, plus the functions below that
@@ -87,8 +90,8 @@ static inline uniform bool is_composite_index(const uniform Sieve * uniform s, u
 // every chunk the 64 multiples sit at the same offsets t_j = P/2 + j*P (j = 0..63).
 // Clearing starts at the chunk holding P*P; any smaller multiples in that chunk are
 // composite too, except P itself, which is restored afterwards.
-static inline void clear_dense(uniform uint64 * uniform w, uniform int nwords, const uniform int P) {
-    uniform int c = ((P * P / 2) / 64 / P) * P;
+static inline void clear_dense_from(uniform uint64 * uniform w, uniform int nwords, const uniform int P,
+                                    uniform int c) {
     for (; c + P <= nwords; c += P) {
         #pragma unroll
         for (uniform int j = 0; j < 64; j++) {
@@ -103,6 +106,35 @@ static inline void clear_dense(uniform uint64 * uniform w, uniform int nwords, c
     }
     const uniform int f = P / 2;                                    // P itself is prime
     if ((f >> 6) < nwords) w[f >> 6] &= ~(((uniform uint64)1) << (f & 63));
+}
+
+static inline void clear_dense(uniform uint64 * uniform w, uniform int nwords, const uniform int P) {
+    clear_dense_from(w, nwords, P, ((P * P / 2) / 64 / P) * P);
+}
+
+// Vector dense clearing for small factors. A block of programCount chunks (programCount * P
+// words, a whole number of vectors) is cleared one vector of consecutive words at a time: each
+// composite in the block gets its own single-bit OR, applied in the lane that holds its word.
+// With P and programIndex both compile-time constants, LLVM folds a vector's single-bit ORs into
+// one constant, as it does for the scalar routine above. Words left over after the last whole
+// block go to the scalar routine.
+static inline void clear_dense_vec(uniform uint64 * uniform w, uniform int nwords, const uniform int P) {
+    uniform int c = ((P * P / 2) / 64 / P) * P;
+    for (; c + programCount * P <= nwords; c += programCount * P) {
+        #pragma unroll
+        for (uniform int kb = 0; kb < programCount * P; kb += programCount) {
+            const int k = kb + programIndex;                        // word of the block
+            uint64 x = w[c + k];
+            const uniform int n0 = (64 * kb - P / 2) / P;          // first composite near these words
+            #pragma unroll
+            for (uniform int i = 0; i < 64 * programCount / P + 2; i++) {
+                const uniform int t = P / 2 + (n0 + i) * P;
+                x |= ((t >> 6) == k) ? ((uniform uint64)1) << (t & 63) : 0;   // one composite
+            }
+            w[c + k] = x;
+        }
+    }
+    clear_dense_from(w, nwords, P, c);
 }
 
 // Sparse clearing over bytes for an odd factor p > 16. Chunks of p bytes start at byte
@@ -151,7 +183,8 @@ static void clear_sparse(uniform Sieve * uniform s, uniform int p) {
     }
 }
 
-#define D(P) case P: clear_dense(s->bits, s->nwords, P); break;
+#define D(P) case P: if (P < VEC_LIMIT) clear_dense_vec(s->bits, s->nwords, P); \
+                     else clear_dense(s->bits, s->nwords, P); break;
 
 // Clear all odd multiples of factor p.
 static void clear_factor(uniform Sieve * uniform s, uniform int p) {
