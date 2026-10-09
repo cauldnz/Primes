@@ -1,0 +1,22 @@
+Architecture:                            x86_64
+CPU(s):                                  16
+Model name:                              AMD EPYC 7763 64-Core Processor
+BIOS Model name:                         AMD EPYC 7763 64-Core Processor                 None CPU @ 2.4GHz
+AVX-512: no
+kind=zig rounds=4 id=22595029234
+build cand
+build champ
+build ctx
+self-test cand: 0 ok, 0 bad, exit=0
+self-test champ: 0 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-zig-wheel;117124;5.000072;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;929024;5.000821;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;928157;5.000455;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;473962;5.000264;4;algorithm=wheel,faithful=yes,bits=1
+== round warmup champ
+cauldnz-zig-wheel;117958;5.000068;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;932478;5.000848;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;930284;5.000381;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;475771;5.000256;4;algorithm=wheel,faithful=yes,bits=1
+== round warmup champ2

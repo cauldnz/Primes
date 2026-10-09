@@ -5,3 +5,68 @@ BIOS Model name:                         Cobalt 100 None CPU @ 3.4GHz
 AVX-512: no
 kind=wheel rounds=6 id=22592511895
 build cand
+build champ
+self-test cand: 8 ok, 0 bad, exit=0
+self-test champ: 8 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-ispc;98508;5.000040;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;392840;5.000115;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;196882;5.000156;2;algorithm=wheel,faithful=yes,bits=1
+== round warmup champ
+cauldnz-ispc;63328;5.000053;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;248326;5.000128;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;126587;5.000126;2;algorithm=wheel,faithful=yes,bits=1
+== round warmup champ2
+cauldnz-ispc;63266;5.000017;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;252750;5.000128;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;126651;5.000121;2;algorithm=wheel,faithful=yes,bits=1
+== round warmup ctrl
+mike-barber_bit-extreme-hybrid;42964;5.0000357628;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;85767;5.0002255440;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;171154;5.0001454353;4;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl2
+danielspaangberg_5760of30030_owrb;42937;5.000000;1;algorithm=wheel,faithful=yes,bits=1
+danielspaangberg_5760of30030_epar;170085;5.002340;4;algorithm=wheel,faithful=yes,bits=1
+== round 1 ctrl2
+danielspaangberg_5760of30030_owrb;42487;5.000021;1;algorithm=wheel,faithful=yes,bits=1
+danielspaangberg_5760of30030_epar;169961;5.000705;4;algorithm=wheel,faithful=yes,bits=1
+== round 1 cand
+cauldnz-ispc;98510;5.000033;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;392437;5.000123;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;196893;5.000167;2;algorithm=wheel,faithful=yes,bits=1
+== round 1 champ2
+cauldnz-ispc;63252;5.000014;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;252939;5.000111;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;126529;5.000123;2;algorithm=wheel,faithful=yes,bits=1
+== round 1 champ
+cauldnz-ispc;63241;5.000066;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;252662;5.000118;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;126628;5.000138;2;algorithm=wheel,faithful=yes,bits=1
+== round 1 ctrl
+mike-barber_bit-extreme-hybrid;42925;5.0000281334;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;85754;5.0001926422;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;171326;5.0001502037;4;algorithm=base,faithful=yes,bits=1
+== round 2 champ2
+cauldnz-ispc;63247;5.000050;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;252731;5.000124;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;126593;5.000059;2;algorithm=wheel,faithful=yes,bits=1
+== round 2 champ
+cauldnz-ispc;63416;5.000059;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;252964;5.000119;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;126640;5.000097;2;algorithm=wheel,faithful=yes,bits=1
+== round 2 cand
+cauldnz-ispc;98397;5.000020;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;393305;5.000139;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;196856;5.000126;2;algorithm=wheel,faithful=yes,bits=1
+== round 2 ctrl2
+danielspaangberg_5760of30030_owrb;42917;5.000061;1;algorithm=wheel,faithful=yes,bits=1
+danielspaangberg_5760of30030_epar;169366;5.002428;4;algorithm=wheel,faithful=yes,bits=1
+== round 2 ctrl
+mike-barber_bit-extreme-hybrid;42921;5.0000844002;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;85771;5.0001702309;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;171364;5.0001516342;4;algorithm=base,faithful=yes,bits=1
+== round 3 cand
+cauldnz-ispc;98587;5.000023;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;393477;5.000123;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;196923;5.000160;2;algorithm=wheel,faithful=yes,bits=1
+== round 3 champ
