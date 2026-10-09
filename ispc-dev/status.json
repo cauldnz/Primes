@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T13:07:34Z",
+  "updated_utc": "2026-10-09T13:14:08Z",
   "run": {
     "id": "ap-20261009T1112Z",
     "state": "running",
@@ -8,7 +8,7 @@
     "mode_reason": "Chris asked for a few more hours: ISPC against davepl's C++ base, Rust hill climbing, a first Zig entry.",
     "started_utc": "2026-10-09T11:12:00Z",
     "time_box_hours": 4,
-    "spend_nzd": 2.54,
+    "spend_nzd": 2.99,
     "spend_cap_nzd": 30
   },
   "current": {
@@ -20,35 +20,35 @@
     {
       "machine": "Zen 3 (EPYC 7763)",
       "entry": "wheel",
-      "ours_1t": 98200,
-      "ours_mt": 832200,
+      "ours_1t": 103500,
+      "ours_mt": 850400,
       "rival": "rogiervandam C",
-      "rival_1t": 65200,
-      "rival_mt": 533200,
+      "rival_1t": 66800,
+      "rival_mt": 534400,
       "threads": 16,
-      "source": "final run, hc/champion 64e94aa, D16a_v4 (7763), median of 5; start of run 80.7k / 701.7k"
+      "source": "final2 run, hc/champion 5170556, D16a_v4, median of 5; start 83.1k / 703k"
     },
     {
       "machine": "Zen 4 (EPYC 9V74, AVX-512)",
       "entry": "wheel",
-      "ours_1t": 112200,
-      "ours_mt": 947200,
+      "ours_1t": 115100,
+      "ours_mt": 952900,
       "rival": "rogiervandam C",
-      "rival_1t": 97100,
-      "rival_mt": 770300,
+      "rival_1t": 97000,
+      "rival_mt": 769900,
       "threads": 16,
-      "source": "final run, hc/champion 64e94aa, D16as_v6, median of 5; start of run 99.5k / 838.4k"
+      "source": "final2 run, hc/champion 5170556, D16as_v6, median of 5; start 99.6k / 839k"
     },
     {
       "machine": "Zen 5 (EPYC 9V45)",
       "entry": "wheel",
-      "ours_1t": 179600,
+      "ours_1t": 191000,
       "ours_mt": 1470000,
       "rival": "rogiervandam C",
-      "rival_1t": 139500,
-      "rival_mt": 1190000,
+      "rival_1t": 139200,
+      "rival_mt": 1160000,
       "threads": 16,
-      "source": "final run, hc/champion 64e94aa, D16as_v7, median of 5; start of run 150.6k / 1.24M"
+      "source": "final2 run, hc/champion 5170556, D16as_v7, median of 5; start 150.4k / 1.24M"
     },
     {
       "machine": "Zen 3 (EPYC 7763)",
@@ -64,13 +64,13 @@
     {
       "machine": "Cobalt 100 (arm64)",
       "entry": "wheel",
-      "ours_1t": 77100,
-      "ours_mt": 308000,
+      "ours_1t": 94400,
+      "ours_mt": 377100,
       "rival": "mike-barber Rust (base; no C5 on arm64)",
       "rival_1t": 42900,
       "rival_mt": 171300,
       "threads": 4,
-      "source": "final run, hc/champion, D4ps_v6, median of 5; start of run 63.3k / 253k"
+      "source": "final2 run, hc/champion 5170556, D4ps_v6, median of 5; start 63.3k / 253k"
     },
     {
       "machine": "Zen 4 (EPYC 9V74, AVX-512)",
@@ -454,11 +454,6 @@
   ],
   "events": [
     {
-      "utc": "2026-10-09T06:07:32Z",
-      "level": "info",
-      "text": "Autopilot ap-20261009T0607Z started in Azure mode. Lock taken."
-    },
-    {
       "utc": "2026-10-09T06:11:24Z",
       "level": "info",
       "text": "Time box extended to 8 hours (until 00:07 AEST) by Chris; budget unchanged."
@@ -702,6 +697,11 @@
       "utc": "2026-10-09T13:05:34Z",
       "level": "info",
       "text": "Zig wheel on Cobalt 100: +12% over the ISPC wheel. Zig base builds and runs on arm64 (-7% vs ISPC base)."
+    },
+    {
+      "utc": "2026-10-09T13:14:08Z",
+      "level": "info",
+      "text": "Final wheel: +24.6% Zen 3, +15.5% Zen 4, +27.2% Zen 5, +49.2% Cobalt 100 at 1T against the start of the run. Leads C5 by 55%, 19% and 37% at 1T."
     }
   ],
   "research": {
