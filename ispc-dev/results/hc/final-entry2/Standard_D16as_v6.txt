@@ -7,3 +7,22 @@ entry=2 rounds=5
 build cand
 build champ
 build ctrl
+control=mike-barber_bit-extreme-hybrid
+self-test cand: 13 ok, 0 bad, exit=0
+self-test champ: 13 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-ispc-base;82330;5.000022;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;647343;5.000265;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;653433;5.000137;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;327327;5.000084;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ
+cauldnz-ispc-base;63739;5.000072;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;496556;5.000270;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;510512;5.000158;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;254925;5.000133;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ2
+cauldnz-ispc-base;63771;5.000062;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;497215;5.000314;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;510437;5.000157;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;255112;5.000130;4;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl
