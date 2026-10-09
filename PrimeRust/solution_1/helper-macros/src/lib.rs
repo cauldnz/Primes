@@ -271,7 +271,7 @@ pub fn extreme_reset(input: TokenStream) -> TokenStream {
     let params = parse_macro_input!(input as ExtremeResetParams);
 
     // all odd numbers in [3,129]
-    let last = 129_usize;
+    let last = 191_usize;
     let extreme_reset_vals: Vec<_> = (3..=last).filter(|skip| skip % 2 != 0).collect();
 
     // names for extreme reset functions: `extreme_reset_003`, `extreme_reset_005`, etc.

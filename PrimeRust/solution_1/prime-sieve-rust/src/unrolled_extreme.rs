@@ -33,7 +33,7 @@ impl FlagStorage for FlagStorageExtremeHybrid {
     #[inline(always)]
     fn reset_flags(&mut self, skip: usize) {
         // sparse resets for skip factors larger than those covered by dense resets
-        if skip > 129 {
+        if skip > 191 {
             let equivalent_skip = pattern_equivalent_skip(skip, 8);
             generic_dispatch!(
                 equivalent_skip,
