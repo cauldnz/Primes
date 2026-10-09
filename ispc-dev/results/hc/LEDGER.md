@@ -43,7 +43,7 @@ The first hc-007 Zen 4 run started 17 seconds after hc-004 merged, so it would h
 candidate without hc-004 against a champion with it. I stopped it before any round ran. From
 now on each candidate is merged with the current champion first and `BASE` is pinned to a
 commit hash.
-| 009 | 2026-10-09 | base | Next-prime scan a word at a time with count-trailing-zeros | +1% to +3% 1T (scan is 2–4% of a pass) | pending | pending | pending | `hc/009-base-scan-ctz` |
+| 009 | 2026-10-09 | base | Next-prime scan a word at a time with count-trailing-zeros | +1% to +3% 1T (scan is 2–4% of a pass) | Zen 3 (7763): 55.5k / 427.3k, −0.3% / −0.3%, 0/2, stopped after 3 rounds | Zen 5: 121.6k / 979.1k, −1.4% / −1.2%, 0/1, stopped | REVERT | `hc/009-base-scan-ctz` |
 | 006b | 2026-10-09 | wheel | hc-006 rerun on Zen 3 against champion `0175d18` | as 006 | Zen 3 (7763): 87.1k / 754.0k, +1.9% / +3.5%, 4/5 at 1T, 5/5 at 16T, control within 1.1% | Zen 5 from 006: +4.0% / +3.4%, 5/5 | KEEP, merged | `hc/champion` |
 
 **006, 64-bit addressing.** One build flag: +2% to +4% on Zen 3 and Zen 5. Useless for the base
@@ -56,7 +56,6 @@ which is AVX2-only.
 
 **008, tile memcpy.** No gain on Zen 5. The copy is too small a share of the pass to matter.
 | 011 | 2026-10-09 | wheel | Fusion group size G = 6 instead of 8 | +2% to +5% 1T; local Xeon medians G=6 +5% over G=8 (noisy) | Zen 3 (7763): 86.7k / 771.4k, −1.2% / +2.8%, 1/5 at 1T, 5/5 at 16T | Zen 5: 167.0k / 1.34M, +4.5% / −0.3%, 5/5 at 1T; +6.2% at 4T, +6.3% at 8T | REVERT (Zen 3 −1.2% at 1T) | `hc/011-wheel-g6` |
-| 009 | 2026-10-09 | base | (result) | | Zen 3 (7763): 55.5k / 427.3k, −0.3% / −0.3%, 0/2, stopped after 3 rounds | Zen 5: 121.6k / 979.1k, −1.4% / −1.2%, 0/1, stopped | REVERT | `hc/009-base-scan-ctz` |
 | 010 | 2026-10-09 | both | Re-profile both champions on Zen 5 | Base gap to Rust mostly gone | n/a | Zen 5: base and Rust both 38k dense, 61k sparse, 4k scan per pass; wheel perf: sparse (in run_sieve) 52%, groups 35%, tile and 13 12% | measurement | `7360392` |
 | 012 | 2026-10-09 | wheel | 64-bit bit indices in the wheel sparse loop (no sign extension per OR) | +2% to +5% 1T; local Xeon +0.5% to +8%, 4/4 | Zen 3 (7763): 92.1k / 785.2k, +5.2% / +4.2%, 5/5 | Zen 5: 169.8k / 1.31M, +4.8% / −2.1%, 5/5 at 1T, 0/5 at 16T | REVERT (Zen 5 −2.1% at 16T) | `hc/012-wheel-sparse-i64` |
 
