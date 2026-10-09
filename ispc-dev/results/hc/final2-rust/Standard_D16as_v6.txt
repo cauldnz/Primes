@@ -77,3 +77,49 @@ mike-barber_bit-extreme-hybrid;305126;5.0001182556;4;algorithm=base,faithful=yes
 mike-barber_bit-extreme-hybrid;610207;5.0002336502;8;algorithm=base,faithful=yes,bits=1
 mike-barber_bit-extreme-hybrid;608179;5.0004363060;16;algorithm=base,faithful=yes,bits=1
 == round 3 ctrl2
+davepl_array_optimized;60568;5.00016;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;484394;5.00039;16;algorithm=base,faithful=yes,bits=1
+== round 3 ctrl
+cauldnz-ispc-base;81521;5.000028;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;649686;5.000253;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;652681;5.000155;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;327033;5.000094;4;algorithm=base,faithful=yes,bits=1
+== round 3 champ2
+mike-barber_bit-extreme-hybrid;76693;5.0000200272;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;306221;5.0001578331;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;612393;5.0002293587;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;608349;5.0003728867;16;algorithm=base,faithful=yes,bits=1
+== round 3 champ
+mike-barber_bit-extreme-hybrid;76672;5.0000457764;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;306497;5.0001015663;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;612957;5.0001974106;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;609236;5.0004076958;16;algorithm=base,faithful=yes,bits=1
+== round 3 cand
+mike-barber_bit-extreme-hybrid;76262;5.0000433922;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;305087;5.0001244545;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;609935;5.0002160072;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;608558;5.0003809929;16;algorithm=base,faithful=yes,bits=1
+== round 4 champ2
+mike-barber_bit-extreme-hybrid;76320;5.0000581741;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;305877;5.0001497269;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;612861;5.0002493858;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;608501;5.0004205704;16;algorithm=base,faithful=yes,bits=1
+== round 4 ctrl2
+davepl_array_optimized;60676;5.0002;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;482572;5.00089;16;algorithm=base,faithful=yes,bits=1
+== round 4 cand
+mike-barber_bit-extreme-hybrid;76275;5.0000534058;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;304659;5.0001187325;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;609540;5.0002083778;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;608368;5.0004057884;16;algorithm=base,faithful=yes,bits=1
+== round 4 ctrl
+cauldnz-ispc-base;81586;5.000037;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;646872;5.000272;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;648782;5.000154;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;324425;5.000098;4;algorithm=base,faithful=yes,bits=1
+== round 4 champ
+mike-barber_bit-extreme-hybrid;76637;5.0000500679;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;306431;5.0001144409;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;612564;5.0002088547;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;608333;5.0004396439;16;algorithm=base,faithful=yes,bits=1
+== round 5 champ2

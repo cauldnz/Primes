@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T13:28:11Z",
+  "updated_utc": "2026-10-09T13:33:42Z",
   "run": {
     "id": "ap-20261009T1112Z",
     "state": "running",
@@ -329,7 +329,7 @@
       "where": "Zen 5 +2.4%/+4.9%; Zen 3 identical code",
       "delta_1t": 2.4,
       "delta_mt": 4.9,
-      "note": "Starts hc/rust-champion."
+      "note": "Zen 5 +2.4%/+4.9%; Zen 4 AVX-512 -0.5%/-0.1% (within 1%). hc/rust-champion."
     },
     {
       "id": "r-02",
