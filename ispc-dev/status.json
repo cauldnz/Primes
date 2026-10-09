@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T07:41:33Z",
+  "updated_utc": "2026-10-09T07:46:49Z",
   "run": {
     "id": "ap-20261009T0607Z",
     "state": "running",
@@ -8,13 +8,13 @@
     "mode_reason": "Service principal login and az batch pool list worked at 06:07 UTC.",
     "started_utc": "2026-10-09T06:07:00Z",
     "time_box_hours": 8,
-    "spend_nzd": 0.94,
+    "spend_nzd": 1.1,
     "spend_cap_nzd": 30
   },
   "current": {
-    "id": "hc-004",
+    "id": "hc-006b",
     "phase": "evaluate",
-    "detail": "hc-004 round 2 of 5, hc-006 round 1 of 5 (Zen 3 and Zen 5)"
+    "detail": "hc-006b Zen 3, hc-007 Zen 3 and AVX2 Zen 4, hc-008 Zen 5"
   },
   "scoreboard": [
     {
@@ -137,9 +137,11 @@
       "id": "hc-006",
       "entry": "wheel",
       "hypothesis": "Build with --addressing=64 (no sign extension per strided OR)",
-      "verdict": "running",
-      "where": "Zen 3 (D16a_v4), Zen 5",
-      "note": "Local Xeon +4% to +8%. Neutral on the base entry."
+      "verdict": "inconclusive",
+      "where": "Zen 5 +4.0%/+3.4% clean; Zen 3 noisy node",
+      "note": "Zen 3 rerun as hc-006b against the new champion.",
+      "delta_1t": 4.0,
+      "delta_mt": 3.4
     },
     {
       "id": "hc-007",
@@ -153,9 +155,16 @@
       "id": "hc-008",
       "entry": "wheel",
       "hypothesis": "Tile copy by doubling memcpy (was scalar 8-byte moves)",
-      "verdict": "queued",
-      "where": "waiting for a pool",
+      "verdict": "running",
+      "where": "Zen 5 now, Zen 3 next",
       "note": "Local Xeon inconclusive."
+    },
+    {
+      "id": "hc-006b",
+      "entry": "wheel",
+      "hypothesis": "hc-006 (--addressing=64) rerun on Zen 3, rebased on champion 0175d18",
+      "verdict": "running",
+      "where": "Zen 3 (D16a_v4)"
     }
   ],
   "azure_queue": 3,
@@ -249,6 +258,16 @@
       "utc": "2026-10-09T07:41:33Z",
       "level": "info",
       "text": "hc-004 KEPT and merged: wheel lone-prime path, +4.9% to +8.7% at 1T."
+    },
+    {
+      "utc": "2026-10-09T07:46:49Z",
+      "level": "info",
+      "text": "hc-006 inconclusive: Zen 5 +4.0% clean, Zen 3 node noisy (control moved 36k-59k). Rerun as hc-006b."
+    },
+    {
+      "utc": "2026-10-09T07:46:49Z",
+      "level": "info",
+      "text": "Harness: candidates now rebased on the current champion and BASE pinned to a commit."
     }
   ],
   "research": {

@@ -7,7 +7,7 @@
 | 003 | 2026-10-09 | base | Pointer walk over sparse chunks: 11 instructions per eight ORs instead of 27 | Zen 5 1T +4% to +8% (sparse gap 15k cycles), Zen 4 +0% to +3% | Zen 4 (v5): 51.3k / 416.6k, +3.6% / +7.8%, 5/5, A/A ±0.5% | Zen 5: 97.8k / 696.3k, +12.3% / +1.3%, 5/5, A/A ±0.9% | KEEP, merged | `cacfd8f` on `hc/champion` |
 | 004 | 2026-10-09 | wheel | A lone prime (13) skips the fused group loop | +1% to +3% 1T (13 costs ~9k cycles a pass); local Xeon +0.4% to +5.8% | Zen 3 (7763): 87.5k / 729.8k, +8.7% / +3.9%, 5/5; A/A at 1T −3.4% to +14.5% (one outlier round) | Zen 5: 158.3k / 1.30M, +4.9% / +5.1%, 5/5, A/A within 1.9% | KEEP, merged | `hc/champion` |
 | 005 | 2026-10-09 | wheel | No masked stores: apply_group unmasked, partial vectors run into padding | +3% to +6% on the AVX2 path, +1% to +3% with AVX-512; local Xeon +2% to +19% | Zen 3 (7763): 87.3k / 732.1k, +4.5% / +4.1%, 4/5 at 1T, 5/5 at 16T; A/A at 1T −2.6% to +4.6% | Zen 5: 146.9k / 1.22M, −1.7% / −0.9%, 0/4 | REVERT (Zen 5 −1.7% at 1T) | `hc/005-wheel-unmasked-tails` |
-| 006 | 2026-10-09 | wheel | Build with `--addressing=64`: ISPC sign-extends 32-bit offsets on every strided OR, and the sparse loop spills | +3% to +6% 1T on Zen (sparse is ~42% of the wheel); local Xeon +4% to +8% | pending | pending | pending | `hc/006-wheel-addr64` |
+| 006 | 2026-10-09 | wheel | Build with `--addressing=64`: ISPC sign-extends 32-bit offsets on every strided OR, and the sparse loop spills | +3% to +6% 1T on Zen; local Xeon +4% to +8% | Zen 3 (7763): +3.1% / +4.1%, but the node was noisy (C5 control 36k–59k, A/A up to +31%): inconclusive | Zen 5: 154.0k / 1.28M, +4.0% / +3.4%, 5/5, control within 3% | Zen 3 rerun as 006b against the new champion | `hc/006-wheel-addr64` |
 
 ## Notes
 
@@ -32,8 +32,14 @@ sparse loop was bound by instruction count, not stores. Zen 4 gained 3.6% at 1T 
 On AVX-512 masked stores are cheap, so the padding and overrun only add work there. Next: keep
 the change for AVX2 targets only, which can't move Zen 5. That can't pass the "both machines"
 rule by construction, so it needs Chris's call if it wins on Zen 3.
-| 007 | 2026-10-09 | wheel | hc-005 for SSE and AVX2 targets only; AVX-512 code byte-identical to the champion | Zen 3 and AVX2-only Zen 4 +3% to +5%; Zen 5 exactly 0 | pending | n/a (identical code) | pending | `hc/007-wheel-unmasked-avx2` |
+| 007 | 2026-10-09 | wheel | hc-005 for SSE and AVX2 targets only (Zen 3 run against `4d35020`; the Zen 4 run was stopped because it started after hc-004 merged, then rerun as 007-r on the rebased branch); AVX-512 code byte-identical to the champion | Zen 3 and AVX2-only Zen 4 +3% to +5%; Zen 5 exactly 0 | pending | n/a (identical code) | pending | `hc/007-wheel-unmasked-avx2` |
 | 008 | 2026-10-09 | wheel | Copy the 7·11 tile by doubling with memcpy; the foreach copy compiled to scalar moves | +1% to +3% 1T on Zen; local Xeon inconclusive (2 of 4) | pending | pending | pending | `hc/008-wheel-tile-memcpy` |
 
 **004, lone prime.** Predicted +1% to +3%, measured +4% to +9%. The research agent's phase
 count (13 costs 70% of a full group) was right; my prediction discounted it.
+
+**Harness fix, 17:50 AEST.** A run takes its champion from `origin/hc/champion` when it starts.
+The first hc-007 Zen 4 run started 17 seconds after hc-004 merged, so it would have compared a
+candidate without hc-004 against a champion with it. I stopped it before any round ran. From
+now on each candidate is merged with the current champion first and `BASE` is pinned to a
+commit hash.
