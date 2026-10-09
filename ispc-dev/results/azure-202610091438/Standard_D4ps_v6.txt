@@ -1,0 +1,56 @@
+Architecture:                            aarch64
+CPU(s):                                  4
+Model name:                              Neoverse-N2
+BIOS Model name:                         Cobalt 100 None CPU @ 3.4GHz
+AVX-512: no
+build ispc
+build ispc-old
+== self-test new
+size 10 -> 4 primes (expected 4) 1
+size 100 -> 25 primes (expected 25) 1
+size 1000 -> 168 primes (expected 168) 1
+size 10000 -> 1229 primes (expected 1229) 1
+size 100000 -> 9592 primes (expected 9592) 1
+size 1000000 -> 78498 primes (expected 78498) 1
+size 10000000 -> 664579 primes (expected 664579) 1
+size 100000000 -> 5761455 primes (expected 5761455) 1
+== round 1 new
+cauldnz-ispc;54964;5.000086;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;219007;5.000120;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;109883;5.000117;2;algorithm=wheel,faithful=yes,bits=1
+== round 1 old
+cauldnz-ispc;54959;5.000025;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;219342;5.000133;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;109854;5.000096;2;algorithm=wheel,faithful=yes,bits=1
+== round 2 new
+cauldnz-ispc;54946;5.000040;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;218021;5.000125;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;109851;5.000121;2;algorithm=wheel,faithful=yes,bits=1
+== round 2 old
+cauldnz-ispc;54956;5.000046;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;218826;5.000129;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;109882;5.000124;2;algorithm=wheel,faithful=yes,bits=1
+== round 3 new
+cauldnz-ispc;54954;5.000024;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;217849;5.000167;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;109869;5.000145;2;algorithm=wheel,faithful=yes,bits=1
+== round 3 old
+cauldnz-ispc;54961;5.000025;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;219124;5.000136;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;109856;5.000082;2;algorithm=wheel,faithful=yes,bits=1
+== DENSE_MAX=128 new
+cauldnz-ispc;55065;5.000014;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;219749;5.000172;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;110057;5.000129;2;algorithm=wheel,faithful=yes,bits=1
+== DENSE_MAX=192 new
+cauldnz-ispc;56205;5.000047;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;224096;5.000103;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;112330;5.000043;2;algorithm=wheel,faithful=yes,bits=1
+== DENSE_MAX=256 new
+cauldnz-ispc;54943;5.000006;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;219342;5.000127;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;109906;5.000106;2;algorithm=wheel,faithful=yes,bits=1
+== DENSE_MAX=384 new
+cauldnz-ispc;47012;5.000041;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;187593;5.000128;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;94010;5.000136;2;algorithm=wheel,faithful=yes,bits=1

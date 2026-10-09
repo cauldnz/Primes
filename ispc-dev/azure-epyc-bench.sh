@@ -5,7 +5,8 @@
 # Usage:  SUB=<subscription-id> [MODE=vm|batch] ./azure-epyc-bench.sh <vm-size> [vm-size ...]
 #   e.g. Standard_D16as_v5 (EPYC Zen 3, AVX2 only), Standard_D16as_v6 (Zen 4), Standard_D16as_v7
 #        (Zen 5), Standard_D4ps_v5 (Ampere Altra, arm64), Standard_D4ps_v6 (Cobalt 100, arm64).
-# Common env: SUB (required: every az call is pinned to it), BASE (git ref for the "old" build).
+# Common env: SUB (required: every az call is pinned to it), BASE (git ref for the "old" build),
+#   SUITE (default: new/old/AVX2 vs C5/Chapel; targets: ISPC_TARGETS matrix for both entries).
 #
 # MODE=vm (default): one VM per size, driven over SSH.
 #   Env: LOCATION (resource group), REGIONS (VM regions to try in order; default LOCATION),
@@ -51,6 +52,9 @@ for f in Dockerfile build.sh primes.ispc; do
   git -C "$HERE/.." show "$BASE:PrimeISPC/solution_1/$f" > "$STAGE/old/$f"
 done
 cp "$STAGE/new/"* "$STAGE/avx2/"
+# The base-algorithm entry (solution_2), for SUITE=targets.
+mkdir -p "$STAGE/base"
+for f in "$HERE/../PrimeISPC/solution_2/"*; do sed 's/\r$//' "$f" > "$STAGE/base/$(basename "$f")"; done
 sed -i 's/TARGETS="sse4-i32x4,avx2-i32x8,avx512skx-x16"/TARGETS="avx2-i32x8"/' "$STAGE/avx2/build.sh"
 grep -q 'TARGETS="avx2-i32x8"' "$STAGE/avx2/build.sh" || { echo "!!! could not force AVX2 target"; exit 1; }
 
@@ -95,6 +99,63 @@ else
   for d in 128 192 256 384; do run "DENSE_MAX=$d new" -e PRIMES_DENSE_MAX=$d ispc; done
 fi
 '
+
+# SUITE=targets: ISPC gang-width matrix for the wheel entry (solution_1) and the base entry
+# (solution_2), each built with --build-arg ISPC_TARGETS, against C5, Rust and Chapel.
+REMOTE_TARGETS='
+set -e
+STAGE="${STAGE:-$HOME/stage}"
+export DEBIAN_FRONTEND=noninteractive DOCKER_BUILDKIT=1
+APT="sudo apt-get -o DPkg::Lock::Timeout=600 -qq"
+$APT update && $APT install -y docker.io docker-buildx git >/dev/null
+lscpu | grep -E "Model name|^CPU\(s\)|^Architecture" || true
+AVX512=no; grep -q avx512f /proc/cpuinfo && AVX512=yes; echo "AVX-512: $AVX512"
+git clone -q --depth 1 -b drag-race https://github.com/PlummersSoftwareLLC/Primes.git
+cd Primes
+IMGS=""
+bt() { echo "build $2 [${3:-default}]"; sudo docker build -q --build-arg ISPC_TARGETS="$3" -t "$2" "$1" >/dev/null \
+         && IMGS="$IMGS $2" || echo "!!! build $2 failed"; }
+build() { echo "build $2"; sudo docker build -q -t "$2" "$1" >/dev/null || echo "!!! build $2 failed"; }
+run() { echo "== $1"; shift; sudo docker run --rm "$@" 2>&1 | grep ";" || echo "!!! run failed"; }
+selftest() { for i in $IMGS; do
+  r=$(sudo docker run --rm -e PRIMES_TEST=1 "$i" 2>&1; echo "exit=$?")
+  echo "self-test $i: $(echo "$r" | grep -c " 1$") ok, $(echo "$r" | grep -c " 0$") bad, $(echo "$r" | tail -1)"; done; }
+if [ "$(uname -m)" = x86_64 ]; then
+  bt "$STAGE/new" w-default ""
+  bt "$STAGE/new" w-avx2x8 avx2-i32x8
+  bt "$STAGE/new" w-avx2x16 avx2-i32x16
+  if [ $AVX512 = yes ]; then bt "$STAGE/new" w-avx512x8 avx512skx-x8; bt "$STAGE/new" w-avx512x16 avx512skx-x16; fi
+  bt "$STAGE/base" b-default ""
+  [ $AVX512 = yes ] && bt "$STAGE/base" b-avx512 "sse4-i32x4,avx2-i32x8,avx512skx-x16"
+  build PrimeC/solution_5 c5
+  build PrimeRust/solution_1 rust
+  build PrimeChapel/solution_1 chapel
+  selftest
+  for i in 1 2 3; do
+    for w in $IMGS; do case $w in w-*) run "round $i $w" $w;; esac; done
+    run "round $i C5" c5
+    for b in $IMGS; do case $b in b-*) run "round $i $b" $b;; esac; done
+    run "round $i Rust" rust
+    run "round $i Chapel" chapel
+  done
+  for d in 192 256 320; do run "DENSE_MAX=$d w-default" -e PRIMES_DENSE_MAX=$d w-default; done
+else
+  bt "$STAGE/new" w-default ""
+  bt "$STAGE/new" w-neonx8 neon-i32x8
+  bt "$STAGE/base" b-default ""
+  build PrimeRust/solution_1 rust
+  selftest
+  for i in 1 2 3; do
+    run "round $i w-default" w-default; run "round $i w-neonx8" w-neonx8
+    run "round $i b-default" b-default; run "round $i Rust" rust
+  done
+fi
+'
+case "${SUITE:-default}" in
+  default) ;;
+  targets) REMOTE_SCRIPT="$REMOTE_TARGETS" ;;
+  *) echo "unknown SUITE=$SUITE" >&2; exit 2 ;;
+esac
 
 # ---------------------------------------------------------------------------------------------
 if [ "$MODE" = vm ]; then
