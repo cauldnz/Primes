@@ -161,6 +161,7 @@ td.m{{white-space:nowrap}} td.m b{{font-size:13px;margin-left:6px}} .up b{{color
 .log li{{font-size:13px;padding:4px 0;border-top:1px solid var(--line)}} .log li:first-child{{border-top:0}}
 .log time{{color:var(--muted);margin-right:8px;font-variant-numeric:tabular-nums}} .log .warn{{color:var(--warn)}} .log .error{{color:var(--down)}}
 .next li{{padding:4px 0}} .next li::before{{content:"→ ";color:var(--muted)}}
+.btn{{display:inline-block;padding:8px 14px;border-radius:8px;border:1px solid var(--accent);color:var(--accent);text-decoration:none;font-weight:600;font-size:14px}}
 footer{{color:var(--muted);font-size:12px;text-align:center;margin:18px 0 8px}}
 </style></head><body><main>
 <header class="card">
@@ -174,7 +175,10 @@ footer{{color:var(--muted);font-size:12px;text-align:center;margin:18px 0 8px}}
     <div>Started<b><time data-utc="{e(run.get("started_utc"))}"></time></b></div>
     <div>Azure spend<b>NZ${spend:.2f} of NZ${cap:.0f}</b><div class="meter"><i style="width:{spend_w:.0f}%"></i></div></div>
     <div>Queued for Zen<b>{e(s.get("azure_queue", 0))}</b></div>
+    <div>Background runs<b>{e(run.get("background_runs", "–"))}</b></div>
+    <div>Inbox<b>{e(run.get("inbox_ack") or "nothing picked up yet")}</b></div>
   </div>
+  <p style="margin:12px 0 0"><a class="btn" href="https://github.com/cauldnz/Primes/edit/ispc-dev/ispc-dev/INBOX.md">Message the autopilot</a></p>
 </header>
 {current(s.get("current"))}
 {scoreboard(s.get("scoreboard", []), "wheel")}
