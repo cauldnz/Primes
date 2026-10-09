@@ -1,0 +1,42 @@
+Architecture:                            aarch64
+CPU(s):                                  4
+Model name:                              Neoverse-N2
+BIOS Model name:                         Cobalt 100 None CPU @ 3.4GHz
+AVX-512: no
+kind=base rounds=5 id=1204509807
+build cand
+build champ
+self-test cand: 13 ok, 0 bad, exit=0
+self-test champ: 13 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-ispc-base;41029;5.000046;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;163660;5.000147;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;82094;5.000144;2;algorithm=base,faithful=yes,bits=1
+== round warmup champ
+cauldnz-ispc-base;41127;5.000044;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;164037;5.000140;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;82096;5.000204;2;algorithm=base,faithful=yes,bits=1
+== round warmup champ2
+cauldnz-ispc-base;41173;5.000009;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;163824;5.000138;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;82084;5.000128;2;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl
+mike-barber_bit-extreme-hybrid;42851;5.0000219345;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;85748;5.0001339912;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;171354;5.0001282692;4;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl2
+davepl_array_optimized;32206;5.0002;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;128654;5.00019;4;algorithm=base,faithful=yes,bits=1
+== round 1 champ
+cauldnz-ispc-base;41081;5.000082;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;163735;5.000148;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;82081;5.000119;2;algorithm=base,faithful=yes,bits=1
+== round 1 cand
+cauldnz-ispc-base;41238;5.000065;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;164017;5.000130;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;82073;5.000122;2;algorithm=base,faithful=yes,bits=1
+== round 1 champ2
+cauldnz-ispc-base;41061;5.000015;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;163995;5.000163;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;82072;5.000115;2;algorithm=base,faithful=yes,bits=1
+== round 1 ctrl

@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T12:08:22Z",
+  "updated_utc": "2026-10-09T12:16:03Z",
   "run": {
     "id": "ap-20261009T1112Z",
     "state": "running",
@@ -14,7 +14,7 @@
   "current": {
     "id": "queue",
     "phase": "evaluate",
-    "detail": "Queue: r-03, Zig x4, hc-024 x3, hc-025, r-04 x2, r-05 x2"
+    "detail": "r-03 round 2, hc-024 round 2 (Cobalt), Zig and hc-024 on Zen starting"
   },
   "scoreboard": [
     {
