@@ -203,3 +203,13 @@ compete with the sieve's own load and store. G = 6 stays.
 
 **038 and 039, wheel dense limit.** 256 is still the optimum with the x16 gangs: 192 loses up
 to 3% on Zen 3 and 320 loses 7%. (039's Zen 5 run finished after Zen 3 had already decided it.)
+| 035 | 2026-10-10 | wheel | Fused loop reads each pattern from its fixed row of `g->buf` instead of through eight pointers; 64-bit phases (the Zig wheel's addressing) | +3–8% x86 | 10 rounds: 108.0k / 888.8k, +1.6% / +3.4% (16T 10/10) | 9 rounds: 192.3k / 1.50M, +0.5% / +2.0% (16T 9/9) | **kept**, merged into `hc/champion` (`dc5fa37`) | `hc/035-wheel-direct-buf`, `hc/035-tidy` |
+
+**035, fixed-row patterns.** On `avx2-i32x16` the fused loop fell from 139 to 115 instructions
+a step, stack reloads from 23 to 12 and sign extensions from nine to none. All threads gained
+on every x86 machine: Zen 3 +3.4% (10 rounds, all won), Zen 4 with AVX-512 +3.2% (6/6), Zen 5
++2.0% (9 rounds, all won; Spot preempted both nodes in round 10). One thread gained 0.5% to
+1.6%. Cobalt 100 −0.3% (inside the 1% limit) and SSE4 level on the sandbox. The gain is
+largest with SMT siblings sharing a core, which fits fewer load-port slots spent on reloads.
+It closes only a sliver of the Zig wheel's 12–18% lead; the rest is still unexplained (the
+group loop, the sparse loop and allocation now look alike in both).

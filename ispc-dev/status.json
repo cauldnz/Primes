@@ -1,20 +1,21 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T16:03:37Z",
+  "updated_utc": "2026-10-09T16:23:35Z",
   "run": {
     "id": "ap-20261009T1349Z",
-    "state": "running",
+    "state": "stopped",
     "mode": "azure",
     "mode_reason": "Chris asked for experiments from the GPT and Grok reviews until the Azure secret expires (03:34 AEST).",
     "started_utc": "2026-10-09T13:49:00Z",
     "time_box_hours": 3.4,
-    "spend_nzd": 0,
-    "spend_cap_nzd": 30
+    "spend_nzd": 2.77,
+    "spend_cap_nzd": 30,
+    "ended_utc": "2026-10-09T16:25:00Z"
   },
   "current": {
-    "id": "running",
-    "phase": "hc-035",
-    "detail": "Zen 4 (AVX-512) check for hc-035; other pools down"
+    "id": "stopped",
+    "phase": "none",
+    "detail": "Run finished; morning report in STATUS.md"
   },
   "scoreboard": [
     {
@@ -535,10 +536,10 @@
       "id": "hc-035",
       "entry": "wheel",
       "hypothesis": "Fused loop addresses g->buf[j] rows directly with 64-bit phases (as the Zig wheel does)",
-      "verdict": "confirming",
-      "where": "Zen 3 +0.3%/+3.4%, Zen 5 +0.7%/+2.0% (16T 6/6 both), arm -0.3%",
-      "note": "Passes at all threads; Zen 5 is on the 2% line, so a 10-round rerun is running.",
-      "delta_1t": 0.7,
+      "verdict": "kept",
+      "where": "all threads: Zen 3 +3.4% (10/10), Zen 4 +3.2% (6/6), Zen 5 +2.0% (9/9); arm -0.3%",
+      "note": "Merged into hc/champion (dc5fa37).",
+      "delta_1t": 0.5,
       "delta_mt": 2.0
     },
     {
@@ -589,11 +590,6 @@
     "Find the Zig wheel edge and port it to ISPC"
   ],
   "events": [
-    {
-      "utc": "2026-10-09T06:30:42Z",
-      "level": "info",
-      "text": "hc-002 (vector dense) launched on D16as_v5 and D16as_v7."
-    },
     {
       "utc": "2026-10-09T06:32:00Z",
       "level": "info",
@@ -838,6 +834,11 @@
       "utc": "2026-10-09T16:03:37Z",
       "level": "info",
       "text": "Zen 5 Spot nodes preempted at 16:00 UTC; hc-035's 10-round confirmation kept 9 rounds. Zen 5, Zen 3 and arm pools taken down; Zen 4 runs hc-035."
+    },
+    {
+      "utc": "2026-10-09T16:23:35Z",
+      "level": "info",
+      "text": "Run stopped: hc-035 kept and merged into hc/champion (dc5fa37); 10 others rejected or flat. Spend NZ$2.77. All pools deleted."
     }
   ],
   "research": {

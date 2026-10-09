@@ -1,9 +1,58 @@
 # Status from the Claude Code session
 
-Autopilot lock: ap-20261009T1349Z 2026-10-09T13:49Z
-
-**Last updated:** 2026-10-09 23:50 AEST. Living file; earlier versions are in
+**Last updated:** 2026-10-10 02:25 AEST. Living file; earlier versions are in
 `git log -p ispc-dev/STATUS.md`. Replies go in `ispc-dev/NEXT-STEPS.md`.
+
+## Morning report: run ap-20261009T1349Z (23:49 to 02:25 AEST)
+
+You asked for experiments from the two reviews (GPT-6 and Grok 4.7) until the Azure secret
+expired. Eleven ran and one won. Spend: NZ$2.77. Nothing went to `ispc` or to a PR. All pools are
+deleted and the meter is stopped; `az batch pool list` is empty.
+
+### What changed
+
+**hc-035 is merged into `hc/champion` (now `dc5fa37`).** The wheel's fused loop now reads each
+prime's pattern from its fixed row of the group buffer, with 64-bit phases, instead of through
+eight pattern pointers. That is how the Zig wheel addresses its patterns. On AVX2 the loop
+went from 139 to 115 instructions a step and its stack reloads from 23 to 12.
+
+| Machine | 1T | all threads | rounds won (all threads) |
+|---|---|---|---|
+| Zen 3 (EPYC 7763) | +1.6% | +3.4% | 10/10 |
+| Zen 4 (EPYC 9V74, AVX-512) | +1.1% | +3.2% | 6/6 |
+| Zen 5 (EPYC 9V45) | +0.5% | +2.0% | 9/9 |
+| Cobalt 100 | −0.3% | −0.2% | n/a |
+
+Zen 5 Spot preempted both nodes during round 10 of the confirmation, so its row is nine rounds
+(`results/hc/hc-035-r10/`). The `hc/champion` README has one new sentence on the change.
+
+### What didn't, and what the reviews got wrong
+
+Both reviews put "raise the base's dense limit to 192–256" first and predicted +5% to +13% on
+Zen 5. It goes the other way. With the masks still folding to constant ORs, dense to 191 lost
+7% on Zen 5 (hc-031), and the same change in Rust lost 26% (r06). Dense to 96 lost 2.5% on
+Zen 3 (hc-036). So 128 is right for both entries. AVX2 and SSE4 stop folding past 119, which is
+why `VEC_LIMIT` exists.
+
+- hc-030, wheel scratch from 70KB to 20KB (both reviews, +3–8% predicted): flat. Each row only
+  ever touched L + 16 words, so the live footprint was already small.
+- hc-032, immediate sparse offsets (Grok): flat; the loop is store-bound. hc-034, a counted
+  sparse loop (Grok), was dropped on the assembly alone: the champion loop is already shorter.
+- hc-033, two gangs per step as Zig does: −4% on Zen 5, −3% on Cobalt 100 (more spills).
+- hc-037, G = 8 on AVX-512 on top of hc-035: −4.8% on Zen 5. G = 6 stays.
+- hc-038 and hc-039, wheel dense limit 192 and 320: −1.7% and −6.9% on Zen 3. 256 stays.
+- r07, a pointer walk in Rust's sparse loop: flat. `chunks_exact_mut` already compiles to one.
+
+Rows and notes are in `results/hc/LEDGER.md` (030 to 039, r06, r07).
+
+### Still open
+
+- The Zig wheel is still 12% to 18% faster than ours with the same design. hc-035 copied its
+  group-loop addressing, and its sparse loop and allocation now look like ours in the assembly,
+  so I haven't found the rest. A phase-split timer run on both would settle it.
+- Your earlier decisions stand: merge `hc/026-base-init-with-3`, move `hc/champion` onto
+  `ispc` (it now includes hc-035), contact mike-barber, Zig as a third entry, and the rule for
+  small consistent gains (hc-030 and hc-032 gained 0.1% to 1.3% at 1T and won most rounds).
 
 ## Morning report: run ap-20261009T1115Z (21:15 to 23:50 AEST)
 
