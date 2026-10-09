@@ -158,15 +158,18 @@ static inline uniform int apply_range(uniform uint64 * uniform w, const uniform 
 // each sieve word. b[j] is member j's first bit in this plane.
 static void apply_group(uniform uint64 * uniform w, uniform int nw,
                         const uniform Group * uniform g, const uniform int * uniform b) {
+    // Every member starts at the earliest member's first word, so no member needs a lead-in.
+    // A member then also marks its multiples below p*p, which are composite, and p itself,
+    // which dense_primes clears again.
     uniform int n = g->n;
     uniform int r[G];
-    uniform int start = 0;
-    for (uniform int j = 0; j < n; j++) start = max(start, (b[j] >> 6) + 1);
-    start = min(start, nw);
+    uniform int start = nw;
+    for (uniform int j = 0; j < n; j++) start = min(start, b[j] >> 6);
     for (uniform int j = 0; j < G; j++) {
         if (j < n) {
-            uniform int r0 = g->tab[j][b[j] & 63];
-            r[j] = apply_range(w, g->pp[j], g->L[j], r0, b[j], start);   // lead-in
+            uniform int L = g->L[j];
+            uniform int r0 = g->tab[j][b[j] & 63] - ((b[j] >> 6) - start) % L;  // phase at start
+            r[j] = (r0 < 0) ? r0 + L : r0;
         } else r[j] = 0;
     }
     uniform int k = start;
@@ -199,6 +202,12 @@ static void dense_primes(uniform Sieve * uniform s, const uniform int * uniform 
             continue;
         }
         apply_group(s->bits + pl * s->pw, s->nw, s->grp, b);
+    }
+    if (n == 1) return;
+    for (uniform int j = 0; j < n; j++) {          // apply_group marked each member itself
+        uniform int m = primes[j] / 30;
+        if (m < s->mbits)
+            s->bits[PLANE[primes[j] % 30] * s->pw + (m >> 6)] &= ~(((uniform uint64)1) << (m & 63));
     }
 }
 
