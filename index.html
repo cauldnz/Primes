@@ -43,23 +43,23 @@ footer{color:var(--muted);font-size:12px;text-align:center;margin:18px 0 8px}
 </style></head><body><main>
 <header class="card">
   <h1>ISPC autopilot</h1>
-  <div class="status"><span class="pill idle">idle</span><span class="pill">pending mode</span>
-  <span class="sub">updated <time id="upd" data-utc="2026-10-09T05:45:00Z"></time></span></div>
+  <div class="status"><span class="pill running">running</span><span class="pill">azure mode</span>
+  <span class="sub">updated <time id="upd" data-utc="2026-10-09T06:07:32Z"></time></span></div>
   <div class="stale" id="stale">No update for over 45 minutes. The run may have stopped.</div>
-  <p class="sub" style="margin:8px 0 0">Autopilot not started yet. Claude Code is creating the service principal.</p>
+  <p class="sub" style="margin:8px 0 0">Service principal login and az batch pool list worked at 06:07 UTC.</p>
   <div class="kv">
-    <div>Run<b>setup</b></div>
-    <div>Started<b><time data-utc=""></time></b></div>
+    <div>Run<b>ap-20261009T0607Z</b></div>
+    <div>Started<b><time data-utc="2026-10-09T06:07:00Z"></time></b></div>
     <div>Azure spend<b>NZ$0.00 of NZ$30</b><div class="meter"><i style="width:0%"></i></div></div>
     <div>Queued for Zen<b>0</b></div>
   </div>
 </header>
-<section class="card"><h2>Now</h2><p class="muted">No experiment running.</p></section>
+<section class="card"><h2>Now: hc-001</h2><p><span class="tag"></span> </p><ol class="phases"><li class="done">hypothesis</li><li class="on">plan</li><li class="">implement</li><li class="">gate</li><li class="">evaluate</li><li class="">decide</li></ol><p class="sub">Profile base entry against Rust: phase timers, local first, then Zen 5 · started <time data-utc=""></time></p></section>
 <section class="card"><h2>Wheel (solution_1)</h2><p class="sub">Passes in 5s, ours vs rogiervandam C</p><div class="mach"><div class="mname">Zen 3 (EPYC 7763)</div><div class="ml up"><span class="lab">1 thread</span><span class="nums"><b>81.6k</b> vs 65.2k</span><span class="bar"><i style="width:63%"></i></span><b class="pct">+25%</b></div><div class="ml up"><span class="lab">16 threads</span><span class="nums"><b>704.7k</b> vs 532.1k</span><span class="bar"><i style="width:81%"></i></span><b class="pct">+32%</b></div></div><div class="mach"><div class="mname">Zen 4 (EPYC 9V74)</div><div class="ml up"><span class="lab">1 thread</span><span class="nums"><b>98.7k</b> vs 97.0k</span><span class="bar"><i style="width:4%"></i></span><b class="pct">+2%</b></div><div class="ml up"><span class="lab">16 threads</span><span class="nums"><b>840.7k</b> vs 770.5k</span><span class="bar"><i style="width:23%"></i></span><b class="pct">+9%</b></div></div><div class="mach"><div class="mname">Zen 5 (EPYC 9V45)</div><div class="ml up"><span class="lab">1 thread</span><span class="nums"><b>150.9k</b> vs 133.4k</span><span class="bar"><i style="width:33%"></i></span><b class="pct">+13%</b></div><div class="ml up"><span class="lab">16 threads</span><span class="nums"><b>1.25M</b> vs 1.20M</span><span class="bar"><i style="width:10%"></i></span><b class="pct">+4%</b></div></div></section>
 <section class="card"><h2>Base (solution_2)</h2><p class="sub">Passes in 5s, ours vs mike-barber Rust</p><div class="mach"><div class="mname">Zen 3 (EPYC 7763)</div><div class="ml down"><span class="lab">1 thread</span><span class="nums"><b>44.6k</b> vs 52.4k</span><span class="bar"><i style="width:37%"></i></span><b class="pct">-15%</b></div><div class="ml down"><span class="lab">16 threads</span><span class="nums"><b>341.2k</b> vs 410.8k</span><span class="bar"><i style="width:42%"></i></span><b class="pct">-17%</b></div></div><div class="mach"><div class="mname">Zen 4 (EPYC 9V74)</div><div class="ml down"><span class="lab">1 thread</span><span class="nums"><b>63.7k</b> vs 76.6k</span><span class="bar"><i style="width:42%"></i></span><b class="pct">-17%</b></div><div class="ml down"><span class="lab">16 threads</span><span class="nums"><b>497.4k</b> vs 608.3k</span><span class="bar"><i style="width:46%"></i></span><b class="pct">-18%</b></div></div><div class="mach"><div class="mname">Zen 5 (EPYC 9V45)</div><div class="ml down"><span class="lab">1 thread</span><span class="nums"><b>87.3k</b> vs 126.5k</span><span class="bar"><i style="width:78%"></i></span><b class="pct">-31%</b></div><div class="ml down"><span class="lab">16 threads</span><span class="nums"><b>689.7k</b> vs 877.5k</span><span class="bar"><i style="width:53%"></i></span><b class="pct">-21%</b></div></div></section>
 <section class="card"><h2>Experiments</h2><p class="muted">None yet.</p></section>
 <section class="card"><h2>Next up</h2><ul class="next"><li>Base: profile against Rust on Zen 5 (dense, sparse, next-prime scan)</li><li>Base: word-at-a-time next-prime scan</li><li>Wheel: fusion group size G against gang width</li></ul></section>
-<section class="card"><h2>Log</h2><ul class="log"><li class="info"><time data-utc="2026-10-09T05:45:00Z"></time>Dashboard created. Waiting for the first autopilot run.</li></ul></section>
+<section class="card"><h2>Log</h2><ul class="log"><li class="info"><time data-utc="2026-10-09T06:07:32Z"></time>Autopilot ap-20261009T0607Z started in Azure mode. Lock taken.</li><li class="info"><time data-utc="2026-10-09T05:45:00Z"></time>Dashboard created. Waiting for the first autopilot run.</li></ul></section>
 <footer>Generated from ispc-dev/status.json on cauldnz/Primes. Refreshes every 2 minutes.</footer>
 </main>
 <script>
