@@ -11,3 +11,13 @@ control=rogiervandam_extend
 self-test cand: 8 ok, 0 bad, exit=0
 self-test champ: 8 ok, 0 bad, exit=0
 == round warmup cand
+cauldnz-ispc;158232;5.000016;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1300430;5.000264;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1154861;5.000096;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;623423;5.000050;4;algorithm=wheel,faithful=yes,bits=1
+== round warmup champ
+cauldnz-ispc;150753;5.000018;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1239751;5.000202;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1098087;5.000110;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;588015;5.000072;4;algorithm=wheel,faithful=yes,bits=1
+== round warmup champ2

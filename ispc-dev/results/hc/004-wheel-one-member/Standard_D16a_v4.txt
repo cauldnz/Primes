@@ -26,3 +26,9 @@ cauldnz-ispc;702767;5.000291;16;algorithm=wheel,faithful=yes,bits=1
 cauldnz-ispc;644663;5.000219;8;algorithm=wheel,faithful=yes,bits=1
 cauldnz-ispc;326473;5.000101;4;algorithm=wheel,faithful=yes,bits=1
 == round warmup ctrl
+rogiervandam_extend_epar;533372;5.000065;16;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;518891;5.000031;8;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;260177;5.000039;4;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;130352;5.000031;2;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend;65138;5.000049;1;algorithm=other,faithful=yes,bits=1
+== round 1 champ
