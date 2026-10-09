@@ -5,24 +5,42 @@
 ![Parallelism](https://img.shields.io/badge/Parallel-yes-green)
 ![Bit count](https://img.shields.io/badge/Bits-1-green)
 
-A sieve of Eratosthenes following the **base algorithm**, written in [ISPC](https://ispc.github.io/), the Intel® Implicit SPMD Program Compiler. The entire program is ISPC: the entry point, the timing loop, thread management, the sieve and the output. The only external calls are to the C library (`clock_gettime`, `aligned_alloc`/`free`, pthreads, `getenv`).
+A sieve of Eratosthenes that follows the base algorithm, written in [ISPC](https://ispc.github.io/), Intel's Implicit SPMD Program Compiler. The whole program is ISPC: the entry point, the timing loop, the threads, the sieve and the output. It calls the C library only for the clock, memory allocation, pthreads and `getenv`.
 
-This is the base-algorithm companion to [solution_1](../solution_1), which uses a mod-30 wheel.
+[solution_1](../solution_1) is the wheel companion to this entry.
+
+## Why ISPC, for the base algorithm
+
+This entry is the counterpoint to solution_1. The base algorithm clears one composite per operation, which leaves the vector lanes almost nothing to share. ISPC compiles it to much the same scalar code that C, Rust or Chapel would produce, from the same LLVM backend. The wide targets hurt. On an Intel Xeon the AVX-512 build ran 18% slower than AVX2, because the extra lanes add overhead without adding work, so the build leaves AVX-512 out. Read together, the two entries show how much of ISPC's advantage depends on the algorithm leaving room for SIMD.
 
 ## Implementation
 
-**Storage.** One bit per odd number: bit `i` stands for `2i + 1`, and a set bit means composite.
+### Storage
 
-**The base algorithm.** An outer loop finds the next prime by scanning for the next clear bit, then clears its odd multiples, stepping `2 × factor` through the numbers (`factor` through the bits). It stops at the square root of the sieve size. In the source, **every composite is cleared by its own single-bit OR**; no operation clears more than one composite. The clearing routines follow the approach of mike-barber's Rust ([PrimeRust/solution_1](../../PrimeRust/solution_1)) and GordonBGood's Chapel ([PrimeChapel/solution_1](../../PrimeChapel/solution_1)) solutions:
+One bit per odd number: bit `i` stands for `2i + 1`, and a set bit means composite.
 
-- **Dense factors (below 128).** The odd multiples of `p` repeat with a period of `p` 64-bit words. Each period holds exactly 64 multiples at fixed word and bit offsets. The routine is instantiated for every odd factor below 128 with the factor as a compile-time constant (a `switch` over the factor, calling an inlined routine), so those 64 offsets and single-bit masks become immediates. Clearing starts at the period containing `p²`. Smaller multiples in that period are composite as well, except `p` itself, which is restored afterwards. Every odd value has a case, not only primes: the program uses no knowledge of which numbers are prime beyond 2 being the only even one.
-- **Sparse factors (128 and above).** The same idea over bytes: 8 multiples repeat every `p` bytes, each at a fixed bit position. Their byte offsets are computed once per factor; the 8 single-bit masks depend only on `p mod 16`, so they are compile-time constants selected by a `switch`.
+### The base algorithm
 
-**Faithfulness.** All of a sieve's state lives in the `Sieve` struct. ISPC has no classes; a struct with functions taking it as their first argument is the closest equivalent. A new instance is created, with its buffer allocated at run time and sized from the sieve size, on every pass. Nothing is precomputed or carried between passes, and there are no external dependencies.
+An outer loop finds the next prime by scanning for the next clear bit, then clears that prime's odd multiples, stepping `2 × factor` through the numbers (`factor` through the bits). It stops at the square root of the sieve size. In the source, every composite is cleared by its own single-bit OR; no operation clears two composites. The clearing routines follow mike-barber's Rust solution ([PrimeRust/solution_1](../../PrimeRust/solution_1)) and GordonBGood's Chapel solution ([PrimeChapel/solution_1](../../PrimeChapel/solution_1)).
 
-**Parallelism.** Multi-threaded runs start one pthread per thread, each running independent sieves. Results are reported for all, half and a quarter of the hardware threads, because SMT siblings share an L1 cache and fewer threads can complete more passes.
+- **Factors below 128.** The odd multiples of `p` repeat with a period of `p` 64-bit words, and each period holds exactly 64 multiples at fixed word and bit offsets. A `switch` over the factor calls an inlined routine with the factor as a compile-time constant, so the compiler turns those 64 offsets and single-bit masks into immediates. Clearing starts at the period that contains `p²`. The smaller multiples in that period are composite too; only `p` itself is restored afterwards. Every odd factor has a case, including 9, 15 and the other composites, so the program assumes nothing about which numbers are prime beyond 2 being the only even one.
+- **Factors of 128 and above.** The same idea over bytes: eight multiples repeat every `p` bytes, each at a fixed bit position. Their byte offsets are computed once per factor. The eight single-bit masks depend only on `p mod 16`, so a `switch` selects them as compile-time constants.
 
-**Portability.** The x86-64 build carries SSE4 and AVX2 code paths, chosen at startup by ISPC's dispatcher. The ARM64 build targets NEON. The base algorithm leaves essentially nothing for SIMD to do (one composite per operation), so there is no AVX-512 path: it measured about 18% slower, because wider gangs only add overhead to scalar code.
+### Faithfulness
+
+All of a sieve's state lives in the `Sieve` struct. ISPC has no classes; a struct and functions that take it as their first argument are the nearest equivalent. Every pass creates a new instance and allocates its buffer at run time, sized from the sieve size. Nothing is precomputed or carried from one pass to the next, and no external dependency does any sieving.
+
+### Parallelism
+
+The multi-threaded runs start one pthread per thread, each running its own sieves. The program reports results for all, half and a quarter of the hardware threads, because SMT siblings share an L1 cache and fewer threads can finish more passes.
+
+### Portability
+
+On x86-64 the binary carries SSE4 and AVX2 code, and ISPC's dispatcher picks the path at start-up. On arm64 it compiles for NEON.
+
+## How this was built
+
+This solution came out of an experiment in agentic engineering with Claude (Anthropic). A Claude.ai session did the design, prototyping and coordination; a Claude Code session ran the benchmarks on Azure (AMD Zen 3, Zen 4 and Zen 5, and Arm Neoverse); the author set priorities and made the calls. Each change was self-tested with `PRIMES_TEST=1`, then timed in interleaved runs against the previous build and the leading solutions, and kept only if it won. The [`ispc-dev` branch of the author's fork](https://github.com/cauldnz/Primes/tree/ispc-dev/ispc-dev) holds the full record, including the regressions and dead ends.
 
 ## Run instructions
 
@@ -41,11 +59,11 @@ sh build.sh
 ./primes
 ```
 
-`PRIMES_TEST=1 ./primes` checks the prime count for every power of ten from 10 to 10⁸ and some edge cases, prints the results and exits non-zero on any mismatch.
+`PRIMES_TEST=1 ./primes` checks the prime count for every power of ten from 10 to 10⁸ and some edge cases, prints the results and exits non-zero on any mismatch. `ISPC_TARGETS`, set for `build.sh` or as a Docker build argument, overrides the compile targets.
 
 ## Output
 
-Intel Xeon @ 2.80 GHz, 2 vCPUs (shared cloud instance), Ubuntu 24.04, ISPC 1.22.0, AVX2 code path:
+Intel Xeon at 2.8GHz, 2 vCPUs on a shared cloud instance, Ubuntu 24.04, ISPC 1.22.0:
 
 ```
 cauldnz-ispc-base;29486;5.000111;1;algorithm=base,faithful=yes,bits=1
