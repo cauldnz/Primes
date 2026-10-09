@@ -154,6 +154,13 @@ static inline void clear_sparse_e(uniform uint8 * uniform bytes, uniform int nby
     // Indexing with a 32-bit chunk offset cost a sign extension and an add per composite.
     uniform uint8 * uniform q = bytes + ((p * p / 2) / 8 / p) * p;
     uniform uint8 * uniform end = bytes + nbytes;
+    for (; q + 2 * p <= end; q += 2 * p) {                          // two chunks a trip
+        uniform uint8 * uniform q1 = q + p;
+        q[o0] |= m0; q[o1] |= m1; q[o2] |= m2; q[o3] |= m3;          // one composite each
+        q[o4] |= m4; q[o5] |= m5; q[o6] |= m6; q[o7] |= m7;
+        q1[o0] |= m0; q1[o1] |= m1; q1[o2] |= m2; q1[o3] |= m3;
+        q1[o4] |= m4; q1[o5] |= m5; q1[o6] |= m6; q1[o7] |= m7;
+    }
     for (; q + p <= end; q += p) {                                  // one composite each
         q[o0] |= m0; q[o1] |= m1; q[o2] |= m2; q[o3] |= m3;
         q[o4] |= m4; q[o5] |= m5; q[o6] |= m6; q[o7] |= m7;
