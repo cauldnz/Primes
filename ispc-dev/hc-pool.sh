@@ -37,8 +37,8 @@
 # run. Node-minutes for results/cost-log.csv come from hc-meter.sh, which samples the pools.
 set -euo pipefail
 : "${SUB:?set SUB to the subscription id}"
-BATCH_ACCOUNT="${BATCH_ACCOUNT:-batchllmwestus2gves}"
-BATCH_RG="${BATCH_RG:-rg-chris-batch-llm}"
+BATCH_ACCOUNT="${BATCH_ACCOUNT:?set BATCH_ACCOUNT (tools/azure-setup.sh writes it)}"
+BATCH_RG="${BATCH_RG:?set BATCH_RG (tools/azure-setup.sh writes it)}"
 REPO="$(git rev-parse --show-toplevel)"
 HERE="$REPO/ispc-dev"
 COSTLOG="$HERE/results/cost-log.csv"

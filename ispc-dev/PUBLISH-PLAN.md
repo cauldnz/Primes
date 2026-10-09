@@ -12,6 +12,10 @@ sieves. The upstream Primes PR stays solution-only and links to it.
 - **An adapter per target.** Everything Primes-specific moves behind one interface: how to build,
   how to self-test, how to parse a result, which rivals to run and which machines decide.
   `examples/primes/` is the first adapter.
+- **A bench anyone can stand up.** `tools/azure-setup.sh up` creates a resource group, storage,
+  a Batch account and a service principal scoped to that group, checks the Spot quota and writes
+  the env file; `rotate` issues a fresh short-lived secret per run; `check` proves the principal
+  can't reach outside its group; `down` deletes it all. Nothing in the repo names a real account.
 - **The record.** `MACHINE-LOG.md` becomes the write-up, in Chris's house style. The ledger, the
   full event log and the retrospectives stay in the fork and are linked, with commit hashes.
 

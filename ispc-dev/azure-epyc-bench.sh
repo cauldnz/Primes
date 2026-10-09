@@ -23,7 +23,7 @@
 #
 # MODE=batch: one Azure Batch pool of Spot nodes per size (Batch service mode, so Spot works on
 #   any subscription offer and the account's own quota applies).
-#   Env: BATCH_ACCOUNT (default batchllmwestus2gves), BATCH_RG (default rg-chris-batch-llm),
+#   Env: BATCH_ACCOUNT and BATCH_RG (required; tools/azure-setup.sh writes them),
 #        NODES (default 1), MAX_MINUTES (hard cap per pool, default 90).
 #   Three layers stop runaway cost: the pool, job and uploaded blob are deleted on exit (also on
 #   Ctrl-C); the pool's autoscale formula targets 0 nodes after a fixed deadline, so Azure scales
@@ -37,8 +37,8 @@ MODE="${MODE:-vm}"
 LOCATION="${LOCATION:-australiaeast}"
 PRIORITY="${PRIORITY:-Spot}"
 RG="${RG:-primes-bench-$(date +%Y%m%d%H%M)}"
-BATCH_ACCOUNT="${BATCH_ACCOUNT:-batchllmwestus2gves}"
-BATCH_RG="${BATCH_RG:-rg-chris-batch-llm}"
+BATCH_ACCOUNT="${BATCH_ACCOUNT:?set BATCH_ACCOUNT (tools/azure-setup.sh writes it)}"
+BATCH_RG="${BATCH_RG:?set BATCH_RG (tools/azure-setup.sh writes it)}"
 NODES="${NODES:-1}"
 MAX_MINUTES="${MAX_MINUTES:-90}"
 [ $# -gt 0 ] || { echo "usage: $0 <vm-size> [vm-size ...]" >&2; exit 2; }

@@ -11,8 +11,8 @@ your own work and how to report. Read it first. Set up by the local Claude Code 
 |---|---|
 | Time box | Set by `RUN-PLAN.md` (4 hours from the session start for the run of 10 October), then stop and report |
 | Azure budget | NZ$30 for the session, counted from `results/cost-log.csv` |
-| Azure scope | service principal `primes-hc-cloud`: Contributor on `rg-chris-batch-llm` only; secret rotated by Chris on 10 October (the old one expired at 03:34 AEST that day). Give every pool a deadline no later than the run's end, so pools drain even if the session dies or the secret expires mid-run |
-| Compute | Batch Spot only (`MODE=batch`), account `batchllmwestus2gves`, 128 Spot vCPUs; at most 4 pools at once; `MAX_MINUTES` 60 or less per pool |
+| Azure scope | a service principal with Contributor on the Batch resource group (`$BATCH_RG`) only; secret rotated by Chris on 10 October (the old one expired at 03:34 AEST that day). Give every pool a deadline no later than the run's end, so pools drain even if the session dies or the secret expires mid-run |
+| Compute | Batch Spot only (`MODE=batch`), the Batch account (`$BATCH_ACCOUNT`), 128 Spot vCPUs; at most 4 pools at once; `MAX_MINUTES` 60 or less per pool |
 | Git | code on `hc/<id>-<slug>` branches; accepted winners merge into `hc/champion`; results, `LEDGER.md`, `STATUS.md` and `status.json` on `ispc-dev`; the status page on `dashboard`. Solution code is never merged into `ispc-dev`, never pushed to `ispc`, and no PR is opened |
 
 ## Environment setup (Chris, once)
@@ -31,10 +31,13 @@ In claude.ai/code, create an environment for `cauldnz/Primes` (branch `ispc-dev`
    ```
 
    The default "Trusted" level blocks the Azure management, Batch and storage endpoints.
-2. **Environment variables.** Copy the four `AZURE_*` lines from `primes-hc-cloud.env`, the
-   file the local session wrote to its scratchpad on Chris's machine. They're in `.env` format
-   already. Anyone with access to the environment can see them, and the secret expires at
-   03:34 AEST on 10 October. Never commit the file or paste it into a chat.
+2. **Environment variables.** Copy the six lines (`AZURE_*`, `BATCH_ACCOUNT`, `BATCH_RG`) from the
+   env file `tools/azure-setup.sh` writes; `azure-setup.sh rotate` issues a fresh short-lived
+   secret before each run. To build a bench from scratch, `azure-setup.sh up` creates the group,
+   storage, Batch account and a principal scoped to the group. They're in `.env` format
+   already. Anyone with access to the environment can see them, so keep secrets short-lived.
+   Never commit the file or paste it into a chat. For a principal made before the script, set
+   `SP_NAME` to its display name when you rotate.
 3. **Setup script.** It runs as root on first start and must finish within about 5 minutes:
 
    ```bash
@@ -59,14 +62,14 @@ pip install --quiet azure-cli 2>/dev/null || true          # skip if the setup s
 az login --service-principal -u "$AZURE_CLIENT_ID" -p "$AZURE_CLIENT_SECRET" \
    --tenant "$AZURE_TENANT_ID" -o none
 export SUB="$AZURE_SUBSCRIPTION_ID"
-az batch account login -n batchllmwestus2gves -g rg-chris-batch-llm --shared-key-auth \
+az batch account login -n "$BATCH_ACCOUNT" -g "$BATCH_RG" --shared-key-auth \
    --subscription "$SUB" -o none
 az batch pool list -o table          # should print nothing (no pools) and no error
 ```
 
 The bench script repeats the Batch login itself; these lines only check that access works.
 
-The service principal sees only `rg-chris-batch-llm`. Creating anything outside it fails with
+The service principal sees only `$BATCH_RG`. Creating anything outside it fails with
 `AuthorizationFailed`, by design.
 
 ## Running one experiment
