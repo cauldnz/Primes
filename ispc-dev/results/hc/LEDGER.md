@@ -112,3 +112,9 @@ change gets a Cobalt 100 run before it merges.
 runs 39.7k at 1T on Zen 3 against our 60.0k, 72.0k on Zen 5 against 98.2k, and 32.2k on Cobalt
 100 against 41.1k. If it tops the official base table, that must be on multi-thread; later
 base runs time it at all threads too.
+| r01 | 2026-10-09 | rust | mike-barber Rust: allow AVX-512 (`.cargo/config` disabled it for Skylake Xeons) | Zen 5 +2% to +5%; Zen 3 code identical | n/a (identical: no AVX-512) | Zen 5: 129.9k / 921.2k, +2.4% / +4.9%, 5/5, A/A within 0.2% | KEEP (target-specific rule); starts `hc/rust-champion` | `hc/rust-001-avx512` |
+| 023-arm | 2026-10-09 | base | (hc-023 on Cobalt 100) | | | Cobalt 100: 41.1k / 164.2k, +0.0% / +0.2%; davepl at 4T 128.6k (ours +27.7%) | flat on arm64; x86 pending | |
+
+**Rust line.** Rust experiments are measured with `hc-pool.sh` kind `rust`: candidate and
+champion are `PrimeRust/solution_1` at two refs, ctrl is our ISPC base champion and ctrl2 is
+davepl's C++. Accepted Rust changes collect on `hc/rust-champion`, separate from `hc/champion`.
