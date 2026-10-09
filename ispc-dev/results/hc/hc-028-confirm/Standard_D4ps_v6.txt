@@ -1,0 +1,45 @@
+Architecture:                            aarch64
+CPU(s):                                  4
+Model name:                              Neoverse-N2
+BIOS Model name:                         Cobalt 100 None CPU @ 3.4GHz
+AVX-512: no
+kind=base rounds=6 id=21083424471
+build cand
+build champ
+self-test cand: 13 ok, 0 bad, exit=0
+self-test champ: 13 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-ispc-base;41035;5.000046;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;163789;5.000131;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;82055;5.000182;2;algorithm=base,faithful=yes,bits=1
+== round warmup champ
+cauldnz-ispc-base;41062;5.000113;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;164011;5.000135;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;82076;5.000112;2;algorithm=base,faithful=yes,bits=1
+== round warmup champ2
+cauldnz-ispc-base;41053;5.000087;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;163970;5.000160;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;82079;5.000073;2;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl
+mike-barber_bit-extreme-hybrid;42874;5.0000853539;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;85765;5.0001711845;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;171109;5.0001292229;4;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl2
+davepl_array_optimized;32205;5.00041;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;128564;5.00088;4;algorithm=base,faithful=yes,bits=1
+== round 1 champ2
+cauldnz-ispc-base;41081;5.000101;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;163909;5.000130;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;82076;5.000124;2;algorithm=base,faithful=yes,bits=1
+== round 1 cand
+cauldnz-ispc-base;41097;5.000042;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;163826;5.000128;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;82075;5.000127;2;algorithm=base,faithful=yes,bits=1
+== round 1 ctrl2
+davepl_array_optimized;32205;5.00013;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;128621;5.0002;4;algorithm=base,faithful=yes,bits=1
+== round 1 ctrl
+mike-barber_bit-extreme-hybrid;42868;5.0000939369;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;85768;5.0000839233;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;171383;5.0001378059;4;algorithm=base,faithful=yes,bits=1
+== round 1 champ

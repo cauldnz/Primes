@@ -213,3 +213,19 @@ on every x86 machine: Zen 3 +3.4% (10 rounds, all won), Zen 4 with AVX-512 +3.2%
 largest with SMT siblings sharing a core, which fits fewer load-port slots spent on reloads.
 It closes only a sliver of the Zig wheel's 12–18% lead; the rest is still unexplained (the
 group loop, the sparse loop and allocation now look alike in both).
+| diag | 2026-10-10 | wheel | Phase profiles, ISPC wheel against the Zig wheel (TSC timers, diagnostic branches) | n/a | ISPC 124.9k against Zig 106.1k cycles a pass (different nodes) | 82.6k against 61.3k | measurement | `hc/diag-wheel-phases`, `hc/diag-zig-wheel-phases` |
+| 041 | 2026-10-10 | wheel | Probe: single-target AVX2 build tuned with `--cpu=znver3` against untuned | n/a | 104.4k / 848.8k, +3.7% / −3.1% | n/a | probe only (multi-target builds can't take `--cpu`) | `hc/041b-probe-avx2-znver3` |
+| 042 | 2026-10-10 | wheel | Two gangs per step on top of hc-035 (hc-033 again, now without the spills) | +3–6% Zen 3, 0–3% Zen 5 | 100.4k / 880.3k, +0.2% / −0.4% | 192.0k / 1.51M, −0.4% / +1.0% (8T −1.1%) | rejected (Cobalt 100 +0.6%) | `hc/042-wheel-two-gangs-fixed-rows` |
+
+**diag, phase profiles.** Both wheels spend about half a pass in the fused groups and two
+fifths in sparse marking, on Zen 3, Zen 5 and Cobalt 100 alike. The Zig wheel's same-node lead
+is 15–19% on Zen 3, 10–13% on Zen 5 and 10–12% on Cobalt 100, and the cross-node profiles put
+it in both big phases. A same-node profile is running to confirm. Allocation is ruled out
+(persistent buffers changed nothing on the sandbox), and so is vectorising pattern building.
+
+**042, two gangs again.** With fixed-row patterns the loop is 155 instructions per 32 words
+(Zig: 142) and still gains nothing. Instruction count in the fused loop is not the limit.
+
+**danielspaangberg, first measurements.** His `5760of30030` wheel, the faithful wheel category's
+leader on the leaderboard, runs at 38.0k (Zen 3), 70.2k (Zen 5) and 42.6k (Cobalt 100) passes
+at 1T. Ours is 2.6, 2.7 and 2.2 times faster there, and 2.8 to 3.0 times at all threads on Zen.
