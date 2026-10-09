@@ -55,8 +55,8 @@ cp "$STAGE/new/"* "$STAGE/avx2/"
 # The base-algorithm entry (solution_2), for SUITE=targets.
 mkdir -p "$STAGE/base"
 for f in "$HERE/../PrimeISPC/solution_2/"*; do sed 's/\r$//' "$f" > "$STAGE/base/$(basename "$f")"; done
-sed -i 's/TARGETS="sse4-i32x4,avx2-i32x8,avx512skx-x16"/TARGETS="avx2-i32x8"/' "$STAGE/avx2/build.sh"
-grep -q 'TARGETS="avx2-i32x8"' "$STAGE/avx2/build.sh" || { echo "!!! could not force AVX2 target"; exit 1; }
+sed -i '/^set -e$/a ISPC_TARGETS=avx2-i32x8' "$STAGE/avx2/build.sh"
+grep -q '^ISPC_TARGETS=avx2-i32x8$' "$STAGE/avx2/build.sh" || { echo "!!! could not force AVX2 target"; exit 1; }
 
 azs() { az "$@" --subscription "$SUB"; }
 is_arm() { case "$1" in Standard_[A-Z]*[0-9]p*_v*) return 0;; *) return 1;; esac; }
