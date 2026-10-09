@@ -83,6 +83,36 @@ Then add a short note per experiment under the table: what happened, and what it
 - No pushes to `ispc` and no PR changes without Chris's explicit OK. Winners reach the PR
   through a follow-up commit he approves.
 
+## Next run plan (agreed with Chris, 2026-10-09 21:30 AEST)
+
+1. **Harness: persistent auto-scaling pools.** One Batch pool per VM size that lives for the
+   whole run. Its autoscale formula follows the task queue
+   (`min(cap, pending + running tasks)`), drops to zero nodes when the queue is empty, and
+   drops to zero at a hard deadline whatever happens. A start task installs Docker and builds
+   the controls (C5, Rust, Chapel, davepl C++) once per node. Experiments are submitted as
+   tasks, not pools. That saves the 4–6 minutes of boot, apt and control builds each run paid
+   today, and lets one size run several experiments at once. The runbook limit becomes "at
+   most 8 nodes in total" instead of "at most 4 pools". The 50-minute cap per run becomes a
+   per-task wall-clock limit.
+2. **Controls: add davepl's C++ base** (`PrimeCPP/solution_5`, `davepl_array_optimized`) next
+   to mike-barber's Rust for the base entry. Re-pull the full leaderboard JSON first; this
+   morning's pull was truncated.
+3. **Research pass 2**, from what this run learnt: what davepl's `mark_multiples` does; where
+   our base can go past Rust on Zen 5 (both are now 38k dense and 61k sparse cycles a pass);
+   L1 blocking under the base rules; why NEON scalarises the vector dense code and whether a
+   NEON-friendly form exists (the Pi 4 is an official runner, and base is level with the start
+   there); start-up autotune. External models (GPT, Gemini via Copilot) get the same brief
+   through Chris; their replies are logged in `RESEARCH.md` with the source named.
+4. **Rust: improve mike-barber's entry** (`PrimeRust/solution_1`). CONTRIBUTING.md asks for
+   improvements to an existing solution when the approach matches, and it does. Work goes on
+   `hc/rust-*` branches only, measured with the same A/B harness (candidate against upstream
+   Rust, with our base entry as the control). Nothing is submitted without Chris and, per
+   CONTRIBUTING.md, without contacting the author. Candidate ideas: the AVX-512 build (its
+   `.cargo/config` disables `avx512f` for an Intel problem that may not apply on Zen), a
+   pointer-walk sparse loop like hc-003, the dense limit (129), and a NEON check.
+5. **Then the open decisions:** merge `hc/champion-plus-target-specific-2` if Chris agrees,
+   and refresh the README and PR numbers.
+
 ## Backlog (ranked)
 
 Seeded from today's results. Re-rank after each experiment.
