@@ -241,25 +241,26 @@ static void dense_primes(uniform Sieve * uniform s, const uniform int * uniform 
 static void sparse_prime(uniform Sieve * uniform s, uniform int p) {
     uniform int nbits = s->mbits, pw = s->pw;
     uniform uint64 * uniform base = s->bits;
-    uniform int64 i[8];                            // 64-bit, so no sign extension per OR
+    uniform uint64 i[8];                           // unsigned 64-bit: a logical shift per OR
     uniform int hi = 0;
     for (uniform int pl = 0; pl < 8; pl++) {
         uniform int sb = start_bit(p, RES[pl], p);
         hi = max(hi, sb);
-        i[pl] = sb + (uniform int64)pl * pw * 64;  // bit index within the whole buffer
+        i[pl] = sb + (uniform uint64)pl * pw * 64; // bit index within the whole buffer
     }
-    // rounds in which all 8 streams are still inside their plane
+    // rounds in which all 8 streams are still inside their plane; counted and unrolled by
+    // four, as LLVM compiles the same loop in the Zig port, which ran sparse 20% faster on Zen 5
     uniform int rounds = (hi < nbits) ? (nbits - 1 - hi) / p + 1 : 0;
-    const uniform int64 lim = i[0] + (uniform int64)rounds * p;   // bounds stream 0; no counter
-    while (i[0] < lim) {
+    #pragma unroll 4
+    for (uniform int r = 0; r < rounds; r++) {
         for (uniform int pl = 0; pl < 8; pl++) {
             base[i[pl] >> 6] |= ((uniform uint64)1) << (i[pl] & 63);
             i[pl] += p;
         }
     }
     for (uniform int pl = 0; pl < 8; pl++) {
-        uniform int64 end = (uniform int64)pl * pw * 64 + nbits;
-        for (uniform int64 x = i[pl]; x < end; x += p) base[x >> 6] |= ((uniform uint64)1) << (x & 63);
+        uniform uint64 end = (uniform uint64)pl * pw * 64 + nbits;
+        for (uniform uint64 x = i[pl]; x < end; x += p) base[x >> 6] |= ((uniform uint64)1) << (x & 63);
     }
 }
 
