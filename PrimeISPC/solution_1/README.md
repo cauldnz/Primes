@@ -31,7 +31,7 @@ The multiples of a prime `p` that fall in one plane step through it with stride 
 
 A stride-`p` bit pattern repeats every `p` 64-bit words. Because 64 is invertible modulo any odd `p`, every bit offset of the pattern is a whole-word rotation of one base pattern. Each prime therefore builds one base pattern, shared by all eight planes, plus a 64-entry table of starting rotations, filled while the pattern is built. The SIMD lanes then stream the pattern into the sieve with contiguous vector loads. The hot loop has no gathers and no divisions.
 
-Up to eight primes are fused into one pass over a plane, so each sieve word is loaded and stored once per eight primes.
+Several primes are fused into one pass over a plane, so each sieve word is loaded and stored once per group: six primes with AVX-512, eight otherwise (six was 4% to 5% faster at one thread on Zen 4 and Zen 5 with AVX-512, and 1% slower on Zen 3 with AVX2). Every member of a group starts at the first word any member touches, so no member needs a lead-in of its own. Members then also mark their multiples below `p²`, which are composite, and `p` itself, which is cleared again afterwards. 13 is the one prime that runs alone and skips the fused loop.
 
 ### Wheel tile
 
@@ -39,7 +39,7 @@ Multiples of 7 and 11 repeat every 77 words in every plane. The program builds t
 
 ### Large primes
 
-Primes above 256 (the default) set at most one bit per word. They use scalar strided bit-setting, with all eight planes advanced in one loop to keep eight independent memory streams busy.
+Primes above 256 (the default) set at most one bit per word. They use scalar strided bit-setting, with all eight planes advanced in one loop to keep eight independent memory streams busy. The bit indices are 64-bit and the build uses ISPC's `--addressing=64`, so each composite costs four instructions, with no sign extensions and no register spills.
 
 ### Faithfulness
 
@@ -52,6 +52,7 @@ The multi-threaded runs start one pthread per thread, each running its own sieve
 ### Two lessons for ISPC users
 
 - **Hidden divides.** A phase-wrapping loop written as `while (r >= p) r -= p;` compiled to a hardware integer division on every iteration. In an early version it cost about two-thirds of the run time. Making the pattern period at least one vector step long reduced the wrap to a single conditional subtract.
+- **Functions that aren't inlined get an execution mask too.** ISPC compiles a non-inlined `static` function for an unknown mask, so every vector load and store inside it is masked, even when every caller runs with all lanes on. On AVX2 a masked store is slow on Zen 2 to Zen 4. The fused loop runs in an `unmasked` block, and without AVX-512 the last partial vector of a plane runs on into padding instead of being masked: the extra words get the same prime's pattern, which is correct for them.
 - **`export` functions handed to pthreads need `unmasked`.** The address of an `export` function points at ISPC's internal variant, which expects a hidden execution-mask argument. `pthread_create` passes whatever happens to be in that register, so the thread can run with every SIMD lane switched off. Wrapping the thread body in `unmasked { ... }` turns the lanes on.
 
 ## How this was built
@@ -83,12 +84,23 @@ sh build.sh
 
 ## Output
 
-Intel Xeon at 2.8GHz, 2 vCPUs on a shared cloud instance, Ubuntu 24.04, ISPC 1.22.0:
+AMD EPYC 9V45 (Zen 5), 16 vCPUs, Azure `Standard_D16as_v7`, Ubuntu 24.04, ISPC 1.22.0, in Docker:
 
 ```
-cauldnz-ispc;56457;5.000051;1;algorithm=wheel,faithful=yes,bits=1
-cauldnz-ispc;107784;5.000350;2;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;191112;5.000023;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1467424;5.000176;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1399782;5.000106;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;756188;5.000046;4;algorithm=wheel,faithful=yes,bits=1
 ```
+
+Passes in 5 seconds against rogiervandam's C (PrimeC/solution_5), measured in the same
+interleaved rounds on Azure Spot nodes, median of five rounds, one thread / all 16 threads:
+
+| CPU | this entry | rogiervandam C | lead |
+|---|---|---|---|
+| AMD EPYC 7763 (Zen 3, AVX2) | 103,500 / 850,400 | 66,800 / 534,400 | +55% / +59% |
+| AMD EPYC 9V74 (Zen 4, AVX-512) | 115,100 / 952,900 | 97,000 / 769,900 | +19% / +24% |
+| AMD EPYC 9V45 (Zen 5, AVX-512) | 191,000 / 1,470,000 | 139,200 / 1,160,000 | +37% / +27% |
 
 Self-test:
 
