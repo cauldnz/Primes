@@ -1,0 +1,52 @@
+Architecture:                            aarch64
+CPU(s):                                  4
+Model name:                              Neoverse-N1
+AVX-512: no
+build ispc
+build ispc-old
+== self-test new
+size 10 -> 4 primes (expected 4) 1
+size 100 -> 25 primes (expected 25) 1
+size 1000 -> 168 primes (expected 168) 1
+size 10000 -> 1229 primes (expected 1229) 1
+size 100000 -> 9592 primes (expected 9592) 1
+size 1000000 -> 78498 primes (expected 78498) 1
+size 10000000 -> 664579 primes (expected 664579) 1
+size 100000000 -> 5761455 primes (expected 5761455) 1
+== round 1 new
+cauldnz-ispc;39117;5.000072;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;155828;5.000148;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;78143;5.000133;2;algorithm=wheel,faithful=yes,bits=1
+== round 1 old
+cauldnz-ispc;33869;5.000005;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;135322;5.000179;4;algorithm=wheel,faithful=yes,bits=1
+== round 2 new
+cauldnz-ispc;39089;5.000001;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;156115;5.000183;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;78152;5.000107;2;algorithm=wheel,faithful=yes,bits=1
+== round 2 old
+cauldnz-ispc;33897;5.000042;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;134903;5.000180;4;algorithm=wheel,faithful=yes,bits=1
+== round 3 new
+cauldnz-ispc;39121;5.000010;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;156180;5.000136;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;78132;5.000095;2;algorithm=wheel,faithful=yes,bits=1
+== round 3 old
+cauldnz-ispc;33919;5.000021;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;135283;5.000171;4;algorithm=wheel,faithful=yes,bits=1
+== DENSE_MAX=128 new
+cauldnz-ispc;38029;5.000092;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;151775;5.000131;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;75979;5.000087;2;algorithm=wheel,faithful=yes,bits=1
+== DENSE_MAX=192 new
+cauldnz-ispc;39495;5.000101;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;157816;5.000133;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;78886;5.000111;2;algorithm=wheel,faithful=yes,bits=1
+== DENSE_MAX=256 new
+cauldnz-ispc;39071;5.000022;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;156043;5.000170;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;78127;5.000159;2;algorithm=wheel,faithful=yes,bits=1
+== DENSE_MAX=384 new
+cauldnz-ispc;33835;5.000117;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;134160;5.000175;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;67758;5.000120;2;algorithm=wheel,faithful=yes,bits=1

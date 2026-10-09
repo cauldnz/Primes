@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "updated_utc": "2026-10-09T05:45:00Z",
+  "run": {
+    "id": "setup",
+    "state": "idle",
+    "mode": "pending",
+    "mode_reason": "Autopilot not started yet. Claude Code is creating the service principal.",
+    "started_utc": null,
+    "time_box_hours": 4,
+    "spend_nzd": 0,
+    "spend_cap_nzd": 30
+  },
+  "current": null,
+  "scoreboard": [
+    {"machine": "Zen 3 (EPYC 7763)", "entry": "wheel", "ours_1t": 81642, "ours_mt": 704731, "rival": "rogiervandam C", "rival_1t": 65158, "rival_mt": 532057, "threads": 16, "source": "azure 14:45 AEST, medians"},
+    {"machine": "Zen 4 (EPYC 9V74)", "entry": "wheel", "ours_1t": 98650, "ours_mt": 840739, "rival": "rogiervandam C", "rival_1t": 97012, "rival_mt": 770480, "threads": 16, "source": "azure 14:45 AEST, medians"},
+    {"machine": "Zen 5 (EPYC 9V45)", "entry": "wheel", "ours_1t": 150893, "ours_mt": 1245203, "rival": "rogiervandam C", "rival_1t": 133361, "rival_mt": 1198472, "threads": 16, "source": "azure 14:45 AEST, medians, round 1 excluded"},
+    {"machine": "Zen 3 (EPYC 7763)", "entry": "base", "ours_1t": 44631, "ours_mt": 341226, "rival": "mike-barber Rust", "rival_1t": 52424, "rival_mt": 410751, "threads": 16, "source": "azure 14:45 AEST, medians"},
+    {"machine": "Zen 4 (EPYC 9V74)", "entry": "base", "ours_1t": 63727, "ours_mt": 497429, "rival": "mike-barber Rust", "rival_1t": 76599, "rival_mt": 608307, "threads": 16, "source": "azure 14:45 AEST, medians"},
+    {"machine": "Zen 5 (EPYC 9V45)", "entry": "base", "ours_1t": 87311, "ours_mt": 689749, "rival": "mike-barber Rust", "rival_1t": 126538, "rival_mt": 877459, "threads": 16, "source": "azure 14:45 AEST, medians"}
+  ],
+  "experiments": [],
+  "azure_queue": 0,
+  "next_up": [
+    "Base: profile against Rust on Zen 5 (dense, sparse, next-prime scan)",
+    "Base: word-at-a-time next-prime scan",
+    "Wheel: fusion group size G against gang width"
+  ],
+  "events": [
+    {"utc": "2026-10-09T05:45:00Z", "level": "info", "text": "Dashboard created. Waiting for the first autopilot run."}
+  ]
+}

@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en-AU"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta http-equiv="refresh" content="120">
+<title>ISPC autopilot</title>
+<style>
+:root{--bg:#f6f5f2;--card:#fff;--ink:#1d1d1b;--muted:#6b6a66;--line:#e4e2dc;--up:#1f7a4d;--down:#b3261e;--accent:#2e5496;--warn:#9a6700;--warnbg:#fff4d6}
+@media (prefers-color-scheme:dark){:root{--bg:#141413;--card:#1e1e1c;--ink:#ecebe7;--muted:#9c9a94;--line:#33322f;--up:#5cc28d;--down:#f28b82;--accent:#8ab4f8;--warn:#f2c94c;--warnbg:#3a3020}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding:16px 16px calc(16px + env(safe-area-inset-bottom))}
+main{max-width:760px;margin:0 auto}
+h1{font-size:20px;margin:4px 0 2px} h2{font-size:16px;margin:0 0 6px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin:12px 0}
+.sub,.muted,small{color:var(--muted);font-size:13px} small{display:block}
+.status{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pill{border-radius:999px;padding:3px 10px;font-weight:600;font-size:13px;border:1px solid var(--line)}
+.pill.running{color:var(--up);border-color:var(--up)} .pill.stopped,.pill.failed{color:var(--down);border-color:var(--down)}
+.stale{display:none;background:var(--warnbg);color:var(--warn);border-radius:8px;padding:8px 10px;margin-top:8px;font-size:14px}
+.meter{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin-top:4px} .meter i{display:block;height:100%;background:var(--accent)}
+.kv{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px} .kv div{font-size:13px;color:var(--muted)} .kv b{display:block;color:var(--ink);font-size:15px}
+.scroll{overflow-x:auto} table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:7px 6px;border-top:1px solid var(--line);font-size:14px;vertical-align:top}
+thead th{border-top:0;color:var(--muted);font-weight:500;font-size:12px} tbody th{font-weight:500;white-space:nowrap}
+td.m{white-space:nowrap} td.m b{font-size:13px;margin-left:6px} .up b{color:var(--up)} .down b{color:var(--down)}
+.bar{display:inline-block;width:38px;height:6px;background:var(--line);border-radius:3px;vertical-align:middle;overflow:hidden}
+.up .bar i{display:block;height:100%;background:var(--up)} .down .bar i{display:block;height:100%;background:var(--down)}
+.mach{padding:9px 0;border-top:1px solid var(--line)} .mach:first-of-type{border-top:0} .mname{font-weight:600;font-size:14px;margin-bottom:3px}
+.ml{display:grid;grid-template-columns:72px 1fr 40px 44px;align-items:center;gap:6px;font-size:13px;font-variant-numeric:tabular-nums;padding:2px 0}
+.ml .lab{color:var(--muted)} .ml .nums{color:var(--muted)} .ml .nums b{color:var(--ink);font-weight:600} .ml .pct{text-align:right}
+.ml.up .pct{color:var(--up)} .ml.down .pct{color:var(--down)}
+.tag{font-size:12px;border:1px solid var(--line);border-radius:6px;padding:1px 6px;margin:0 6px;color:var(--muted)}
+.phases{display:flex;flex-wrap:wrap;gap:6px;list-style:none;padding:0;margin:10px 0}
+.phases li{font-size:12px;padding:3px 8px;border-radius:6px;border:1px solid var(--line);color:var(--muted)}
+.phases li.done{color:var(--ink)} .phases li.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.xs,.log,.next{list-style:none;padding:0;margin:0} .xs li{padding:10px 0;border-top:1px solid var(--line)} .xs li:first-child{border-top:0}
+.row1{display:flex;align-items:center;gap:4px;flex-wrap:wrap} .row1 .d{margin-left:auto;font-variant-numeric:tabular-nums;font-size:13px}
+.hyp{margin:3px 0} .v{font-size:12px;font-weight:600;padding:1px 7px;border-radius:6px;border:1px solid currentColor}
+.v.kept,.v.confirmed{color:var(--up)} .v.rejected,.v.reverted,.v.failed{color:var(--down)} .v.queued,.v.running{color:var(--warn)}
+.log li{font-size:13px;padding:4px 0;border-top:1px solid var(--line)} .log li:first-child{border-top:0}
+.log time{color:var(--muted);margin-right:8px;font-variant-numeric:tabular-nums} .log .warn{color:var(--warn)} .log .error{color:var(--down)}
+.next li{padding:4px 0} .next li::before{content:"→ ";color:var(--muted)}
+footer{color:var(--muted);font-size:12px;text-align:center;margin:18px 0 8px}
+</style></head><body><main>
+<header class="card">
+  <h1>ISPC autopilot</h1>
+  <div class="status"><span class="pill idle">idle</span><span class="pill">pending mode</span>
+  <span class="sub">updated <time id="upd" data-utc="2026-10-09T05:45:00Z"></time></span></div>
+  <div class="stale" id="stale">No update for over 45 minutes. The run may have stopped.</div>
+  <p class="sub" style="margin:8px 0 0">Autopilot not started yet. Claude Code is creating the service principal.</p>
+  <div class="kv">
+    <div>Run<b>setup</b></div>
+    <div>Started<b><time data-utc=""></time></b></div>
+    <div>Azure spend<b>NZ$0.00 of NZ$30</b><div class="meter"><i style="width:0%"></i></div></div>
+    <div>Queued for Zen<b>0</b></div>
+  </div>
+</header>
+<section class="card"><h2>Now</h2><p class="muted">No experiment running.</p></section>
+<section class="card"><h2>Wheel (solution_1)</h2><p class="sub">Passes in 5s, ours vs rogiervandam C</p><div class="mach"><div class="mname">Zen 3 (EPYC 7763)</div><div class="ml up"><span class="lab">1 thread</span><span class="nums"><b>81.6k</b> vs 65.2k</span><span class="bar"><i style="width:63%"></i></span><b class="pct">+25%</b></div><div class="ml up"><span class="lab">16 threads</span><span class="nums"><b>704.7k</b> vs 532.1k</span><span class="bar"><i style="width:81%"></i></span><b class="pct">+32%</b></div></div><div class="mach"><div class="mname">Zen 4 (EPYC 9V74)</div><div class="ml up"><span class="lab">1 thread</span><span class="nums"><b>98.7k</b> vs 97.0k</span><span class="bar"><i style="width:4%"></i></span><b class="pct">+2%</b></div><div class="ml up"><span class="lab">16 threads</span><span class="nums"><b>840.7k</b> vs 770.5k</span><span class="bar"><i style="width:23%"></i></span><b class="pct">+9%</b></div></div><div class="mach"><div class="mname">Zen 5 (EPYC 9V45)</div><div class="ml up"><span class="lab">1 thread</span><span class="nums"><b>150.9k</b> vs 133.4k</span><span class="bar"><i style="width:33%"></i></span><b class="pct">+13%</b></div><div class="ml up"><span class="lab">16 threads</span><span class="nums"><b>1.25M</b> vs 1.20M</span><span class="bar"><i style="width:10%"></i></span><b class="pct">+4%</b></div></div></section>
+<section class="card"><h2>Base (solution_2)</h2><p class="sub">Passes in 5s, ours vs mike-barber Rust</p><div class="mach"><div class="mname">Zen 3 (EPYC 7763)</div><div class="ml down"><span class="lab">1 thread</span><span class="nums"><b>44.6k</b> vs 52.4k</span><span class="bar"><i style="width:37%"></i></span><b class="pct">-15%</b></div><div class="ml down"><span class="lab">16 threads</span><span class="nums"><b>341.2k</b> vs 410.8k</span><span class="bar"><i style="width:42%"></i></span><b class="pct">-17%</b></div></div><div class="mach"><div class="mname">Zen 4 (EPYC 9V74)</div><div class="ml down"><span class="lab">1 thread</span><span class="nums"><b>63.7k</b> vs 76.6k</span><span class="bar"><i style="width:42%"></i></span><b class="pct">-17%</b></div><div class="ml down"><span class="lab">16 threads</span><span class="nums"><b>497.4k</b> vs 608.3k</span><span class="bar"><i style="width:46%"></i></span><b class="pct">-18%</b></div></div><div class="mach"><div class="mname">Zen 5 (EPYC 9V45)</div><div class="ml down"><span class="lab">1 thread</span><span class="nums"><b>87.3k</b> vs 126.5k</span><span class="bar"><i style="width:78%"></i></span><b class="pct">-31%</b></div><div class="ml down"><span class="lab">16 threads</span><span class="nums"><b>689.7k</b> vs 877.5k</span><span class="bar"><i style="width:53%"></i></span><b class="pct">-21%</b></div></div></section>
+<section class="card"><h2>Experiments</h2><p class="muted">None yet.</p></section>
+<section class="card"><h2>Next up</h2><ul class="next"><li>Base: profile against Rust on Zen 5 (dense, sparse, next-prime scan)</li><li>Base: word-at-a-time next-prime scan</li><li>Wheel: fusion group size G against gang width</li></ul></section>
+<section class="card"><h2>Log</h2><ul class="log"><li class="info"><time data-utc="2026-10-09T05:45:00Z"></time>Dashboard created. Waiting for the first autopilot run.</li></ul></section>
+<footer>Generated from ispc-dev/status.json on cauldnz/Primes. Refreshes every 2 minutes.</footer>
+</main>
+<script>
+const fmt=new Intl.DateTimeFormat('en-AU',{timeZone:'Australia/Brisbane',weekday:'short',hour:'2-digit',minute:'2-digit'});
+document.querySelectorAll('time[data-utc]').forEach(t=>{const v=t.dataset.utc;if(!v||v==='None'){t.textContent='–';return}const d=new Date(v);if(isNaN(d)){t.textContent=v;return}t.textContent=fmt.format(d)+' AEST';});
+const u=document.getElementById('upd'),d=new Date(u.dataset.utc);
+if(!isNaN(d)){const m=Math.round((Date.now()-d)/60000);u.textContent=(m<1?'just now':m<120?m+' min ago':Math.round(m/60)+' h ago');if(m>45)document.getElementById('stale').style.display='block';}
+</script></body></html>

@@ -1,0 +1,60 @@
+CPU(s):                                  16
+Model name:                              AMD EPYC 9V45 96-Core Processor
+AVX-512: yes
+== self-test
+size 10 -> 4 primes (expected 4) 1
+size 100 -> 25 primes (expected 25) 1
+size 1000 -> 168 primes (expected 168) 1
+size 10000 -> 1229 primes (expected 1229) 1
+size 100000 -> 9592 primes (expected 9592) 1
+size 1000000 -> 78498 primes (expected 78498) 1
+size 10000000 -> 664579 primes (expected 664579) 1
+size 100000000 -> 5761455 primes (expected 5761455) 1
+== round 1 ISPC
+cauldnz-ispc;138539;5.000030;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1102148;5.000203;16;algorithm=wheel,faithful=yes,bits=1
+== round 1 C5
+== round 2 ISPC
+cauldnz-ispc;137543;5.000032;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1100638;5.000193;16;algorithm=wheel,faithful=yes,bits=1
+== round 2 C5
+== round 3 ISPC
+cauldnz-ispc;138827;5.000005;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1099891;5.000209;16;algorithm=wheel,faithful=yes,bits=1
+== round 3 C5
+== C2
+danielspaangberg_480of2310_owrb;57104;5.000073;1;algorithm=wheel,faithful=yes,bits=1
+danielspaangberg_5760of30030_owrb;69289;5.000054;1;algorithm=wheel,faithful=yes,bits=1
+danielspaangberg_480of2310_par;61271;5.000015;4;algorithm=wheel,faithful=yes,bits=1
+danielspaangberg_5760of30030_par;64519;5.000045;4;algorithm=wheel,faithful=yes,bits=1
+danielspaangberg_480of2310_epar;414523;5.000809;16;algorithm=wheel,faithful=yes,bits=1
+danielspaangberg_5760of30030_epar;502433;5.000741;16;algorithm=wheel,faithful=yes,bits=1
+== Rust
+mike-barber_bit-extreme-hybrid;884077;5.0002293587;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-unrolled-hybrid;878183;5.0002002716;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-unrolled-hybrid;873463;5.0005073547;16;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;872715;5.0003795624;16;algorithm=base,faithful=yes,bits=1
+== DENSE_MAX=128
+cauldnz-ispc;134226;5.000002;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1122268;5.000192;16;algorithm=wheel,faithful=yes,bits=1
+== DENSE_MAX=192
+cauldnz-ispc;141932;5.000032;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1236399;5.000246;16;algorithm=wheel,faithful=yes,bits=1
+== DENSE_MAX=256
+cauldnz-ispc;147127;5.000031;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1226548;5.000195;16;algorithm=wheel,faithful=yes,bits=1
+== DENSE_MAX=320
+cauldnz-ispc;135733;5.000013;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1144649;5.000183;16;algorithm=wheel,faithful=yes,bits=1
+== DENSE_MAX=384
+cauldnz-ispc;136635;5.000002;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1100947;5.000221;16;algorithm=wheel,faithful=yes,bits=1
+== DENSE_MAX=448
+cauldnz-ispc;132019;5.000011;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1063435;5.000273;16;algorithm=wheel,faithful=yes,bits=1
+== DENSE_MAX=512
+cauldnz-ispc;121872;5.000023;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;964361;5.000213;16;algorithm=wheel,faithful=yes,bits=1
+== DENSE_MAX=640
+cauldnz-ispc;113980;5.000027;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;885357;5.000224;16;algorithm=wheel,faithful=yes,bits=1

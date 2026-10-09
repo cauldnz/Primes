@@ -1,0 +1,78 @@
+Architecture:                            aarch64
+CPU(s):                                  4
+Model name:                              Neoverse-N1
+BIOS Model name:                         Ampere(R) Altra(R) Processor None CPU @ 3.0GHz
+AVX-512: no
+build w-default [default]
+build w-neonx8 [neon-i32x8]
+build b-default [default]
+build rust
+self-test w-default: 8 ok, 0 bad, exit=0
+self-test w-neonx8: 8 ok, 0 bad, exit=0
+self-test b-default: 13 ok, 0 bad, exit=0
+== round 1 w-default
+cauldnz-ispc;39101;5.000107;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;155767;5.000150;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;78141;5.000165;2;algorithm=wheel,faithful=yes,bits=1
+== round 1 w-neonx8
+cauldnz-ispc;40740;5.000038;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;162665;5.000158;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;81473;5.000109;2;algorithm=wheel,faithful=yes,bits=1
+== round 1 b-default
+cauldnz-ispc-base;35232;5.000038;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;138697;5.000130;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;69462;5.000126;2;algorithm=base,faithful=yes,bits=1
+== round 1 Rust
+mike-barber_bit-rotate;5559;5.0007820129;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-unrolled-hybrid;36500;5.0000243187;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;36896;5.0000014305;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-rotate;11131;5.0008869171;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-unrolled-hybrid;72763;5.0001759529;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;73572;5.0001783371;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-rotate;22220;5.0005197525;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-unrolled-hybrid;145395;5.0001630783;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;147015;5.0001397133;4;algorithm=base,faithful=yes,bits=1
+== round 2 w-default
+cauldnz-ispc;39131;5.000029;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;156016;5.000159;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;78133;5.000123;2;algorithm=wheel,faithful=yes,bits=1
+== round 2 w-neonx8
+cauldnz-ispc;40797;5.000075;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;162684;5.000176;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;81474;5.000104;2;algorithm=wheel,faithful=yes,bits=1
+== round 2 b-default
+cauldnz-ispc-base;34997;5.000032;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;138713;5.000160;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;69441;5.000053;2;algorithm=base,faithful=yes,bits=1
+== round 2 Rust
+mike-barber_bit-rotate;5565;5.0002956390;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-unrolled-hybrid;36325;5.0001282692;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;36732;5.0001292229;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-rotate;11127;5.0004367828;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-unrolled-hybrid;72817;5.0001788139;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;73656;5.0001416206;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-rotate;22227;5.0009036064;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-unrolled-hybrid;145401;5.0001430511;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;146855;5.0001654625;4;algorithm=base,faithful=yes,bits=1
+== round 3 w-default
+cauldnz-ispc;39083;5.000000;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;155887;5.000162;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;78116;5.000090;2;algorithm=wheel,faithful=yes,bits=1
+== round 3 w-neonx8
+cauldnz-ispc;40749;5.000069;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;162821;5.000130;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;81495;5.000103;2;algorithm=wheel,faithful=yes,bits=1
+== round 3 b-default
+cauldnz-ispc-base;35236;5.000090;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;138289;5.000164;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;69461;5.000041;2;algorithm=base,faithful=yes,bits=1
+== round 3 Rust
+mike-barber_bit-rotate;5564;5.0001015663;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-unrolled-hybrid;36493;5.0000281334;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;36892;5.0000476837;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-rotate;11126;5.0006275177;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-unrolled-hybrid;72778;5.0001854897;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;73588;5.0001254082;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-rotate;22221;5.0005807877;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-unrolled-hybrid;145377;5.0001707077;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;146988;5.0001788139;4;algorithm=base,faithful=yes,bits=1
