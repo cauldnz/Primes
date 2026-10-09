@@ -67,3 +67,13 @@ mike-barber_bit-extreme-hybrid;306307;5.0001459122;4;algorithm=base,faithful=yes
 mike-barber_bit-extreme-hybrid;612719;5.0002384186;8;algorithm=base,faithful=yes,bits=1
 mike-barber_bit-extreme-hybrid;609052;5.0003952980;16;algorithm=base,faithful=yes,bits=1
 == round 2 ctrl
+cauldnz-ispc-base;81250;5.000021;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;649494;5.000268;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;652032;5.000146;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;326441;5.000105;4;algorithm=base,faithful=yes,bits=1
+== round 2 cand
+mike-barber_bit-extreme-hybrid;75988;5.0000705719;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;305126;5.0001182556;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;610207;5.0002336502;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;608179;5.0004363060;16;algorithm=base,faithful=yes,bits=1
+== round 3 ctrl2
