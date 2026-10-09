@@ -73,14 +73,14 @@ if [ -n "$SELFTEST" ]; then
     echo "$r" | tail -1 | grep -q "exit=0" || { echo "!!! self-test $i failed"; exit 4; }
   done
 fi
-one() {  # $1 round, $2 label
-  line=$(grep "^$2|" "$STAGE/spec")
-  img=$(echo "$line" | cut -d"|" -f2 | sed "s/@ID/$ID/"); args=$(echo "$line" | cut -d"|" -f3)
-  filt=$(echo "$line" | cut -d"|" -f4)
+one() {  # $1 round, $2 label; a label may have several spec lines (e.g. 1T and all threads)
   echo "== round $1 $2"
-  docker run --rm $img $args 2>/dev/null | grep -E "$filt" || echo "!!! run $2 failed"
+  grep "^$2|" "$STAGE/spec" | while IFS="|" read -r lab img args filt; do
+    img=$(echo "$img" | sed "s/@ID/$ID/")
+    docker run --rm $img $args 2>/dev/null | grep -E "$filt" || echo "!!! run $2 failed"
+  done
 }
-LABELS=$(cut -d"|" -f1 "$STAGE/spec")
+LABELS=$(cut -d"|" -f1 "$STAGE/spec" | awk "!seen[\$0]++")
 for x in $LABELS; do one warmup $x; done
 for i in $(seq "$ROUNDS"); do for x in $(echo "$LABELS" | tr " " "\n" | shuf); do one "$i" $x; done; done'
 
@@ -156,19 +156,19 @@ cmd_run() {
     base)  ctx_from "$CAND" PrimeISPC/solution_2 "$S/cand"; ctx_from "$CHAMP" PrimeISPC/solution_2 "$S/champ"
            printf '%s\n' 'cand|cand-@ID||;' 'champ|champ-@ID||;' 'champ2|champ-@ID||;' \
              'ctrl|rust|--bits-extreme|^mike-barber_bit-extreme-hybrid;' \
-             'ctrl2|davepl|dummy -l 1000000 -t 1|^davepl' > "$S/spec" ;;
+             'ctrl2|davepl|dummy -l 1000000 -t 1|^davepl' 'ctrl2|davepl|dummy -l 1000000|^davepl' > "$S/spec" ;;
     rust)  SELF=; ctx_from "$CAND" PrimeRust/solution_1 "$S/cand"; ctx_from "$CHAMP" PrimeRust/solution_1 "$S/champ"
            ctx_from "$CTRL_REF" PrimeISPC/solution_2 "$S/ctx"
            printf '%s\n' 'cand|cand-@ID|--bits-extreme|^mike-barber_bit-extreme-hybrid;' \
              'champ|champ-@ID|--bits-extreme|^mike-barber_bit-extreme-hybrid;' \
              'champ2|champ-@ID|--bits-extreme|^mike-barber_bit-extreme-hybrid;' \
-             'ctrl|ctx-@ID||;' 'ctrl2|davepl|dummy -l 1000000 -t 1|^davepl' > "$S/spec" ;;
+             'ctrl|ctx-@ID||;' 'ctrl2|davepl|dummy -l 1000000 -t 1|^davepl' 'ctrl2|davepl|dummy -l 1000000|^davepl' > "$S/spec" ;;
     zig)   local E="${ZIG_ENTRY:-base}" SOL=solution_2; [ "$E" = wheel ] && SOL=solution_1
            ctx_from "$CAND" PrimeZig/solution_4 "$S/cand"; ctx_from "$CHAMP" PrimeZig/solution_4 "$S/champ"
            ctx_from "$CTRL_REF" "PrimeISPC/$SOL" "$S/ctx"
            printf '%s\n' "cand|cand-@ID||^cauldnz-zig-$E;" "champ|champ-@ID||^cauldnz-zig-$E;" \
              "champ2|champ-@ID||^cauldnz-zig-$E;" 'ctrl|ctx-@ID||;' > "$S/spec"
-           [ "$E" = base ] && echo 'ctrl2|davepl|dummy -l 1000000 -t 1|^davepl' >> "$S/spec" ;;
+           [ "$E" = base ] && printf '%s\n' 'ctrl2|davepl|dummy -l 1000000 -t 1|^davepl' 'ctrl2|davepl|dummy -l 1000000|^davepl' >> "$S/spec" ;;
     *) echo "unknown kind $KIND" >&2; exit 2 ;;
   esac
   if [ "$KIND" != zig ] && diff -rq "$S/cand" "$S/champ" >/dev/null; then echo "!!! candidate equals champion"; exit 1; fi
