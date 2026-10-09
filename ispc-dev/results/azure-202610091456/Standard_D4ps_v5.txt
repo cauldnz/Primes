@@ -4,3 +4,6 @@ Model name:                              Neoverse-N1
 BIOS Model name:                         Ampere(R) Altra(R) Processor None CPU @ 3.0GHz
 AVX-512: no
 build w-default [default]
+build w-neonx8 [neon-i32x8]
+build b-default [default]
+build rust
