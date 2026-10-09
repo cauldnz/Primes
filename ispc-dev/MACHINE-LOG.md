@@ -89,6 +89,13 @@ last. Public, like the rest of the repo.
 - A unit test of the new cost tally caught a generator bug (a literal newline written into
   embedded Python) before it reached a run.
 
+- **Short ticks, with long work handed off.** Chris's follow-up: make the turns short, or send
+  long work to a sub-agent. Both went in. A tick has a budget of about 5 minutes. Benchmarks
+  already ran in Azure Batch; the rest of the long local work (writing and gating a candidate,
+  local benchmarks, profiling, ports, the morning report) now goes to background agents. The
+  loop stays the dispatcher and the only writer of the record. An agent works on its own branch,
+  can't spend money or merge, and its report is checked like a stranger's pull request.
+
 ## Lessons so far
 
 1. Controls in every round matter more than any optimisation. Without them, machine noise
@@ -101,4 +108,5 @@ last. Public, like the rest of the repo.
 5. Separate the workshop from the climber. The climber is best when it doesn't decide what to
    climb or how the machine works.
 6. To make an agent steerable, make its turns short. A long-running agent can't hear you;
-   one that wakes, works and sleeps can.
+   one that wakes, works and sleeps can. Long work still has to happen somewhere, so the agent
+   you talk to dispatches it and never does it.
