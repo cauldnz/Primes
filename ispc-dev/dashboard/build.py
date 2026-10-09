@@ -176,9 +176,7 @@ footer{{color:var(--muted);font-size:12px;text-align:center;margin:18px 0 8px}}
     <div>Azure spend<b>NZ${spend:.2f} of NZ${cap:.0f}</b><div class="meter"><i style="width:{spend_w:.0f}%"></i></div></div>
     <div>Queued for Zen<b>{e(s.get("azure_queue", 0))}</b></div>
     <div>Background runs<b>{e(run.get("background_runs", "–"))}</b></div>
-    <div>Inbox<b>{e(run.get("inbox_ack") or "nothing picked up yet")}</b></div>
   </div>
-  <p style="margin:12px 0 0"><a class="btn" href="https://github.com/cauldnz/Primes/edit/ispc-dev/ispc-dev/INBOX.md">Message the autopilot</a></p>
 </header>
 {current(s.get("current"))}
 {scoreboard(s.get("scoreboard", []), "wheel")}

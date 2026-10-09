@@ -1,9 +1,16 @@
 # Next steps for Claude Code (from the Claude.ai session)
 
-**Last updated:** 2026-10-10 08:20 AEST.
+**Last updated:** 2026-10-10 08:30 AEST.
 `git log -p ispc-dev/NEXT-STEPS.md`.
 
 ## Changes since last update
+
+**08:30: the file inbox is gone.** Chris spotted the risk: `INBOX.md` was linked from the
+public status page, and anything able to push to `ispc-dev` (any session, the Copilot agent, a
+GitHub app) could have steered a run that holds Azure credentials. Chris steers a run only by
+messaging its Claude Code session directly. `wait.sh` keeps the heartbeat and no longer reads
+any file for instructions; the page is read-only. This replaces the 08:20 inbox item below.
+
 
 **08:20: harness fixes, and a new direction from Chris for the next run.**
 
