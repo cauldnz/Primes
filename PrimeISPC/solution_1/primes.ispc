@@ -50,7 +50,7 @@ static inline uniform double now() {
 #else
 #define G 8
 #endif
-#define MAXPAT 1024      // largest prime handled as a word pattern
+#define MAXPAT 256       // largest prime handled as a word pattern (the default dense limit)
 // Masked vector stores are slow on AVX2 for Zen 2 to Zen 4 (about six cycles each) and cheap
 // with AVX-512. Without AVX-512, the group loop runs unmasked and partial vectors run past their
 // end into the plane's padding instead.
