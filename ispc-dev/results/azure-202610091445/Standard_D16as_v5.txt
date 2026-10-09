@@ -30,3 +30,12 @@ cauldnz-ispc;704006;5.000440;16;algorithm=wheel,faithful=yes,bits=1
 cauldnz-ispc;639060;5.000171;8;algorithm=wheel,faithful=yes,bits=1
 cauldnz-ispc;319243;5.000124;4;algorithm=wheel,faithful=yes,bits=1
 == round 1 C5
+rogiervandam_extend_epar;531775;5.000065;16;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;514026;5.000043;8;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;259410;5.000031;4;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;130060;5.000036;2;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend;65158;5.000020;1;algorithm=other,faithful=yes,bits=1
+rogiervandam_base;17217;5.000132;1;algorithm=base,faithful=yes,bits=1
+rogiervandam_classic64bit;7058;5.000505;1;algorithm=base,faithful=yes,bits=1
+rogiervandam_classic8bit;9333;5.000081;1;algorithm=base,faithful=yes,bits=1
+== round 1 b-default

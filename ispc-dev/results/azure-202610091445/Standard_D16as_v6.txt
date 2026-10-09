@@ -41,3 +41,8 @@ cauldnz-ispc;749101;5.000274;16;algorithm=wheel,faithful=yes,bits=1
 cauldnz-ispc;738154;5.000158;8;algorithm=wheel,faithful=yes,bits=1
 cauldnz-ispc;369059;5.000119;4;algorithm=wheel,faithful=yes,bits=1
 == round 1 w-avx512x16
+cauldnz-ispc;99867;5.000025;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;836934;5.000270;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;786397;5.000145;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;391546;5.000101;4;algorithm=wheel,faithful=yes,bits=1
+== round 1 C5

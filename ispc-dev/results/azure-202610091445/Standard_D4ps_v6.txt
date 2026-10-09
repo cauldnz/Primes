@@ -45,3 +45,13 @@ cauldnz-ispc-base;41007;5.000001;1;algorithm=base,faithful=yes,bits=1
 cauldnz-ispc-base;163708;5.000138;4;algorithm=base,faithful=yes,bits=1
 cauldnz-ispc-base;81937;5.000129;2;algorithm=base,faithful=yes,bits=1
 == round 2 Rust
+mike-barber_bit-rotate;9566;5.0001049042;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-unrolled-hybrid;42584;5.0000882149;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;42860;5.0000782013;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-rotate;19160;5.0005078316;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-unrolled-hybrid;85161;5.0001354218;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;85777;5.0001378059;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-rotate;38251;5.0005269051;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-unrolled-hybrid;170169;5.0001487732;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;171274;5.0001449585;4;algorithm=base,faithful=yes,bits=1
+== round 3 w-default

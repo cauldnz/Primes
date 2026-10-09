@@ -31,3 +31,18 @@ cauldnz-ispc;901674;5.000241;16;algorithm=wheel,faithful=yes,bits=1
 cauldnz-ispc;838139;5.000112;8;algorithm=wheel,faithful=yes,bits=1
 cauldnz-ispc;436277;5.000073;4;algorithm=wheel,faithful=yes,bits=1
 == round 1 w-avx2x16
+cauldnz-ispc;124837;5.000039;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1055881;5.000217;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;965542;5.000114;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;489713;5.000066;4;algorithm=wheel,faithful=yes,bits=1
+== round 1 w-avx512x8
+cauldnz-ispc;115686;5.000009;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;935711;5.000241;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;882951;5.000121;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;453855;5.000066;4;algorithm=wheel,faithful=yes,bits=1
+== round 1 w-avx512x16
+cauldnz-ispc;126504;5.000006;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1105394;5.000213;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1058450;5.000107;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;579297;5.000052;4;algorithm=wheel,faithful=yes,bits=1
+== round 1 C5
