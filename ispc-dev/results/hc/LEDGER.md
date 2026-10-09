@@ -143,3 +143,4 @@ at 1T on Zen 3 and 13% on Zen 5, and by 10% at 16 threads. Two differences stand
 loop streams 32 words per iteration (ISPC: 16 with `avx2-i32x16`), and `applyGroup` is compiled
 per member count, so short groups don't stream empty patterns. hc-027 tests the first in ISPC.
 The Zig base trails the ISPC base by 10% to 16% at 1T but beats davepl's C++ by 23% to 28%.
+| 028 | 2026-10-09 | base | hc-024 + hc-026 together against the champion (measurement for Chris) | Zen 5 +2% to +3%, Zen 3 +1% | pending | pending | measurement | `hc/026-base-init-with-3` |

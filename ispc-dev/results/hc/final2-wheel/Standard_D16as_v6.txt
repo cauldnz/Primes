@@ -24,3 +24,9 @@ cauldnz-ispc;836582;5.000283;16;algorithm=wheel,faithful=yes,bits=1
 cauldnz-ispc;789080;5.000127;8;algorithm=wheel,faithful=yes,bits=1
 cauldnz-ispc;397474;5.000121;4;algorithm=wheel,faithful=yes,bits=1
 == round warmup ctrl
+rogiervandam_extend_epar;769572;5.000066;16;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;776828;5.000034;8;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;387957;5.000023;4;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;194107;5.000008;2;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend;97183;5.000050;1;algorithm=other,faithful=yes,bits=1
+== round 1 ctrl
