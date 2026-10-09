@@ -43,7 +43,13 @@ static inline uniform double now() {
 // ---------------------------------------------------------------------------------------
 // Wheel constants
 // ---------------------------------------------------------------------------------------
-#define G 8              // prime patterns fused into one pass over a plane
+// Prime patterns fused into one pass over a plane. Six suits AVX-512 on Zen 5 (+4.5% at 1T,
+// hc-011) but costs AVX2 on Zen 3 (-1.2%), so the AVX2 and SSE builds keep eight.
+#if defined(ISPC_TARGET_AVX512SKX)
+#define G 6
+#else
+#define G 8
+#endif
 #define MAXPAT 1024      // largest prime handled as a word pattern
 
 static const uniform int RES[8] = {1, 7, 11, 13, 17, 19, 23, 29};
