@@ -5,3 +5,26 @@ BIOS Model name:                         AMD EPYC 7763 64-Core Processor        
 AVX-512: no
 kind=rust rounds=5 id=11271620244
 build cand
+build champ
+build ctx
+== round warmup cand
+mike-barber_bit-extreme-hybrid;51483;5.0000686646;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;206159;5.0001564026;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;412657;5.0002818108;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;408718;5.0005369186;16;algorithm=base,faithful=yes,bits=1
+== round warmup champ
+mike-barber_bit-extreme-hybrid;52613;5.0000677109;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;210171;5.0001430511;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;419107;5.0003061295;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;411737;5.0004239082;16;algorithm=base,faithful=yes,bits=1
+== round warmup champ2
+mike-barber_bit-extreme-hybrid;52622;5.0000605583;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;210676;5.0001645088;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;420589;5.0002617836;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;411177;5.0005755424;16;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl
+cauldnz-ispc-base;55795;5.000037;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;428257;5.000389;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;442855;5.000153;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;222052;5.000119;4;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl2

@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T11:36:11Z",
+  "updated_utc": "2026-10-09T11:41:44Z",
   "run": {
     "id": "ap-20261009T1112Z",
     "state": "running",
@@ -12,9 +12,9 @@
     "spend_cap_nzd": 30
   },
   "current": {
-    "id": "hc-022",
+    "id": "hc-023",
     "phase": "evaluate",
-    "detail": "Base scoreboard with davepl: round 3 of 5 on Zen 5; Rust r-01 and r-02 building"
+    "detail": "hc-023 (dense pointer walk) on Cobalt, Zen 3, Zen 5; Rust r-01/r-02 running"
   },
   "scoreboard": [
     {
@@ -317,8 +317,9 @@
       "id": "hc-022",
       "entry": "base",
       "hypothesis": "Scoreboard: base champion (with hc-013) vs the start, with Rust and davepl C++ as rivals",
-      "verdict": "running",
-      "where": "Zen 3, Zen 5, Cobalt 100"
+      "verdict": "done",
+      "where": "Zen 3, Zen 5 (noisy), Cobalt 100",
+      "note": "At 1T ours leads davepl C++ by 51% (Zen 3), 35% (Zen 5), 28% (Cobalt). Rust: +5% Zen 3, level Zen 5, -4% Cobalt."
     },
     {
       "id": "r-01",
@@ -333,6 +334,13 @@
       "hypothesis": "Rust: toolchain 1.88 on bookworm instead of 1.57 on buster",
       "verdict": "running",
       "where": "Zen 3, Zen 5"
+    },
+    {
+      "id": "hc-023",
+      "entry": "base",
+      "hypothesis": "Pointer walk over dense chunks (NEON: zero extension per word)",
+      "verdict": "running",
+      "where": "Cobalt 100, Zen 3, Zen 5"
     }
   ],
   "azure_queue": 0,
@@ -556,6 +564,11 @@
       "utc": "2026-10-09T11:28:02Z",
       "level": "info",
       "text": "Harness: persistent auto-scaling pools in use. davepl C++ added as a rival. Research pass 2 and a Zig first pass running in the background."
+    },
+    {
+      "utc": "2026-10-09T11:41:44Z",
+      "level": "info",
+      "text": "davepl C++ at 1T: ours ahead by 51% Zen 3, 35% Zen 5, 28% Cobalt 100. Measuring davepl at all threads next."
     }
   ],
   "research": {

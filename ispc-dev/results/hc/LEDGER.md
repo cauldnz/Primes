@@ -105,3 +105,10 @@ target turns the vector dense code into per-lane scalar loads. hc-020 restores t
 routine on NEON only; the x86 assembly is unchanged. From now on every base or shared-code
 change gets a Cobalt 100 run before it merges.
 | 021 | 2026-10-09 | both | Merge hc-019 (hc-007 + hc-014) and hc-013, approved by Chris | as measured in 019 and 013 | — | — | merged | `hc/champion` |
+| 023 | 2026-10-09 | base | Pointer walk over dense chunks (AArch64 paid a zero extension per word) | Cobalt 100 +3% to +8% 1T; x86 ±1% | pending | pending | pending | `hc/023-base-dense-ptr` |
+| 022 | 2026-10-09 | base | Scoreboard: champion `5170556` (with hc-013) against the start, rivals Rust and davepl C++ (1T) | — | Zen 3 (7763): 60.0k / 430.9k, +24.2% / +24.0%; Rust +5.3% / +3.8%; davepl 1T +51.0% | Zen 5 (noisy node, A/A to −19.5% at 4T): 98.2k / 831.5k, +42.5% / +47.1%; Rust +0.1% at 1T, +17.9% at 16T; davepl 1T +35.3%. Cobalt 100: 41.1k, −0.2%; Rust −4.2%, davepl +27.6% | measurement | `hc/champion` |
+
+**022, davepl at 1T.** Measured in the same rounds, davepl's C++ base (`PrimeCPP/solution_5`)
+runs 39.7k at 1T on Zen 3 against our 60.0k, 72.0k on Zen 5 against 98.2k, and 32.2k on Cobalt
+100 against 41.1k. If it tops the official base table, that must be on multi-thread; later
+base runs time it at all threads too.
