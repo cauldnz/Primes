@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T07:15:49Z",
+  "updated_utc": "2026-10-09T07:21:29Z",
   "run": {
     "id": "ap-20261009T0607Z",
     "state": "running",
@@ -12,9 +12,9 @@
     "spend_cap_nzd": 30
   },
   "current": {
-    "id": "hc-002",
-    "phase": "decide",
-    "detail": "Confirm run: round 4 of 5 on Zen 3 (7763) and Zen 5; hc-005 round 4 of 5"
+    "id": "hc-004",
+    "phase": "evaluate",
+    "detail": "hc-004 and hc-006 (wheel) on Zen 3 and Zen 5"
   },
   "scoreboard": [
     {
@@ -53,35 +53,35 @@
     {
       "machine": "Zen 3 (EPYC 7763)",
       "entry": "base",
-      "ours_1t": 44631,
-      "ours_mt": 341226,
+      "ours_1t": 57230,
+      "ours_mt": 416900,
       "rival": "mike-barber Rust",
-      "rival_1t": 52424,
-      "rival_mt": 410751,
+      "rival_1t": 55400,
+      "rival_mt": 411300,
       "threads": 16,
-      "source": "azure 14:45 AEST, medians"
+      "source": "hc-002 confirm run, D16a_v4 (7763), median of 5; champion 4d35020 lacks hc-003 here"
     },
     {
       "machine": "Zen 4 (EPYC 9V74)",
       "entry": "base",
-      "ours_1t": 63727,
-      "ours_mt": 497429,
+      "ours_1t": 60800,
+      "ours_mt": 497500,
       "rival": "mike-barber Rust",
-      "rival_1t": 76599,
-      "rival_mt": 608307,
+      "rival_1t": 59400,
+      "rival_mt": 470900,
       "threads": 16,
-      "source": "azure 14:45 AEST, medians"
+      "source": "hc-002 A/B, D16as_v5 (9V74), median of 5; before hc-003"
     },
     {
       "machine": "Zen 5 (EPYC 9V45)",
       "entry": "base",
-      "ours_1t": 87311,
-      "ours_mt": 689749,
+      "ours_1t": 107600,
+      "ours_mt": 888300,
       "rival": "mike-barber Rust",
-      "rival_1t": 126538,
-      "rival_mt": 877459,
+      "rival_1t": 126100,
+      "rival_mt": 876100,
       "threads": 16,
-      "source": "azure 14:45 AEST, medians"
+      "source": "hc-002 A/B, D16as_v7, median of 5; before hc-003 (+12% 1T) is stacked"
     }
   ],
   "experiments": [
@@ -97,11 +97,11 @@
       "id": "hc-002",
       "entry": "base",
       "hypothesis": "Vector dense resets (per-lane single-bit ORs folded into constant vectors)",
-      "verdict": "running",
-      "where": "Zen 4 +22.9%/+28.1%, Zen 5 +23.5%/+29.0%",
-      "note": "KEEP from analyze.py. Above 20%, so re-verifying on fresh nodes (D16a_v4 = Zen 3 7763, D16as_v7). Zen 4 now beats Rust by 2.4% at 1T; Zen 5 gap 31% to 15%.",
-      "delta_1t": 23.2,
-      "delta_mt": 28.5
+      "verdict": "kept",
+      "where": "Zen 3 +21.9%/+21.8%, Zen 4 +22.9%/+28.1%, Zen 5 +23.5%/+29.0%",
+      "note": "Confirmed on fresh nodes. Merged as 4d35020. Base now beats Rust at 1T on Zen 3 and Zen 4.",
+      "delta_1t": 23.5,
+      "delta_mt": 29.0
     },
     {
       "id": "hc-003",
@@ -117,24 +117,26 @@
       "id": "hc-004",
       "entry": "wheel",
       "hypothesis": "Lone prime 13 skips the fused group loop",
-      "verdict": "queued",
-      "where": "waiting for a pool",
+      "verdict": "running",
+      "where": "Zen 3 (D16a_v4), Zen 5",
       "note": "Local Xeon +0.4% to +5.8%."
     },
     {
       "id": "hc-005",
       "entry": "wheel",
       "hypothesis": "No masked stores in the group loop and tails",
-      "verdict": "running",
-      "where": "Zen 3 (D16a_v4), Zen 5",
-      "note": "Local Xeon +2% to +19% over 4 rounds; 148 masked moves in apply_group down to 0."
+      "verdict": "rejected",
+      "where": "Zen 3 +4.5%/+4.1%, Zen 5 -1.7%/-0.9%",
+      "note": "Good on AVX2, slight loss with AVX-512. Follow-up: AVX2-only variant.",
+      "delta_1t": -1.7,
+      "delta_mt": -0.9
     },
     {
       "id": "hc-006",
       "entry": "wheel",
       "hypothesis": "Build with --addressing=64 (no sign extension per strided OR)",
-      "verdict": "queued",
-      "where": "waiting for a pool",
+      "verdict": "running",
+      "where": "Zen 3 (D16a_v4), Zen 5",
       "note": "Local Xeon +4% to +8%. Neutral on the base entry."
     }
   ],
@@ -214,6 +216,16 @@
       "utc": "2026-10-09T07:15:49Z",
       "level": "info",
       "text": "hc-002 confirm so far: Zen 3 +21.9%, Zen 5 +22.9% at 1T. hc-005 Zen 3 +8% at 1T so far."
+    },
+    {
+      "utc": "2026-10-09T07:21:29Z",
+      "level": "info",
+      "text": "hc-002 confirmed and merged: base +22-24% 1T. Base now beats Rust at 1T on Zen 3 (+3%) and Zen 4 (+2%)."
+    },
+    {
+      "utc": "2026-10-09T07:21:29Z",
+      "level": "info",
+      "text": "hc-005 rejected: wheel unmasked stores +4.5% Zen 3, -1.7% Zen 5."
     }
   ],
   "research": {
