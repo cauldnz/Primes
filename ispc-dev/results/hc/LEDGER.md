@@ -125,7 +125,7 @@ per-word extensions. The arm64 gap to Rust (4%) lies elsewhere.
 **r02, newer Rust toolchain.** Rust 1.88 builds a slower binary than 1.57 for this code on Zen 3
 (−2.2% at 1T, every round). Old LLVM stays.
 | r03 | 2026-10-09 | rust | Rust flag words on a 64-byte boundary (Vec<u64> is 8-byte aligned) | Zen 5 16T +3% to +10%; 1T flat | n/a | Zen 5: 129.4k / 919.7k, +0.1% / −0.2%, stopped after 3 rounds; davepl 16T 713.5k | REVERT: alignment is not the 16T gap | `hc/rust-003-align64` |
-| z01 | 2026-10-09 | zig | First Zig entry (`PrimeZig/solution_4`, base and wheel, Zig 0.13, native CPU) against our ISPC entries and davepl | Zig base near ISPC base; Zig wheel 10% to 20% behind ISPC wheel | pending | pending | measurement | `hc/zig-first-pass` |
+| z01 | 2026-10-09 | zig | First Zig entry (`PrimeZig/solution_4`, base and wheel, Zig 0.13, native CPU) against our ISPC entries and davepl | Zig base near ISPC base; Zig wheel 10% to 20% behind ISPC wheel | Zen 3 (7763): wheel 126.0k / 945.9k, +17.7% / +10.1% over ISPC wheel; base 47.3k / 380.2k, −15.9% / −11.2% vs ISPC base, +27.5% / +23.8% vs davepl | Zen 5: wheel 212.1k / 1.61M, +13.1% / +10.5%; base 113.2k / 791.5k, −9.7% / −20.2% vs ISPC base, +22.8% / +11.6% vs davepl | measurement: the Zig wheel is our fastest wheel | `hc/zig-first-pass` |
 | 024 | 2026-10-09 | base | `unmasked` in `clear_factor`: every dense vector load and store was masked (13,924 `vmaskmovpd` on AVX2) | AVX2 Zen +2% to +8%, Zen 5 0% to +2% (research pass 2) | Zen 3 (7763): 56.0k / 428.7k, +0.3% / +0.3%, 3/4 | Zen 5: 127.9k / 1.01M, +1.2% / +1.3%, 5/5; Cobalt 100 +0.2% / +0.0% | RERUN with 10 rounds (0–2% band) | `hc/024-base-unmasked` |
 | 025 | 2026-10-09 | base | Vector dense on NEON again, on top of hc-024 (the mask, not NEON, caused hc-020) | Cobalt 100 +8% to +15% (research pass 2) | n/a (x86 identical) | n/a | Cobalt 100: 41.0k / 162.9k, −0.2% / −0.6%, 0/5 at 4T: REVERT; NEON stays scalar | `hc/025-base-neon-vector` |
 | r04 | 2026-10-09 | rust | Rust pointer-walk sparse loop (12 to 11 instructions per eight ORs on 1.57) | 0% to +2% | pending | pending | pending | `hc/rust-004-sparse-ptr` |
@@ -137,3 +137,9 @@ per-word extensions. The arm64 gap to Rust (4%) lies elsewhere.
 1.4% on Zen 5 and nothing on Zen 3 or Cobalt 100: masked moves inside long unrolled loops cost
 little. With the mask gone, NEON's vector dense code is no faster than the scalar code
 (−0.2% to −0.6%); two 64-bit lanes per register don't beat paired scalar loads.
+
+**z01, Zig first pass.** The Zig wheel, a port of the ISPC design, beats the ISPC wheel by 18%
+at 1T on Zen 3 and 13% on Zen 5, and by 10% at 16 threads. Two differences stand out: its fused
+loop streams 32 words per iteration (ISPC: 16 with `avx2-i32x16`), and `applyGroup` is compiled
+per member count, so short groups don't stream empty patterns. hc-027 tests the first in ISPC.
+The Zig base trails the ISPC base by 10% to 16% at 1T but beats davepl's C++ by 23% to 28%.

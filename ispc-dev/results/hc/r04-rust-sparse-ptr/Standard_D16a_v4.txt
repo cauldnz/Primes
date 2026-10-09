@@ -41,3 +41,29 @@ mike-barber_bit-extreme-hybrid;210040;5.0001153946;4;algorithm=base,faithful=yes
 mike-barber_bit-extreme-hybrid;419822;5.0002341270;8;algorithm=base,faithful=yes,bits=1
 mike-barber_bit-extreme-hybrid;410762;5.0003652573;16;algorithm=base,faithful=yes,bits=1
 == round 1 champ2
+mike-barber_bit-extreme-hybrid;53031;5.0000448227;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;210640;5.0001392365;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;420918;5.0002031326;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;411867;5.0004510880;16;algorithm=base,faithful=yes,bits=1
+== round 1 ctrl2
+davepl_array_optimized;36582;5.00038;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;307135;5.00097;16;algorithm=base,faithful=yes,bits=1
+== round 1 champ
+mike-barber_bit-extreme-hybrid;53009;5.0000247955;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;210177;5.0001564026;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;420732;5.0001997948;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;411693;5.0004410744;16;algorithm=base,faithful=yes,bits=1
+== round 2 ctrl2
+davepl_array_optimized;37051;5.0002;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;307095;5.00063;16;algorithm=base,faithful=yes,bits=1
+== round 2 ctrl
+cauldnz-ispc-base;55758;5.000026;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;427478;5.000333;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;443439;5.000149;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;222002;5.000110;4;algorithm=base,faithful=yes,bits=1
+== round 2 champ2
+mike-barber_bit-extreme-hybrid;53450;5.0000844002;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;210529;5.0001454353;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;420760;5.0001988411;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;411521;5.0004100800;16;algorithm=base,faithful=yes,bits=1
+== round 2 champ

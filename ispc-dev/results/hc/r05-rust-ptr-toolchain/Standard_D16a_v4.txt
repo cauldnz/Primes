@@ -5,3 +5,11 @@ BIOS Model name:                         AMD EPYC 7763 64-Core Processor        
 AVX-512: no
 kind=rust rounds=5 id=1207244222
 build cand
+build champ
+build ctx
+== round warmup cand
+mike-barber_bit-extreme-hybrid;56777;5.0000591278;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;216974;5.0001173019;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;425782;5.0001778603;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;419200;5.0004062653;16;algorithm=base,faithful=yes,bits=1
+== round warmup champ

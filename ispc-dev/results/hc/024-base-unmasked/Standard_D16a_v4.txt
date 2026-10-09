@@ -142,3 +142,7 @@ mike-barber_bit-extreme-hybrid;210244;5.0001258850;4;algorithm=base,faithful=yes
 mike-barber_bit-extreme-hybrid;421007;5.0002045631;8;algorithm=base,faithful=yes,bits=1
 mike-barber_bit-extreme-hybrid;411831;5.0003485680;16;algorithm=base,faithful=yes,bits=1
 == round 5 cand
+cauldnz-ispc-base;55576;5.000001;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;428366;5.000355;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;444656;5.000137;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;222650;5.000102;4;algorithm=base,faithful=yes,bits=1
