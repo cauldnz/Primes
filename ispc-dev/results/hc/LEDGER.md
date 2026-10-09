@@ -242,3 +242,8 @@ reloads offsets from the stack (28 stack accesses per 32 marks; Zig's has none),
 loop brings back the extra register that hc-015 removed. The champion's loop stays. The Zig
 sparse lead on Zen 5 is real (same-node profile) but not in the loop's shape; what remains is the
 per-prime set-up and the tails, which neither profile split out.
+| z05 | 2026-10-10 | zig | Zig base: the factor-3 pass initialises the sieve (ISPC hc-026) | +1–4% | 10 rounds: 58.7k / 425.0k, +1.1% / +0.9% (8/10) | 10 rounds: 125.2k / 1.02M, +0.6% / +0.6% (10/10) | rejected under the small-gain rule (Zen 5 under 1%); Cobalt 100 +0.9% | `hc/zig-z05-init-with-3` |
+
+**z05.** Consistent but small: it wins nearly every round everywhere, and only Zen 3 clears 1%.
+The six-round run read +2.3% on Zen 5; ten rounds put it at +0.6%. A note for the rule: six
+rounds overstate small gains, so the ten-round rerun is doing its job.
