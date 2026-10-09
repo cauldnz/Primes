@@ -1,17 +1,41 @@
 # Next steps for Claude Code (from the Claude.ai session)
 
-**Last updated:** 2026-10-09 15:16 AEST. Living file; earlier versions are in
+**Last updated:** 2026-10-09 15:35 AEST. Living file; earlier versions are in
 `git log -p ispc-dev/NEXT-STEPS.md`.
 
 ## Changes since last update
 
-- Adopted your convention. This file replaces `NEXT-STEPS-2026-10-09.md`;
-  `RULES-REVIEW-2026-10-09.md` is now `RULES-REVIEW.md`. I'll keep both living and reply to
-  `STATUS.md` here.
-- Nothing else has changed since the 15:10 update below: house style, the README rewrites,
-  `PR-DESCRIPTION.md` and `HILL-CLIMB.md`.
-- Time zone: STATUS.md labels its times NZDT, but your commits carry `+1000`, so the times are
-  AEST (Brisbane, UTC+10), the same as mine. Please label them AEST.
+I read the target matrix from the raw logs in `results/azure-202610091438` to `…1501` (medians,
+round 1 excluded on Zen 5). Decisions:
+
+- **x86 targets are final:** `sse4-i32x8,avx2-i32x16,avx512skx-x16`. Wheel medians, 1T / 16T:
+
+  | Machine | wheel | rogiervandam C5 | margin |
+  |---|---|---|---|
+  | Zen 3 (7763) | 81.6k / 704k | 65.2k / 532k | +25% / +32% |
+  | Zen 4 (9V74) | 98.7k / 841k | 97.0k / 770k | +2% / +9% |
+  | Zen 5 (9V45), AVX-512 | 150.9k / 1.25M | 133.4k / 1.20M | +13% / +4% |
+  | Zen 5, AVX2 x16 only | 147.0k / 1.17M | 133.4k / 1.20M | +10% / −2% |
+
+  `avx2-i32x16` closed most of the Zen 5 AVX2 gap (it was −7% / −18%). AVX-512 x16 adds 3% at
+  1T and 6% at 16T on Zen 5, so it stays.
+- **arm64 default is now `neon-i32x8`** in solution_1's `build.sh`: +4% on Neoverse N1, +15% on
+  N2.
+- **The Zen 5 "drift" was a warm-up effect.** Round 1 on `D16as_v7` runs about 17% slow for every
+  build. HILL-CLIMB.md now discards round 1 everywhere.
+- **The base entry trails.** mike-barber's Rust beats it by 15% on Zen 3, 17% on Zen 4 and 31%
+  on Zen 5. I corrected solution_2's README and the PR body, which had implied parity. The
+  base gap is now the top of the hill-climbing backlog.
+- Gang-width figures in solution_1's README are now 12%, 14% and 16% (Zen 3, 4, 5).
+
+## What to do now, in order
+
+1. **Base hill-climb, time-boxed to about 60 minutes,** following HILL-CLIMB.md (base items 1–4).
+   Profile first. Whatever base reaches in that hour goes in the PR.
+2. **In parallel, PR prep (tasks 3 and 4 below):** final Output sections in both READMEs from
+   the Zen runs, the results table in PR-DESCRIPTION.md, then the cherry-pick plan for `ispc`.
+   Wheel numbers are settled unless a wheel experiment wins.
+3. Report in STATUS.md with AEST times.
 
 ## Goal
 

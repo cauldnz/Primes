@@ -11,7 +11,7 @@ A sieve of Eratosthenes that follows the base algorithm, written in [ISPC](https
 
 ## Why ISPC, for the base algorithm
 
-This entry is the counterpoint to solution_1. The base algorithm clears one composite per operation, which leaves the vector lanes almost nothing to share. ISPC compiles it to much the same scalar code that C, Rust or Chapel would produce, from the same LLVM backend. The wide targets hurt. On an Intel Xeon the AVX-512 build ran 18% slower than AVX2, because the extra lanes add overhead without adding work, so the build leaves AVX-512 out. Read together, the two entries show how much of ISPC's advantage depends on the algorithm leaving room for SIMD.
+This entry is the counterpoint to solution_1. The base algorithm clears one composite per operation, which leaves the vector lanes almost nothing to share, so ISPC brings no SIMD advantage here. What remains is a contest of scalar code generation and loop structure, and mike-barber's Rust entry currently wins it: it ran 15% faster on Zen 3 and 31% faster on Zen 5 in the same rounds. Wide targets don't help either. On an Intel Xeon the AVX-512 build ran 18% slower than AVX2, and on AMD Zen 4 and Zen 5 it made no difference, so the build leaves AVX-512 out. Read together, the two entries show how much of ISPC's advantage depends on the algorithm leaving room for SIMD.
 
 ## Implementation
 

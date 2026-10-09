@@ -22,9 +22,9 @@ Both include a self-test (`PRIMES_TEST=1`) that checks the prime count at every 
 
 A sieve's small primes produce dense bit patterns that repeat; its large primes produce scattered single bits. The first job suits SIMD and the second does not, so the two entries work as a small experiment.
 
-In the wheel entry, ISPC vectorises the pattern streaming directly. The loop reads like scalar code, and the `uniform` and `varying` keywords show which values are shared across lanes. ISPC also exposes gang width, a setting C has no equivalent for: compiling for 16 program instances on 8-lane AVX2 (`avx2-i32x16`) was 11% faster on Zen 3 and 14% faster on Zen 5 than the natural width.
+In the wheel entry, ISPC vectorises the pattern streaming directly. The loop reads like scalar code, and the `uniform` and `varying` keywords show which values are shared across lanes. ISPC also exposes gang width, a setting C has no equivalent for: compiling for 16 program instances on 8-lane AVX2 (`avx2-i32x16`) was 12% to 16% faster than the natural width on Zen 3, Zen 4 and Zen 5.
 
-The base entry has to clear one composite per operation, which leaves the lanes almost nothing to do. It compiles to much the same scalar code as C, Rust or Chapel, since all four use LLVM. Its AVX-512 build ran 18% slower than AVX2 on an Intel Xeon, so that entry ships SSE4 and AVX2 only.
+The base entry has to clear one composite per operation, which leaves the lanes almost nothing to do. Without SIMD to help, it comes down to scalar code generation and loop structure, where mike-barber's Rust entry is ahead of it. Its AVX-512 build ran 18% slower than AVX2 on an Intel Xeon and no faster on AMD, so that entry ships SSE4 and AVX2 only.
 
 ## Results
 

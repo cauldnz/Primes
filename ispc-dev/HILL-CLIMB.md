@@ -28,6 +28,8 @@ Claude.ai session reviews the ledger and the backlog; it no longer relays indivi
   with the champion from the same round, never with a number from an earlier run. Today's Zen 5
   results show why: the same build measured 150k at 13:49 and 126k at 14:45, while C5 held at
   139k both times.
+- Warm-up. Discard round 1 on every VM. On `D16as_v7` round 1 ran about 17% slow for every
+  build (126k against 151k for the same binary), then settled.
 - Rounds. At least five interleaved rounds per machine. Report the median and the range.
 - Machines. Every decision needs Zen 3 (`D16as_v5`, AVX2 only) and Zen 5 (`D16as_v7`). Add
   Zen 4 (`D16as_v6`) and arm64 (`D4ps_v6`) for any change to build targets or shared code.
@@ -83,36 +85,44 @@ Then add a short note per experiment under the table: what happened, and what it
 
 Seeded from today's results. Re-rank after each experiment.
 
+### Base (solution_2): the biggest gap, so it goes first
+
+On the 14:45 matrix the base entry trails mike-barber's Rust extreme-hybrid by 15% on Zen 3
+(44.6k against 52.4k), 17% on Zen 4 (63.7k against 76.6k) and 31% on Zen 5 (87.3k against
+126.5k). It trails GordonBGood's Chapel by 6–21%. On arm64 the gap is 4–5%. Both rivals use the
+same dense and sparse scheme, so the gap is in the details.
+
+1. **Profile against Rust** on Zen 5, where the gap is widest. Use `perf stat` and `perf record`,
+   or `clock()` timers around the dense phase, the sparse phase and the next-prime scan. Compare
+   cycles per phase with the Rust entry's split, then form the next hypotheses from the data.
+2. **Next-prime scan.** Ours tests one bit at a time through `is_composite_index`. Scanning a
+   word at a time with `count trailing zeros` on the inverted word is still base-legal, because it
+   only finds the next clear bit.
+3. **Sparse phase.** Rust's sparse resetter works on byte chunks with a `match` over
+   `skip mod 16`, like ours, but its loop bounds and remainder handling differ. Compare the two
+   loops' generated code.
+4. **Dense dispatch.** Our `switch` over 63 cases may stop LLVM inlining or unrolling the way Rust's
+   const generics do. Check the code generated for a mid-range factor such as 61.
+5. **Dense limit:** 128 against 192 and 256, on Zen.
+6. **Block the dense phase** in L1-sized chunks, the "striped-blocks" idea from the Rust entry.
+   Check against the base rules: each composite must still get its own operation.
+
 ### Wheel (solution_1)
 
-1. **Zen 5 drift.** First explain the 150k to 126k change on `D16as_v7`. Candidates:
-   - different host CPU stepping or clocks;
-   - noisy neighbours;
-   - a build difference between the two runs.
-
-   Run the 13:49 build and today's build in the same round. Until this is explained, Zen 5
-   numbers can't support decisions.
-2. **Gang width on arm64.** `neon-i32x8` beat `neon-i32x4` by 15% on Cobalt 100 (63.2k against
-   54.9k, three rounds). Make it the arm64 default, then confirm on Neoverse-N1.
-3. **Fusion group size `G`** (now 8) against gang width. Wider gangs change the balance between
-   loads in flight and pattern registers. Sweep G over 4, 6, 8, 12 with avx2-i32x16 and
-   avx512skx-x16.
+1. ~~Zen 5 drift~~ Resolved: round 1 is a warm-up effect (see the evaluation protocol).
+2. ~~Gang width on arm64~~ Done: `neon-i32x8` is now the arm64 default (+4% on Neoverse N1, +15%
+   on N2).
+3. **Fusion group size `G`** (now 8) against gang width. Sweep G over 4, 6, 8, 12 with
+   avx2-i32x16 and avx512skx-x16.
 4. **Dense threshold with the new gangs.** 256 was tuned on avx2-i32x8. Re-sweep 192–384.
 5. **Pattern scratch size.** `Group` holds about 70KB, which spills a 32KB L1 on Zen 3 and Zen 4.
    Size the buffers to the largest dense prime actually used (now 256, not 1,024).
-6. **Sparse phase.** Large primes take roughly a third of the cycles. Try unrolling the
+6. **Zen 4 margin.** On Zen 4 the wheel leads C5 by only 2% single-threaded (98.7k against
+   97.0k). Items 3–5 matter most there. The official EPYC runner may sit on Zen 4 hardware.
+7. **Sparse phase.** Large primes take roughly a third of the cycles. Try unrolling the
    eight-plane loop by two, and processing two primes per loop.
-7. **Mod-210 wheel** (48 planes). It does less work per prime but has shorter planes. Prototype
+8. **Mod-210 wheel** (48 planes). It does less work per prime but has shorter planes. Prototype
    it on the sandbox first, because it's a large change.
-
-### Base (solution_2)
-
-1. **Baseline it properly** against mike-barber's Rust and GordonBGood's Chapel on Zen 3 and
-   Zen 5. The Rust run failed in the 14:45 round.
-2. **Dense limit** with the AVX2 path on Zen: 128 against 192 and 256.
-3. **Byte against 64-bit word addressing** for the sparse phase.
-4. **Block the dense phase** in L1-sized chunks, the "striped-blocks" idea from the Rust entry.
-   Check against the base rules: each composite must still get its own operation.
 
 ## Writing
 

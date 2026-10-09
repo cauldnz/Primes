@@ -15,7 +15,7 @@ The small primes are where a sieve spends its effort, and their multiples form d
 
 One build covers every machine the benchmark runs on. On x86-64 the binary carries SSE4, AVX2 and AVX-512 code, and ISPC's dispatcher picks the best path the CPU supports at start-up. On arm64 it compiles for NEON. The official runners range from an SSE4-only Celeron to an AVX-512 Zen 5 Threadripper and a Raspberry Pi 4.
 
-ISPC also has a tuning knob C lacks: gang width, the number of program instances that run together. Compiling for 16 instances on 8-lane AVX2 hardware (`avx2-i32x16`) was 11% faster on Zen 3 and 14% faster on Zen 5 than the natural width, because each loop iteration keeps more independent loads and stores in flight.
+ISPC also has a tuning knob C lacks: gang width, the number of program instances that run together. Compiling for 16 instances on 8-lane AVX2 hardware (`avx2-i32x16`) was 12% faster on Zen 3, 14% on Zen 4 and 16% on Zen 5 than the natural width, because each loop iteration keeps more independent loads and stores in flight. On arm64, `neon-i32x8` beat `neon-i32x4` by 4% on Neoverse N1 and 15% on Neoverse N2.
 
 ## Implementation
 
