@@ -79,7 +79,6 @@ struct Group {
     uniform int L[G];                       // pattern period in words
     uniform int16 tab[G][64];               // starting phase for each bit offset
     const uniform uint64 * uniform pp[G];   // pattern for each member
-    uniform uint64 zero[64];                // empty pattern for unused members
     uniform uint64 buf[G][MAXPAT + 64];
 };
 
@@ -101,7 +100,6 @@ static void sieve_create(uniform Sieve * uniform s, uniform int64 size, uniform 
     s->dense_max = min(dense_max, MAXPAT);
     s->bits = (uniform uint64 * uniform)aligned_alloc(64, (uniform int64)8 * s->pw * 8);
     s->grp = (uniform Group * uniform)aligned_alloc(64, ((sizeof(uniform Group) + 63) / 64) * 64);
-    foreach (k = 0 ... 64) s->grp->zero[k] = 0;
 }
 
 static void sieve_destroy(uniform Sieve * uniform s) {
