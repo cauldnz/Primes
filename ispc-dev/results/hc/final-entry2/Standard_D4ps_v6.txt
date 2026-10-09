@@ -11,3 +11,27 @@ control=mike-barber_bit-extreme-hybrid
 self-test cand: 13 ok, 0 bad, exit=0
 self-test champ: 13 ok, 0 bad, exit=0
 == round warmup cand
+cauldnz-ispc-base;25094;5.000073;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;99958;5.000124;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;50092;5.000276;2;algorithm=base,faithful=yes,bits=1
+== round warmup champ
+cauldnz-ispc-base;41087;5.000000;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;163579;5.000148;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;81938;5.000189;2;algorithm=base,faithful=yes,bits=1
+== round warmup champ2
+cauldnz-ispc-base;41051;5.000034;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;163273;5.000123;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;81942;5.000227;2;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl
+mike-barber_bit-extreme-hybrid;42938;5.0000000000;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;85755;5.0001134872;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;171321;5.0001597404;4;algorithm=base,faithful=yes,bits=1
+== round 1 champ
+cauldnz-ispc-base;41125;5.000059;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;163684;5.000150;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;81947;5.000138;2;algorithm=base,faithful=yes,bits=1
+== round 1 cand
+cauldnz-ispc-base;25047;5.000019;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;100029;5.000224;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;50079;5.000208;2;algorithm=base,faithful=yes,bits=1
+== round 1 ctrl
