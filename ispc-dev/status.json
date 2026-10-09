@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T07:08:00Z",
+  "updated_utc": "2026-10-09T07:15:49Z",
   "run": {
     "id": "ap-20261009T0607Z",
     "state": "running",
@@ -12,9 +12,9 @@
     "spend_cap_nzd": 30
   },
   "current": {
-    "id": "hc-005",
-    "phase": "evaluate",
-    "detail": "A/B on D16a_v4 (Zen 3) and D16as_v7; hc-002 confirmation also running"
+    "id": "hc-002",
+    "phase": "decide",
+    "detail": "Confirm run: round 4 of 5 on Zen 3 (7763) and Zen 5; hc-005 round 4 of 5"
   },
   "scoreboard": [
     {
@@ -209,6 +209,11 @@
       "utc": "2026-10-09T07:01:22Z",
       "level": "info",
       "text": "hc-005 (wheel unmasked stores) launched on Zen 3 and Zen 5."
+    },
+    {
+      "utc": "2026-10-09T07:15:49Z",
+      "level": "info",
+      "text": "hc-002 confirm so far: Zen 3 +21.9%, Zen 5 +22.9% at 1T. hc-005 Zen 3 +8% at 1T so far."
     }
   ],
   "research": {
