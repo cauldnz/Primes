@@ -4,7 +4,7 @@
 
 - Calibration: 1 of 6 predictions in range. The miss that mattered went the other way:
   hc-045 was predicted at 0–2% and gained 9–10%.
-- Kept: hc-045 (wheel +9–10% at 1T on Zen 3 and Zen 5). Node-minutes: about 760 this run.
+- Kept: hc-045 (wheel +9–10% at 1T on Zen 3 and Zen 5). Node-minutes: 854 this run (cost log).
 - Followed: profile first (same-node phase profiles before the wheel experiments). Skipped:
   the two-stage screen (backlog item 3) for lack of time.
 - What worked: diffing the faster port's source line by line, after the profile had named the
