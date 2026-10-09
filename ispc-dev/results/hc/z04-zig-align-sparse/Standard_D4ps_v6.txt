@@ -10,3 +10,45 @@ build ctx
 self-test cand: 0 ok, 0 bad, exit=0
 self-test champ: 0 ok, 0 bad, exit=0
 == round warmup cand
+cauldnz-zig-base;38719;5.000096;1;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;154298;5.000202;4;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;77122;5.000225;2;algorithm=base,faithful=yes,bits=1
+== round warmup champ
+cauldnz-zig-base;38285;5.000101;1;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;153054;5.000201;4;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;76658;5.000137;2;algorithm=base,faithful=yes,bits=1
+== round warmup champ2
+cauldnz-zig-base;38279;5.000148;1;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;152751;5.000220;4;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;76617;5.000101;2;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl
+cauldnz-ispc-base;41059;5.000087;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;164026;5.000148;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;82075;5.000132;2;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl2
+davepl_array_optimized;32203;5.00028;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;128473;5.00028;4;algorithm=base,faithful=yes,bits=1
+== round 1 champ
+cauldnz-zig-base;38287;5.000040;1;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;152879;5.000230;4;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;76687;5.000218;2;algorithm=base,faithful=yes,bits=1
+== round 1 cand
+cauldnz-zig-base;38614;5.000040;1;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;154056;5.000287;4;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;77291;5.000107;2;algorithm=base,faithful=yes,bits=1
+== round 1 ctrl
+cauldnz-ispc-base;41149;5.000119;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;163889;5.000119;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;82078;5.000137;2;algorithm=base,faithful=yes,bits=1
+== round 1 champ2
+cauldnz-zig-base;38223;5.000111;1;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;152933;5.000222;4;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;76634;5.000165;2;algorithm=base,faithful=yes,bits=1
+== round 1 ctrl2
+davepl_array_optimized;32209;5.00036;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;128464;5.00021;4;algorithm=base,faithful=yes,bits=1
+== round 2 champ2
+cauldnz-zig-base;38267;5.000028;1;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;152861;5.000229;4;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;76636;5.000131;2;algorithm=base,faithful=yes,bits=1
+== round 2 cand

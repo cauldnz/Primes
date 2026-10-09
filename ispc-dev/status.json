@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T13:16:30Z",
+  "updated_utc": "2026-10-09T13:23:16Z",
   "run": {
     "id": "ap-20261009T1112Z",
     "state": "running",
@@ -14,7 +14,7 @@
   "current": {
     "id": "final",
     "phase": "evaluate",
-    "detail": "Final scoreboard: wheel and base vs start on 4 machines; Rust on Zen 4; hc-028 and hc-024 rerun"
+    "detail": "Last runs: Zig base z-04 (round 3 of 5) and Rust on Zen 4"
   },
   "scoreboard": [
     {
