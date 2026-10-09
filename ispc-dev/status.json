@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T11:56:29Z",
+  "updated_utc": "2026-10-09T12:05:05Z",
   "run": {
     "id": "ap-20261009T1112Z",
     "state": "running",
@@ -350,6 +350,34 @@
       "delta_1t": -0.1,
       "delta_mt": 0.1,
       "note": "Arm gap to Rust lies elsewhere."
+    },
+    {
+      "id": "r-03",
+      "entry": "rust",
+      "hypothesis": "Rust: 64-byte aligned flag words (SMT scaling at 16T)",
+      "verdict": "running",
+      "where": "Zen 5"
+    },
+    {
+      "id": "z-01",
+      "entry": "zig",
+      "hypothesis": "First Zig entry: base and wheel vs ISPC and davepl",
+      "verdict": "running",
+      "where": "Zen 3, Zen 5"
+    },
+    {
+      "id": "hc-024",
+      "entry": "base",
+      "hypothesis": "unmasked clear_factor: 13,924 masked moves to 4 on AVX2",
+      "verdict": "running",
+      "where": "Zen 3, Zen 5, Cobalt 100"
+    },
+    {
+      "id": "hc-025",
+      "entry": "base",
+      "hypothesis": "Vector dense on NEON again (after hc-024)",
+      "verdict": "queued",
+      "where": "Cobalt 100"
     }
   ],
   "azure_queue": 0,
@@ -588,82 +616,71 @@
       "utc": "2026-10-09T11:56:29Z",
       "level": "info",
       "text": "hc-023 and r-02 rejected. davepl at 16T on Zen 3: ours ahead by 40%."
+    },
+    {
+      "utc": "2026-10-09T12:05:05Z",
+      "level": "info",
+      "text": "Research pass 2 done: Rust already tops base on 5 runners except TR 1T; davepl is not top. Found 13,924 masked moves in our dense code (hc-024)."
     }
   ],
   "research": {
     "state": "done",
-    "started_utc": "2026-10-09T06:20:00Z",
-    "done_utc": "2026-10-09T06:41:00Z",
-    "note": "RESEARCH.md on ispc-dev: leader techniques, literature, ISPC techniques, ranked ideas. Sandbox Xeon numbers only; nothing run on Zen by the agent.",
+    "started_utc": "2026-10-09T11:18:00Z",
+    "done_utc": "2026-10-09T12:05:00Z",
+    "note": "Research pass 2: RESEARCH-2.md and results/leaderboard-2026-10-09b.md. Rust already tops the faithful 1-bit base table on all five runners except Threadripper 1T (Swift, +3.4%). davepl ranks fifth on multi-thread and reports no 1T line.",
     "ideas": [
       {
-        "title": "Vector dense kernel (lane-constant ORs)",
+        "title": "unmasked clear_factor",
         "entry": "base",
         "phase": "dense",
-        "gain": "+10-20%",
-        "summary": "Per-lane single-bit ORs that LLVM folds into constant vector ORs, as SLP does for Rust. Same idea as hc-002.",
-        "backlog": "running as hc-002"
+        "gain": "+2-8% AVX2, 0-2% AVX-512",
+        "summary": "13,924 masked vector moves in the dense code because clear_factor is not inlined.",
+        "backlog": "running as hc-024"
       },
       {
-        "title": "No masked tails on AVX2",
-        "entry": "wheel",
-        "phase": "dense lead-ins/tails",
-        "gain": "+3-6% Zen 3/4 AVX2",
-        "summary": "~2,000 vmaskmovpd stores a pass; pad planes to 16 words and overrun unmasked (OR is idempotent).",
-        "backlog": true
-      },
-      {
-        "title": "One-member fast path for 13",
-        "entry": "wheel",
-        "phase": "dense (13)",
-        "gain": "+3-4%",
-        "summary": "13 alone costs ~9k cycles a pass because apply_group streams seven empty patterns.",
-        "backlog": true
-      },
-      {
-        "title": "Raise dense limit to 192-256",
+        "title": "Vector dense on NEON",
         "entry": "base",
-        "phase": "dense/sparse",
-        "gain": "+2-4%",
-        "summary": "Vector dense costs a flat ~2k cycles per factor; sparse 131-251 costs more.",
+        "phase": "dense",
+        "gain": "+8-15% Cobalt",
+        "summary": "The NEON regression came from the mask, not NEON.",
+        "backlog": "running as hc-025"
+      },
+      {
+        "title": "Fold zeroing into the factor-3 sweep",
+        "entry": "base",
+        "phase": "setup/dense",
+        "gain": "+1.5-2.5%",
+        "summary": "Write the first pattern instead of zero then OR.",
         "backlog": true
       },
       {
-        "title": "Start-up autotune of thresholds",
-        "entry": "both",
-        "phase": "all",
-        "gain": "0-5%",
-        "summary": "Time a few settings before the timed loop, as C5 does; insurance for untested runners.",
-        "backlog": false
-      },
-      {
-        "title": "Cut lead-in overhead",
-        "entry": "wheel",
-        "phase": "dense groups",
-        "gain": "+2-5%",
-        "summary": "Start all group members at the earliest start word, clear own bits after.",
-        "backlog": "after W-a, W-b"
-      },
-      {
-        "title": "Arithmetic masks for some members",
-        "entry": "wheel",
-        "phase": "dense groups",
-        "gain": "0-8%",
-        "summary": "Balance load and ALU ports for primes above 64.",
-        "backlog": false
-      },
-      {
-        "title": "Next-prime scan by word",
+        "title": "Direct dispatch below 128",
         "entry": "base",
         "phase": "scan",
-        "gain": "<3%",
-        "summary": "Scan costs ~2% of a pass.",
-        "backlog": "low"
+        "gain": "+0.5-2%",
+        "summary": "Replace scan loop and switch for small factors.",
+        "backlog": true
+      },
+      {
+        "title": "Rust pointer-walk sparse loop",
+        "entry": "rust",
+        "phase": "sparse",
+        "gain": "some % with new toolchains",
+        "summary": "Rust 1.97 LLVM makes the 8-OR loop 19 instructions; the rewrite gives 11.",
+        "backlog": true
+      },
+      {
+        "title": "Newer ISPC (1.28)",
+        "entry": "both",
+        "phase": "all",
+        "gain": "unknown",
+        "summary": "24% fewer AVX2 dense instructions; Alpine 3.21 has 1.25.3.",
+        "backlog": "later"
       }
     ],
     "other_lane": {
-      "assessment": "Other permits nothing the wheel cannot already use, and the faithful 1-bit board ranks all algorithms together; our wheel already beats rogiervandam C at 1T on Zen 3-5. Tying his C from the odds-only prototype needs about +19%: 3-5 days, about a one-in-three chance on Zen 5.",
-      "recommendation": "Do not build solution_3 now. Revisit after the PR merges; if a reviewer retags the wheel as other, it already wins that lane."
+      "assessment": "Agreed with Chris: no solution_3 for now.",
+      "recommendation": "Skip."
     }
   },
   "cycles": {
