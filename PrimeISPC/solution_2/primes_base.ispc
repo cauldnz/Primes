@@ -54,7 +54,13 @@ static inline uniform double now() {
     return (uniform double)ts.tv_sec + 1e-9 * (uniform double)ts.tv_nsec;
 }
 
+// On x86 the vector sweep costs more than the sparse loop well before 128 (hc-031: dense to
+// 191 lost 7% on Zen 5). NEON's dense routine is scalar and keeps 128.
+#if defined(ISPC_TARGET_NEON)
 #define DENSE_LIMIT 128      // factors below this use the dense routine
+#else
+#define DENSE_LIMIT 96
+#endif
 #define VEC_LIMIT 119        // ...and the vector form below this (larger ones exceed LLVM's unroll limit)
 
 // ---------------------------------------------------------------------------------------
