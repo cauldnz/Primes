@@ -71,7 +71,7 @@ fn laneBit(comptime off: usize) Words(VB) {
 // single-bit OR, then it is stored. LLVM folds the constant ORs.
 // Clearing starts at the period holding P*P; the smaller multiples there are composite too,
 // except P itself, which is restored at the end.
-fn denseReset(comptime P: usize, w: []u64) void {
+fn denseReset(comptime P: usize, w: []u64, comptime INIT: bool) void {
     @setEvalBranchQuota(100_000);
     const len = w.len;
     const ptr = w.ptr;
@@ -81,7 +81,8 @@ fn denseReset(comptime P: usize, w: []u64) void {
     while (c + VB * P <= len) : (c += VB * P) {
         inline for (0..P) |vi| {
             const lo = 64 * VB * vi; // first bit of this vector within the block
-            var x = loadV(VB, ptr + c + VB * vi);
+            // INIT: the first factor (3) writes the fresh sieve instead of reading it.
+            var x = if (INIT) @as(Words(VB), @splat(0)) else loadV(VB, ptr + c + VB * vi);
             comptime var j = firstMultiple(P, lo);
             inline while (P / 2 + j * P < lo + 64 * VB) : (j += 1) {
                 x |= comptime laneBit(P / 2 + j * P - lo); // one composite
@@ -89,6 +90,7 @@ fn denseReset(comptime P: usize, w: []u64) void {
             storeV(VB, ptr + c + VB * vi, x);
         }
     }
+    if (INIT) @memset(ptr[c..len], 0); // words after the last block
     // Whole periods left over, a word at a time.
     while (c + P <= len) : (c += P) {
         inline for (0..P) |k| {
@@ -157,7 +159,10 @@ const BaseSieve = struct {
         // Cache-line aligned: the arena's own header left the words 16 bytes past a line, so
         // half the 32-byte and every 64-byte dense vector access split a cache line.
         const words = try alloc.alignedAlloc(u64, 64, (nbits + 63) / 64);
-        @memset(words, 0);
+        // Only word 0 is cleared here, so the scan can read the bit for 3. The first factor
+        // the scan finds is always 3, and its dense pass writes every word instead of reading
+        // it, so the rest of the sieve is initialised there.
+        if (words.len > 0) words[0] = 0;
         return .{ .alloc = alloc, .size = size, .nbits = nbits, .words = words };
     }
 
@@ -175,7 +180,7 @@ const BaseSieve = struct {
             // so nothing is assumed about which numbers are prime.
             switch (p) {
                 inline 3...DENSE_LIMIT - 1 => |P| {
-                    if (P % 2 == 1) denseReset(P, self.words) else unreachable;
+                    if (P % 2 == 1) denseReset(P, self.words, P == 3) else unreachable;
                 },
                 else => unreachable,
             }
