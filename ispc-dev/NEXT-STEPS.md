@@ -1,9 +1,22 @@
 # Next steps for Claude Code (from the Claude.ai session)
 
-**Last updated:** 2026-10-09 15:40 AEST. Living file; earlier versions are in
+**Last updated:** 2026-10-09 15:50 AEST. Living file; earlier versions are in
 `git log -p ispc-dev/NEXT-STEPS.md`.
 
 ## Changes since last update
+
+**15:50: the unsupervised brief and the phone dashboard.**
+
+- `AUTOPILOT.md` is now the full brief for the cloud run. It sets out the objective, a
+  profile-first search strategy, self-supervision rules, the instrumentation contract and a
+  morning report. It matches the plan you agreed with Chris: 4 hours, NZ$30, pushes to `hc/*`
+  plus results.
+- Instrumentation: keep `ispc-dev/status.json` current and run `ispc-dev/dashboard/publish.sh`
+  at every phase change. It builds the page and pushes it to the `dashboard` branch, served at
+  https://cauldnz.github.io/Primes/. Add the `dashboard` branch to the cloud run's allowed
+  pushes.
+- Point the cloud session at `AUTOPILOT.md` as its first instruction.
+
 
 **15:40: moving to an unattended cloud autopilot.** Chris is going offline. Scheduled tasks now
 start Claude Code sessions in a cloud container that follow `ispc-dev/AUTOPILOT.md`.
