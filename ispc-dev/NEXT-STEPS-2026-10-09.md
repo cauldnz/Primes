@@ -38,6 +38,18 @@ opening a PR still needs the user's explicit OK.
 4. ISPC 1.22 (Ubuntu) and 1.27 are within ~3% of each other. Compiler version is not a lever;
    stay on the distro package.
 
+## Update after the rules review (pull again)
+
+- `33291eb`: both programs now report a wrong prime count on stderr (CONTRIBUTING wants
+  non-result output there) and the base README title follows the template. Include it in the
+  cherry-pick.
+- `ispc-dev/RULES-REVIEW-2026-10-09.md` has the full compliance check, a PR description draft
+  and the remaining checklist. The user wants **one PR with both solutions**.
+- Added to task 2: run the solution_2 arm64 build and self-test on Ampere. It's the one
+  untested cell in the review.
+- When you finalise targets in task 1, update solution_1's README portability paragraph to
+  match.
+
 ## Tasks
 
 ### 1. Wheel target matrix on Zen 5 and Zen 3 (decides the default targets)
