@@ -46,3 +46,32 @@ cauldnz-ispc;396855;5.000114;4;algorithm=wheel,faithful=yes,bits=1
 danielspaangberg_5760of30030_owrb;45266;5.000031;1;algorithm=wheel,faithful=yes,bits=1
 danielspaangberg_5760of30030_epar;372455;5.000926;16;algorithm=wheel,faithful=yes,bits=1
 == round 1 ctrl
+rogiervandam_extend_epar;770002;5.000057;16;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;776732;5.000026;8;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;387992;5.000036;4;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;193742;5.000021;2;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend;95891;5.000025;1;algorithm=other,faithful=yes,bits=1
+== round 1 champ2
+cauldnz-ispc;100215;5.000044;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;839979;5.000261;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;788064;5.000147;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;396324;5.000097;4;algorithm=wheel,faithful=yes,bits=1
+== round 2 cand
+cauldnz-ispc;117355;5.000001;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;978757;5.000253;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;934559;5.000137;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;467833;5.000107;4;algorithm=wheel,faithful=yes,bits=1
+== round 2 ctrl2
+danielspaangberg_5760of30030_owrb;45282;5.000074;1;algorithm=wheel,faithful=yes,bits=1
+danielspaangberg_5760of30030_epar;371874;5.000923;16;algorithm=wheel,faithful=yes,bits=1
+== round 2 champ2
+cauldnz-ispc;99575;5.000035;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;833341;5.000268;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;788107;5.000133;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;396405;5.000103;4;algorithm=wheel,faithful=yes,bits=1
+== round 2 champ
+cauldnz-ispc;99436;5.000006;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;837934;5.000268;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;791659;5.000141;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;396529;5.000111;4;algorithm=wheel,faithful=yes,bits=1
+== round 2 ctrl

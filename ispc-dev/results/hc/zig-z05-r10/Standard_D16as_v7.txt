@@ -253,3 +253,12 @@ cauldnz-zig-base;1017952;5.000616;16;algorithm=base,faithful=yes,bits=1
 cauldnz-zig-base;884011;5.000263;8;algorithm=base,faithful=yes,bits=1
 cauldnz-zig-base;464729;5.000191;4;algorithm=base,faithful=yes,bits=1
 == round 10 cand
+cauldnz-zig-base;125301;5.000028;1;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;1023773;5.000615;16;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;887884;5.000276;8;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;468569;5.000161;4;algorithm=base,faithful=yes,bits=1
+== round 10 ctrl
+cauldnz-ispc-base;129224;5.000030;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;1015654;5.000204;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;915186;5.000103;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;481936;5.000046;4;algorithm=base,faithful=yes,bits=1
