@@ -124,8 +124,11 @@ fn sparseReset(comptime E: usize, bytes: []u8, p: usize) void {
     const first = ((p * p / 2) / 8 / p) * p;
     if (first >= bytes.len) return;
     var q: [*]u8 = bytes.ptr + first;
-    var runs = (bytes.len - first) / p;
-    while (runs > 0) : (runs -= 1) {
+    // Loop on the pointer, not a run count. With a count LLVM unrolled the loop 8 times and
+    // gave each of the 8 offsets its own pointer, adding 8 increments per run (16 instructions
+    // per 8 ORs instead of 11). Wrapping adds keep the trip count opaque, so it stays rolled.
+    const last = @intFromPtr(bytes.ptr) + bytes.len - p; // last address a whole run starts at
+    while (@intFromPtr(q) <= last) {
         q[o[0]] |= m[0];
         q[o[1]] |= m[1];
         q[o[2]] |= m[2];
@@ -134,7 +137,7 @@ fn sparseReset(comptime E: usize, bytes: []u8, p: usize) void {
         q[o[5]] |= m[5];
         q[o[6]] |= m[6];
         q[o[7]] |= m[7];
-        q += p;
+        q = @ptrFromInt(@intFromPtr(q) +% p);
     }
     const left = bytes.len - (@intFromPtr(q) - @intFromPtr(bytes.ptr)); // partial last run
     inline for (0..8) |j| {
@@ -147,11 +150,13 @@ const BaseSieve = struct {
     alloc: Allocator,
     size: u64, // find primes up to and including this number
     nbits: usize, // one bit per odd number 1, 3, 5, ... <= size
-    words: []u64, // a set bit means composite
+    words: []align(64) u64, // a set bit means composite
 
     fn init(alloc: Allocator, size: u64) !BaseSieve {
         const nbits: usize = @intCast((size + 1) / 2);
-        const words = try alloc.alloc(u64, (nbits + 63) / 64);
+        // Cache-line aligned: the arena's own header left the words 16 bytes past a line, so
+        // half the 32-byte and every 64-byte dense vector access split a cache line.
+        const words = try alloc.alignedAlloc(u64, 64, (nbits + 63) / 64);
         @memset(words, 0);
         return .{ .alloc = alloc, .size = size, .nbits = nbits, .words = words };
     }
