@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T14:15:06Z",
+  "updated_utc": "2026-10-09T14:26:13Z",
   "run": {
     "id": "ap-20261009T1349Z",
     "state": "running",
@@ -491,9 +491,11 @@
       "id": "r06",
       "entry": "rust",
       "hypothesis": "Rust extreme dense resets up to 191 (was 129)",
-      "verdict": "running",
-      "where": "Zen 3, Zen 5",
-      "note": "Both reviews. Predict +2-5% on Zen 5."
+      "verdict": "rejected",
+      "where": "Zen 3 +1.8%/+1.1%, Zen 5 -26.1%/-22.7%",
+      "note": "AVX-512 codegen for the larger factors is much worse on Zen 5.",
+      "delta_1t": -26.1,
+      "delta_mt": -22.7
     },
     {
       "id": "r07",

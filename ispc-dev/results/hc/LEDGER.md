@@ -158,3 +158,9 @@ not simply a newer LLVM either; per-pass allocation is the remaining suspect.
 **030, scratch size.** The 70KB was mostly never touched: each row uses only L + 16 words, so
 the live footprint was already about 20KB. Cobalt 100 is flat too (±0.1%). The wheel's 35% in
 the fused loop is not an L1 capacity problem.
+| r06 | 2026-10-10 | rust | Extreme dense resets up to 191 (was 129). Both reviews | +2–5% Zen 5 | 53.4k / 416.2k, +1.8% / +1.1% (6/6 rounds) | 95.4k / 709.6k, −26.1% / −22.7% | rejected | `hc/rust-r06-dense-191` |
+
+**r06, Rust dense to 191.** Zen 3 gained a clean 1.8%, but Zen 5 with AVX-512 lost a quarter of
+its speed at every thread count. On AVX-512 LLVM vectorises the macro's word resets for 131–191
+very differently from those up to 129. The ISPC base's own dense-to-191 (hc-031) is AVX-512 only
+and checked in the assembly, so this result doesn't carry over to it.
