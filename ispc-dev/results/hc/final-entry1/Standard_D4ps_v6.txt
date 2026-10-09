@@ -15,3 +15,19 @@ cauldnz-ispc;76953;5.000039;1;algorithm=wheel,faithful=yes,bits=1
 cauldnz-ispc;307462;5.000126;4;algorithm=wheel,faithful=yes,bits=1
 cauldnz-ispc;154192;5.000085;2;algorithm=wheel,faithful=yes,bits=1
 == round warmup champ
+cauldnz-ispc;63283;5.000035;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;252956;5.000155;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;126717;5.000204;2;algorithm=wheel,faithful=yes,bits=1
+== round warmup champ2
+cauldnz-ispc;63311;5.000032;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;252843;5.000126;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;126586;5.000090;2;algorithm=wheel,faithful=yes,bits=1
+== round warmup ctrl
+mike-barber_bit-extreme-hybrid;42867;5.0000324249;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;85750;5.0002422333;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;171313;5.0001368523;4;algorithm=base,faithful=yes,bits=1
+== round 1 champ
+cauldnz-ispc;63327;5.000075;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;252884;5.000132;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;126688;5.000109;2;algorithm=wheel,faithful=yes,bits=1
+== round 1 cand

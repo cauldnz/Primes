@@ -31,7 +31,9 @@ Claude.ai session reviews the ledger and the backlog; it no longer relays indivi
 - Warm-up. Discard round 1 on every VM. On `D16as_v7` round 1 ran about 17% slow for every
   build (126k against 151k for the same binary), then settled.
 - Rounds. At least five interleaved rounds per machine. Report the median and the range.
-- Machines. Every decision needs Zen 3 (`D16as_v5`, AVX2 only) and Zen 5 (`D16as_v7`). Add
+- Machines. Every decision needs Zen 3 and Zen 5 (`D16as_v7`). Use `D16a_v4` for Zen 3: on
+  2026-10-09 `D16as_v5` landed on Zen 4 (EPYC 9V74, AVX-512 hidden) in all four runs, while
+  `D16a_v4` gave an EPYC 7763 every time. Add
   Zen 4 (`D16as_v6`) and arm64 (`D4ps_v6`) for any change to build targets or shared code.
 - Metrics. Passes at 1 thread, and at all threads. Record half and quarter too; the official
   runners report them.
@@ -96,17 +98,17 @@ Re-ranked on 2026-10-09 at 16:40 AEST from the hc-001 profile (cycles per pass a
 Rust is 51k on Zen 4 and 49k on Zen 5).
 
 1. ~~Profile against Rust~~ Done (hc-001). See "Where the cycles go" in `STATUS.md`.
-2. **Vector dense resets** (hc-002, at stake: 29k–35k). Rust's dense phase is SLP-vectorised by
+2. ~~**Vector dense resets**~~ Done (hc-002, +22% to +24% at 1T). (At stake was 29k–35k.) Rust's dense phase is SLP-vectorised by
    LLVM; ours is scalar. Write the per-composite ORs per SIMD lane so LLVM folds them into
    constant vector ORs.
-3. **Dense limit with vector resets** (at stake: about 10k). Vector resets cost a flat ~2.2k
+3. ~~**Dense limit with vector resets**~~ Parked: ISPC compile time explodes past factor 128. (At stake: about 10k.) Vector resets cost a flat ~2.2k
    cycles per factor up to 255; sparse ones cost 2.6k–3.3k for factors 131–251. Sweep 128, 160,
    192 and 256.
-4. **Sparse loop on Zen 5** (at stake: 15k on Zen 5, 8k on Zen 4). Compare our loop's code with
+4. ~~**Sparse loop on Zen 5**~~ Done (hc-003 pointer walk, +12% on Zen 5; hc-018 two-chunk unroll, flat). (At stake was 15k on Zen 5, 8k on Zen 4.) Compare our loop's code with
    Rust's `chunks_exact_mut` loop: index width, address arithmetic, the tail.
-5. **AVX-512 for the vector dense code** (at stake: part of item 2's remainder on Zen 5). One
+5. **AVX-512 for the vector dense code** (hc-013: +1.0% on Zen 5; waiting for Chris) (at stake: part of item 2's remainder on Zen 5). One
    zmm per 8 words instead of two ymm.
-6. **Next-prime scan** (at stake: under 1k). Word-at-a-time scan with count trailing zeros. Not
+6. ~~**Next-prime scan**~~ Tried (hc-009): slightly slower. (At stake: under 1k.) Word-at-a-time scan with count trailing zeros. Not
    worth an experiment on its own.
 7. **Block the dense phase** in L1-sized chunks. Check against the base rules first.
 
@@ -114,10 +116,11 @@ Rust is 51k on Zen 4 and 49k on Zen 5).
 
 Adopted from `RESEARCH.md` section 7 on 2026-10-09 at 16:50 AEST, ahead of the older items below:
 
-- W-a. **No masked tails on AVX2.** Pad planes to 16 words and run lead-ins and tails unmasked.
+- W-a. **No masked tails on AVX2.** hc-005 (all targets) lost 1.7% on Zen 5; hc-007 (AVX2 and SSE
+  only) gained 4% to 5% on Zen 3 and Zen 4; waiting for Chris. Pad planes to 16 words and run lead-ins and tails unmasked.
   About 2,000 `vmaskmovpd` stores a pass, slow on Zen 2 to Zen 4. Predict +3–6% on the AVX2
   path; the `D16as_v5` nodes (Zen 4, AVX-512 hidden) run that path.
-- W-b. **One-member group fast path for 13.** 13 costs about 9k cycles a pass on its own.
+- W-b. ~~**One-member group fast path for 13.**~~ Done (hc-004, +5% to +9%). 13 costs about 9k cycles a pass on its own.
   Predict +3–4%.
 
 1. ~~Zen 5 drift~~ Resolved: round 1 is a warm-up effect (see the evaluation protocol).
