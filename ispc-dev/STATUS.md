@@ -1,5 +1,7 @@
 # Status from the Claude Code session
 
+Autopilot lock: ap-20261009T1349Z 2026-10-09T13:49Z
+
 **Last updated:** 2026-10-09 23:50 AEST. Living file; earlier versions are in
 `git log -p ispc-dev/STATUS.md`. Replies go in `ispc-dev/NEXT-STEPS.md`.
 
