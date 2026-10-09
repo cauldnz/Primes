@@ -118,19 +118,22 @@ static inline void clear_sparse_e(uniform uint8 * uniform bytes, uniform int nby
     const uniform uint8 m2 = 1 << ((E / 2 + 2 * E) & 7), m3 = 1 << ((E / 2 + 3 * E) & 7);
     const uniform uint8 m4 = 1 << ((E / 2 + 4 * E) & 7), m5 = 1 << ((E / 2 + 5 * E) & 7);
     const uniform uint8 m6 = 1 << ((E / 2 + 6 * E) & 7), m7 = 1 << ((E / 2 + 7 * E) & 7);
-    uniform int c = ((p * p / 2) / 8 / p) * p;
-    for (; c + p <= nbytes; c += p) {                               // one composite each
-        bytes[c + o0] |= m0; bytes[c + o1] |= m1; bytes[c + o2] |= m2; bytes[c + o3] |= m3;
-        bytes[c + o4] |= m4; bytes[c + o5] |= m5; bytes[c + o6] |= m6; bytes[c + o7] |= m7;
+    // Walk a pointer over the chunks: each OR is then one instruction with a register offset.
+    // Indexing with a 32-bit chunk offset cost a sign extension and an add per composite.
+    uniform uint8 * uniform q = bytes + ((p * p / 2) / 8 / p) * p;
+    uniform uint8 * uniform end = bytes + nbytes;
+    for (; q + p <= end; q += p) {                                  // one composite each
+        q[o0] |= m0; q[o1] |= m1; q[o2] |= m2; q[o3] |= m3;
+        q[o4] |= m4; q[o5] |= m5; q[o6] |= m6; q[o7] |= m7;
     }
-    if (c + o0 < nbytes) bytes[c + o0] |= m0; else return;          // partial last chunk
-    if (c + o1 < nbytes) bytes[c + o1] |= m1; else return;
-    if (c + o2 < nbytes) bytes[c + o2] |= m2; else return;
-    if (c + o3 < nbytes) bytes[c + o3] |= m3; else return;
-    if (c + o4 < nbytes) bytes[c + o4] |= m4; else return;
-    if (c + o5 < nbytes) bytes[c + o5] |= m5; else return;
-    if (c + o6 < nbytes) bytes[c + o6] |= m6; else return;
-    if (c + o7 < nbytes) bytes[c + o7] |= m7;
+    if (q + o0 < end) q[o0] |= m0; else return;                     // partial last chunk
+    if (q + o1 < end) q[o1] |= m1; else return;
+    if (q + o2 < end) q[o2] |= m2; else return;
+    if (q + o3 < end) q[o3] |= m3; else return;
+    if (q + o4 < end) q[o4] |= m4; else return;
+    if (q + o5 < end) q[o5] |= m5; else return;
+    if (q + o6 < end) q[o6] |= m6; else return;
+    if (q + o7 < end) q[o7] |= m7;
 }
 
 static void clear_sparse(uniform Sieve * uniform s, uniform int p) {
