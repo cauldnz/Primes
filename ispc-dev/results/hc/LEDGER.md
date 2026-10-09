@@ -153,3 +153,8 @@ The Zig base trails the ISPC base by 10% to 16% at 1T but beats davepl's C++ by 
 **029, ISPC 1.28.** Fewer instructions didn't mean more passes: the wheel lost up to 1% and the
 base gained only on Zen 5 at 1T. Ubuntu 24.04 with ISPC 1.22 stays. So the Zig wheel's lead is
 not simply a newer LLVM either; per-pass allocation is the remaining suspect.
+| 030 | 2026-10-10 | wheel | Size the Group scratch to the dense limit (MAXPAT 1024 → 256; 70KB → 20KB). Both reviews | +3–8% (reviews); +0–3% (mine: only touched lines count) | 107.2k / 861.0k, +0.3% / −0.2% | 189.0k / 1.46M, +1.3% / −0.1% | flat (0–2%; 10-round rerun only if node time is left) | `hc/030-wheel-scratch-256` |
+
+**030, scratch size.** The 70KB was mostly never touched: each row uses only L + 16 words, so
+the live footprint was already about 20KB. Cobalt 100 is flat too (±0.1%). The wheel's 35% in
+the fused loop is not an L1 capacity problem.
