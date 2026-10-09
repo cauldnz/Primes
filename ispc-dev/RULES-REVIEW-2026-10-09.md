@@ -125,61 +125,6 @@ That's a candidate follow-up PR (solution_3), not part of this one.
    with BuildKit and `tools/hadolint.sh ispc 1` / `ispc 2`.
 5. Get the user's OK, then open the PR with the description below.
 
-## PR description draft
+## PR description
 
-> **[ISPC] Add ISPC solutions: wheel (solution_1) and base (solution_2)**
->
-> This adds the first solutions in [ISPC](https://ispc.github.io/), the Intel® Implicit SPMD
-> Program Compiler, an open-source C-like SPMD language maintained by Intel since 2011 and
-> used in production in Unreal Engine (Chaos physics, animation) and in Intel's Embree and
-> OSPRay. It is installed from Ubuntu 24.04's `ispc` package; no custom toolchain.
->
-> **Why ISPC is interesting here.** A sieve has a part that SIMD loves (small primes: dense,
-> regular, repeating bit patterns) and a part it can't touch (large primes: scattered single
-> bits). ISPC makes that split explicit, so the two entries double as an experiment:
->
-> - **Explicit SPMD, no intrinsics.** Scalar-looking code runs across every SIMD lane, and the
->   `uniform`/`varying` split makes the cost model visible. The wheel's pattern streaming
->   vectorises by construction, not by hoping an auto-vectoriser cooperates.
-> - **One source, every runner's ISA.** The benchmark machines range from an SSE4-only Celeron
->   to an AVX-512 Zen 5 and a NEON Raspberry Pi. One build carries SSE4, AVX2 and AVX-512 paths
->   with runtime dispatch (NEON on arm64), so each runner gets code compiled for it.
-> - **Gang width is a tuning knob C doesn't have.** Running 16 logical lanes on 8-lane AVX2
->   hardware (`avx2-i32x16`) was ~25% faster than the natural width: more independent
->   loads and stores in flight. The hill-climbing loop found it.
-> - **The same language shows where SIMD stops helping.** The wheel entry beats the fastest C
->   entries where SIMD is legal. The base entry follows the one-operation-per-composite rule,
->   which leaves SIMD nothing to do. There ISPC lands at parity with C/Rust/Chapel, and the
->   AVX-512 path is even ~18% slower, so the base build leaves it out. It's the same LLVM
->   backend as C, Rust and Zig, so the difference comes from how parallelism is expressed.
->
-> Both programs are written entirely in ISPC (entry point, timing loop, pthreads, sieve and
-> output). They only call the C library, for the clock, allocation and threads.
->
-> - **solution_1**: `algorithm=wheel,faithful=yes,bits=1`. A mod-30 wheel stored as 8
->   bit-planes; small primes are streamed into each plane as repeating word patterns with
->   SIMD; large primes use strided bit sets. Multi-target x86-64 binary (SSE4/AVX2/AVX-512,
->   runtime dispatch), NEON on arm64.
-> - **solution_2**: `algorithm=base,faithful=yes,bits=1`. Odds-only, one single-bit operation
->   per composite in the source, after the mike-barber (Rust) and GordonBGood (Chapel) base
->   solutions.
->
-> Both have a self-test (`PRIMES_TEST=1`) that checks prime counts up to 10^8. Multi-threaded
-> results are reported at all, half and a quarter of the hardware threads.
->
-> **How these were built.** Both solutions were developed by agentic engineering with Claude
-> (Anthropic): a Claude.ai session for design, prototyping and coordination, and a Claude Code
-> session for benchmarking on Azure (AMD Zen 3 and Zen 5, Ampere arm64), with me directing.
-> The approach was evaluation-driven hill-climbing. Every change was self-tested, then
-> benchmarked against the previous build and the current leaders (rogiervandam's C,
-> GordonBGood's Chapel, mike-barber's Rust) in interleaved runs, and kept only if it won. The
-> full trail is on the `ispc-dev` branch of my fork: results, logs (including regressions and
-> dead ends) and prototypes, from a 6.7k-pass naive version to the final one. Happy to answer
-> questions about any step.
->
-> * [x] I read the contribution guidelines in CONTRIBUTING.md.
-> * [x] I placed my solution in the correct solution folder.
-> * [x] I added a README.md with the right badge(s).
-> * [x] I added a Dockerfile that builds and runs my solution.
-> * [x] I selected `drag-race` as the target branch.
-> * [x] All code herein is licensed compatible with BSD-3.
+Moved to `ispc-dev/PR-DESCRIPTION.md`, rewritten in house style.

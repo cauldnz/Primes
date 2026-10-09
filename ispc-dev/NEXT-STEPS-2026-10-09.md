@@ -50,59 +50,23 @@ opening a PR still needs the user's explicit OK.
 - When you finalise targets in task 1, update solution_1's README portability paragraph to
   match.
 
-## Disclosure (user decision)
+## Update at 15:10: writing, README sections and the hill-climbing protocol
 
-AI assistance is **disclosed in full** and is part of the story: an evaluation-driven,
-hill-climbing agentic engineering loop. See the updated PR draft in `RULES-REVIEW-2026-10-09.md`.
-
-In task 3, add this section to **both** READMEs, just before "Run instructions". Adjust the
-numbers once they are final:
-
-```
-## How this was built
-
-This solution was developed by agentic engineering with Claude (Anthropic): a Claude.ai session
-for design, prototyping and coordination, a Claude Code session for benchmarking on Azure
-(AMD Zen 3 and Zen 5, Ampere arm64), and the author directing priorities and decisions. The
-method was evaluation-driven hill-climbing: every change was self-tested (`PRIMES_TEST=1`),
-then benchmarked in interleaved runs against the previous build and the leading solutions, and
-kept only if it won. The full record, including regressions and dead ends, is on the
-[`ispc-dev` branch of the author's fork](https://github.com/cauldnz/Primes/tree/ispc-dev/ispc-dev).
-```
-
-Also add a **"Why ISPC"** section to both READMEs, after the opening paragraph. Fill in the
-final numbers.
-
-solution_1 (wheel):
-
-```
-## Why ISPC
-
-A sieve has a part SIMD loves - small primes, whose multiples form dense, repeating bit patterns -
-and a part it can't touch - large primes, which set scattered single bits. ISPC writes the first
-part as ordinary-looking code that runs across every SIMD lane, with the `uniform`/`varying` split
-making the cost model explicit, instead of relying on an auto-vectoriser. One build carries SSE4,
-AVX2 and AVX-512 code paths with runtime dispatch (NEON on arm64), so every benchmark machine,
-from an SSE4-only Celeron to an AVX-512 Zen 5, gets code compiled for it. And ISPC exposes a
-tuning knob C doesn't: gang width. Running 16 logical lanes on 8-lane AVX2 hardware
-(`avx2-i32x16`) was about 25% faster than the natural width, because more independent loads and
-stores are in flight.
-```
-
-solution_2 (base):
-
-```
-## Why ISPC, for the base algorithm
-
-This entry is the counterpoint to [solution_1](../solution_1). The base algorithm requires one
-operation per composite, which leaves SIMD essentially nothing to do, so ISPC compiles this to
-the same kind of scalar code as C, Rust or Chapel (same LLVM backend) and performs at about
-their level. The vector targets even hurt: the AVX-512 build measured about 18% slower, so it is
-left out. Read side by side, the two entries show where explicit SPMD pays off and where the
-rules take it off the table.
-```
-
-Keep `ispc-dev` **public and unsquashed**: it is the evidence trail the PR links to.
+- **House style is mandatory.** Everything we publish follows Chris's `house-style` and
+  `economist-style` skills (`~/.agents/skills/` on his machine): READMEs, the PR body, ledger
+  notes and commit messages. Load both before writing. Australian English, no em-dash
+  clauses, no "not X but Y" pivots, bold only for labels, a number or name behind every claim.
+- **Both READMEs are rewritten** in house style, with "Why ISPC" and "How this was built"
+  sections already in place. In task 3, only replace the Output sections with the final Zen
+  numbers, and recheck the gang-width figures (11% on Zen 3, 14% on Zen 5) against the
+  five-round medians.
+- **The PR body is in `ispc-dev/PR-DESCRIPTION.md`.** Fill its results table from the final
+  medians.
+- **Hill climbing now follows `ispc-dev/HILL-CLIMB.md`**: hypothesis, plan, implement, gate,
+  evaluate with controls in every round, ledger. Start with backlog item 1 (the Zen 5 drift
+  from 150k to 126k). A sandbox A/B showed the stderr change did not cause it: old and new
+  builds were within noise. PR readiness comes first; run the loop once tasks 3 and 4 are done,
+  or alongside them if it doesn't block them.
 
 ## Tasks
 
