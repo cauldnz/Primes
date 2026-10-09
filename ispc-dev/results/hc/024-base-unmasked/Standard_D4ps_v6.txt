@@ -40,3 +40,33 @@ cauldnz-ispc-base;41061;5.000015;1;algorithm=base,faithful=yes,bits=1
 cauldnz-ispc-base;163995;5.000163;4;algorithm=base,faithful=yes,bits=1
 cauldnz-ispc-base;82072;5.000115;2;algorithm=base,faithful=yes,bits=1
 == round 1 ctrl
+mike-barber_bit-extreme-hybrid;42883;5.0000133514;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;85773;5.0002083778;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;171383;5.0001459122;4;algorithm=base,faithful=yes,bits=1
+== round 1 ctrl2
+davepl_array_optimized;32207;5.00038;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;128599;5.00024;4;algorithm=base,faithful=yes,bits=1
+== round 2 champ2
+cauldnz-ispc-base;41092;5.000056;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;163954;5.000144;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;82083;5.000202;2;algorithm=base,faithful=yes,bits=1
+== round 2 champ
+cauldnz-ispc-base;41098;5.000076;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;164053;5.000127;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;82079;5.000100;2;algorithm=base,faithful=yes,bits=1
+== round 2 ctrl2
+davepl_array_optimized;32204;5.00038;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;128178;5.00043;4;algorithm=base,faithful=yes,bits=1
+== round 2 cand
+cauldnz-ispc-base;41077;5.000083;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;163812;5.000132;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;82076;5.000135;2;algorithm=base,faithful=yes,bits=1
+== round 2 ctrl
+mike-barber_bit-extreme-hybrid;42888;5.0000476837;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;85747;5.0001311302;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;171378;5.0000953674;4;algorithm=base,faithful=yes,bits=1
+== round 3 champ
+cauldnz-ispc-base;41013;5.000025;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;163644;5.000146;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;82082;5.000100;2;algorithm=base,faithful=yes,bits=1
+== round 3 ctrl2

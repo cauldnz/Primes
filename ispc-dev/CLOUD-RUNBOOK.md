@@ -108,6 +108,33 @@ as it is, for the record.
 
 Check the `Model name` line of every log; `analyze.py` prints it as the machine name.
 
+## Persistent pools (from 2026-10-09 evening)
+
+`hc-pool.sh` replaces one-pool-per-run for hill climbing. One Batch pool per VM size lives for
+the whole run; experiments are tasks queued on it.
+
+```bash
+export SUB="$AZURE_SUBSCRIPTION_ID"
+bash ispc-dev/hc-pool.sh up Standard_D16a_v4 3 260      # Zen 3, up to 3 nodes, 260-minute deadline
+bash ispc-dev/hc-pool.sh up Standard_D16as_v7 3 260     # Zen 5
+bash ispc-dev/hc-pool.sh up Standard_D4ps_v6 1 260      # Cobalt 100 (arm64)
+FLOOR=1 bash ispc-dev/hc-pool.sh floor Standard_D16a_v4  # keep a warm node between batches
+setsid nohup bash ispc-dev/hc-meter.sh &                 # node-minutes into results/cost-log.csv
+# one experiment = one task per machine; run from a copy of the script, in the background
+bash /tmp/hc-pool.sh run Standard_D16as_v7 base <cand-ref> <champion-hash> ispc-dev/results/hc/<id> 5
+bash ispc-dev/hc-pool.sh status
+bash ispc-dev/hc-pool.sh down Standard_D16as_v7          # at the end of the run, every size
+touch /tmp/hc-meter.stop
+```
+
+- Kinds: `wheel`, `base` (rivals Rust and davepl C++ at 1T and all threads), `rust` (our ISPC
+  base and davepl as rivals), `zig` (`ZIG_ENTRY=base|wheel`).
+- A new node spends about 8 minutes in its start task building the rivals; the floor avoids
+  paying that for every batch.
+- Limits: at most 4 pools and 8 nodes in total. The formula drops every pool to 0 nodes at its
+  deadline whatever happens to the session.
+- `analyze.py` reads the task logs unchanged; `ctrl2` is davepl.
+
 ## Budget accounting
 
 `results/cost-log.csv` gets one line per pool: date, mode, size, minutes. Spot prices in
