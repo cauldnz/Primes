@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T08:47:55Z",
+  "updated_utc": "2026-10-09T08:52:46Z",
   "run": {
     "id": "ap-20261009T0607Z",
     "state": "running",
@@ -8,13 +8,13 @@
     "mode_reason": "Service principal login and az batch pool list worked at 06:07 UTC.",
     "started_utc": "2026-10-09T06:07:00Z",
     "time_box_hours": 8,
-    "spend_nzd": 1.88,
+    "spend_nzd": 2.13,
     "spend_cap_nzd": 30
   },
   "current": {
-    "id": "hc-011",
+    "id": "hc-015",
     "phase": "evaluate",
-    "detail": "hc-011 Zen 3, hc-012 Zen 3 and Zen 5, hc-013 Zen 5"
+    "detail": "hc-013 Zen 5, hc-014 Zen 4 (AVX-512), hc-015 Zen 3 and Zen 5"
   },
   "scoreboard": [
     {
@@ -205,9 +205,11 @@
       "id": "hc-012",
       "entry": "wheel",
       "hypothesis": "64-bit bit indices in the wheel sparse loop",
-      "verdict": "running",
-      "where": "Zen 3, Zen 5",
-      "note": "Local Xeon 4/4."
+      "verdict": "rejected",
+      "where": "Zen 3 +5.2%/+4.2%, Zen 5 +4.8%/-2.1%",
+      "note": "Register spill: base pointer reloaded every OR. Fixed in hc-015.",
+      "delta_1t": 4.8,
+      "delta_mt": -2.1
     },
     {
       "id": "hc-013",
@@ -224,6 +226,14 @@
       "delta_1t": 4.5,
       "where": "Zen 5 via hc-011 (identical code); Zen 4 AVX-512 check pending",
       "note": "Target-specific: needs Chris, like hc-007."
+    },
+    {
+      "id": "hc-015",
+      "entry": "wheel",
+      "hypothesis": "64-bit sparse indices without the spill (loop bounded on stream 0)",
+      "verdict": "running",
+      "where": "Zen 3, Zen 5",
+      "note": "Local Xeon beat both champion and hc-012 in 3 of 3."
     }
   ],
   "azure_queue": 3,
@@ -362,6 +372,11 @@
       "utc": "2026-10-09T08:47:55Z",
       "level": "info",
       "text": "hc-011 rejected (G=6 hurts Zen 3 1T). hc-014 makes G per target; Zen 5 data carries over."
+    },
+    {
+      "utc": "2026-10-09T08:52:46Z",
+      "level": "info",
+      "text": "hc-012 rejected (Zen 5 16T -2.1% from a register spill); hc-015 fixes the spill and is running."
     }
   ],
   "research": {

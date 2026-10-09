@@ -58,7 +58,7 @@ which is AVX2-only.
 | 011 | 2026-10-09 | wheel | Fusion group size G = 6 instead of 8 | +2% to +5% 1T; local Xeon medians G=6 +5% over G=8 (noisy) | Zen 3 (7763): 86.7k / 771.4k, −1.2% / +2.8%, 1/5 at 1T, 5/5 at 16T | Zen 5: 167.0k / 1.34M, +4.5% / −0.3%, 5/5 at 1T; +6.2% at 4T, +6.3% at 8T | REVERT (Zen 3 −1.2% at 1T) | `hc/011-wheel-g6` |
 | 009 | 2026-10-09 | base | (result) | | Zen 3 (7763): 55.5k / 427.3k, −0.3% / −0.3%, 0/2, stopped after 3 rounds | Zen 5: 121.6k / 979.1k, −1.4% / −1.2%, 0/1, stopped | REVERT | `hc/009-base-scan-ctz` |
 | 010 | 2026-10-09 | both | Re-profile both champions on Zen 5 | Base gap to Rust mostly gone | n/a | Zen 5: base and Rust both 38k dense, 61k sparse, 4k scan per pass; wheel perf: sparse (in run_sieve) 52%, groups 35%, tile and 13 12% | measurement | `7360392` |
-| 012 | 2026-10-09 | wheel | 64-bit bit indices in the wheel sparse loop (no sign extension per OR) | +2% to +5% 1T; local Xeon +0.5% to +8%, 4/4 | pending | pending | pending | `hc/012-wheel-sparse-i64` |
+| 012 | 2026-10-09 | wheel | 64-bit bit indices in the wheel sparse loop (no sign extension per OR) | +2% to +5% 1T; local Xeon +0.5% to +8%, 4/4 | Zen 3 (7763): 92.1k / 785.2k, +5.2% / +4.2%, 5/5 | Zen 5: 169.8k / 1.31M, +4.8% / −2.1%, 5/5 at 1T, 0/5 at 16T | REVERT (Zen 5 −2.1% at 16T) | `hc/012-wheel-sparse-i64` |
 
 **009, base word scan.** Slightly slower on both machines (−0.3% Zen 3, −1.4% Zen 5). The bit
 scan is already cheap; the extra branches cost more than they save. Stopped early.
@@ -73,3 +73,8 @@ Rust's 125k at 1T. On the wheel, the sparse loop is the largest phase at 52% of 
 on Zen 3 at 1T. hc-014 picks G per target; its AVX-512 code is byte-identical to hc-011's and
 its AVX2 code to the champion's, so hc-011's numbers stand for it. Like hc-007 it can't pass
 the "2% on both Zen 3 and Zen 5" rule by construction.
+| 015 | 2026-10-09 | wheel | hc-012 without the register spill: loop bounded on stream 0, no reloads | Zen 3 and Zen 5 +4% to +5% 1T, 16T no longer negative | pending | pending | pending | `hc/015-wheel-sparse-i64-regs` |
+
+**012 and 015, wheel sparse indices.** 64-bit indices gained about 5% at 1T on both machines,
+but the loop spilled and reloaded its base pointer before every OR, and Zen 5 lost 2.1% at 16T,
+where two threads share a core's load ports. hc-015 frees one register and removes the reloads.
