@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T09:36:16Z",
+  "updated_utc": "2026-10-09T09:49:06Z",
   "run": {
     "id": "ap-20261009T0607Z",
     "state": "running",
@@ -12,9 +12,9 @@
     "spend_cap_nzd": 30
   },
   "current": {
-    "id": "hc-019",
+    "id": "final",
     "phase": "evaluate",
-    "detail": "hc-018 round 1 of 5, hc-019 warm-up (Zen 3 and Zen 5)"
+    "detail": "Final scoreboard: champions against the start of the run and rivals; wheel on Zen 3 started"
   },
   "scoreboard": [
     {
@@ -437,6 +437,11 @@
       "utc": "2026-10-09T09:30:07Z",
       "level": "info",
       "text": "hc-017 rejected (dense 160 slower). hc-019 measures the target-specific pair on the current champion."
+    },
+    {
+      "utc": "2026-10-09T09:49:06Z",
+      "level": "info",
+      "text": "Experiments frozen except hc-018/019 finishing. Final scoreboard runs starting (both entries; Zen 3, Zen 4 AVX-512, Zen 5, Cobalt 100)."
     }
   ],
   "research": {
