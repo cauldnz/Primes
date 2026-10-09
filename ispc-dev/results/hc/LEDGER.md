@@ -73,9 +73,12 @@ Rust's 125k at 1T. On the wheel, the sparse loop is the largest phase at 52% of 
 on Zen 3 at 1T. hc-014 picks G per target; its AVX-512 code is byte-identical to hc-011's and
 its AVX2 code to the champion's, so hc-011's numbers stand for it. Like hc-007 it can't pass
 the "2% on both Zen 3 and Zen 5" rule by construction.
-| 015 | 2026-10-09 | wheel | hc-012 without the register spill: loop bounded on stream 0, no reloads | Zen 3 and Zen 5 +4% to +5% 1T, 16T no longer negative | pending | pending | pending | `hc/015-wheel-sparse-i64-regs` |
+| 015 | 2026-10-09 | wheel | hc-012 without the register spill: loop bounded on stream 0, no reloads | Zen 3 and Zen 5 +4% to +5% 1T, 16T no longer negative | Zen 3 (7763): 92.7k / 790.0k, +5.8% / +5.0%, 5/5 | Zen 5: 173.9k / 1.43M, +6.9% / +6.8%, 5/5 | KEEP, merged | `hc/champion` |
 
 **012 and 015, wheel sparse indices.** 64-bit indices gained about 5% at 1T on both machines,
 but the loop spilled and reloaded its base pointer before every OR, and Zen 5 lost 2.1% at 16T,
 where two threads share a core's load ports. hc-015 frees one register and removes the reloads.
 | 016 | 2026-10-09 | wheel | No lead-ins: all group members start at the earliest start word; own bits cleared afterwards | +3% to +8% 1T (64 lead-in calls a group, 6 groups a pass); local Xeon 3/4 | pending | pending | pending | `hc/016-wheel-no-leadin` |
+
+**015, the spill fixed.** Freeing one register turned hc-012's −2.1% at 16T on Zen 5 into
++6.8%, and lifted 1T too (+6.9%). The 16T loss had been the reloads, as suspected.
