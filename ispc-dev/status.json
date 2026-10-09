@@ -1,17 +1,21 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T11:05:40Z",
+  "updated_utc": "2026-10-09T11:12:27Z",
   "run": {
-    "id": "ap-20261009T0607Z",
-    "state": "stopped",
+    "id": "ap-20261009T1112Z",
+    "state": "running",
     "mode": "azure",
-    "mode_reason": "Azure mode throughout. Stopped at 21:05 AEST: final scoreboard measured, no pools left. Morning report at the top of ispc-dev/STATUS.md.",
-    "started_utc": "2026-10-09T06:07:00Z",
-    "time_box_hours": 8,
-    "spend_nzd": 4.02,
+    "mode_reason": "Chris asked for a few more hours: ISPC against davepl's C++ base, Rust hill climbing, a first Zig entry.",
+    "started_utc": "2026-10-09T11:12:00Z",
+    "time_box_hours": 4,
+    "spend_nzd": 0,
     "spend_cap_nzd": 30
   },
-  "current": null,
+  "current": {
+    "id": "setup",
+    "phase": "plan",
+    "detail": "Merging the target-specific pair and hc-013; docs"
+  },
   "scoreboard": [
     {
       "machine": "Zen 3 (EPYC 7763)",
@@ -516,6 +520,11 @@
       "utc": "2026-10-09T11:05:40Z",
       "level": "info",
       "text": "Run stopped at 21:05 AEST. Spend NZ$4.02. No pools left. Morning report in STATUS.md."
+    },
+    {
+      "utc": "2026-10-09T11:12:27Z",
+      "level": "info",
+      "text": "Run ap-20261009T1112Z started: merges and docs, then ISPC vs davepl, Rust and Zig."
     }
   ],
   "research": {
