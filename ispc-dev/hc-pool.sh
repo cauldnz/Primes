@@ -20,7 +20,8 @@
 #        (saves an 8-minute start task per batch; FLOOR=0 releases them)
 #
 # Labels in the output: cand, champ, champ2 (the champion again: the A/A noise floor), ctrl and
-# ctrl2 (rivals). wheel: ctrl = C5 (x86) or Rust (arm64). base: ctrl = Rust, ctrl2 = davepl.
+# ctrl2 (rivals). wheel: ctrl = C5 (x86) or Rust (arm64), ctrl2 = danielspaangberg's 5760of30030
+# wheel (owrb at 1T, epar at all threads). base: ctrl = Rust, ctrl2 = davepl.
 # rust: cand/champ are PrimeRust/solution_1 at the two refs, ctrl = our ISPC base at
 # CTRL_REF (default origin/hc/champion), ctrl2 = davepl. zig: cand/champ are PrimeZig/solution_4,
 # filtered by ZIG_ENTRY (base|wheel), ctrl = our ISPC entry of the same kind at CTRL_REF.
@@ -52,6 +53,7 @@ cd Primes
 docker build -q -t rust PrimeRust/solution_1 >/dev/null
 docker build -q -t davepl PrimeCPP/solution_5 >/dev/null
 if [ "$(uname -m)" = x86_64 ]; then docker build -q -t c5 PrimeC/solution_5 >/dev/null; fi
+docker build -q -t dsp PrimeC/solution_2 >/dev/null
 touch /root/controls-ready'
 
 # Task script: build cand, champ and (rust/zig kinds) ctx; self-test; warm-up; shuffled rounds.
@@ -157,7 +159,9 @@ cmd_run() {
     wheel) ctx_from "$CAND" PrimeISPC/solution_1 "$S/cand"; ctx_from "$CHAMP" PrimeISPC/solution_1 "$S/champ"
            if [ -n "$X86" ]; then C1='ctrl|c5||^rogiervandam_extend(_epar)?;'
            else C1='ctrl|rust|--bits-extreme|^mike-barber_bit-extreme-hybrid;'; fi
-           printf '%s\n' 'cand|cand-@ID||;' 'champ|champ-@ID||;' 'champ2|champ-@ID||;' "$C1" > "$S/spec" ;;
+           printf '%s\n' 'cand|cand-@ID||;' 'champ|champ-@ID||;' 'champ2|champ-@ID||;' "$C1" \
+             'ctrl2|--entrypoint ./sieve_5760of30030_only_write_read_bits dsp||^danielspaangberg' \
+             'ctrl2|--entrypoint ./sieve_5760of30030_epar dsp||^danielspaangberg' > "$S/spec" ;;
     base)  ctx_from "$CAND" PrimeISPC/solution_2 "$S/cand"; ctx_from "$CHAMP" PrimeISPC/solution_2 "$S/champ"
            printf '%s\n' 'cand|cand-@ID||;' 'champ|champ-@ID||;' 'champ2|champ-@ID||;' \
              'ctrl|rust|--bits-extreme|^mike-barber_bit-extreme-hybrid;' \
