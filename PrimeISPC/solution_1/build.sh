@@ -14,5 +14,5 @@ case "$(uname -m)" in
     aarch64|arm64) TARGETS="${ISPC_TARGETS:-neon-i32x8}" ;;
     *) echo "unsupported architecture $(uname -m)" >&2; exit 1 ;;
 esac
-"$ISPC" -O3 --addressing=64 --pic --woff --target="$TARGETS" primes.ispc -o primes.o
+"$ISPC" -O3 --addressing=64 --pic --woff --cpu=znver3 --target="$TARGETS" primes.ispc -o primes.o
 ${CC:-gcc} -o primes primes*.o -lpthread
