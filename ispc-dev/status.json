@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T22:30:06Z",
+  "updated_utc": "2026-10-09T22:38:49Z",
   "run": {
     "id": "ap-20261009T2033Z",
     "state": "running",
@@ -8,9 +8,9 @@
     "mode_reason": "Chris re-armed a 4-hour run (RUN-PLAN.md) with a fresh 10-hour secret.",
     "started_utc": "2026-10-09T20:33:00Z",
     "time_box_hours": 4,
-    "spend_nzd": 2.19,
+    "spend_nzd": 2.41,
     "spend_cap_nzd": 30,
-    "background_runs": 2
+    "background_runs": "0\n0"
   },
   "current": {
     "id": "final3",
@@ -634,9 +634,19 @@
       "id": "hc-044",
       "entry": "wheel",
       "hypothesis": "Branch-free single tail mark per plane in sparse_prime",
+      "verdict": "rejected",
+      "where": "Zen 3 -1.9%/-5.2%, Zen 5 -1.2%/-1.1%",
+      "note": "Tail branches were already predicted well.",
+      "delta_1t": -1.2,
+      "delta_mt": -1.1
+    },
+    {
+      "id": "hc-045",
+      "entry": "wheel",
+      "hypothesis": "Unsigned arithmetic in start_bit (Zig form)",
       "verdict": "running",
       "where": "Zen 3, Zen 5, Cobalt 100",
-      "note": "Phase: sparse (40-44%). 8 near-random 0/1-trip loops per prime x 114 primes. Predict +2-6%."
+      "note": "~1,300 calls a pass; signed div/mod by 30 needs fix-ups. Predict 0-2%."
     }
   ],
   "azure_queue": 0,

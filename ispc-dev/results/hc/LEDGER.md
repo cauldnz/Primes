@@ -247,3 +247,9 @@ per-prime set-up and the tails, which neither profile split out.
 **z05.** Consistent but small: it wins nearly every round everywhere, and only Zen 3 clears 1%.
 The six-round run read +2.3% on Zen 5; ten rounds put it at +0.6%. A note for the rule: six
 rounds overstate small gains, so the ten-round rerun is doing its job.
+| 044 | 2026-10-10 | wheel | Branch-free single tail mark per plane in `sparse_prime` (at most one multiple is left per plane) | +2–6% | 98.0k / 836.2k, −1.9% / −5.2% (0/6) | 189.1k / 1.47M, −1.2% / −1.1% (0/6) | rejected | `hc/044-wheel-sparse-branchless-tail` |
+
+**044, branch-free tails.** The tail branches were predicted well enough; the conditional form
+only added work. Harness note from the same hour: `tools/prun.sh` copied `hc-pool.sh` to one
+shared file per launch, and the copy truncated it under a running task (the first Zen 3 base
+scoreboard task died silently). Each launch now gets its own copy.
