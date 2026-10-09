@@ -5,10 +5,11 @@ Usage: python ispc-dev/analyze.py results/hc/<id>/*.txt
 
 Each log is one machine. Rounds are "== round <n> <label>" followed by result lines
 "label;passes;seconds;threads;tags". Labels: cand, champ, champ2 (the champion again, for the
-A/A noise floor) and ctrl (C5 or mike-barber Rust). The warm-up round is ignored.
+A/A noise floor), ctrl (C5 or mike-barber Rust) and, from hc-pool.sh runs, ctrl2 (davepl C++).
+The warm-up round is ignored.
 
 Per machine and thread count it prints medians and ranges, the same-round ratio cand/champ, the
-A/A spread champ2/champ, and cand/ctrl. Then it gives a verdict:
+A/A spread champ2/champ, cand/ctrl and cand/ctrl2. Then it gives a verdict:
   KEEP    median gain >= 2% at 1T or all-threads on every machine; on at least one machine the
           candidate beat the champion in every round on that metric; nothing regresses > 1%.
   RERUN   no regression > 1% and the best gain is between 0% and 2% (rerun with 10 rounds).
@@ -56,7 +57,7 @@ def summarise(path):
         series = defaultdict(list)
         ratios = defaultdict(list)
         for r in rounds.values():
-            v = {lab: r[lab].get(t) for lab in ("cand", "champ", "champ2", "ctrl")}
+            v = {lab: r[lab].get(t) for lab in ("cand", "champ", "champ2", "ctrl", "ctrl2")}
             for lab, x in v.items():
                 if x:
                     series[lab].append(x)
@@ -66,6 +67,8 @@ def summarise(path):
                 ratios["aa"].append(v["champ2"] / v["champ"])
             if v["cand"] and v["ctrl"]:
                 ratios["cand/ctrl"].append(v["cand"] / v["ctrl"])
+            if v["cand"] and v["ctrl2"]:
+                ratios["cand/ctrl2"].append(v["cand"] / v["ctrl2"])
         out["metrics"][t] = (series, ratios)
     return out
 
@@ -78,7 +81,7 @@ def main(paths):
     worst = 1.0
     for res in results:
         print(f"\n### {res['machine']}  ({res['rounds']} scored rounds, {res['file']})\n")
-        print("| threads | cand | champ | champ2 | ctrl | cand/champ median (range) | rounds won | A/A spread | cand/ctrl |")
+        print("| threads | cand | champ | champ2 | ctrl | ctrl2 | cand/champ median (range) | rounds won | A/A spread | cand/ctrl | cand/ctrl2 |")
         print("|---|---|---|---|---|---|---|---|---|")
         tmax = max(res["metrics"]) if res["metrics"] else 1
         best = None
@@ -92,8 +95,9 @@ def main(paths):
             aa = ratios["aa"]
             aa_txt = f"{min(aa) - 1:+.1%} to {max(aa) - 1:+.1%}" if aa else "n/a"
             ctrl = pct(statistics.median(ratios["cand/ctrl"])) if ratios["cand/ctrl"] else "n/a"
-            print(f"| {t} | " + " | ".join(kfmt(med[l]) if l in med else "-" for l in ("cand", "champ", "champ2", "ctrl"))
-                  + f" | {pct(gain)} ({pct(min(cc))} to {pct(max(cc))}) | {won}/{len(cc)} | {aa_txt} | {ctrl} |")
+            ctrl2 = pct(statistics.median(ratios["cand/ctrl2"])) if ratios["cand/ctrl2"] else "n/a"
+            print(f"| {t} | " + " | ".join(kfmt(med[l]) if l in med else "-" for l in ("cand", "champ", "champ2", "ctrl", "ctrl2"))
+                  + f" | {pct(gain)} ({pct(min(cc))} to {pct(max(cc))}) | {won}/{len(cc)} | {aa_txt} | {ctrl} | {ctrl2} |")
             worst = min(worst, gain)
             if t in (1, tmax):
                 cand = (gain, won == len(cc))
