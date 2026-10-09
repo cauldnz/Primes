@@ -113,3 +113,13 @@ cauldnz-zig-base;38257;5.000055;1;algorithm=base,faithful=yes,bits=1
 cauldnz-zig-base;152679;5.000205;4;algorithm=base,faithful=yes,bits=1
 cauldnz-zig-base;76676;5.000153;2;algorithm=base,faithful=yes,bits=1
 == round 5 champ
+cauldnz-zig-base;38287;5.000053;1;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;152733;5.000201;4;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;76663;5.000174;2;algorithm=base,faithful=yes,bits=1
+== round 5 ctrl
+cauldnz-ispc-base;41110;5.000049;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;163993;5.000148;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;82091;5.000185;2;algorithm=base,faithful=yes,bits=1
+== round 5 ctrl2
+davepl_array_optimized;32200;5.00018;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;128604;5.00041;4;algorithm=base,faithful=yes,bits=1
