@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T11:51:43Z",
+  "updated_utc": "2026-10-09T11:56:29Z",
   "run": {
     "id": "ap-20261009T1112Z",
     "state": "running",
@@ -335,15 +335,21 @@
       "id": "r-02",
       "entry": "rust",
       "hypothesis": "Rust: toolchain 1.88 on bookworm instead of 1.57 on buster",
-      "verdict": "running",
-      "where": "Zen 3, Zen 5"
+      "verdict": "rejected",
+      "where": "Zen 3 -2.2%/-0.6%",
+      "delta_1t": -2.2,
+      "delta_mt": -0.6,
+      "note": "Rust 1.88 slower than 1.57 here."
     },
     {
       "id": "hc-023",
       "entry": "base",
       "hypothesis": "Pointer walk over dense chunks (NEON: zero extension per word)",
-      "verdict": "running",
-      "where": "Cobalt 100, Zen 3, Zen 5"
+      "verdict": "rejected",
+      "where": "Zen 3 flat, Cobalt 100 flat",
+      "delta_1t": -0.1,
+      "delta_mt": 0.1,
+      "note": "Arm gap to Rust lies elsewhere."
     }
   ],
   "azure_queue": 0,
@@ -577,6 +583,11 @@
       "utc": "2026-10-09T11:51:43Z",
       "level": "info",
       "text": "Rust r-01 kept: AVX-512 on, +2.4% 1T, +4.9% 16T on Zen 5. hc/rust-champion created."
+    },
+    {
+      "utc": "2026-10-09T11:56:29Z",
+      "level": "info",
+      "text": "hc-023 and r-02 rejected. davepl at 16T on Zen 3: ours ahead by 40%."
     }
   ],
   "research": {

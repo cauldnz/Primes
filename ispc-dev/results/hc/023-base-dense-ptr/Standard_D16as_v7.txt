@@ -5,3 +5,53 @@ BIOS Model name:                         AMD EPYC 9V45 96-Core Processor        
 AVX-512: yes
 kind=base rounds=5 id=1139491095
 build cand
+build champ
+self-test cand: 13 ok, 0 bad, exit=0
+self-test champ: 13 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-ispc-base;127430;5.000022;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;1002582;5.000200;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;902145;5.000089;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;476545;5.000052;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ
+cauldnz-ispc-base;123903;5.000039;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;998927;5.000244;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;881341;5.000100;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;464444;5.000033;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ2
+cauldnz-ispc-base;124335;5.000017;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;998445;5.000215;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;878050;5.000105;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;463936;5.000050;4;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl
+mike-barber_bit-extreme-hybrid;125935;5.0000367165;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;473202;5.0000567436;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;893749;5.0001940727;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;877620;5.0002827644;16;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl2
+davepl_array_optimized;92479;5.00016;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;713435;5.00033;16;algorithm=base,faithful=yes,bits=1
+== round 1 cand
+cauldnz-ispc-base;127482;5.000013;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;1000697;5.000186;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;901269;5.000100;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;475482;5.000061;4;algorithm=base,faithful=yes,bits=1
+== round 1 ctrl
+mike-barber_bit-extreme-hybrid;127069;5.0000033379;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;474018;5.0000948906;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;892810;5.0001597404;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;876266;5.0002965927;16;algorithm=base,faithful=yes,bits=1
+== round 1 champ
+cauldnz-ispc-base;124219;5.000010;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;998202;5.000206;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;878720;5.000098;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;464658;5.000044;4;algorithm=base,faithful=yes,bits=1
+== round 1 champ2
+cauldnz-ispc-base;124591;5.000025;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;998804;5.000200;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;880327;5.000093;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;464860;5.000079;4;algorithm=base,faithful=yes,bits=1
+== round 1 ctrl2
+davepl_array_optimized;92423;5.00014;1;algorithm=base,faithful=yes,bits=1
+!!! run ctrl2 failed
+== round 2 ctrl2
