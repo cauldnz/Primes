@@ -164,3 +164,7 @@ mike-barber_bit-extreme-hybrid;210505;5.0001144409;4;algorithm=base,faithful=yes
 mike-barber_bit-extreme-hybrid;420834;5.0002126694;8;algorithm=base,faithful=yes,bits=1
 mike-barber_bit-extreme-hybrid;411939;5.0004549026;16;algorithm=base,faithful=yes,bits=1
 == round 6 ctrl
+cauldnz-ispc-base;55722;5.000072;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;427924;5.000323;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;443761;5.000157;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;222480;5.000111;4;algorithm=base,faithful=yes,bits=1

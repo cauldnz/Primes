@@ -164,3 +164,14 @@ the fused loop is not an L1 capacity problem.
 its speed at every thread count. On AVX-512 LLVM vectorises the macro's word resets for 131–191
 very differently from those up to 129. The ISPC base's own dense-to-191 (hc-031) is AVX-512 only
 and checked in the assembly, so this result doesn't carry over to it.
+| r07 | 2026-10-10 | rust | Raw pointer walk in `ResetterSparseU8` (as hc-003). Both reviews | 0–5% | 53.0k / 410.4k, +0.4% / −0.2% | 127.1k / 924.0k, −0.3% / +0.5% | flat; dropped | `hc/rust-r07-sparse-ptr` |
+
+**r07, Rust pointer walk.** Nothing to take: `chunks_exact_mut` already compiles to a pointer
+walk. The ISPC base's 12% from hc-003 came from removing 32-bit index arithmetic that Rust never
+had.
+| 032 | 2026-10-10 | base | Immediate byte offsets in the sparse loop for each odd factor 129–383 (Grok idea 2) | 0–3% | 60.2k / 432.8k, +0.1% / +0.2% | 126.7k / 988.3k, +0.6% / −0.7% | rejected (under 2%; Zen 5 16T lost every round) | `hc/032-base-sparse-imm` |
+
+**032, sparse immediates.** Register offsets were never the cost: the loop is store-bound.
+Cobalt 100 +0.4%. Grok's idea 5 (a counted sparse loop) was dropped from the assembly alone
+(hc-034, not run): the champion's loop is already an eliminated move, an add and a fused
+compare-and-branch, and the counted form compiled to five instructions.

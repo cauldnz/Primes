@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T14:26:13Z",
+  "updated_utc": "2026-10-09T14:45:06Z",
   "run": {
     "id": "ap-20261009T1349Z",
     "state": "running",
@@ -483,9 +483,11 @@
       "id": "hc-032",
       "entry": "base",
       "hypothesis": "Immediate byte offsets in the sparse loop for factors 129-383",
-      "verdict": "running",
-      "where": "Zen 3, Zen 5, Cobalt 100",
-      "note": "Grok idea 2. Predict 0-3%."
+      "verdict": "rejected",
+      "where": "Zen 3 +0.1%/+0.2%, Zen 5 +0.6%/-0.7%, arm +0.4%",
+      "note": "Store-bound; offsets in registers cost nothing.",
+      "delta_1t": 0.6,
+      "delta_mt": -0.7
     },
     {
       "id": "r06",
@@ -501,9 +503,11 @@
       "id": "r07",
       "entry": "rust",
       "hypothesis": "Rust sparse resetter: raw pointer walk",
-      "verdict": "running",
-      "where": "Zen 3, Zen 5",
-      "note": "GPT and Grok. hc-003 gained 12% on Zen 5 for ISPC; Rust chunks_exact_mut may already compile to this. Predict 0-5%."
+      "verdict": "flat",
+      "where": "Zen 3 +0.4%/-0.2%, Zen 5 -0.3%/+0.5%",
+      "note": "chunks_exact_mut already compiles to a pointer walk.",
+      "delta_1t": -0.3,
+      "delta_mt": 0.5
     },
     {
       "id": "hc-033",
@@ -522,6 +526,14 @@
       "delta_1t": 0,
       "delta_mt": 0,
       "note": "Champion loop is already mov (eliminated), add, fused cmp+jle; the counted form compiled to add, lea, dec, cmp, ja. Dropped without a run."
+    },
+    {
+      "id": "hc-035",
+      "entry": "wheel",
+      "hypothesis": "Fused loop addresses g->buf[j] rows directly with 64-bit phases (as the Zig wheel does)",
+      "verdict": "running",
+      "where": "Zen 3, Zen 5, Cobalt 100",
+      "note": "avx2 loop 139 to 115 instr per vector, reloads 23 to 12. Predict +3-8% on x86."
     }
   ],
   "azure_queue": 0,
