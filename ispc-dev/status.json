@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T09:57:28Z",
+  "updated_utc": "2026-10-09T10:10:56Z",
   "run": {
     "id": "ap-20261009T0607Z",
     "state": "running",
@@ -8,25 +8,25 @@
     "mode_reason": "Service principal login and az batch pool list worked at 06:07 UTC.",
     "started_utc": "2026-10-09T06:07:00Z",
     "time_box_hours": 8,
-    "spend_nzd": 3.29,
+    "spend_nzd": 3.45,
     "spend_cap_nzd": 30
   },
   "current": {
     "id": "final",
     "phase": "evaluate",
-    "detail": "Final scoreboard: wheel Zen 3 round 1; base Zen 3, wheel and base Zen 5 warming up"
+    "detail": "Final scoreboard: base on Zen 3 and Zen 5, both entries on Zen 4 (AVX-512); Cobalt 100 next"
   },
   "scoreboard": [
     {
       "machine": "Zen 3 (EPYC 7763)",
       "entry": "wheel",
-      "ours_1t": 81642,
-      "ours_mt": 704731,
+      "ours_1t": 98200,
+      "ours_mt": 832200,
       "rival": "rogiervandam C",
-      "rival_1t": 65158,
-      "rival_mt": 532057,
+      "rival_1t": 65200,
+      "rival_mt": 533200,
       "threads": 16,
-      "source": "azure 14:45 AEST, medians"
+      "source": "final run, hc/champion 64e94aa, D16a_v4 (7763), median of 5; start of run 80.7k / 701.7k"
     },
     {
       "machine": "Zen 4 (EPYC 9V74)",
@@ -42,13 +42,13 @@
     {
       "machine": "Zen 5 (EPYC 9V45)",
       "entry": "wheel",
-      "ours_1t": 150893,
-      "ours_mt": 1245203,
+      "ours_1t": 179600,
+      "ours_mt": 1470000,
       "rival": "rogiervandam C",
-      "rival_1t": 133361,
-      "rival_mt": 1198472,
+      "rival_1t": 139500,
+      "rival_mt": 1190000,
       "threads": 16,
-      "source": "azure 14:45 AEST, medians, round 1 excluded"
+      "source": "final run, hc/champion 64e94aa, D16as_v7, median of 5; start of run 150.6k / 1.24M"
     },
     {
       "machine": "Zen 3 (EPYC 7763)",
@@ -453,6 +453,11 @@
       "utc": "2026-10-09T09:52:52Z",
       "level": "info",
       "text": "hc-019: target-specific pair +6.4% 1T on Zen 5, +2.3% 16T on Zen 3. Waiting for Chris. hc-018 rejected."
+    },
+    {
+      "utc": "2026-10-09T10:10:56Z",
+      "level": "info",
+      "text": "Final: wheel champion +21.7% 1T Zen 3, +19.5% 1T Zen 5 against the start of the run; +51% and +29% over C5."
     }
   ],
   "research": {
