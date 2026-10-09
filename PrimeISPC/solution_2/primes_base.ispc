@@ -92,11 +92,14 @@ static inline uniform bool is_composite_index(const uniform Sieve * uniform s, u
 // composite too, except P itself, which is restored afterwards.
 static inline void clear_dense_from(uniform uint64 * uniform w, uniform int nwords, const uniform int P,
                                     uniform int c) {
-    for (; c + P <= nwords; c += P) {
+    // Walk a pointer over the chunks, so each word is addressed with a constant offset (a
+    // 32-bit chunk index costs an extension per word on AArch64).
+    uniform uint64 * uniform q = w + c;
+    for (; c + P <= nwords; c += P, q += P) {
         #pragma unroll
         for (uniform int j = 0; j < 64; j++) {
             const uniform int t = P / 2 + j * P;
-            w[c + (t >> 6)] |= ((uniform uint64)1) << (t & 63);    // one composite
+            q[t >> 6] |= ((uniform uint64)1) << (t & 63);           // one composite
         }
     }
     for (uniform int j = 0; j < 64; j++) {                          // partial last chunk
