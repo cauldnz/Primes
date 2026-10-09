@@ -43,7 +43,7 @@ static inline uniform double now() {
 // ---------------------------------------------------------------------------------------
 // Wheel constants
 // ---------------------------------------------------------------------------------------
-#define G 8              // prime patterns fused into one pass over a plane
+#define G 6              // prime patterns fused into one pass over a plane
 #define MAXPAT 1024      // largest prime handled as a word pattern
 
 static const uniform int RES[8] = {1, 7, 11, 13, 17, 19, 23, 29};
