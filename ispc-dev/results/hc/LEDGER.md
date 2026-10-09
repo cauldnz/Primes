@@ -66,3 +66,4 @@ scan is already cheap; the extra branches cost more than they save. Stopped earl
 **010, re-profile.** On Zen 5 the base entry now matches Rust phase for phase (dense 38k,
 sparse 61k, scan 4k cycles a pass). The uninstrumented base runs 123k–125k passes against
 Rust's 125k at 1T. On the wheel, the sparse loop is the largest phase at 52% of samples.
+| 013 | 2026-10-09 | base | Add the avx512skx-x8 target now that dense resets are vectorised | Zen 5 +2% to +5% (dense is 35% of a pass); no change without AVX-512 | n/a (identical code) | pending | pending | `hc/013-base-avx512` |
