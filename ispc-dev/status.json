@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T11:14:46Z",
+  "updated_utc": "2026-10-09T11:28:02Z",
   "run": {
     "id": "ap-20261009T1112Z",
     "state": "running",
@@ -12,9 +12,9 @@
     "spend_cap_nzd": 30
   },
   "current": {
-    "id": "setup",
-    "phase": "plan",
-    "detail": "Merging the target-specific pair and hc-013; docs"
+    "id": "hc-022",
+    "phase": "evaluate",
+    "detail": "Persistent pools up (Zen 3, Zen 5, Cobalt 100); start tasks building rivals; 6 tasks queued"
   },
   "scoreboard": [
     {
@@ -312,13 +312,34 @@
       "note": "Regression fix merged.",
       "delta_1t": 64.2,
       "delta_mt": 63.9
+    },
+    {
+      "id": "hc-022",
+      "entry": "base",
+      "hypothesis": "Scoreboard: base champion (with hc-013) vs the start, with Rust and davepl C++ as rivals",
+      "verdict": "running",
+      "where": "Zen 3, Zen 5, Cobalt 100"
+    },
+    {
+      "id": "r-01",
+      "entry": "rust",
+      "hypothesis": "Rust: allow AVX-512 (config disabled it for Skylake)",
+      "verdict": "running",
+      "where": "Zen 5 (Zen 3 code identical)"
+    },
+    {
+      "id": "r-02",
+      "entry": "rust",
+      "hypothesis": "Rust: toolchain 1.88 on bookworm instead of 1.57 on buster",
+      "verdict": "running",
+      "where": "Zen 3, Zen 5"
     }
   ],
   "azure_queue": 0,
   "next_up": [
-    "Chris: merge hc/champion-plus-target-specific-2 (hc-007 + hc-014)?",
-    "Chris: hc-013 base AVX-512 (+1.0% Zen 5)?",
-    "Start-up autotune (RESEARCH idea 5)"
+    "ISPC base ideas from research pass 2",
+    "Rust: sparse loop and dense limit",
+    "Zig first pass on Zen"
   ],
   "events": [
     {
@@ -530,6 +551,11 @@
       "utc": "2026-10-09T11:14:46Z",
       "level": "info",
       "text": "Merged hc-019 (target-specific pair) and hc-013 (base AVX-512), approved by Chris. Self-tests and sweeps pass."
+    },
+    {
+      "utc": "2026-10-09T11:28:02Z",
+      "level": "info",
+      "text": "Harness: persistent auto-scaling pools in use. davepl C++ added as a rival. Research pass 2 and a Zig first pass running in the background."
     }
   ],
   "research": {
