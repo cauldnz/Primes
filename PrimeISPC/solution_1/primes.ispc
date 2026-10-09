@@ -193,7 +193,8 @@ static void apply_group(uniform uint64 * uniform w, uniform int nw,
     for (uniform int j = 0; j < G; j++) {
         L[j] = g->L[j];
         if (j < n) {
-            uniform int r0 = g->tab[j][b[j] & 63] - ((b[j] >> 6) - start) % g->L[j];  // phase at start
+            uniform int r0 = g->tab[j][b[j] & 63]                                      // phase at start
+                           - (uniform int)((uniform unsigned int)((b[j] >> 6) - start) % (uniform unsigned int)g->L[j]);
             r[j] = (r0 < 0) ? r0 + L[j] : r0;
         } else r[j] = 0;
     }
@@ -252,7 +253,7 @@ static void sparse_prime(uniform Sieve * uniform s, uniform int p) {
         i[pl] = sb + (uniform int64)pl * pw * 64;  // bit index within the whole buffer
     }
     // rounds in which all 8 streams are still inside their plane
-    uniform int rounds = (hi < nbits) ? (nbits - 1 - hi) / p + 1 : 0;
+    uniform int rounds = (hi < nbits) ? (uniform int)((uniform unsigned int)(nbits - 1 - hi) / (uniform unsigned int)p) + 1 : 0;
     const uniform int64 lim = i[0] + (uniform int64)rounds * p;   // bounds stream 0; no counter
     while (i[0] < lim) {
         for (uniform int pl = 0; pl < 8; pl++) {
@@ -267,8 +268,9 @@ static void sparse_prime(uniform Sieve * uniform s, uniform int p) {
 }
 
 static inline uniform bool is_composite(const uniform Sieve * uniform s, uniform int n) {
-    uniform int m = n / 30;
-    const uniform uint64 * uniform w = s->bits + PLANE[n % 30] * s->pw;
+    uniform unsigned int un = n;                  // unsigned: no sign fix-ups (see start_bit)
+    uniform int m = un / 30;
+    const uniform uint64 * uniform w = s->bits + PLANE[un % 30] * s->pw;
     return ((w[m >> 6] >> (m & 63)) & 1) != 0;
 }
 
