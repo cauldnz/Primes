@@ -205,7 +205,12 @@ Keep `status.json` current:
 - `experiments`: one entry per experiment, with `verdict` set to `running`, `kept`, `rejected`,
   `queued` (local winner waiting for Zen), `confirmed` or `inconclusive`, the deltas and a short
   note.
-- `azure_queue`, `next_up` (top three backlog items) and `events` (append only; keep the last 50).
+- `azure_queue` and `next_up` (top three backlog items).
+- `events`: the log. `tools/pub.sh` writes it for you: every new experiment, verdict, phase change,
+  scoreboard move and run state change becomes an event, and every event also goes to
+  `results/hc/EVENTS.jsonl`, the whole trajectory, which the page shows as `log.html`. Add your own
+  with `st.py event` for anything else worth knowing: a preemption, a fix, a change of course.
+  On 10 October the log stopped after start-up because events depended on the climber.
 
 **When to publish:** `tools/tick.sh` publishes at the start of every tick. Publish again with
 `tools/pub.sh` after each decision. The page warns

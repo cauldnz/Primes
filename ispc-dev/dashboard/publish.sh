@@ -17,7 +17,8 @@ else
     git -C "$WT" rm -rq . >/dev/null 2>&1 || true
 fi
 cp "$TMP/index.html" "$TMP/.nojekyll" "$WT/"
-git -C "$WT" add index.html .nojekyll
+[ -f "$TMP/log.html" ] && cp "$TMP/log.html" "$WT/"
+git -C "$WT" add index.html .nojekyll $( [ -f "$TMP/log.html" ] && echo log.html )
 git -C "$WT" commit -qm "Status page $(date -u +%Y-%m-%dT%H:%MZ)" || true
 git -C "$WT" push -q origin dashboard
 git -C "$REPO" worktree remove --force "$WT"

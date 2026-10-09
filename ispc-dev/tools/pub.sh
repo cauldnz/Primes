@@ -2,6 +2,9 @@
 # pub.sh "message": commit ispc-dev notes and status.json, push ispc-dev, publish the dashboard.
 # Set TRAILER to the session's commit attribution lines (they end every commit message).
 cd "$(dirname "$0")/../.."
+# The log writes itself: every change to experiments, phase, scoreboard or run state becomes an
+# event, here and in results/hc/EVENTS.jsonl. The climber can still add its own with st.py event.
+python3 ispc-dev/tools/autolog.py diff || echo "pub: autolog failed; publishing anyway"
 git add ispc-dev
 git commit -qm "${1:-Status update}
 

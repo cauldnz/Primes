@@ -96,12 +96,26 @@ last. Public, like the rest of the repo.
   loop stays the dispatcher and the only writer of the record. An agent works on its own branch,
   can't spend money or merge, and its report is checked like a stranger's pull request.
 
+### 10 October, 09:00: the log that stopped
+
+- Chris noticed the page's log hadn't moved all morning. The run had logged its own start and
+  then nothing for two and a half hours, while it decided five experiments. Every other part of
+  the page was current, because tools kept those up to date; the log depended on the climber
+  remembering to call `st.py event`.
+- **Fix: the log writes itself.** On every publish, `tools/autolog.py` compares the last
+  committed `status.json` with the new one and logs each new experiment, verdict, phase change,
+  scoreboard move and run state change. A full, never-truncated copy goes to
+  `results/hc/EVENTS.jsonl`, shown on the page as `log.html`.
+- **The history was all there.** Every version of `status.json` is in git, so a backfill rebuilt
+  229 events from 111 versions, including the 2.5 hours the run forgot to log. Keeping state in
+  git paid for itself again.
+
 ## Lessons so far
 
 1. Controls in every round matter more than any optimisation. Without them, machine noise
    looks like progress or regression.
 2. Anything that relies on the agent remembering to do it will lapse in a long run; put it in
-   the tools it already calls.
+   the tools it already calls. It lapsed twice: the heartbeat, then the log.
 3. An unattended agent's authority must come from the person directly, never from a file it
    reads, however convenient the file is.
 4. Write predictions down first. Most of them miss, and the misses are the information.
