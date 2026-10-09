@@ -1,0 +1,186 @@
+perf: /usr/lib/linux-tools/6.17.0-1022-azure/perf (perf version 6.17.13)
+kernel: 6.17.0-1022-azure
+Architecture:                            x86_64
+CPU(s):                                  16
+Model name:                              AMD EPYC 9V45 96-Core Processor
+BIOS Model name:                         AMD EPYC 9V45 96-Core Processor                 None CPU @ 2.6GHz
+AVX-512: yes
+build wheel
+build base
+build c5
+build rust
+build baseprof
+build rustprof
+== counters
+   <not supported>      cycles                                                                
+   <not supported>      instructions                                                          
+   <not supported>      branches                                                              
+   <not supported>      branch-misses                                                         
+   <not supported>      L1-dcache-loads                                                       
+   <not supported>      L1-dcache-load-misses                                                 
+hardware cycles not available: sampling cpu-clock
+=== perf stat wheel
+cauldnz-ispc;143142;5.000026;1;algorithm=wheel,faithful=yes,bits=1
+chroot: Interrupt
+ Performance counter stats for 'chroot /rf/wheel /bin/sh -c cd /opt/app && exec ./primes':
+       14294357663      task-clock                       #    2.560 CPUs utilized             
+               111      context-switches                 #    7.765 /sec                      
+                 1      cpu-migrations                   #    0.070 /sec                      
+               801      page-faults                      #   56.036 /sec                      
+   <not supported>      cycles                                                                
+       5.584332152 seconds time elapsed
+      14.290718000 seconds user
+       0.004997000 seconds sys
+=== perf record wheel
+cauldnz-ispc;142923;5.000012;1;algorithm=wheel,faithful=yes,bits=1
+--- report wheel (self, by symbol)
+    45.62%  primes                [.] apply_group___un_3C_unU_3E_uniun_3C_s_5B__c_unGroup_5D__3E_un_3C_Cuni_3E__avx512skx
+    42.29%  primes                [.] run_sieve___un_3C_s_5B_unSieve_5D__3E__avx512skx
+    11.69%  primes                [.] dense_primes___un_3C_s_5B_unSieve_5D__3E_un_3C_Cuni_3E_uni_avx512skx
+     0.04%  [vdso]                [.] 0x0000000000000bfb
+     0.02%  libc.so.6             [.] cfree
+     0.02%  primes                [.] worker___un_3C_unv_3E__avx512skx
+     0.01%  libc.so.6             [.] 0x00000000000a9bdb
+     0.01%  libc.so.6             [.] 0x00000000000adb1e
+     0.01%  libc.so.6             [.] 0x00000000001a1f2e
+     0.01%  libc.so.6             [.] aligned_alloc
+     0.01%  libc.so.6             [.] 0x00000000000ab50c
+     0.01%  libc.so.6             [.] 0x00000000000ab51e
+     0.01%  [kernel.kallsyms]     [k] 0xffffffffbc171144
+     0.01%  [kernel.kallsyms]     [k] 0xffffffffbd23b0f9
+     0.01%  [kernel.kallsyms]     [k] 0xffffffffbd249529
+     0.01%  libc.so.6             [.] 0x00000000000a9bce
+     0.01%  libc.so.6             [.] 0x00000000000ac1fc
+     0.01%  libc.so.6             [.] 0x00000000000ac32b
+     0.01%  libc.so.6             [.] 0x00000000001a1e84
+     0.01%  libc.so.6             [.] 0x00000000001a1f0f
+     0.00%  [kernel.kallsyms]     [k] 0xffffffffbc12c39c
+     0.00%  [kernel.kallsyms]     [k] 0xffffffffbc15f8ca
+     0.00%  [kernel.kallsyms]     [k] 0xffffffffbc1a6f54
+     0.00%  [kernel.kallsyms]     [k] 0xffffffffbc1bce13
+     0.00%  [kernel.kallsyms]     [k] 0xffffffffbc287537
+--- annotate wheel: aligned_alloc (lines >= 0.5%)
+=== perf stat base
+cauldnz-ispc-base;83400;5.000044;1;algorithm=base,faithful=yes,bits=1
+chroot: Interrupt
+ Performance counter stats for 'chroot /rf/base /bin/sh -c cd /opt/app && exec ./primes':
+       14516194661      task-clock                       #    2.593 CPUs utilized             
+                90      context-switches                 #    6.200 /sec                      
+                 4      cpu-migrations                   #    0.276 /sec                      
+               768      page-faults                      #   52.906 /sec                      
+   <not supported>      cycles                                                                
+       5.597463383 seconds time elapsed
+      14.513596000 seconds user
+       0.003997000 seconds sys
+=== perf record base
+cauldnz-ispc-base;82201;5.000016;1;algorithm=base,faithful=yes,bits=1
+--- report base (self, by symbol)
+    52.89%  primes                [.] clear_sparse___un_3C_s_5B_unSieve_5D__3E_uni_avx2
+    45.24%  primes                [.] clear_factor___un_3C_s_5B_unSieve_5D__3E_uni_avx2
+     1.20%  primes                [.] worker___un_3C_unv_3E__avx2
+     0.52%  libc.so.6             [.] 0x00000000001a1efa
+     0.02%  [vdso]                [.] 0x0000000000000bfb
+     0.01%  [kernel.kallsyms]     [k] 0xffffffffbc1b8c0d
+     0.01%  libc.so.6             [.] 0x00000000000aab60
+     0.00%  [kernel.kallsyms]     [k] 0xffffffffbc12c39c
+     0.00%  [kernel.kallsyms]     [k] 0xffffffffbc26974e
+     0.00%  [kernel.kallsyms]     [k] 0xffffffffbc2877ca
+     0.00%  libc.so.6             [.] cfree
+     0.00%  libc.so.6             [.] 0x00000000000ab0e9
+     0.00%  [kernel.kallsyms]     [k] 0xffffffffbc171144
+     0.00%  [kernel.kallsyms]     [k] 0xffffffffbc188a56
+     0.00%  [kernel.kallsyms]     [k] 0xffffffffbc1a3b30
+     0.00%  [kernel.kallsyms]     [k] 0xffffffffbc268cee
+     0.00%  [kernel.kallsyms]     [k] 0xffffffffbc417c3f
+     0.00%  [kernel.kallsyms]     [k] 0xffffffffbc4cc1d1
+     0.00%  [kernel.kallsyms]     [k] 0xffffffffbc4f0b9c
+     0.00%  [kernel.kallsyms]     [k] 0xffffffffbc51a002
+     0.00%  [kernel.kallsyms]     [k] 0xffffffffbd23450a
+     0.00%  [kernel.kallsyms]     [k] 0xffffffffbd23b0f9
+     0.00%  [kernel.kallsyms]     [k] 0xffffffffbd23b1ae
+     0.00%  [kernel.kallsyms]     [k] 0xffffffffbd23c228
+     0.00%  [kernel.kallsyms]     [k] 0xffffffffbd249529
+--- annotate base: aligned_alloc (lines >= 0.5%)
+=== perf stat c5
+chroot: Interrupt
+ Performance counter stats for 'chroot /rf/c5 /bin/sh -c cd /home/sieve && LD_PRELOAD=/usr/lib/libmimalloc.so exec bin/sieve_extend':
+        5595754609      task-clock                       #    1.000 CPUs utilized             
+                40      context-switches                 #    7.148 /sec                      
+                 1      cpu-migrations                   #    0.179 /sec                      
+               146      page-faults                      #   26.091 /sec                      
+   <not supported>      cycles                                                                
+       5.596732818 seconds time elapsed
+       5.590033000 seconds user
+       0.005998000 seconds sys
+=== perf record c5
+--- report c5 (self, by symbol)
+     2.59%  sieve_extend               [.] 0x000000000000ddbf
+     1.33%  sieve_extend               [.] 0x000000000000ddf5
+     1.29%  sieve_extend               [.] 0x000000000000ddd8
+     1.21%  sieve_extend               [.] 0x000000000000de15
+     1.19%  sieve_extend               [.] 0x000000000000bb1b
+     1.12%  sieve_extend               [.] 0x000000000000c9f9
+     1.11%  sieve_extend               [.] 0x000000000000ddc6
+     0.98%  sieve_extend               [.] 0x000000000000dde3
+     0.97%  sieve_extend               [.] 0x000000000000bb2f
+     0.96%  sieve_extend               [.] 0x000000000000ba10
+     0.92%  sieve_extend               [.] 0x000000000000de00
+     0.89%  sieve_extend               [.] 0x000000000000de38
+     0.83%  sieve_extend               [.] 0x000000000000de43
+     0.82%  sieve_extend               [.] 0x000000000000ba06
+     0.77%  sieve_extend               [.] 0x000000000000b955
+     0.73%  sieve_extend               [.] 0x000000000000b933
+     0.67%  sieve_extend               [.] 0x000000000000b8c1
+     0.67%  sieve_extend               [.] 0x000000000000ddbc
+     0.62%  sieve_extend               [.] 0x000000000000b8ba
+     0.62%  sieve_extend               [.] 0x000000000000ba1e
+     0.61%  sieve_extend               [.] 0x000000000000b911
+     0.59%  sieve_extend               [.] 0x000000000000b977
+     0.58%  sieve_extend               [.] 0x000000000000b9f1
+     0.58%  sieve_extend               [.] 0x000000000000ddcd
+     0.58%  sieve_extend               [.] 0x000000000000b8b6
+--- annotate c5: __dls3 (lines >= 0.5%)
+=== perf stat rust
+-------------------------------------------------------
+Computing primes to 1000000 on 1 thread for 5 seconds.
+-------------------------------------------------------
+chroot: Interrupt
+ Performance counter stats for 'chroot /rf/rust /bin/sh -c cd /app && exec ./prime-sieve-rust --bits-extreme -t 1':
+         596122579      task-clock                       #    0.107 CPUs utilized             
+                 2      context-switches                 #    3.355 /sec                      
+                 0      cpu-migrations                   #    0.000 /sec                      
+               232      page-faults                      #  389.182 /sec                      
+   <not supported>      cycles                                                                
+       5.596691693 seconds time elapsed
+       0.595560000 seconds user
+       0.000999000 seconds sys
+=== perf record rust
+--- report rust (self, by symbol)
+    61.55%  prime-sieve-rust   [.] prime_sieve_rust::run_implementation_st
+     1.90%  prime-sieve-rust   [.] <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_003
+     1.67%  prime-sieve-rust   [.] <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_007
+     1.60%  prime-sieve-rust   [.] <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_053
+     1.52%  prime-sieve-rust   [.] <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_073
+     1.52%  prime-sieve-rust   [.] <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_089
+     1.52%  prime-sieve-rust   [.] <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_103
+     1.44%  prime-sieve-rust   [.] <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_097
+     1.44%  prime-sieve-rust   [.] <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_107
+     1.37%  prime-sieve-rust   [.] <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_067
+     1.29%  prime-sieve-rust   [.] <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_011
+     1.29%  prime-sieve-rust   [.] <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_031
+     1.29%  prime-sieve-rust   [.] <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_041
+     1.29%  prime-sieve-rust   [.] <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_059
+     1.29%  prime-sieve-rust   [.] <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_061
+     1.29%  prime-sieve-rust   [.] <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_127
+     1.22%  prime-sieve-rust   [.] <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_005
+     1.22%  prime-sieve-rust   [.] <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_037
+     1.22%  prime-sieve-rust   [.] <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_043
+     1.14%  prime-sieve-rust   [.] <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_013
+     1.06%  prime-sieve-rust   [.] <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_029
+     1.06%  prime-sieve-rust   [.] <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_083
+     1.06%  prime-sieve-rust   [.] <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_109
+     1.06%  prime-sieve-rust   [.] <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_113
+     0.99%  prime-sieve-rust   [.] <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_017
+--- annotate rust: <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_003 (lines >= 0.5%)
+=== TSC phase builds
+== round 1 baseprof
