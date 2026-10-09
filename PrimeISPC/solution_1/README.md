@@ -5,32 +5,59 @@
 ![Parallelism](https://img.shields.io/badge/Parallel-yes-green)
 ![Bit count](https://img.shields.io/badge/Bits-1-green)
 
-A sieve of Eratosthenes written in [ISPC](https://ispc.github.io/), the Intel® Implicit SPMD Program Compiler: a C-like language in which ordinary-looking code runs across all SIMD lanes at once. The entire program is ISPC — the entry point, the timing loop, thread management, the sieve and the output. The only external calls are to the C library (`clock_gettime`, `aligned_alloc`/`free`, pthreads, `getenv`).
+A sieve of Eratosthenes on a mod-30 wheel, written in [ISPC](https://ispc.github.io/), Intel's Implicit SPMD Program Compiler. ISPC is a C-like language in which ordinary-looking code runs across every SIMD lane at once. The whole program is ISPC: the entry point, the timing loop, the threads, the sieve and the output. It calls the C library only for the clock, memory allocation, pthreads and `getenv`.
+
+[solution_2](../solution_2) is the base-algorithm companion to this entry.
+
+## Why ISPC
+
+The small primes are where a sieve spends its effort, and their multiples form dense bit patterns that repeat. The large primes set scattered single bits. ISPC suits the first job. The pattern-streaming loop below is written once, as scalar-looking code, and the compiler spreads it across the vector lanes. The `uniform` and `varying` keywords show which values are shared across lanes and which differ per lane, so the cost of each line is visible in the source.
+
+One build covers every machine the benchmark runs on. On x86-64 the binary carries SSE4, AVX2 and AVX-512 code, and ISPC's dispatcher picks the best path the CPU supports at start-up. On arm64 it compiles for NEON. The official runners range from an SSE4-only Celeron to an AVX-512 Zen 5 Threadripper and a Raspberry Pi 4.
+
+ISPC also has a tuning knob C lacks: gang width, the number of program instances that run together. Compiling for 16 instances on 8-lane AVX2 hardware (`avx2-i32x16`) was 12% faster on Zen 3, 14% on Zen 4 and 16% on Zen 5 than the natural width, because each loop iteration keeps more independent loads and stores in flight. On arm64, `neon-i32x8` beat `neon-i32x4` by 4% on Neoverse N1 and 15% on Neoverse N2.
 
 ## Implementation
 
-**Storage: a mod-30 wheel, 1 bit per candidate.** Only numbers coprime to 30 are stored, as 8 bit-planes, one per residue `R ∈ {1, 7, 11, 13, 17, 19, 23, 29}`. Bit `m` of plane `R` represents `30m + R`; a set bit means composite. Up to 1,000,000 this is 8 × 521 64-bit words, about 33 KB, which fits in L1 cache.
+### Storage
 
-**Every plane is an ordinary stride sieve.** The multiples of a prime `p` that land in one plane form a progression with stride `p`, so the 8 planes are 8 small, regular sieves. Its first bit in each plane is found with a modular inverse mod 30.
+Only numbers coprime to 30 are stored, in eight bit-planes, one per residue `R` in {1, 7, 11, 13, 17, 19, 23, 29}. Bit `m` of plane `R` stands for `30m + R`, and a set bit means composite. Up to 1,000,000 the planes take 8 × 521 64-bit words, about 33KB.
 
-**Small primes are streamed as repeating word patterns.** A stride-`p` bit pattern repeats every `p` 64-bit words. Because 64 is invertible modulo an odd `p`, every bit offset of the pattern is just a whole-word rotation of one base pattern. So each prime gets one base pattern, shared by all 8 planes, plus a 64-entry table (filled while building the pattern) giving the starting rotation for any offset. The SIMD lanes then stream the pattern into the sieve with contiguous vector loads: no gathers, and no divisions in the hot loop.
+### Each plane is a stride sieve
 
-**Patterns are fused.** Up to 8 primes' patterns are OR-ed into each plane in a single pass, so each sieve word is loaded and stored once per 8 primes.
+The multiples of a prime `p` that fall in one plane step through it with stride `p`, so each plane is a small, regular sieve of its own. A modular inverse mod 30 gives the first multiple in each plane.
 
-**Wheel tile.** Multiples of 7 and 11 repeat every 77 words in every plane, so that period is built once and copied along each plane with vector copies. 13 follows on its own, after which every bit below 17² is final.
+### Small primes stream repeating patterns
 
-**Large primes** (above 384) set at most one bit per word, so they use scalar strided bit-setting, with all 8 planes advanced in one loop to give 8 independent memory streams.
+A stride-`p` bit pattern repeats every `p` 64-bit words. Because 64 is invertible modulo any odd `p`, every bit offset of the pattern is a whole-word rotation of one base pattern. Each prime therefore builds one base pattern, shared by all eight planes, plus a 64-entry table of starting rotations, filled while the pattern is built. The SIMD lanes then stream the pattern into the sieve with contiguous vector loads. The hot loop has no gathers and no divisions.
 
-**Faithfulness.** All of a sieve's state, including its pattern scratch space, lives in the `Sieve` struct (ISPC has no classes; a struct with functions taking it as their first argument is the closest equivalent). A new instance is created and its buffers allocated, sized from the sieve size at run time, on every pass. Nothing is precomputed or carried between passes, and there are no external dependencies.
+Several primes are fused into one pass over a plane, so each sieve word is loaded and stored once per group: six primes with AVX-512, eight otherwise (six was 4% to 5% faster at one thread on Zen 4 and Zen 5 with AVX-512, and 1% slower on Zen 3 with AVX2). Every member of a group starts at the first word any member touches, so no member needs a lead-in of its own. Members then also mark their multiples below `p²`, which are composite, and `p` itself, which is cleared again afterwards. 13 is the one prime that runs alone and skips the fused loop. Each member's pattern sits in a fixed row of the group's buffer, so the loop keeps only a phase per member in a register; reading the patterns through a pointer per member ran out of registers on x86 and cost 2% to 3% at all threads.
 
-**Parallelism.** The multi-threaded run starts one pthread per hardware thread, each running independent sieves. SIMD is used within every thread.
+### Wheel tile
 
-**Portability.** On x86-64 the build compiles SSE4, AVX2 and AVX-512 versions into one binary, and ISPC's built-in dispatcher picks the best one the CPU supports when the program starts. On ARM64 the build targets NEON.
+Multiples of 7 and 11 repeat every 77 words in every plane. The program builds that period once and copies it along each plane with vector copies. Then 13 runs on its own, after which every bit below 17² is final.
 
-### Two ISPC lessons worth passing on
+### Large primes
 
-- **Watch for hidden divides.** A phase-wrapping loop written as `while (r >= p) r -= p;` was compiled by LLVM into a hardware integer division on every iteration, which cost roughly two thirds of the run time in an early version. Replacing it with a single conditional subtract (by making the pattern period at least as long as one vector step) removed it.
-- **`export` functions passed to pthreads need `unmasked`.** Taking the address of an `export` function yields ISPC's internal variant, which expects a hidden execution-mask argument. `pthread_create` passes whatever is in that register, so the code can run with every SIMD lane silently switched off. Wrapping the thread body in `unmasked { ... }` turns all lanes on.
+Primes above 256 (the default) set at most one bit per word. They use scalar strided bit-setting, with all eight planes advanced in one loop to keep eight independent memory streams busy. The bit indices are 64-bit and the build uses ISPC's `--addressing=64`, so each composite costs four instructions, with no sign extensions and no register spills.
+
+### Faithfulness
+
+All of a sieve's state, including its pattern scratch space, lives in the `Sieve` struct. ISPC has no classes; a struct and functions that take it as their first argument are the nearest equivalent. Every pass creates a new instance and allocates its buffers at run time, sized from the sieve size. Nothing is precomputed or carried from one pass to the next, and no external dependency does any sieving.
+
+### Parallelism
+
+The multi-threaded runs start one pthread per thread, each running its own sieves, and SIMD runs within every thread. The program reports results for all, half and a quarter of the hardware threads, because SMT siblings share an L1 cache and fewer threads can finish more passes.
+
+### Two lessons for ISPC users
+
+- **Hidden divides.** A phase-wrapping loop written as `while (r >= p) r -= p;` compiled to a hardware integer division on every iteration. In an early version it cost about two-thirds of the run time. Making the pattern period at least one vector step long reduced the wrap to a single conditional subtract.
+- **Functions that aren't inlined get an execution mask too.** ISPC compiles a non-inlined `static` function for an unknown mask, so every vector load and store inside it is masked, even when every caller runs with all lanes on. On AVX2 a masked store is slow on Zen 2 to Zen 4. The fused loop runs in an `unmasked` block, and without AVX-512 the last partial vector of a plane runs on into padding instead of being masked: the extra words get the same prime's pattern, which is correct for them.
+- **`export` functions handed to pthreads need `unmasked`.** The address of an `export` function points at ISPC's internal variant, which expects a hidden execution-mask argument. `pthread_create` passes whatever happens to be in that register, so the thread can run with every SIMD lane switched off. Wrapping the thread body in `unmasked { ... }` turns the lanes on.
+
+## How this was built
+
+This solution came out of an experiment in agentic engineering with Claude (Anthropic). A Claude.ai session did the design, prototyping and coordination; a Claude Code session ran the benchmarks on Azure (AMD Zen 3, Zen 4 and Zen 5, and Arm Neoverse); the author set priorities and made the calls. Each change was self-tested with `PRIMES_TEST=1`, then timed in interleaved runs against the previous build and the leading solutions, and kept only if it won. The [`ispc-dev` branch of the author's fork](https://github.com/cauldnz/Primes/tree/ispc-dev/ispc-dev) holds the full record, including the regressions and dead ends.
 
 ## Run instructions
 
@@ -49,19 +76,33 @@ sh build.sh
 ./primes
 ```
 
-### Optional environment variables
+### Options
 
-- `PRIMES_TEST=1` checks the prime count for every power of ten from 10 to 10⁸, prints the results, and exits non-zero on any mismatch.
-- `PRIMES_DENSE_MAX=<n>` sets the threshold below which primes are applied as word patterns instead of individual bits (default 384).
+- `PRIMES_TEST=1` checks the prime count for every power of ten from 10 to 10⁸, prints the results and exits non-zero on any mismatch.
+- `PRIMES_DENSE_MAX=<n>` sets the size below which primes are applied as word patterns rather than single bits. The default, 256, was fastest on Zen 3 and Zen 5.
+- `ISPC_TARGETS`, set for `build.sh` or as a Docker build argument, overrides the compile targets.
 
 ## Output
 
-Intel Xeon @ 2.80 GHz, 2 vCPUs (shared cloud instance), Ubuntu 24.04, ISPC 1.22.0, AVX-512 code path:
+AMD EPYC 9V45 (Zen 5), 16 vCPUs, Azure `Standard_D16as_v7`, Ubuntu 24.04, ISPC 1.22.0, in Docker:
 
 ```
-cauldnz-ispc;56457;5.000051;1;algorithm=wheel,faithful=yes,bits=1
-cauldnz-ispc;107784;5.000350;2;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;191112;5.000023;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1467424;5.000176;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1399782;5.000106;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;756188;5.000046;4;algorithm=wheel,faithful=yes,bits=1
 ```
+
+Passes in 5 seconds against danielspaangberg's fastest faithful wheel (PrimeC/solution_2,
+`5760of30030`) and rogiervandam's C (PrimeC/solution_5), measured in the same interleaved
+rounds on Azure Spot nodes, median of six rounds, one thread / all threads:
+
+| CPU | this entry | danielspaangberg (wheel) | rogiervandam C | lead over each |
+|---|---|---|---|---|
+| AMD EPYC 7763 (Zen 3, AVX2), 16 threads | 110,100 / 938,900 | 38,100 / 309,000 | 65,200 / 534,100 | 2.9× / 3.0×; +69% / +76% |
+| AMD EPYC 9V74 (Zen 4, AVX-512), 16 threads | 120,900 / 1,013,000 | 45,000 / 372,400 | 97,000 / 769,900 | 2.7× / 2.7×; +25% / +32% |
+| AMD EPYC 9V45 (Zen 5, AVX-512), 16 threads | 207,600 / 1,565,000 | 70,300 / 503,300 | 139,100 / 1,182,100 | 3.0× / 3.1×; +49% / +32% |
+| Azure Cobalt 100 (Neoverse N2), 4 threads | 98,500 / 393,200 | 42,700 / 169,600 | n/a | 2.3× / 2.3× |
 
 Self-test:
 
