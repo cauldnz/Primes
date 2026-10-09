@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T11:12:27Z",
+  "updated_utc": "2026-10-09T11:14:46Z",
   "run": {
     "id": "ap-20261009T1112Z",
     "state": "running",
@@ -525,6 +525,11 @@
       "utc": "2026-10-09T11:12:27Z",
       "level": "info",
       "text": "Run ap-20261009T1112Z started: merges and docs, then ISPC vs davepl, Rust and Zig."
+    },
+    {
+      "utc": "2026-10-09T11:14:46Z",
+      "level": "info",
+      "text": "Merged hc-019 (target-specific pair) and hc-013 (base AVX-512), approved by Chris. Self-tests and sweeps pass."
     }
   ],
   "research": {

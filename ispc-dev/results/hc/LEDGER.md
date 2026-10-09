@@ -104,3 +104,4 @@ the base champion ran 25.1k at 1T against 41.0k at the start of the run (−38.9
 target turns the vector dense code into per-lane scalar loads. hc-020 restores the scalar
 routine on NEON only; the x86 assembly is unchanged. From now on every base or shared-code
 change gets a Cobalt 100 run before it merges.
+| 021 | 2026-10-09 | both | Merge hc-019 (hc-007 + hc-014) and hc-013, approved by Chris | as measured in 019 and 013 | — | — | merged | `hc/champion` |
