@@ -187,3 +187,9 @@ sparse loop's 2,600 byte ORs. Rust's r06 lost the same way. AVX2 and SSE4 don't 
 phase and pointer values on x86 and spilled more (23 reloads and 9 spills per step). The
 assembly shows the real difference: Zig addresses each pattern at a fixed offset from the
 group (`g + j*8704 + 8*r[j]`), so a member costs one register. hc-035 copies that.
+| 036 | 2026-10-10 | base | Dense limit 96 on x86 (NEON stays 128, byte-identical) | 0–3% Zen 5 | 54.1k / 415.3k, −2.5% / −3.1% (0/6) | 125.5k / 988.9k, −0.1% / −0.5% | rejected | `hc/036-base-dense-96` |
+
+**036, dense to 96.** Zen 3 loses 2.5% and Zen 5 is flat, so with hc-031 the cutover is
+bracketed: 128 is right for the vector dense code on both machines. The base's dense and
+sparse limits are done; the reviews' largest predicted gain (+5–13% from 192–256) was the
+wrong direction.

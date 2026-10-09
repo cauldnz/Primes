@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T14:55:45Z",
+  "updated_utc": "2026-10-09T15:12:24Z",
   "run": {
     "id": "ap-20261009T1349Z",
     "state": "running",
@@ -535,17 +535,29 @@
       "id": "hc-035",
       "entry": "wheel",
       "hypothesis": "Fused loop addresses g->buf[j] rows directly with 64-bit phases (as the Zig wheel does)",
-      "verdict": "running",
-      "where": "Zen 3, Zen 5, Cobalt 100",
-      "note": "avx2 loop 139 to 115 instr per vector, reloads 23 to 12. Predict +3-8% on x86."
+      "verdict": "confirming",
+      "where": "Zen 3 +0.3%/+3.4%, Zen 5 +0.7%/+2.0% (16T 6/6 both), arm -0.3%",
+      "note": "Passes at all threads; Zen 5 is on the 2% line, so a 10-round rerun is running.",
+      "delta_1t": 0.7,
+      "delta_mt": 2.0
     },
     {
       "id": "hc-036",
       "entry": "base",
       "hypothesis": "Dense limit 96 on x86 (was 128)",
+      "verdict": "rejected",
+      "where": "Zen 3 -2.5%/-3.1%, Zen 5 -0.1%/-0.5%",
+      "note": "With hc-031, 128 is bracketed as right.",
+      "delta_1t": -2.5,
+      "delta_mt": -3.1
+    },
+    {
+      "id": "hc-037",
+      "entry": "wheel",
+      "hypothesis": "G=8 on AVX-512 on top of hc-035 (fewer live registers now)",
       "verdict": "running",
-      "where": "Zen 3, Zen 5 (NEON identical)",
-      "note": "From hc-031 and r06. Predict 0-3% on Zen 5."
+      "where": "Zen 5 vs hc-035",
+      "note": "Probe. Predict 0-4%."
     }
   ],
   "azure_queue": 0,
