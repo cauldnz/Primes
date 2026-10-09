@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T22:48:22Z",
+  "updated_utc": "2026-10-09T22:52:28Z",
   "run": {
     "id": "ap-20261009T2033Z",
     "state": "running",
@@ -8,7 +8,7 @@
     "mode_reason": "Chris re-armed a 4-hour run (RUN-PLAN.md) with a fresh 10-hour secret.",
     "started_utc": "2026-10-09T20:33:00Z",
     "time_box_hours": 4,
-    "spend_nzd": 2.41,
+    "spend_nzd": 2.6,
     "spend_cap_nzd": 30,
     "background_runs": "0\n0"
   },
