@@ -137,3 +137,35 @@ cauldnz-ispc-base;939713;5.000230;16;algorithm=base,faithful=yes,bits=1
 cauldnz-ispc-base;840309;5.000108;8;algorithm=base,faithful=yes,bits=1
 cauldnz-ispc-base;432755;5.000058;4;algorithm=base,faithful=yes,bits=1
 == round 5 champ2
+cauldnz-ispc-base;112441;5.000042;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;936217;5.000215;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;841719;5.000095;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;438338;5.000037;4;algorithm=base,faithful=yes,bits=1
+== round 5 ctrl
+mike-barber_bit-extreme-hybrid;113242;5.0000038147;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;438407;5.0000824928;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;845645;5.0001621246;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;819426;5.0003633499;16;algorithm=base,faithful=yes,bits=1
+== round 6 champ2
+cauldnz-ispc-base;113085;5.000028;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;936819;5.000230;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;841018;5.000118;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;437229;5.000078;4;algorithm=base,faithful=yes,bits=1
+== round 6 ctrl2
+davepl_array_optimized;81932;5.00012;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;669504;5.00045;16;algorithm=base,faithful=yes,bits=1
+== round 6 champ
+cauldnz-ispc-base;113496;5.000014;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;939462;5.000211;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;840985;5.000106;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;441363;5.000047;4;algorithm=base,faithful=yes,bits=1
+== round 6 cand
+cauldnz-ispc-base;117354;5.000026;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;952703;5.000223;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;868740;5.000106;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;455460;5.000062;4;algorithm=base,faithful=yes,bits=1
+== round 6 ctrl
+mike-barber_bit-extreme-hybrid;114170;5.0000038147;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;440723;5.0000810623;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;844263;5.0001845360;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;822000;5.0003266335;16;algorithm=base,faithful=yes,bits=1

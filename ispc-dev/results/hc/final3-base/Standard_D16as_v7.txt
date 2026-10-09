@@ -1,0 +1,39 @@
+Architecture:                            x86_64
+CPU(s):                                  16
+Model name:                              AMD EPYC 9V45 96-Core Processor
+BIOS Model name:                         AMD EPYC 9V45 96-Core Processor                 None CPU @ 2.6GHz
+AVX-512: yes
+kind=base rounds=6 id=21540530519
+build cand
+build champ
+self-test cand: 13 ok, 0 bad, exit=0
+self-test champ: 13 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-ispc-base;126261;5.000008;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;1007346;5.000230;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;956639;5.000144;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;477273;5.000095;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ
+cauldnz-ispc-base;85007;5.000006;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;686539;5.000221;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;627907;5.000120;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;323542;5.000093;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ2
+cauldnz-ispc-base;84379;5.000014;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;707263;5.000265;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;632246;5.000166;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;329231;5.000146;4;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl
+mike-barber_bit-extreme-hybrid;120664;5.0000233650;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;462453;5.0001006126;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;912453;5.0002241135;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;868607;5.0003967285;16;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl2
+davepl_array_optimized;89365;5.0002;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;719865;5.00098;16;algorithm=base,faithful=yes,bits=1
+== round 1 champ
+cauldnz-ispc-base;83537;5.000012;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;683226;5.000217;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;632026;5.000161;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;335795;5.000092;4;algorithm=base,faithful=yes,bits=1
+== round 1 ctrl2

@@ -229,3 +229,16 @@ it in both big phases. A same-node profile is running to confirm. Allocation is 
 **danielspaangberg, first measurements.** His `5760of30030` wheel, the faithful wheel category's
 leader on the leaderboard, runs at 38.0k (Zen 3), 70.2k (Zen 5) and 42.6k (Cobalt 100) passes
 at 1T. Ours is 2.6, 2.7 and 2.2 times faster there, and 2.8 to 3.0 times at all threads on Zen.
+| 028-confirm | 2026-10-10 | base | hc-028 (merged on Chris's decision) against the champion before it | n/a | 56.0k / 430.6k, +0.7% / +0.9% (6/6) | 116.3k / 950.1k, +2.8% / +1.2% (6/6) | confirmed (Cobalt 100 flat) | `hc/champion` `4c7dc69` |
+
+**028, confirmed.** Against mike-barber's Rust in the same rounds the base now leads at 1T on
+Zen 3 (+6.5%) and Zen 5 (+2.8%), and by 15.7% at all threads on Zen 5. It trails by 4% on
+Cobalt 100. The partial-group idea for the wheel's dense phase died on arithmetic: the 48
+primes from 17 to 251 fill groups of eight (AVX2) and six (AVX-512) exactly.
+| 043 | 2026-10-10 | wheel | Sparse loop in the Zig port's form: counted, `#pragma unroll 4`, unsigned 64-bit indices | +3–8% Zen 5, +2–5% Zen 3 | 96.5k / 831.1k, −3.1% / −6.2% (0/6) | 180.0k / 1.22M, −4.2% / −18.9% | rejected (Cobalt 100 −4.0%) | `hc/043-wheel-sparse-zig-form` |
+
+**043, Zig's sparse form.** ISPC's unrolled loop shares one counter across the eight streams and
+reloads offsets from the stack (28 stack accesses per 32 marks; Zig's has none), and the counted
+loop brings back the extra register that hc-015 removed. The champion's loop stays. The Zig
+sparse lead on Zen 5 is real (same-node profile) but not in the loop's shape; what remains is the
+per-prime set-up and the tails, which neither profile split out.

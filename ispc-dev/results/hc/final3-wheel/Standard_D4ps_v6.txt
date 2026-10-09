@@ -1,0 +1,23 @@
+Architecture:                            aarch64
+CPU(s):                                  4
+Model name:                              Neoverse-N2
+BIOS Model name:                         Cobalt 100 None CPU @ 3.4GHz
+AVX-512: no
+kind=wheel rounds=6 id=21540511598
+build cand
+build champ
+self-test cand: 8 ok, 0 bad, exit=0
+self-test champ: 8 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-ispc;94157;5.000006;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;376062;5.000119;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;188440;5.000049;2;algorithm=wheel,faithful=yes,bits=1
+== round warmup champ
+cauldnz-ispc;63334;5.000048;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;252620;5.000114;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;126544;5.000192;2;algorithm=wheel,faithful=yes,bits=1
+== round warmup champ2
+cauldnz-ispc;63210;5.000026;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;252787;5.000112;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;126613;5.000096;2;algorithm=wheel,faithful=yes,bits=1
+== round warmup ctrl

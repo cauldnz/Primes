@@ -343,6 +343,22 @@ Earlier entries:
 
 ## Where the cycles go
 
+**Update, 2026-10-10 (07:30–07:35 AEST): the wheel against the Zig wheel, same node.** TSC
+cycles a pass at 1T, from the diagnostic branches `hc/diag-wheel-phases` and
+`hc/diag-zig-wheel-phases` (raw output in `results/hc/diag-phases/same-node/`):
+
+| Phase | Zen 3 ISPC | Zen 3 Zig | Zen 5 ISPC | Zen 5 Zig |
+|---|---|---|---|---|
+| tile (7, 11) | 3.8k | 2.5k | 1.3k | 1.3k |
+| 13 | 2.4k | 2.0k | 1.5k | 1.2k |
+| fused groups (17–251) | 59.6k | 50.4k | 32.7k | 31.9k |
+| sparse (257–997) | 54.7k | 46.5k | 29.9k | 24.0k |
+| candidate scan | 4.3k | 4.3k | 2.9k | 2.9k |
+| whole pass | 124.8k | 105.7k | 68.4k | 61.3k |
+
+The Zig wheel's lead sits in sparse marking on Zen 5 and in both big phases on Zen 3. The
+loops look alike in the assembly; hc-042 and hc-043 test the two differences that remain.
+
 **Update, hc-010 (18:13–18:24 AEST, Zen 5, current champions).** The base entry now matches
 Rust phase for phase: dense 38k, sparse 61k and scan 4k cycles a pass in both TSC builds
 (120.1k against 119.3k passes). Without timers it runs 123k–125k passes at 1T against Rust's
