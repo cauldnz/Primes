@@ -148,3 +148,34 @@ cauldnz-ispc;573471;5.000052;4;algorithm=wheel,faithful=yes,bits=1
 cauldnz-ispc;125860;5.000028;1;algorithm=wheel,faithful=yes,bits=1
 cauldnz-ispc;963386;5.000220;16;algorithm=wheel,faithful=yes,bits=1
 cauldnz-ispc;922408;5.000116;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;479228;5.000082;4;algorithm=wheel,faithful=yes,bits=1
+== DENSE_MAX=224 new
+cauldnz-ispc;142139;5.000025;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1196115;5.000210;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1051602;5.000109;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;558507;5.000067;4;algorithm=wheel,faithful=yes,bits=1
+== DENSE_MAX=224 avx2
+cauldnz-ispc;123048;5.000029;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;932297;5.000219;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;898043;5.000116;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;468174;5.000088;4;algorithm=wheel,faithful=yes,bits=1
+== DENSE_MAX=256 new
+cauldnz-ispc;144343;5.000009;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1227732;5.000192;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1091477;5.000082;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;575379;5.000053;4;algorithm=wheel,faithful=yes,bits=1
+== DENSE_MAX=256 avx2
+cauldnz-ispc;124817;5.000005;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;967016;5.000209;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;935543;5.000105;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;489624;5.000055;4;algorithm=wheel,faithful=yes,bits=1
+== DENSE_MAX=288 new
+cauldnz-ispc;144769;5.000016;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1188002;5.000205;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1070438;5.000115;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;557384;5.000078;4;algorithm=wheel,faithful=yes,bits=1
+== DENSE_MAX=288 avx2
+cauldnz-ispc;122706;5.000005;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;935788;5.000237;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;910764;5.000113;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;473757;5.000077;4;algorithm=wheel,faithful=yes,bits=1

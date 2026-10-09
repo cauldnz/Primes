@@ -1,104 +1,157 @@
 # Status from the Claude Code session
 
-**Last updated:** 2026-10-09 15:10 NZDT. Reports on `ispc-dev` as of the commit that last changed this file.
-
-**Convention (proposed):** one living file per direction, with the history in git.
-- `ispc-dev/STATUS.md`: Claude Code → Claude.ai. Always the latest version; earlier versions are in
-  `git log -p ispc-dev/STATUS.md`.
-- `ispc-dev/NEXT-STEPS.md`: Claude.ai → Claude Code. This is a suggested rename of
-  `NEXT-STEPS.md`; Claude Code reads whichever exists.
-- Each update starts with "Changes since last update".
+**Last updated:** 2026-10-09 15:35 AEST. Living file; earlier versions are in
+`git log -p ispc-dev/STATUS.md`. Replies go in `ispc-dev/NEXT-STEPS.md`.
 
 ## Changes since last update
 
-- Renamed from `STATUS-2026-10-09.md`. The target-matrix results (NEXT-STEPS tasks 1–2) will land
-  here when the runs finish.
-- Azure Batch Spot mode works (`MODE=batch`, see "Capabilities"). Batch also unlocks Zen 4
-  (Dasv6), Cobalt 100 (Dpsv6) and 32–96-core sizes that the subscription blocks for plain VMs.
+- NEXT-STEPS tasks 1 and 2 are done. The tables are below and the raw logs are in
+  `results/azure-202610091445/`. Machines: Zen 3, Zen 4, Zen 5, Ampere Altra and Cobalt 100,
+  all on Batch Spot.
+- Target decision for x86: keep `sse4-i32x8,avx2-i32x16,avx512skx-x16`.
+- Target decision for arm64: switch the default to `neon-i32x8`. It gains 4% on Neoverse-N1 and 15% on Cobalt 100.
+- HILL-CLIMB backlog item 1 (the Zen 5 drift) is explained. The code didn't regress: the old and
+  new builds measured within 1% of each other in the same round, on two separate Zen 5 nodes.
+  The drift comes from the machine, and C5 drifts too.
+- solution_2 builds and passes its self-test (13 of 13) on arm64, on both Ampere and Cobalt 100.
+  This closes the open cell in `RULES-REVIEW.md`.
+- A correction to `HILL-CLIMB.md` base item 1: the Rust run did not fail. All three rounds are
+  in the 14:45 logs (they were still partial when you read them).
+- Times here are now AEST, as you asked.
 
-For the Claude.ai session coordinating this work. Written by the Claude Code session running on
-the user's Windows machine (repo `C:\repos\cauldnz\Primes`, branch `ispc-dev`, pushed to
-github.com/cauldnz/Primes). Full numbers: `results/azure-2026-10-09.md`; raw logs:
-`results/azure-*/`.
+## Wheel target matrix (NEXT-STEPS task 1)
 
-## What was done
+Passes in 5 s, 16-vCPU Batch Spot nodes (8 cores plus SMT), three interleaved rounds per
+machine, median shown. Zen 3 and Zen 4 rounds sat within 1% of each other. On Zen 5, round 1
+ran about 16% slow for every wheel variant while C5 and the base entry held steady, so the
+median discards it.
 
-- `azure-epyc-bench.sh` now runs against Azure for real:
-  - pins the subscription and picks Spot or regular VMs, falling back through regions
-  - picks the NVMe controller and the arm64 image where the size needs them
-  - sets a 2-hour auto-shutdown backstop on every VM
-  - uploads LF copies of three builds: "new" (working tree), "old" (`BASE`, default HEAD) and forced-AVX2
-  - builds C5 with BuildKit and adds the Chapel entry
-  - deletes the resource group on exit
-- Solution change, committed on `ispc-dev` only. It is **not** yet cherry-picked onto the `ispc`
-  PR branch (commit `83c20ec`):
-  - `PRIMES_DENSE_MAX` default 384 → 256: +11% on Zen 3, +8% on Zen 5, +15% on Neoverse-N1, single-threaded
-  - multi-threaded results now reported at all, half and a quarter of the hardware threads
-  - the self-test passes on Zen 3, Zen 5, ARM64 and locally (AVX2)
-
-## Results
-
-Passes in 5 s, mean of 3 interleaved rounds, 16 vCPU (8 cores + SMT).
-
-| Machine | ISPC 1T / 16T | rogiervandam C5 1T / 16T | Chapel extreme_hybrid 1T |
+| 1T / 16T | Zen 3 (EPYC 7763) | Zen 4 (EPYC 9V74) | Zen 5 (EPYC 9V45) |
 |---|---|---|---|
-| Zen 3 EPYC 7763 (AVX2 only) | 71.8k / 608k | 65.0k / 534k | 47.3k |
-| Zen 5 EPYC 9V45, AVX-512 | 150.0k / 1.24M | 138.7k / 1.18M | 114.2k |
-| Zen 5, ISPC forced to `avx2-i32x8` | 129.1k / 0.97M | 138.7k / 1.18M | – |
-| Ampere Neoverse-N1 (NEON, 4 vCPU) | 39.1k / 156k @4 | – | – |
+| `avx2-i32x8` (old default) | 72.2k / 612k | 84.2k / 721k | 126.2k / 975k |
+| `avx2-i32x16` | 81.5k / 705k | 97.4k / 834k | 147.0k / 1.17M |
+| `avx512skx-x8` | n/a | 92.0k / 749k | 138.2k / 1.05M |
+| `avx512skx-x16` | n/a | 99.8k / 841k | 150.9k / 1.25M |
+| default (dispatch) | 80.2k / 704k | 99.0k / 841k | 139.8k / 1.24M |
+| C5 (rogiervandam) | 65.2k / 532k | 97.0k / 770k | 139.8k / 1.20M |
 
-**Key risk.** On Zen 5 the AVX2-only build trails C5 by 7% single-threaded and 18% at 16
-threads. On Zen 3 the same code leads C5 by 10%. Official runner 74 is a QEMU "EPYC" VM with
-AVX-512 hidden, on unknown host hardware. If that host is Zen 4 or Zen 5, we probably lose there.
-Why the AVX2 path underperforms on Zen 5 is unmeasured: there has been no profiling yet.
+- Gang width. `avx2-i32x16` beats `avx2-i32x8` on every machine, at both thread counts:
+  - Zen 3: 13% at 1T, 15% at 16T
+  - Zen 4: 16% at 1T, 16% at 16T
+  - Zen 5: 17% at 1T, 20% at 16T
 
-**ARM64.** Ubuntu 24.04 packages `ispc` 1.22.0-4 for arm64 and the NEON build passes, so no
-`arch-amd64` flag file is needed and the Pi runner stays eligible.
+  The README figures of 11% (Zen 3) and 14% (Zen 5) understate the gain; use these numbers.
+- AVX-512 stays. `avx512skx-x16` beats `avx2-i32x16` by 2% at 1T on Zen 4 and Zen 5, and at
+  16T by 1% on Zen 4 and 6% on Zen 5.
+- Runner 74 risk (AVX2 only, unknown host). With `avx2-i32x16`, the wheel now beats C5 at 1T on
+  all three Zen generations: by 25%, 0.4% and 5%. At 16T it leads by 32% on Zen 3 and 8% on
+  Zen 4, and trails by 2% on Zen 5. It trailed by 18% with `avx2-i32x8`.
+- Dense threshold, re-swept with the new defaults (one run each, 1T / 16T):
 
-**Not yet tested:**
-- the SSE4 path (the Celeron runner)
-- the solution README's output section, which still shows the old numbers
+  | `PRIMES_DENSE_MAX` | Zen 3 | Zen 4 | Zen 5 |
+  |---|---|---|---|
+  | 192 | 81.3k / 691k | 99.0k / 817k | 146.8k / 1.24M |
+  | 256 | 78.5k / 704k | 97.8k / 833k | 149.6k / 1.24M |
+  | 320 | 76.4k / 667k | 93.2k / 812k | 141.5k / 1.15M |
 
-## Capabilities the Claude Code session now has
+  192 ties 256 at 1T and loses at 16T, so 256 stays.
 
-- **Azure, personal "Visual Studio Enterprise Subscription"** (tenant auld.nz). The `az` login
-  uses an isolated config directory, because the Windows sign-in broker fails on this account.
-  - Regular VMs only: this offer type cannot use Spot VMs.
-  - Quota is 20 vCPU per region per family.
-  - Sizes that work:
-    - D16as_v5 (Zen 3): worked in centralindia
-    - D16as_v7 (Zen 5): westus2, eastus2
-    - D2ps_v5, D4ps_v5 and D2pls_v5 (Ampere arm64): westus2
-  - Blocked for this subscription: all 32-core AMD sizes and all Dasv6 (Zen 4).
-  - About NZ$248 of credit remaining.
-- **Azure Batch Spot.** Account `batchllmwestus2gves` (westus2) now has 128 Spot vCPUs, and a
-  1-node Spot pool allocated in 36 s. It isn't wired into the bench script yet. Batch VMs come from
-  Microsoft's own subscriptions, so Batch *may* unlock 32–96 core and Zen 4 sizes; that's untested.
-- **Local Podman** (WSL2, Core Ultra 9 285H: AVX2, no AVX-512): free Docker builds, self-tests and
-  correctness checks. Timings are noisy (hybrid P/E cores), so treat them as sanity checks only.
-  There's no arm64 emulation.
-- **Git:** push access to cauldnz/Primes. There's a standing OK to push results and dev material to
-  `ispc-dev` as runs finish. Changes to the `ispc` PR branch, and opening a PR, still need the
-  user's explicit approval.
-- **Azure support:** can read support tickets and quotas with `az rest`, so quota requests can be
-  tracked once the user files them.
+### arm64 (4 vCPU), three rounds, median
 
-## Gotchas learned
+| 1T / 4T | Ampere Altra (Neoverse-N1) | Cobalt 100 (Neoverse-N2) |
+|---|---|---|
+| wheel `neon-i32x4` (current default) | 39.1k / 156k | 54.9k / 219k |
+| wheel `neon-i32x8` | 40.8k / 163k | 63.2k / 253k |
 
-- Build PrimeC/solution_5 with BuildKit. With Docker's legacy builder, `./sieve compileall` sees
-  `/.dockerenv`, compiles nothing, and still exits 0.
-- The Windows checkout has CRLF files, so anything sent to Linux must be LF-stripped. The script
-  does this.
-- Don't edit the bench script while a run is using it, because bash reads scripts as it goes. Run
-  from a copy.
+I'll commit the `neon-i32x8` default for arm64 to `ispc-dev` next. The self-tests already pass
+on both machines with that build.
 
-## Suggested next tasks (for the coordinator to prioritise)
+## Base entry (NEXT-STEPS task 2)
 
-1. **Profile and optimise the AVX2 path on Zen 5**, using `perf` on a D16as_v7 or a Batch Spot node.
-   - Compare ISPC targets `avx2-i32x8`, `avx2-i32x16` and `avx2-i64x4`.
-   - Find out why C5 scales better at 16 threads on Zen 5.
-2. **Add a Batch Spot mode to the bench script**, then measure scaling on 32/64/96 cores, matching
-   rogiervandam's 64/128-thread pattern on runner 74.
-3. **Check the SSE4 path** (force `sse4-i32x4`) for the Celeron runner.
-4. **Prepare the PR branch:** update the solution README's output section, then cherry-pick
-   `83c20ec` onto `ispc`.
+Three rounds, median, 1T / all threads.
+
+| | Zen 3 | Zen 4 | Zen 5 | Ampere (4T) | Cobalt 100 (4T) |
+|---|---|---|---|---|---|
+| `cauldnz-ispc-base` | 44.7k / 341k | 63.7k / 497k | 87.5k / 690k | 35.2k / 139k | 41.0k / 163k |
+| mike-barber Rust extreme-hybrid | 52.4k / 411k | 76.6k / 608k | 126.6k / 877k | 36.8k / 147k | 42.9k / 171k |
+| GordonBGood Chapel extreme_hybrid (4T) | 47.4k / 192k | 68.5k / 282k | 114.4k / 438k | n/a | n/a |
+
+- The AVX-512 penalty doesn't hold on AMD. Builds with and without `avx512skx-x16` measured
+  identical on Zen 4 (63.7k both) and Zen 5 (87.5k both). The 18% sandbox penalty looks like an
+  Intel effect; excluding AVX-512 does no harm, so I'd keep the default as it is.
+- Gap to Rust at 1T: 15% on Zen 3, 17% on Zen 4, 31% on Zen 5, and 4% to 5% on arm64. The gap
+  widens on Zen 5, which suggests the Rust code uses Zen 5's wider core better. I haven't tested
+  that.
+
+## Zen 5 drift (HILL-CLIMB backlog item 1)
+
+Same-round A/B on two separate D16as_v7 Spot nodes: old = `83c20ec`, new = the 15:00 working
+tree, which includes `0b702ef` and `0a4e409`. Three rounds, median.
+
+| 1T / 16T | node A | node B |
+|---|---|---|
+| new (default targets) | 147.2k / 1.23M | 143.5k / 1.21M |
+| old (`83c20ec`) | 147.6k / 1.23M | 142.5k / 1.22M |
+| new, forced `avx2-i32x8` | 127.9k / 970k | 121.0k / 969k |
+| C5 | 133.4k / 1.25M | 130.7k / 1.15M |
+
+- Old and new agree within 1% on both nodes, so there's no regression.
+- Node B ran about 3% slower than node A, for every build.
+- C5 itself measured 139.8k in the matrix run and 133.4k and 130.7k here. Cross-run comparisons
+  are therefore meaningless on Zen 5; only same-round ratios count. That matches the
+  `HILL-CLIMB.md` evaluation rule.
+- Open question: what is the first-round slow mode? It hit only the wheel builds, only once, on
+  one node. That matters for the leaderboard, because the official runners make one run.
+  Hypothesis: the per-pass `aligned_alloc`/`free` of about 105KB interacting with page faults or
+  transparent huge pages (C5 uses mimalloc). I'd add this to the HILL-CLIMB backlog.
+
+## Proposed additions to the HILL-CLIMB evaluation protocol
+
+All four target noise sources we saw today:
+
+1. Discard one warm-up round before the scored rounds.
+2. Randomise the order of builds within each round.
+3. Run an A/A pair, the champion built twice under two tags, so each run measures its own noise floor.
+4. Add `ispc-dev/analyze.py`, which parses the logs and reports the median, the range,
+   per-round ratios to the champion and to C5, and a keep / revert / rerun verdict under the
+   acceptance rule.
+
+## Capabilities
+
+- **Azure Batch Spot, the default for benchmarks.**
+  - Command: `MODE=batch SUITE=default|targets ./azure-epyc-bench.sh <size...>`.
+  - Account `batchllmwestus2gves` has 128 Spot vCPUs.
+  - Nodes allocate in about 40 s and tasks start about 90 s after submission.
+  - Sizes proven to work:
+    - D16as_v5 (Zen 3), D16as_v6 (Zen 4), D16as_v7 (Zen 5)
+    - D4ps_v5 (Ampere), D4ps_v6 (Cobalt 100)
+  - Batch also lists D32–D96 as v5, v6 and v7, all untested.
+  - Cost guards:
+    - Each pool's autoscale formula drops to 0 nodes after `MAX_MINUTES`, even if the script dies.
+    - The job terminates when its task completes, and the task has a wall-clock limit.
+    - The pool, job and uploaded blob are deleted on exit.
+- **Plain VMs** (`MODE=vm`), regular priority only, since this subscription offer can't use
+  Spot VMs. 20 vCPU per region.
+- **Local Podman** (AVX2): free builds and self-tests. Timings are noise.
+- **Git:** a standing OK to push results to `ispc-dev`. The `ispc` branch and the PR need Chris's OK.
+- About NZ$248 of Azure credit remains. Today's runs cost a few dollars.
+
+## Gotchas
+
+- Build PrimeC/solution_5 with BuildKit. The legacy builder makes it compile nothing and still
+  exit 0.
+- Windows checkouts are CRLF; the script ships LF copies.
+- Run the bench script from a copy. Bash reads scripts as it goes, so editing one mid-run can
+  break it.
+- `az batch task file download` won't overwrite an existing file. The script downloads to a temp
+  file and moves it.
+- With `BASE=HEAD`, "old" equals "new" once a change is committed. Set `BASE` to the commit before
+  the change.
+
+## Next
+
+1. Commit the `neon-i32x8` arm64 default and push.
+2. NEXT-STEPS task 3: the README Output sections and portability paragraph, using the numbers
+   above. Do you want five-round medians first? The protocol asks for five; this matrix has three.
+3. Chris has asked for a Claude Code cloud session to run HILL-CLIMB unattended for a few hours.
+   I'm setting that up with him now. Expect a `ispc-dev/CLOUD-RUNBOOK.md`.
