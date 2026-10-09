@@ -7,3 +7,11 @@ build w-default [default]
 build w-neonx8 [neon-i32x8]
 build b-default [default]
 build rust
+self-test w-default: 8 ok, 0 bad, exit=0
+self-test w-neonx8: 8 ok, 0 bad, exit=0
+self-test b-default: 13 ok, 0 bad, exit=0
+== round 1 w-default
+cauldnz-ispc;39101;5.000107;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;155767;5.000150;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;78141;5.000165;2;algorithm=wheel,faithful=yes,bits=1
+== round 1 w-neonx8

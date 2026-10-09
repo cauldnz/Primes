@@ -97,3 +97,32 @@ cauldnz-ispc-base;341226;5.000367;16;algorithm=base,faithful=yes,bits=1
 cauldnz-ispc-base;356300;5.000205;8;algorithm=base,faithful=yes,bits=1
 cauldnz-ispc-base;178104;5.000152;4;algorithm=base,faithful=yes,bits=1
 == round 2 Rust
+mike-barber_bit-rotate;10169;5.0002474785;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-unrolled-hybrid;52079;5.0000591278;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;52334;5.0000863075;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-rotate;40644;5.0005373955;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-unrolled-hybrid;208898;5.0001177788;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;210137;5.0001206398;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-rotate;81293;5.0004949570;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-unrolled-hybrid;417983;5.0002131462;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;420502;5.0002088547;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-rotate;87368;5.0007181168;16;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-unrolled-hybrid;407685;5.0004220009;16;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;410751;5.0005178452;16;algorithm=base,faithful=yes,bits=1
+== round 2 Chapel
+GordonBGood_bittwiddle;9493;5.00059;1;algorithm=base,faithful=yes,bits=1
+GordonBGood_stride8;13564;5.00034;1;algorithm=base,faithful=yes,bits=1
+GordonBGood_stride8_block16K;14381;5.00031;1;algorithm=base,faithful=yes,bits=1
+GordonBGood_extreme;21336;5.00028;1;algorithm=base,faithful=yes,bits=1
+GordonBGood_extreme_hybrid;47331;5.00018;1;algorithm=base,faithful=yes,bits=1
+GordonBGood_bittwiddle;38339;5.00045;4;algorithm=base,faithful=yes,bits=1
+GordonBGood_stride8;54551;5.00031;4;algorithm=base,faithful=yes,bits=1
+GordonBGood_stride8_block16K;57987;5.00049;4;algorithm=base,faithful=yes,bits=1
+GordonBGood_extreme;86596;5.00034;4;algorithm=base,faithful=yes,bits=1
+GordonBGood_extreme_hybrid;192151;5.00025;4;algorithm=base,faithful=yes,bits=1
+== round 3 w-default
+cauldnz-ispc;81763;5.000041;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;705930;5.000301;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;630355;5.000150;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;311438;5.000121;4;algorithm=wheel,faithful=yes,bits=1
+== round 3 w-avx2x8

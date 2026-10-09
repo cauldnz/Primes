@@ -16,4 +16,3 @@ size 10000000 -> 664579 primes (expected 664579) 1
 size 100000000 -> 5761455 primes (expected 5761455) 1
 build ispc-avx2
 build c5
-build chapel

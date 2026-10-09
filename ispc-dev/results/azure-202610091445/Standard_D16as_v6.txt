@@ -109,3 +109,27 @@ cauldnz-ispc;749431;5.000254;16;algorithm=wheel,faithful=yes,bits=1
 cauldnz-ispc;735156;5.000150;8;algorithm=wheel,faithful=yes,bits=1
 cauldnz-ispc;366151;5.000126;4;algorithm=wheel,faithful=yes,bits=1
 == round 2 w-avx512x16
+cauldnz-ispc;99573;5.000012;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;841141;5.000271;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;793226;5.000145;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;395675;5.000113;4;algorithm=wheel,faithful=yes,bits=1
+== round 2 C5
+rogiervandam_extend_epar;769972;5.000043;16;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;777293;5.000024;8;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;388223;5.000034;4;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;194234;5.000012;2;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend;97012;5.000029;1;algorithm=other,faithful=yes,bits=1
+rogiervandam_base;21464;5.000052;1;algorithm=base,faithful=yes,bits=1
+rogiervandam_classic64bit;8842;5.000147;1;algorithm=base,faithful=yes,bits=1
+rogiervandam_classic8bit;11242;5.000421;1;algorithm=base,faithful=yes,bits=1
+== round 2 b-default
+cauldnz-ispc-base;63682;5.000076;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;497429;5.000326;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;510016;5.000143;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;255113;5.000127;4;algorithm=base,faithful=yes,bits=1
+== round 2 b-avx512
+cauldnz-ispc-base;63651;5.000069;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;498429;5.000334;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;510129;5.000137;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;255139;5.000089;4;algorithm=base,faithful=yes,bits=1
+== round 2 Rust
