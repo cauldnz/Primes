@@ -18,3 +18,35 @@ build ispc-avx2
 build c5
 build chapel
 build c2
+== self-test avx2
+size 10 -> 4 primes (expected 4) 1
+size 100 -> 25 primes (expected 25) 1
+size 1000 -> 168 primes (expected 168) 1
+size 10000 -> 1229 primes (expected 1229) 1
+size 100000 -> 9592 primes (expected 9592) 1
+size 1000000 -> 78498 primes (expected 78498) 1
+size 10000000 -> 664579 primes (expected 664579) 1
+size 100000000 -> 5761455 primes (expected 5761455) 1
+== round 1 new
+cauldnz-ispc;143487;5.000011;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1216800;5.000274;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1094130;5.000157;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;563751;5.000077;4;algorithm=wheel,faithful=yes,bits=1
+== round 1 old
+cauldnz-ispc;142506;5.000032;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1209083;5.000210;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1085734;5.000092;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;564541;5.000069;4;algorithm=wheel,faithful=yes,bits=1
+== round 1 avx2
+cauldnz-ispc;123296;5.000022;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;974945;5.000253;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;952622;5.000116;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;484193;5.000076;4;algorithm=wheel,faithful=yes,bits=1
+== round 1 C5
+rogiervandam_extend_epar;1135449;5.000402;16;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;951888;5.000022;8;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;505832;5.000005;4;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;265876;5.000019;2;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend;131466;5.000035;1;algorithm=other,faithful=yes,bits=1
+rogiervandam_base;31168;5.000122;1;algorithm=base,faithful=yes,bits=1
+rogiervandam_classic64bit;17064;5.000170;1;algorithm=base,faithful=yes,bits=1

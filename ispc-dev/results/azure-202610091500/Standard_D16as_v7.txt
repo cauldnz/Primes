@@ -17,3 +17,50 @@ size 100000000 -> 5761455 primes (expected 5761455) 1
 build ispc-avx2
 build c5
 build chapel
+build c2
+== self-test avx2
+size 10 -> 4 primes (expected 4) 1
+size 100 -> 25 primes (expected 25) 1
+size 1000 -> 168 primes (expected 168) 1
+size 10000 -> 1229 primes (expected 1229) 1
+size 100000 -> 9592 primes (expected 9592) 1
+size 1000000 -> 78498 primes (expected 78498) 1
+size 10000000 -> 664579 primes (expected 664579) 1
+size 100000000 -> 5761455 primes (expected 5761455) 1
+== round 1 new
+cauldnz-ispc;147184;5.000020;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1232155;5.000275;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1085828;5.000107;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;561097;5.000091;4;algorithm=wheel,faithful=yes,bits=1
+== round 1 old
+cauldnz-ispc;148000;5.000029;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1222711;5.000252;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1088516;5.000142;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;556594;5.000096;4;algorithm=wheel,faithful=yes,bits=1
+== round 1 avx2
+cauldnz-ispc;127944;5.000028;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;960794;5.000255;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;930666;5.000102;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;485940;5.000067;4;algorithm=wheel,faithful=yes,bits=1
+== round 1 C5
+rogiervandam_extend_epar;1252287;5.000032;16;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;954213;5.000012;8;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;504343;5.000010;4;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;260420;5.000035;2;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend;133361;5.000029;1;algorithm=other,faithful=yes,bits=1
+rogiervandam_base;32164;5.000095;1;algorithm=base,faithful=yes,bits=1
+rogiervandam_classic64bit;17740;5.000144;1;algorithm=base,faithful=yes,bits=1
+rogiervandam_classic8bit;17445;5.000254;1;algorithm=base,faithful=yes,bits=1
+== round 1 Chapel
+GordonBGood_bittwiddle;20781;5.00024;1;algorithm=base,faithful=yes,bits=1
+GordonBGood_stride8;23865;5.00027;1;algorithm=base,faithful=yes,bits=1
+GordonBGood_stride8_block16K;24283;5.00017;1;algorithm=base,faithful=yes,bits=1
+GordonBGood_extreme;45030;5.00023;1;algorithm=base,faithful=yes,bits=1
+GordonBGood_extreme_hybrid;108455;5.00017;1;algorithm=base,faithful=yes,bits=1
+GordonBGood_bittwiddle;81271;5.00035;4;algorithm=base,faithful=yes,bits=1
+GordonBGood_stride8;94951;5.00034;4;algorithm=base,faithful=yes,bits=1
+GordonBGood_stride8_block16K;95105;5.00034;4;algorithm=base,faithful=yes,bits=1
+GordonBGood_extreme;177397;5.00025;4;algorithm=base,faithful=yes,bits=1
+GordonBGood_extreme_hybrid;427046;5.00019;4;algorithm=base,faithful=yes,bits=1
+== round 2 new
+cauldnz-ispc;147784;5.000027;1;algorithm=wheel,faithful=yes,bits=1
