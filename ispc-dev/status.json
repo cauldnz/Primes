@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T09:30:07Z",
+  "updated_utc": "2026-10-09T09:36:16Z",
   "run": {
     "id": "ap-20261009T0607Z",
     "state": "running",
@@ -8,13 +8,13 @@
     "mode_reason": "Service principal login and az batch pool list worked at 06:07 UTC.",
     "started_utc": "2026-10-09T06:07:00Z",
     "time_box_hours": 8,
-    "spend_nzd": 2.58,
+    "spend_nzd": 2.88,
     "spend_cap_nzd": 30
   },
   "current": {
     "id": "hc-019",
     "phase": "evaluate",
-    "detail": "hc-018 (base sparse x2) and hc-019 (target-specific pair) on Zen 3 and Zen 5"
+    "detail": "hc-018 round 1 of 5, hc-019 warm-up (Zen 3 and Zen 5)"
   },
   "scoreboard": [
     {

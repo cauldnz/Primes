@@ -1,0 +1,28 @@
+Architecture:                            x86_64
+CPU(s):                                  16
+Model name:                              AMD EPYC 7763 64-Core Processor
+BIOS Model name:                         AMD EPYC 7763 64-Core Processor                 None CPU @ 2.4GHz
+AVX-512: no
+entry=1 rounds=5
+build cand
+build champ
+build ctrl
+control=rogiervandam_extend
+self-test cand: 8 ok, 0 bad, exit=0
+self-test champ: 8 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-ispc;99849;5.000036;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;840416;5.000288;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;782749;5.000159;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;396299;5.000106;4;algorithm=wheel,faithful=yes,bits=1
+== round warmup champ
+cauldnz-ispc;97725;5.000016;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;828397;5.000285;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;783795;5.000173;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;391688;5.000095;4;algorithm=wheel,faithful=yes,bits=1
+== round warmup champ2
+cauldnz-ispc;97314;5.000016;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;828023;5.000287;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;774167;5.000166;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;391873;5.000113;4;algorithm=wheel,faithful=yes,bits=1
+== round warmup ctrl
