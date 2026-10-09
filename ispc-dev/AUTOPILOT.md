@@ -19,12 +19,8 @@ on. Stop only for the items under "Never without Chris".
 Make both ISPC entries faster on the official runners without breaking their rules, and leave a
 record good enough for Chris to trust or reject each change in a few minutes.
 
-In priority order:
-1. **Base (solution_2):** close the gap to mike-barber's Rust. It is 15% behind on Zen 3, 17% on
-   Zen 4 and 31% on Zen 5.
-2. **Wheel (solution_1):** widen the lead on Zen 4, where it leads rogiervandam's C by only 2%
-   single-threaded.
-3. Anything else on the backlog in `HILL-CLIMB.md`.
+The current run plan is `RUN-PLAN.md`: its priorities, time box and end-of-run steps replace
+the list that used to be here.
 
 The official runners are a Zen 5 Threadripper with AVX-512, an AVX2-only EPYC VM, an Intel
 i7-9750H, an SSE4-only Celeron and a Raspberry Pi 4. Zen results decide; don't trade a Zen gain
@@ -160,7 +156,7 @@ Chris if it hasn't updated for 45 minutes, so a silent gap reads as a crash.
 
 ## 9. Stopping
 
-Stop at the 8-hour time box (extended from 4 hours by Chris; the NZ$30 budget is unchanged), or earlier if:
+Stop at the time box in `RUN-PLAN.md`, or earlier if:
 - three experiments in a row have failed on every open backlog line;
 - you would need a "never without Chris" action;
 - the backlog is empty.

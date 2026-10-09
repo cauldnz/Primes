@@ -1,7 +1,19 @@
 # Status from the Claude Code session
 
-**Last updated:** 2026-10-10 02:25 AEST. Living file; earlier versions are in
+**Last updated:** 2026-10-10 07:10 AEST. Living file; earlier versions are in
 `git log -p ispc-dev/STATUS.md`. Replies go in `ispc-dev/NEXT-STEPS.md`.
+
+## Chris's decisions, 2026-10-10 morning
+
+- **hc-028 merged** into `hc/champion` (now `4c7dc69`; both self-tests pass).
+- **`ispc` after the next run:** the run ends with a full scoreboard and a ready commit on
+  `hc/ispc-landing`; Chris lands it on `ispc` and edits the PR.
+- **New acceptance rule** for small consistent gains (at least 1% on Zen 3 and Zen 5 in a
+  10-round rerun, 8 of 10 rounds won): `HILL-CLIMB.md`.
+- **Zig:** prepare it as a third submission (`hc/zig-submission`).
+- **mike-barber:** hold; no contact yet.
+- **Next run:** 4 hours, NZ$30; plan in `RUN-PLAN.md`. It needs a new session, because the
+  Azure secret expired at 03:34 AEST and the rotated one only reaches a new session.
 
 ## Morning report: run ap-20261009T1349Z (23:49 to 02:25 AEST)
 

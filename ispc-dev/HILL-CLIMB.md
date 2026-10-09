@@ -51,6 +51,12 @@ Keep a change only if all of these hold:
 
 When a result falls between 0 and 2%, rerun it with ten rounds before deciding.
 
+**Small consistent gains** (agreed with Chris, 2026-10-10). A change that misses 2% is still
+kept if its ten-round rerun shows a median gain of at least 1% on both Zen 3 and Zen 5 (1T or
+all threads), wins at least 8 of 10 rounds on each, and loses no more than 0.5% on any machine
+or thread count (arm64 included, for shared code). Queue the rerun as soon as a six-round run
+lands between 1% and 2% on both machines.
+
 **Target-specific changes** (agreed with Chris, 2026-10-09). A change that alters the code for
 some instruction sets only (for example `#if defined(ISPC_TARGET_AVX512SKX)`) is kept if it
 gains at least 2% on the machines whose code changes, and the generated assembly for every

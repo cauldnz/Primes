@@ -9,9 +9,9 @@ your own work and how to report. Read it first. Set up by the local Claude Code 
 
 | Limit | Value |
 |---|---|
-| Time box | 8 hours from the session start (16:07 AEST on 9 October, so until 00:07 AEST), then stop and report. Extended from 4 hours by Chris at 16:20 AEST; the NZ$30 budget is unchanged |
+| Time box | Set by `RUN-PLAN.md` (4 hours from the session start for the run of 10 October), then stop and report |
 | Azure budget | NZ$30 for the session, counted from `results/cost-log.csv` |
-| Azure scope | service principal `primes-hc-cloud`: Contributor on `rg-chris-batch-llm` only; secret expires 2026-10-10 03:34 AEST |
+| Azure scope | service principal `primes-hc-cloud`: Contributor on `rg-chris-batch-llm` only; secret rotated by Chris on 10 October (the old one expired at 03:34 AEST that day). Give every pool a deadline no later than the run's end, so pools drain even if the session dies or the secret expires mid-run |
 | Compute | Batch Spot only (`MODE=batch`), account `batchllmwestus2gves`, 128 Spot vCPUs; at most 4 pools at once; `MAX_MINUTES` 60 or less per pool |
 | Git | code on `hc/<id>-<slug>` branches; accepted winners merge into `hc/champion`; results, `LEDGER.md`, `STATUS.md` and `status.json` on `ispc-dev`; the status page on `dashboard`. Solution code is never merged into `ispc-dev`, never pushed to `ispc`, and no PR is opened |
 
@@ -175,6 +175,7 @@ You are running an unattended hill-climbing session on the ISPC entries for the 
 Repo cauldnz/Primes, branch ispc-dev. Chris is offline: decide, record why, and keep going.
 
 Read, in order:
+  ispc-dev/RUN-PLAN.md        (this run's priorities, time box and end-of-run steps)
   ispc-dev/AUTOPILOT.md       (the brief: objective, search strategy, self-supervision, status
                                page, never-without-Chris list, stopping and the morning report)
   ispc-dev/CLOUD-RUNBOOK.md   (limits, Azure login, running an experiment, budget, shutdown)
