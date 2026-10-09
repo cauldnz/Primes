@@ -13,6 +13,25 @@
 // Both run single-threaded, then on all, half and a quarter of the hardware threads.
 
 const std = @import("std");
+const builtin = @import("builtin");
+
+// DIAGNOSTIC BUILD (hc/diag-zig-wheel-phases, never merged): cycle counts per phase.
+var PT = [_]u64{0} ** 8; // 0 tile, 1 thirteen, 2 dense groups, 3 sparse, 4 phase-3 total
+inline fn cycles() u64 {
+    if (builtin.cpu.arch == .x86_64) {
+        var lo: u32 = undefined;
+        var hi: u32 = undefined;
+        asm volatile ("rdtsc"
+            : [lo] "={eax}" (lo),
+              [hi] "={edx}" (hi),
+        );
+        return (@as(u64, hi) << 32) | lo;
+    } else {
+        return asm volatile ("mrs %[r], cntvct_el0"
+            : [r] "=r" (-> u64),
+        );
+    }
+}
 
 const Allocator = std.mem.Allocator;
 
@@ -383,6 +402,7 @@ const WheelSieve = struct {
     }
 
     fn run(self: *WheelSieve) void {
+        const c0 = cycles();
         const nw = self.nw;
 
         // Phase 1: the wheel tile. Multiples of 7 and 11 repeat every 77 words in each plane,
@@ -406,9 +426,13 @@ const WheelSieve = struct {
         self.plane(1)[0] &= ~@as(u64, 1); // 7 is prime
         self.plane(2)[0] &= ~@as(u64, 1); // 11 is prime
 
+        const c1 = cycles();
+        PT[0] += c1 - c0;
         // Phase 2: 13 on its own. Afterwards every bit below 17*17 is final.
         const thirteen = [1]u32{13};
         self.densePrimes(&thirteen);
+        const c2 = cycles();
+        PT[1] += c2 - c1;
 
         // Phase 3: the remaining primes up to sqrt(size), small ones as fused pattern groups,
         // large ones as strided bit sets. A candidate is read only once every prime up to its
@@ -420,7 +444,9 @@ const WheelSieve = struct {
         while (c <= q) : (c += 2) {
             if (PLANE[c % 30] < 0) continue;
             if (n > 0 and (c >= DENSE_MAX or c >= grp[0] * grp[0])) {
+                const a = cycles();
                 self.densePrimes(grp[0..n]);
+                PT[2] += cycles() - a;
                 n = 0;
             }
             if (self.isComposite(c)) continue;
@@ -428,14 +454,23 @@ const WheelSieve = struct {
                 grp[n] = c;
                 n += 1;
                 if (n == G) {
+                    const a = cycles();
                     self.densePrimes(grp[0..n]);
+                    PT[2] += cycles() - a;
                     n = 0;
                 }
             } else {
+                const a = cycles();
                 self.sparsePrime(c);
+                PT[3] += cycles() - a;
             }
         }
-        if (n > 0) self.densePrimes(grp[0..n]);
+        if (n > 0) {
+            const a = cycles();
+            self.densePrimes(grp[0..n]);
+            PT[2] += cycles() - a;
+        }
+        PT[4] += cycles() - c2;
     }
 
     // Primes up to and including size: unmarked bits for numbers <= size, plus 2, 3 and 5.
@@ -562,6 +597,37 @@ pub fn main() !void {
         }
     }
 
+    {   // DIAGNOSTIC: phase profile over 20,000 single-threaded passes, as in the worker
+        const out = std.io.getStdOut().writer();
+        var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+        defer arena.deinit();
+        var tc: u64 = 0;
+        var tr: u64 = 0;
+        var td: u64 = 0;
+        const N: u64 = 20000;
+        var i: u64 = 0;
+        while (i < N) : (i += 1) {
+            const a = cycles();
+            var s = WheelSieve.init(arena.allocator(), SIEVE_SIZE) catch fatal("out of memory");
+            const b = cycles();
+            s.run();
+            const c = cycles();
+            s.deinit();
+            _ = arena.reset(.retain_capacity);
+            const d = cycles();
+            tc += b - a;
+            tr += c - b;
+            td += d - c;
+        }
+        try out.print("cauldnz-zig-wheel;profile;create;{d}\n", .{tc / N});
+        try out.print("cauldnz-zig-wheel;profile;run;{d}\n", .{tr / N});
+        try out.print("cauldnz-zig-wheel;profile;tile;{d}\n", .{PT[0] / N});
+        try out.print("cauldnz-zig-wheel;profile;thirteen;{d}\n", .{PT[1] / N});
+        try out.print("cauldnz-zig-wheel;profile;dense;{d}\n", .{PT[2] / N});
+        try out.print("cauldnz-zig-wheel;profile;sparse;{d}\n", .{PT[3] / N});
+        try out.print("cauldnz-zig-wheel;profile;scan;{d}\n", .{(PT[4] - PT[2] - PT[3]) / N});
+        try out.print("cauldnz-zig-wheel;profile;destroy;{d}\n", .{td / N});
+    }
     const nthreads = @min(@max(std.Thread.getCpuCount() catch 1, 1), 1024);
     try runEntry(BaseSieve, "cauldnz-zig-base", "algorithm=base,faithful=yes,bits=1", nthreads);
     try runEntry(WheelSieve, "cauldnz-zig-wheel", "algorithm=wheel,faithful=yes,bits=1", nthreads);
