@@ -70,6 +70,44 @@ def experiments(xs):
                  f'<div class="sub">{e(x.get("where"))} · {e(x.get("note"))}</div></li>')
     return f'<section class="card"><h2>Experiments</h2><p class="sub">Newest first. Δ = 1 thread / all threads, against the champion.</p><ul class="xs">{rows}</ul></section>'
 
+def cycles(c):
+    """'Where the cycles go': share of cycles per phase for each program, from the profile."""
+    if not c:
+        return ""
+    phases = c.get("phases") or ["dense", "sparse", "scan", "setup"]
+    head = "".join(f"<th>{e(p)}</th>" for p in phases)
+    body = ""
+    for r in c.get("rows", []):
+        sh = r.get("share", {})
+        cells = "".join(f'<td>{"–" if sh.get(p) is None else f"{sh[p]:.0f}%"}</td>' for p in phases)
+        body += f'<tr><th>{e(r.get("program"))}<small>{e(r.get("machine"))}</small></th>{cells}<td>{e(r.get("per_pass"))}</td></tr>'
+    notes = "".join(f"<li>{e(n)}</li>" for n in c.get("notes", []))
+    return (f'<section class="card"><h2>Where the cycles go</h2><p class="sub">{e(c.get("source"))}</p>'
+            f'<div class="scroll"><table><thead><tr><th></th>{head}<th>per pass</th></tr></thead><tbody>{body}</tbody></table></div>'
+            f'<ul class="next">{notes}</ul></section>')
+
+def research(r):
+    """Background research agent: state, ideas found so far, and the 'other' lane assessment."""
+    if not r:
+        return ""
+    st = (r.get("state") or "idle").lower()
+    when = r.get("done_utc") if st == "done" else r.get("started_utc")
+    rows = ""
+    for i in r.get("ideas", []):
+        bl = i.get("backlog")
+        blt = {True: "in backlog", False: "not adopted"}.get(bl, bl or "under review")
+        rows += (f'<li><div class="row1"><b>{e(i.get("title"))}</b><span class="tag">{e(i.get("entry"))}</span>'
+                 f'<span class="tag">{e(i.get("phase"))}</span><span class="d">{e(i.get("gain"))}</span></div>'
+                 f'<div class="hyp">{e(i.get("summary"))}</div><div class="sub">{e(blt)}</div></li>')
+    ideas = f'<ul class="xs">{rows}</ul>' if rows else '<p class="muted">No ideas reported yet.</p>'
+    ol = r.get("other_lane") or {}
+    other = (f'<h2 style="margin-top:12px">"Other" lane (solution_3)</h2><p>{e(ol.get("assessment"))}</p>'
+             f'<p><b>Recommendation:</b> {e(ol.get("recommendation"))}</p>') if ol else \
+            '<p class="sub">"Other" lane assessment: pending.</p>'
+    return (f'<section class="card"><h2>Research</h2><div class="status"><span class="pill {"running" if st == "running" else ""}">{e(st)}</span>'
+            f'<span class="sub">{"finished" if st == "done" else "started"} <time data-utc="{e(when)}"></time></span></div>'
+            f'<p class="sub">{e(r.get("note"))}</p>{ideas}{other}</section>')
+
 def events(evs):
     items = "".join(
         f'<li class="{e(v.get("level"))}"><time data-utc="{e(v.get("utc"))}"></time>{e(v.get("text"))}</li>'
@@ -141,7 +179,9 @@ footer{{color:var(--muted);font-size:12px;text-align:center;margin:18px 0 8px}}
 {current(s.get("current"))}
 {scoreboard(s.get("scoreboard", []), "wheel")}
 {scoreboard(s.get("scoreboard", []), "base")}
+{cycles(s.get("cycles"))}
 {experiments(s.get("experiments", []))}
+{research(s.get("research"))}
 <section class="card"><h2>Next up</h2><ul class="next">{nxt}</ul></section>
 {events(s.get("events", []))}
 <footer>Generated from ispc-dev/status.json on cauldnz/Primes. Refreshes every 2 minutes.</footer>

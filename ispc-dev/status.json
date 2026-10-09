@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T06:11:24Z",
+  "updated_utc": "2026-10-09T06:18:47Z",
   "run": {
     "id": "ap-20261009T0607Z",
     "state": "running",
@@ -13,8 +13,8 @@
   },
   "current": {
     "id": "hc-001",
-    "phase": "plan",
-    "detail": "Profile base entry against Rust: phase timers, local first, then Zen 5"
+    "phase": "evaluate",
+    "detail": "perf profile running on D16as_v5 (came up Zen 4) and D16as_v7"
   },
   "scoreboard": [
     {
@@ -106,6 +106,70 @@
       "utc": "2026-10-09T06:11:24Z",
       "level": "info",
       "text": "Time box extended to 8 hours (until 00:07 AEST) by Chris; budget unchanged."
+    },
+    {
+      "utc": "2026-10-09T06:18:47Z",
+      "level": "info",
+      "text": "Profile (hc-001) launched on Zen pools. D16as_v5 node reported EPYC 9V74 (Zen 4), not the usual 7763."
+    },
+    {
+      "utc": "2026-10-09T06:18:47Z",
+      "level": "info",
+      "text": "Research agent started in the background. Dashboard gains Research and Where-the-cycles-go sections."
     }
-  ]
+  ],
+  "research": {
+    "state": "running",
+    "started_utc": "2026-10-09T06:20:00Z",
+    "done_utc": null,
+    "note": "Surveying leader sources and sieve literature; assessing a solution_3 entry in the other lane. Writes ispc-dev/RESEARCH.md.",
+    "ideas": [
+      {
+        "title": "SLP-style vector dense resets",
+        "entry": "base",
+        "phase": "dense",
+        "gain": "up to 15-25% 1T",
+        "summary": "Rust dense cost is flat at ~2.7k cycles per factor: LLVM vectorises its word-ordered load/OR/store into AVX2. Ours stays scalar (~1.6x the cycles for small factors).",
+        "backlog": true
+      }
+    ],
+    "other_lane": null
+  },
+  "cycles": {
+    "source": "Local 4-vCPU Xeon (Ice Lake class), TSC timers per phase, 1T. Zen numbers replace these when the perf profile lands.",
+    "phases": [
+      "dense",
+      "sparse",
+      "scan",
+      "setup"
+    ],
+    "rows": [
+      {
+        "program": "ours base",
+        "machine": "Xeon, local",
+        "share": {
+          "dense": 40,
+          "sparse": 54,
+          "scan": 2,
+          "setup": 1
+        },
+        "per_pass": "~200k cyc (untimed build)"
+      },
+      {
+        "program": "Rust extreme-hybrid",
+        "machine": "Xeon, local",
+        "share": {
+          "dense": 34,
+          "sparse": 63,
+          "scan": 3,
+          "setup": null
+        },
+        "per_pass": "~237k cyc incl. timers"
+      }
+    ],
+    "notes": [
+      "Dense, factors below 128: ours 128k cycles per pass, Rust 82k. Rust costs a flat ~2.7k per factor; ours 4.5-5.6k for factors under 70.",
+      "Sparse: ours 65k, Rust 60k. Scan: about 7k each."
+    ]
+  }
 }
