@@ -51,6 +51,19 @@ Base entry against mike-barber's Rust, cycles per pass (TSC at 2.6GHz):
 
 ## Changes since last update
 
+**Autopilot run ap-20261009T0607Z (16:07 AEST onwards, in progress).** Details per experiment
+are in `results/hc/LEDGER.md`; the page at https://cauldnz.github.io/Primes/ has the live state.
+
+- Base entry: +22% to +24% at 1T from vector dense resets (hc-002), then +12% on Zen 5 from a
+  pointer-walk sparse loop (hc-003). Both are on `hc/champion` (`4d35020`). The base entry now
+  beats mike-barber's Rust at 1T on Zen 3 (57.2k against 55.4k) and Zen 4.
+- Wheel: hc-005 (unmasked stores) gained 4% on Zen 3 but lost 1.7% on Zen 5, so it was
+  rejected; an AVX2-only version (hc-007) is queued. hc-004, hc-006 and hc-008 are running or
+  queued.
+- `D16as_v5` now lands on Zen 4 (EPYC 9V74, AVX-512 hidden). `D16a_v4` gives a Zen 3 (7763).
+
+Earlier entries:
+
 - NEXT-STEPS tasks 1 and 2 are done. The tables are below and the raw logs are in
   `results/azure-202610091445/`. Machines: Zen 3, Zen 4, Zen 5, Ampere Altra and Cobalt 100,
   all on Batch Spot.

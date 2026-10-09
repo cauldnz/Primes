@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T07:31:51Z",
+  "updated_utc": "2026-10-09T07:41:33Z",
   "run": {
     "id": "ap-20261009T0607Z",
     "state": "running",
@@ -117,9 +117,11 @@
       "id": "hc-004",
       "entry": "wheel",
       "hypothesis": "Lone prime 13 skips the fused group loop",
-      "verdict": "running",
-      "where": "Zen 3 (D16a_v4), Zen 5",
-      "note": "Local Xeon +0.4% to +5.8%."
+      "verdict": "kept",
+      "where": "Zen 3 +8.7%/+3.9%, Zen 5 +4.9%/+5.1%",
+      "note": "Merged into hc/champion.",
+      "delta_1t": 4.9,
+      "delta_mt": 5.1
     },
     {
       "id": "hc-005",
@@ -143,8 +145,8 @@
       "id": "hc-007",
       "entry": "wheel",
       "hypothesis": "Unmasked group loop and tail overrun, AVX2/SSE only",
-      "verdict": "queued",
-      "where": "Zen 3 and AVX2-only Zen 4 (Zen 5 code identical)",
+      "verdict": "running",
+      "where": "Zen 3 (D16a_v4); AVX2 Zen 4 next",
       "note": "Can not meet the both-machines rule by design: needs Chris if it wins."
     },
     {
@@ -242,6 +244,11 @@
       "utc": "2026-10-09T07:21:29Z",
       "level": "info",
       "text": "hc-005 rejected: wheel unmasked stores +4.5% Zen 3, -1.7% Zen 5."
+    },
+    {
+      "utc": "2026-10-09T07:41:33Z",
+      "level": "info",
+      "text": "hc-004 KEPT and merged: wheel lone-prime path, +4.9% to +8.7% at 1T."
     }
   ],
   "research": {
