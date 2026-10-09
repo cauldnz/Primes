@@ -1,0 +1,277 @@
+// Prime sieve drag race - ISPC (Intel(r) Implicit SPMD Program Compiler) solution by cauldnz.
+// Base algorithm, faithful, 1 bit per odd number.
+//
+// The base algorithm: an outer loop that finds the next prime, then clears every one of its
+// odd multiples individually. Bit i of the sieve stands for the odd number 2i+1; a set bit
+// means composite. In this source every composite is cleared by its own single-bit OR - no
+// operation sets more than one composite.
+//
+// Two clearing routines, both after the approach of mike-barber's Rust and GordonBGood's
+// Chapel solutions:
+//
+//  * Dense (factor < DENSE_LIMIT): the odd multiples of p repeat with a period of p 64-bit
+//    words, holding exactly 64 multiples at fixed (word, bit) positions. The routine is
+//    instantiated for every odd factor below the limit with the factor as a compile-time
+//    constant, so those 64 positions and single-bit masks become immediates. It covers every
+//    odd value, not only primes: the program uses no knowledge of which numbers are prime
+//    beyond 2 being the only even one.
+//  * Sparse (larger factors): the same idea over bytes. 8 multiples repeat every p bytes,
+//    each with a fixed bit position; their byte offsets are computed per factor and the 8
+//    masks are compile-time constants selected by p mod 16.
+//
+// The whole program - entry point, timing loop, threads, sieve and output - is ISPC. The only
+// external calls are to the C library (clock, allocation, pthreads).
+
+// ---------------------------------------------------------------------------------------
+// C library
+// ---------------------------------------------------------------------------------------
+struct timespec { int64 tv_sec; int64 tv_nsec; };
+extern "C" uniform int clock_gettime(uniform int clk, uniform timespec * uniform ts);
+extern "C" void * uniform aligned_alloc(uniform int64 align, uniform int64 sz);
+extern "C" void free(void * uniform p);
+extern "C" uniform int pthread_create(uniform int64 * uniform tid, void * uniform attr,
+                                      void * uniform fn, void * uniform arg);
+extern "C" uniform int pthread_join(uniform int64 tid, void * uniform * uniform ret);
+extern "C" uniform int get_nprocs();
+extern "C" int8 * uniform getenv(const uniform int8 * uniform name);
+extern "C" uniform int atoi(const uniform int8 * uniform s);
+extern "C" void exit(uniform int code);
+
+static inline uniform double now() {
+    uniform timespec ts;
+    clock_gettime(1, &ts);   // CLOCK_MONOTONIC
+    return (uniform double)ts.tv_sec + 1e-9 * (uniform double)ts.tv_nsec;
+}
+
+#define DENSE_LIMIT 128      // factors below this use the dense routine
+
+// ---------------------------------------------------------------------------------------
+// The sieve "class": a struct holding all of a sieve's state, plus the functions below that
+// take it as their first argument. A fresh instance is created for every pass.
+// ---------------------------------------------------------------------------------------
+struct Sieve {
+    uniform int64 size;              // find primes up to and including this number
+    uniform int nbits;               // one bit per odd number 1, 3, 5, ... <= size
+    uniform int nwords;
+    uniform uint64 * uniform bits;
+};
+
+static void sieve_create(uniform Sieve * uniform s, uniform int64 size) {
+    s->size = size;
+    s->nbits = (uniform int)((size + 1) / 2);
+    s->nwords = (s->nbits + 63) >> 6;
+    uniform int64 bytes = (((uniform int64)s->nwords * 8 + 63) / 64) * 64;
+    s->bits = (uniform uint64 * uniform)aligned_alloc(64, bytes);
+    foreach (k = 0 ... s->nwords) s->bits[k] = 0;
+}
+
+static void sieve_destroy(uniform Sieve * uniform s) {
+    free(s->bits);
+}
+
+static inline uniform bool is_composite_index(const uniform Sieve * uniform s, uniform int i) {
+    return ((s->bits[i >> 6] >> (i & 63)) & 1) != 0;
+}
+
+// Dense clearing for a compile-time constant odd factor P. Bit P/2 + j*P (j = 0, 1, ...)
+// is the odd multiple P*(2j+1). Chunks of P words start at word multiples of P, so within
+// every chunk the 64 multiples sit at the same offsets t_j = P/2 + j*P (j = 0..63).
+// Clearing starts at the chunk holding P*P; any smaller multiples in that chunk are
+// composite too, except P itself, which is restored afterwards.
+static inline void clear_dense(uniform uint64 * uniform w, uniform int nwords, const uniform int P) {
+    uniform int c = ((P * P / 2) / 64 / P) * P;
+    for (; c + P <= nwords; c += P) {
+        #pragma unroll
+        for (uniform int j = 0; j < 64; j++) {
+            const uniform int t = P / 2 + j * P;
+            w[c + (t >> 6)] |= ((uniform uint64)1) << (t & 63);    // one composite
+        }
+    }
+    for (uniform int j = 0; j < 64; j++) {                          // partial last chunk
+        const uniform int t = P / 2 + j * P;
+        if (c + (t >> 6) >= nwords) break;
+        w[c + (t >> 6)] |= ((uniform uint64)1) << (t & 63);
+    }
+    const uniform int f = P / 2;                                    // P itself is prime
+    if ((f >> 6) < nwords) w[f >> 6] &= ~(((uniform uint64)1) << (f & 63));
+}
+
+// Sparse clearing over bytes for an odd factor p > 16. Chunks of p bytes start at byte
+// multiples of p; in each, the 8 multiples sit at bit offsets t_j = p/2 + j*p (j = 0..7).
+// Their bit-in-byte positions depend only on p mod 16 (E), so the masks are constants.
+static inline void clear_sparse_e(uniform uint8 * uniform bytes, uniform int nbytes,
+                                  uniform int p, const uniform int E) {
+    uniform int o0 = (p / 2) >> 3,           o1 = (p / 2 + p) >> 3;
+    uniform int o2 = (p / 2 + 2 * p) >> 3,   o3 = (p / 2 + 3 * p) >> 3;
+    uniform int o4 = (p / 2 + 4 * p) >> 3,   o5 = (p / 2 + 5 * p) >> 3;
+    uniform int o6 = (p / 2 + 6 * p) >> 3,   o7 = (p / 2 + 7 * p) >> 3;
+    const uniform uint8 m0 = 1 << ((E / 2) & 7),         m1 = 1 << ((E / 2 + E) & 7);
+    const uniform uint8 m2 = 1 << ((E / 2 + 2 * E) & 7), m3 = 1 << ((E / 2 + 3 * E) & 7);
+    const uniform uint8 m4 = 1 << ((E / 2 + 4 * E) & 7), m5 = 1 << ((E / 2 + 5 * E) & 7);
+    const uniform uint8 m6 = 1 << ((E / 2 + 6 * E) & 7), m7 = 1 << ((E / 2 + 7 * E) & 7);
+    uniform int c = ((p * p / 2) / 8 / p) * p;
+    for (; c + p <= nbytes; c += p) {                               // one composite each
+        bytes[c + o0] |= m0; bytes[c + o1] |= m1; bytes[c + o2] |= m2; bytes[c + o3] |= m3;
+        bytes[c + o4] |= m4; bytes[c + o5] |= m5; bytes[c + o6] |= m6; bytes[c + o7] |= m7;
+    }
+    if (c + o0 < nbytes) bytes[c + o0] |= m0; else return;          // partial last chunk
+    if (c + o1 < nbytes) bytes[c + o1] |= m1; else return;
+    if (c + o2 < nbytes) bytes[c + o2] |= m2; else return;
+    if (c + o3 < nbytes) bytes[c + o3] |= m3; else return;
+    if (c + o4 < nbytes) bytes[c + o4] |= m4; else return;
+    if (c + o5 < nbytes) bytes[c + o5] |= m5; else return;
+    if (c + o6 < nbytes) bytes[c + o6] |= m6; else return;
+    if (c + o7 < nbytes) bytes[c + o7] |= m7;
+}
+
+static void clear_sparse(uniform Sieve * uniform s, uniform int p) {
+    uniform uint8 * uniform b = (uniform uint8 * uniform)s->bits;
+    uniform int nbytes = s->nwords * 8;
+    switch (p & 15) {
+        case 1:  clear_sparse_e(b, nbytes, p, 1);  break;
+        case 3:  clear_sparse_e(b, nbytes, p, 3);  break;
+        case 5:  clear_sparse_e(b, nbytes, p, 5);  break;
+        case 7:  clear_sparse_e(b, nbytes, p, 7);  break;
+        case 9:  clear_sparse_e(b, nbytes, p, 9);  break;
+        case 11: clear_sparse_e(b, nbytes, p, 11); break;
+        case 13: clear_sparse_e(b, nbytes, p, 13); break;
+        default: clear_sparse_e(b, nbytes, p, 15); break;
+    }
+}
+
+#define D(P) case P: clear_dense(s->bits, s->nwords, P); break;
+
+// Clear all odd multiples of factor p.
+static void clear_factor(uniform Sieve * uniform s, uniform int p) {
+    if (p >= DENSE_LIMIT) { clear_sparse(s, p); return; }
+    switch (p) {
+        D(3)   D(5)   D(7)   D(9)   D(11)  D(13)  D(15)  D(17)  D(19)  D(21)  D(23)  D(25)
+        D(27)  D(29)  D(31)  D(33)  D(35)  D(37)  D(39)  D(41)  D(43)  D(45)  D(47)  D(49)
+        D(51)  D(53)  D(55)  D(57)  D(59)  D(61)  D(63)  D(65)  D(67)  D(69)  D(71)  D(73)
+        D(75)  D(77)  D(79)  D(81)  D(83)  D(85)  D(87)  D(89)  D(91)  D(93)  D(95)  D(97)
+        D(99)  D(101) D(103) D(105) D(107) D(109) D(111) D(113) D(115) D(117) D(119) D(121)
+        D(123) D(125) D(127)
+    }
+}
+
+// The base algorithm: find the next prime, clear its multiples, repeat up to sqrt(size).
+static void run_sieve(uniform Sieve * uniform s) {
+    uniform int q = (uniform int)sqrt((uniform double)s->size);
+    while ((uniform int64)(q + 1) * (q + 1) <= s->size) q++;
+    while ((uniform int64)q * q > s->size) q--;
+    uniform int factor = 3;
+    while (factor <= q) {
+        uniform int i = factor >> 1;
+        while (i < s->nbits && is_composite_index(s, i)) i++;     // next prime
+        factor = 2 * i + 1;
+        if (factor > q) break;
+        clear_factor(s, factor);
+        factor += 2;
+    }
+}
+
+// Number of primes up to and including size: unmarked odd numbers 3..size, plus 2.
+static uniform int count_primes(const uniform Sieve * uniform s) {
+    if (s->size < 2) return 0;
+    uniform int c = 1;                                              // the prime 2
+    for (uniform int i = 1; i < s->nbits; i++)                      // bit 0 is the number 1
+        if (!is_composite_index(s, i)) c++;
+    return c;
+}
+
+// ---------------------------------------------------------------------------------------
+// Benchmark driver
+// ---------------------------------------------------------------------------------------
+static const uniform int64 SIEVE_SIZE = 1000000;
+static const uniform int EXPECTED = 78498;
+static const uniform double RUN_SECONDS = 5.0;
+
+struct Job {
+    uniform double deadline;
+    uniform int64 passes;
+    uniform int count;    // prime count from the first pass, for validation
+};
+
+// Thread entry point, also called directly for the single-threaded run. A function passed
+// to pthread_create is entered without ISPC's execution mask, so the body runs under
+// 'unmasked' to switch all SIMD lanes on.
+export void * uniform worker(void * uniform arg) {
+    unmasked {
+        uniform Job * uniform job = (uniform Job * uniform)arg;
+        uniform int64 passes = 0;
+        uniform int count = 0;
+        while (now() < job->deadline) {
+            uniform Sieve s;
+            sieve_create(&s, SIEVE_SIZE);
+            run_sieve(&s);
+            if (passes == 0) count = count_primes(&s);
+            sieve_destroy(&s);
+            passes++;
+        }
+        job->passes = passes;
+        job->count = count;
+    }
+    return NULL;
+}
+
+static uniform int env_int(const uniform int8 * uniform name, uniform int dflt) {
+    int8 * uniform e = getenv(name);
+    return (e != NULL) ? atoi(e) : dflt;
+}
+
+// PRIMES_TEST=1: check prime counts for 10^1..10^8 (and a few awkward sizes) and exit.
+static void self_test() {
+    uniform int64 sizes[14] = {1, 2, 3, 10, 100, 1000, 10000, 100000, 1000000, 10000000,
+                               100000000, 127, 16383, 0};
+    uniform int expect[14] = {0, 1, 2, 4, 25, 168, 1229, 9592, 78498, 664579, 5761455,
+                              31, 1900, 0};
+    uniform int bad = 0;
+    for (uniform int i = 0; i < 13; i++) {
+        uniform Sieve s;
+        sieve_create(&s, sizes[i]);
+        run_sieve(&s);
+        uniform int c = count_primes(&s);
+        sieve_destroy(&s);
+        print("size % -> % primes (expected %) %\n", sizes[i], c, expect[i],
+              c == expect[i] ? 1 : 0);
+        if (c != expect[i]) bad = 1;
+    }
+    exit(bad);
+}
+
+static void run_threads(uniform Job * uniform jobs, uniform int64 * uniform tids, uniform int n) {
+    uniform double start = now();
+    for (uniform int t = 0; t < n; t++) {
+        jobs[t].deadline = start + RUN_SECONDS;
+        pthread_create(&tids[t], NULL, (void * uniform)worker, &jobs[t]);
+    }
+    uniform int64 total = 0;
+    for (uniform int t = 0; t < n; t++) {
+        pthread_join(tids[t], NULL);
+        total += jobs[t].passes;
+        if (jobs[t].count != EXPECTED) { print("ERROR: wrong prime count %\n", jobs[t].count); exit(1); }
+    }
+    uniform double elapsed = now() - start;
+    print("cauldnz-ispc-base;%;%;%;algorithm=base,faithful=yes,bits=1\n", total, elapsed, n);
+}
+
+export uniform int main() {
+    uniform int8 n_test[12] = {80,82,73,77,69,83,95,84,69,83,84,0};    // PRIMES_TEST
+    if (env_int(n_test, 0) != 0) self_test();
+
+    uniform int nthreads = clamp(get_nprocs(), 1, 1024);
+    uniform Job jobs[1024];
+    uniform int64 tids[1024];
+
+    uniform double start = now();
+    jobs[0].deadline = start + RUN_SECONDS;
+    worker(&jobs[0]);
+    uniform double elapsed = now() - start;
+    if (jobs[0].count != EXPECTED) { print("ERROR: wrong prime count %\n", jobs[0].count); exit(1); }
+    print("cauldnz-ispc-base;%;%;1;algorithm=base,faithful=yes,bits=1\n", jobs[0].passes, elapsed);
+
+    // One independent sieve per thread at all, half and a quarter of the hardware threads.
+    for (uniform int n = nthreads; n >= 2 && n * 4 >= nthreads; n /= 2)
+        run_threads(jobs, tids, n);
+    return 0;
+}
