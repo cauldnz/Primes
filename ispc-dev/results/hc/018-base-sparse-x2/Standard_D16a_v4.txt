@@ -6,3 +6,4 @@ AVX-512: no
 entry=2 rounds=5
 build cand
 build champ
+build ctrl
