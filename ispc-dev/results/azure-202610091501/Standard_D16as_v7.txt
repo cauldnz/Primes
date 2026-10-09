@@ -122,3 +122,29 @@ rogiervandam_base;32137;5.000079;1;algorithm=base,faithful=yes,bits=1
 rogiervandam_classic64bit;18060;5.000189;1;algorithm=base,faithful=yes,bits=1
 rogiervandam_classic8bit;17329;5.000213;1;algorithm=base,faithful=yes,bits=1
 == round 3 Chapel
+GordonBGood_bittwiddle;21370;5.00024;1;algorithm=base,faithful=yes,bits=1
+GordonBGood_stride8;24950;5.00033;1;algorithm=base,faithful=yes,bits=1
+GordonBGood_stride8_block16K;24590;5.00023;1;algorithm=base,faithful=yes,bits=1
+GordonBGood_extreme;46156;5.00015;1;algorithm=base,faithful=yes,bits=1
+GordonBGood_extreme_hybrid;111232;5.00018;1;algorithm=base,faithful=yes,bits=1
+GordonBGood_bittwiddle;82798;5.00033;4;algorithm=base,faithful=yes,bits=1
+GordonBGood_stride8;96150;5.00033;4;algorithm=base,faithful=yes,bits=1
+GordonBGood_stride8_block16K;97123;5.00033;4;algorithm=base,faithful=yes,bits=1
+GordonBGood_extreme;180980;5.00021;4;algorithm=base,faithful=yes,bits=1
+GordonBGood_extreme_hybrid;430100;5.00018;4;algorithm=base,faithful=yes,bits=1
+== C2
+danielspaangberg_480of2310_owrb;55211;5.000064;1;algorithm=wheel,faithful=yes,bits=1
+danielspaangberg_5760of30030_owrb;66844;5.000026;1;algorithm=wheel,faithful=yes,bits=1
+danielspaangberg_480of2310_par;61021;5.000058;4;algorithm=wheel,faithful=yes,bits=1
+danielspaangberg_5760of30030_par;63817;5.000063;4;algorithm=wheel,faithful=yes,bits=1
+danielspaangberg_480of2310_epar;415729;5.000789;16;algorithm=wheel,faithful=yes,bits=1
+danielspaangberg_5760of30030_epar;501915;5.000724;16;algorithm=wheel,faithful=yes,bits=1
+== DENSE_MAX=192 new
+cauldnz-ispc;144826;5.000015;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1221941;5.000227;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1075174;5.000107;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;573471;5.000052;4;algorithm=wheel,faithful=yes,bits=1
+== DENSE_MAX=192 avx2
+cauldnz-ispc;125860;5.000028;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;963386;5.000220;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;922408;5.000116;8;algorithm=wheel,faithful=yes,bits=1
