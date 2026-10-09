@@ -54,8 +54,15 @@ static inline uniform double now() {
     return (uniform double)ts.tv_sec + 1e-9 * (uniform double)ts.tv_nsec;
 }
 
-#define DENSE_LIMIT 128      // factors below this use the dense routine
-#define VEC_LIMIT 119        // ...and the vector form below this (larger ones exceed LLVM's unroll limit)
+// On AVX-512 the vector form still folds to constant ORs up to 191, so dense goes further
+// there. AVX2 and SSE stop folding past 119 (larger ones exceed LLVM's unroll limit).
+#if defined(ISPC_TARGET_AVX512SKX)
+#define DENSE_LIMIT 192      // factors below this use the dense routine
+#define VEC_LIMIT 192        // ...and the vector form below this
+#else
+#define DENSE_LIMIT 128
+#define VEC_LIMIT 119
+#endif
 
 // ---------------------------------------------------------------------------------------
 // The sieve "class": a struct holding all of a sieve's state, plus the functions below that
@@ -202,6 +209,11 @@ static void clear_factor(uniform Sieve * uniform s, uniform int p) {
         D(75)  D(77)  D(79)  D(81)  D(83)  D(85)  D(87)  D(89)  D(91)  D(93)  D(95)  D(97)
         D(99)  D(101) D(103) D(105) D(107) D(109) D(111) D(113) D(115) D(117) D(119) D(121)
         D(123) D(125) D(127)
+#if DENSE_LIMIT > 128
+        D(129) D(131) D(133) D(135) D(137) D(139) D(141) D(143) D(145) D(147) D(149) D(151)
+        D(153) D(155) D(157) D(159) D(161) D(163) D(165) D(167) D(169) D(171) D(173) D(175)
+        D(177) D(179) D(181) D(183) D(185) D(187) D(189) D(191)
+#endif
     }
 }
 
