@@ -24,6 +24,15 @@ extern "C" uniform int get_nprocs();
 extern "C" int8 * uniform getenv(const uniform int8 * uniform name);
 extern "C" uniform int atoi(const uniform int8 * uniform s);
 extern "C" void exit(uniform int code);
+extern "C" uniform int64 write(uniform int fd, const void * uniform buf, uniform int64 n);
+
+// Report a wrong result on stderr (ISPC's print() only writes to stdout) and stop.
+static void fail_count() {
+    uniform int8 msg[26] = {69,82,82,79,82,58,32,119,114,111,110,103,32,112,114,105,109,101,
+                            32,99,111,117,110,116,10,0};             // "ERROR: wrong prime count\n"
+    write(2, msg, 25);
+    exit(1);
+}
 
 static inline uniform double now() {
     uniform timespec ts;
@@ -362,7 +371,7 @@ static void run_threads(uniform Job * uniform jobs, uniform int64 * uniform tids
     for (uniform int t = 0; t < n; t++) {
         pthread_join(tids[t], NULL);
         total += jobs[t].passes;
-        if (jobs[t].count != EXPECTED) { print("ERROR: wrong prime count %\n", jobs[t].count); exit(1); }
+        if (jobs[t].count != EXPECTED) fail_count();
     }
     uniform double elapsed = now() - start;
     print("cauldnz-ispc;%;%;%;algorithm=wheel,faithful=yes,bits=1\n", total, elapsed, n);
@@ -384,7 +393,7 @@ export uniform int main() {
     jobs[0].dense_max = dense_max;
     worker(&jobs[0]);
     uniform double elapsed = now() - start;
-    if (jobs[0].count != EXPECTED) { print("ERROR: wrong prime count %\n", jobs[0].count); exit(1); }
+    if (jobs[0].count != EXPECTED) fail_count();
     print("cauldnz-ispc;%;%;1;algorithm=wheel,faithful=yes,bits=1\n", jobs[0].passes, elapsed);
 
     // One independent sieve per thread at all, half and a quarter of the hardware threads:

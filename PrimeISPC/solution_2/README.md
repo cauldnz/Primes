@@ -1,11 +1,11 @@
-# ISPC base-algorithm solution by cauldnz
+# ISPC solution by cauldnz
 
 ![Algorithm](https://img.shields.io/badge/Algorithm-base-green)
 ![Faithfulness](https://img.shields.io/badge/Faithful-yes-green)
 ![Parallelism](https://img.shields.io/badge/Parallel-yes-green)
 ![Bit count](https://img.shields.io/badge/Bits-1-green)
 
-A sieve of Eratosthenes following the base algorithm, written in [ISPC](https://ispc.github.io/), the Intel® Implicit SPMD Program Compiler. The entire program is ISPC: the entry point, the timing loop, thread management, the sieve and the output. The only external calls are to the C library (`clock_gettime`, `aligned_alloc`/`free`, pthreads, `getenv`).
+A sieve of Eratosthenes following the **base algorithm**, written in [ISPC](https://ispc.github.io/), the Intel® Implicit SPMD Program Compiler. The entire program is ISPC: the entry point, the timing loop, thread management, the sieve and the output. The only external calls are to the C library (`clock_gettime`, `aligned_alloc`/`free`, pthreads, `getenv`).
 
 This is the base-algorithm companion to [solution_1](../solution_1), which uses a mod-30 wheel.
 
