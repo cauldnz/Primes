@@ -83,9 +83,17 @@ where two threads share a core's load ports. hc-015 frees one register and remov
 **015, the spill fixed.** Freeing one register turned hc-012's −2.1% at 16T on Zen 5 into
 +6.8%, and lifted 1T too (+6.9%). The 16T loss had been the reloads, as suspected.
 | 017 | 2026-10-09 | wheel | Dense threshold 160 instead of 256, now that sparse is cheaper | ±2%; local Xeon medians favour 160 by 6% (noisy) | Zen 3 (7763): −1.2% / −1.8%, 0/3 at 16T, stopped after 3 rounds | Zen 5: −0.7% / −0.0%, stopped | REVERT; 256 stays | `hc/017-wheel-dense160` |
-| 018 | 2026-10-09 | base | Sparse loop clears two chunks a trip | 0% to +3% on Zen 5; nothing on the sandbox earlier | pending | pending | pending | `hc/018-base-sparse-x2` |
+| 018 | 2026-10-09 | base | Sparse loop clears two chunks a trip | 0% to +3% on Zen 5; nothing on the sandbox earlier | Zen 3: +0.5% / +0.2% after 2 rounds, stopped | Zen 5: 119.5k / 982.8k, +0.8% / −0.8%, noisy node (A/A to −3.6%) | REVERT | `hc/018-base-sparse-x2` |
 
 **016, no lead-ins.** +5% on Zen 3 and +2.6% on Zen 5, at every thread count. The fused loop now
 starts all members together, which also removed most of the masked stores that hc-007 targets
 on AVX2; hc-007's remaining value needs a fresh measurement on top of this.
-| 019 | 2026-10-09 | wheel | hc-007 and hc-014 together on top of the current champion (`64e94aa`), for Chris | Zen 3 +2% to +4% (hc-007, less now that hc-016 removed lead-ins); Zen 5 +3% to +5% (hc-014) | pending | pending | measurement for Chris | `hc/champion-plus-target-specific-2` |
+| 019 | 2026-10-09 | wheel | hc-007 and hc-014 together on top of the current champion (`64e94aa`), for Chris | Zen 3 +2% to +4%; Zen 5 +3% to +5% | Zen 3 (7763): 99.6k / 850.4k, +1.1% / +2.3%, 4/5 at 1T, 5/5 at 16T | Zen 5: 189.4k / 1.46M, +6.4% / +1.6%, 5/5 at 1T; +8.4% at 4T, +7.1% at 8T | Passes the acceptance rule as one change; not merged because hc-007 and hc-014 were not each accepted on their own. Chris to decide: recommend merging | `hc/champion-plus-target-specific-2` |
+
+**018, base sparse unrolled by two.** Flat on a noisy Zen 5 node and on Zen 3. With hc-009 and
+hc-013 this closes the obvious base levers: it now matches Rust phase for phase on Zen 5.
+
+**019, the target-specific pair.** On today's champion, hc-007 and hc-014 together give Zen 3
++1.1% / +2.3% and Zen 5 +6.4% / +1.6%, with +7% to +8% at 4 and 8 threads on Zen 5. That
+passes the acceptance rule, but the brief says to combine winners only after each passes on its
+own, so the branch waits for Chris.

@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T09:49:06Z",
+  "updated_utc": "2026-10-09T09:52:52Z",
   "run": {
     "id": "ap-20261009T0607Z",
     "state": "running",
@@ -8,13 +8,13 @@
     "mode_reason": "Service principal login and az batch pool list worked at 06:07 UTC.",
     "started_utc": "2026-10-09T06:07:00Z",
     "time_box_hours": 8,
-    "spend_nzd": 2.88,
+    "spend_nzd": 3.29,
     "spend_cap_nzd": 30
   },
   "current": {
     "id": "final",
     "phase": "evaluate",
-    "detail": "Final scoreboard: champions against the start of the run and rivals; wheel on Zen 3 started"
+    "detail": "Final scoreboard: wheel and base on Zen 3 and Zen 5 running; Zen 4 and Cobalt 100 next"
   },
   "scoreboard": [
     {
@@ -265,15 +265,21 @@
       "id": "hc-018",
       "entry": "base",
       "hypothesis": "Sparse loop unrolled by two chunks",
-      "verdict": "running",
-      "where": "Zen 5"
+      "verdict": "rejected",
+      "where": "Zen 5 +0.8%/-0.8% (noisy), Zen 3 flat",
+      "delta_1t": 0.8,
+      "delta_mt": -0.8,
+      "note": "Base levers exhausted for now."
     },
     {
       "id": "hc-019",
       "entry": "wheel",
       "hypothesis": "hc-007 + hc-014 on top of the current champion (measurement for Chris)",
-      "verdict": "running",
-      "where": "Zen 3, Zen 5; Zen 4 AVX-512 next"
+      "verdict": "queued",
+      "where": "Zen 3 +1.1%/+2.3%, Zen 5 +6.4%/+1.6% (+7-8% at 4-8T)",
+      "delta_1t": 6.4,
+      "delta_mt": 1.6,
+      "note": "Passes the rule as one change; waits for Chris because its parts were not accepted separately. Recommend merge."
     }
   ],
   "azure_queue": 3,
@@ -442,6 +448,11 @@
       "utc": "2026-10-09T09:49:06Z",
       "level": "info",
       "text": "Experiments frozen except hc-018/019 finishing. Final scoreboard runs starting (both entries; Zen 3, Zen 4 AVX-512, Zen 5, Cobalt 100)."
+    },
+    {
+      "utc": "2026-10-09T09:52:52Z",
+      "level": "info",
+      "text": "hc-019: target-specific pair +6.4% 1T on Zen 5, +2.3% 16T on Zen 3. Waiting for Chris. hc-018 rejected."
     }
   ],
   "research": {
