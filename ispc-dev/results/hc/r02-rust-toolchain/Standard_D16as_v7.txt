@@ -5,3 +5,28 @@ BIOS Model name:                         AMD EPYC 9V45 96-Core Processor        
 AVX-512: yes
 kind=rust rounds=5 id=11271827739
 build cand
+build champ
+build ctx
+== round warmup cand
+mike-barber_bit-extreme-hybrid;95413;5.0000104904;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;346625;5.0000920296;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;672130;5.0002574921;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;698971;5.0006661415;16;algorithm=base,faithful=yes,bits=1
+== round warmup champ
+mike-barber_bit-extreme-hybrid;100219;5.0000057220;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;364661;5.0001239777;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;717188;5.0003719330;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;694671;5.0006499290;16;algorithm=base,faithful=yes,bits=1
+== round warmup champ2
+mike-barber_bit-extreme-hybrid;98874;5.0000209808;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;377747;5.0001168251;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;723498;5.0002808571;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;711596;5.0006237030;16;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl
+cauldnz-ispc-base;97718;5.000047;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;819506;5.000331;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;728604;5.000197;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;381540;5.000115;4;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl2
+davepl_array_optimized;71854;5.00024;1;algorithm=base,faithful=yes,bits=1
+== round 1 cand
