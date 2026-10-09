@@ -7,6 +7,13 @@ Autopilot lock: ap-20261009T0607Z 2026-10-09T06:07Z
 
 ## Autopilot hourly review
 
+**20:00 AEST (hour 4).**
+- Worked: hc-015 (wheel sparse loop without the spill, +5% to +7% on both machines at 1T and 16T) and hc-016 (no lead-ins, +2.6% to +5%) merged. The target-specific pair (hc-019) gives Zen 5 +6.4% at 1T on top.
+- Didn't: dense 160 (hc-017), base sparse ×2 (hc-018), a faster pattern build (local only, worse). Base now matches Rust phase for phase on Zen 5; the easy base levers are spent.
+- Protocol: followed. I counted active pools, not deleting ones, against the limit of four; a deleting pool still bills for a minute or two.
+- Spend: NZ$3.29.
+- Next: the final scoreboard (both entries; Zen 3, Zen 4 with AVX-512, Zen 5, Cobalt 100) against the start of the run, then the morning report. Stopping before the time box: the remaining backlog items are each a day of work (autotune, arithmetic masks) or need Chris's call.
+
 **19:00 AEST (hour 3).**
 - Worked: hc-006 (wheel 64-bit addressing) merged after a clean Zen 3 rerun. hc-010 showed the base entry now level with Rust on Zen 5, phase for phase.
 - Didn't: hc-008 (tile memcpy) flat, hc-009 (base word scan) slightly negative, hc-011 (G=6) and hc-012 (64-bit sparse indices) each lost on one machine and thread count. Both point to target-specific or register-pressure fixes (hc-014, hc-015), which are running.

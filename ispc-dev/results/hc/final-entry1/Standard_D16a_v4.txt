@@ -7,3 +7,5 @@ entry=1 rounds=5
 build cand
 build champ
 build ctrl
+control=rogiervandam_extend
+self-test cand: 8 ok, 0 bad, exit=0
