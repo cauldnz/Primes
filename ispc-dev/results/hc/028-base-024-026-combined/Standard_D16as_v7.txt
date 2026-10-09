@@ -114,3 +114,31 @@ cauldnz-ispc-base;915160;5.000257;16;algorithm=base,faithful=yes,bits=1
 cauldnz-ispc-base;828746;5.000130;8;algorithm=base,faithful=yes,bits=1
 cauldnz-ispc-base;439325;5.000085;4;algorithm=base,faithful=yes,bits=1
 == round 4 cand
+cauldnz-ispc-base;116357;5.000023;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;954302;5.000290;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;864445;5.000143;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;458314;5.000062;4;algorithm=base,faithful=yes,bits=1
+== round 4 ctrl
+mike-barber_bit-extreme-hybrid;114266;5.0000262260;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;448974;5.0001549721;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;848477;5.0002703667;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;896281;5.0006771088;16;algorithm=base,faithful=yes,bits=1
+== round 5 ctrl2
+davepl_array_optimized;86326;5.00021;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;702539;5.00081;16;algorithm=base,faithful=yes,bits=1
+== round 5 champ
+cauldnz-ispc-base;119560;5.000040;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;986699;5.000245;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;878315;5.000114;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;459161;5.000069;4;algorithm=base,faithful=yes,bits=1
+== round 5 ctrl
+mike-barber_bit-extreme-hybrid;121088;5.0000042915;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;460370;5.0001177788;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;880543;5.0002322197;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;870152;5.0004405975;16;algorithm=base,faithful=yes,bits=1
+== round 5 champ2
+cauldnz-ispc-base;119672;5.000032;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;994647;5.000262;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;880197;5.000096;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;461579;5.000100;4;algorithm=base,faithful=yes,bits=1
+== round 5 cand

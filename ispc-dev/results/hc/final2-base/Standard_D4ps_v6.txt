@@ -93,3 +93,32 @@ cauldnz-ispc-base;41182;5.000025;1;algorithm=base,faithful=yes,bits=1
 cauldnz-ispc-base;163692;5.000129;4;algorithm=base,faithful=yes,bits=1
 cauldnz-ispc-base;81942;5.000126;2;algorithm=base,faithful=yes,bits=1
 == round 4 ctrl
+mike-barber_bit-extreme-hybrid;42909;5.0001077652;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;85751;5.0001864433;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;171328;5.0001821518;4;algorithm=base,faithful=yes,bits=1
+== round 4 ctrl2
+davepl_array_optimized;32206;5.00032;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;128426;5.00022;4;algorithm=base,faithful=yes,bits=1
+== round 4 cand
+cauldnz-ispc-base;41087;5.000081;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;163955;5.000112;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;82076;5.000085;2;algorithm=base,faithful=yes,bits=1
+== round 5 champ
+cauldnz-ispc-base;40956;5.000101;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;163725;5.000150;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;81940;5.000137;2;algorithm=base,faithful=yes,bits=1
+== round 5 cand
+cauldnz-ispc-base;41099;5.000029;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;163966;5.000136;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;82074;5.000081;2;algorithm=base,faithful=yes,bits=1
+== round 5 ctrl2
+davepl_array_optimized;32201;5.00038;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;128498;5.00019;4;algorithm=base,faithful=yes,bits=1
+== round 5 champ2
+cauldnz-ispc-base;41059;5.000034;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;163531;5.000127;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;81942;5.000109;2;algorithm=base,faithful=yes,bits=1
+== round 5 ctrl
+mike-barber_bit-extreme-hybrid;42885;5.0000452995;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;85754;5.0001425743;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;171364;5.0001401901;4;algorithm=base,faithful=yes,bits=1

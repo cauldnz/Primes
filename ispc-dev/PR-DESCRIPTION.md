@@ -1,7 +1,8 @@
 <!--
 PR text for PlummersSoftwareLLC/Primes, target branch drag-race.
 Title: [ISPC] Add ISPC solutions: wheel (solution_1) and base (solution_2)
-Before posting: fill the results table from the final five-round medians, check every number
+Results table filled on 2026-10-09 from results/hc/final2-wheel and final2-base (hc/champion
+5170556). The ispc branch must carry hc/champion before posting. Check every number
 against ispc-dev/results/, and apply the house-style and economist-style skills to any edit.
 Everything below the comment is the PR body.
 -->
@@ -24,18 +25,18 @@ A sieve's small primes produce dense bit patterns that repeat; its large primes 
 
 In the wheel entry, ISPC vectorises the pattern streaming directly. The loop reads like scalar code, and the `uniform` and `varying` keywords show which values are shared across lanes. ISPC also exposes gang width, a setting C has no equivalent for: compiling for 16 program instances on 8-lane AVX2 (`avx2-i32x16`) was 12% to 16% faster than the natural width on Zen 3, Zen 4 and Zen 5.
 
-The base entry has to clear one composite per operation, which leaves the lanes almost nothing to do. Without SIMD to help, it comes down to scalar code generation and loop structure, where mike-barber's Rust entry is ahead of it. Its AVX-512 build ran 18% slower than AVX2 on an Intel Xeon and no faster on AMD, so that entry ships SSE4 and AVX2 only.
+The base entry has to clear one composite per operation, which seems to leave the lanes nothing to do. For small factors it doesn't: each composite's single-bit OR can be written in the lane that holds its word, and the compiler merges a vector's ORs into one constant mask, the same code LLVM's SLP vectoriser produces for mike-barber's Rust entry. That put the base entry 6% ahead of the Rust entry on Zen 3 and Zen 4 at one thread, 3% behind it on Zen 5, and 14% ahead there on all threads.
 
 ## Results
 
 Passes in five seconds, median of five interleaved rounds, 16 vCPUs (eight cores with SMT):
 
-| Machine | solution_1 1T / 16T | solution_2 1T / 16T | rogiervandam C 1T / 16T |
-|---|---|---|---|
-| AMD EPYC 7763 (Zen 3, AVX2) | TBD | TBD | TBD |
-| AMD EPYC 9V74 (Zen 4) | TBD | TBD | TBD |
-| AMD EPYC 9V45 (Zen 5) | TBD | TBD | TBD |
-| Azure Cobalt 100 (Neoverse N2, 4 vCPUs) | TBD | TBD | n/a |
+| Machine | solution_1 1T / all | solution_2 1T / all | rogiervandam C 1T / all | mike-barber Rust 1T / all |
+|---|---|---|---|---|
+| AMD EPYC 7763 (Zen 3, AVX2) | 103,500 / 850,400 | 58,100 / 428,000 | 66,800 / 534,400 | 55,100 / 411,900 |
+| AMD EPYC 9V74 (Zen 4, AVX-512) | 115,100 / 952,900 | 81,400 / 649,800 | 97,000 / 769,900 | 76,600 / 607,800 |
+| AMD EPYC 9V45 (Zen 5, AVX-512) | 191,000 / 1,470,000 | 122,700 / 996,000 | 139,200 / 1,160,000 | 126,400 / 876,000 |
+| Azure Cobalt 100 (Neoverse N2, 4 vCPUs) | 94,400 / 377,100 | 41,100 / 164,000 | n/a | 42,900 / 171,300 |
 
 ## How these were built
 
