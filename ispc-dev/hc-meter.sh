@@ -14,7 +14,7 @@ while [ ! -f "$STOP" ]; do
   while read -r size nodes; do
     [ -z "$size" ] && continue; size=$(echo "$size" | sed 's/^standard_/Standard_/; s/_\([a-z0-9]*\)$/_\1/')
     ACC[$size]=$(( ${ACC[$size]:-0} + nodes ))
-  done < <(az batch pool list --query "[?starts_with(id,'hc-')].[vmSize, to_string(add(currentLowPriorityNodes, currentDedicatedNodes))]" -o tsv 2>/dev/null)
+  done < <(az batch pool list --query "[?starts_with(id,'hc-')].[vmSize, currentLowPriorityNodes]" -o tsv 2>/dev/null)
   N=$((N + 1)); [ $((N % 15)) -eq 0 ] && flush
   sleep 60
 done
