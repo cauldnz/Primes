@@ -40,7 +40,7 @@ opening a PR still needs the user's explicit OK.
 
 ## Update after the rules review (pull again)
 
-- `33291eb`: both programs now report a wrong prime count on stderr (CONTRIBUTING wants
+- `0a4e409`: both programs now report a wrong prime count on stderr (CONTRIBUTING wants
   non-result output there) and the base README title follows the template. Include it in the
   cherry-pick.
 - `ispc-dev/RULES-REVIEW-2026-10-09.md` has the full compliance check, a PR description draft

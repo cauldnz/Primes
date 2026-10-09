@@ -13,7 +13,7 @@ template, `.github/workflows/CI.yml` and `tools/src/commands/benchmark.ts`.
 | Requirement | solution_1 (wheel) | solution_2 (base) |
 |---|---|---|
 | Folder `Prime<Language>/solution_<n>`, new language starts at 1 | ✅ | ✅ |
-| README: `# <Language> solution by <user>`, description, run instructions, output | ✅ | ✅ (title fixed in 33291eb) |
+| README: `# <Language> solution by <user>`, description, run instructions, output | ✅ | ✅ (title fixed in 0a4e409) |
 | Badges match tags | ✅ wheel/yes/1 | ✅ base/yes/1 |
 | Dockerfile base image | ✅ ubuntu:24.04 (no official ISPC image; Alpine only in edge) | ✅ same |
 | `AS build` stage when build needs more than run | ✅ | ✅ |
@@ -23,7 +23,7 @@ template, `.github/workflows/CI.yml` and `tools/src/commands/benchmark.ts`.
 | Output `label;iterations;total_time;threads;tags` | ✅ | ✅ |
 | Label contains username | ✅ `cauldnz-ispc` | ✅ `cauldnz-ispc-base` |
 | `en_US` decimal, tags ≤32 chars, no spaces | ✅ | ✅ |
-| Other output on stderr | ✅ since 33291eb (error path); self-test is opt-in only | ✅ |
+| Other output on stderr | ✅ since 0a4e409 (error path); self-test is opt-in only | ✅ |
 | Sieve of Eratosthenes | ✅ | ✅ |
 | Returns the result | ✅ the is_prime bit array (inverted), kept in the struct | ✅ same |
 | Runs ≥5 s, stops promptly | ✅ deadline checked every pass | ✅ |
