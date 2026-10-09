@@ -46,7 +46,7 @@ static inline uniform double now() {
 // Prime patterns fused into one pass over a plane. Six suits AVX-512 on Zen 5 (+4.5% at 1T,
 // hc-011) but costs AVX2 on Zen 3 (-1.2%), so the AVX2 and SSE builds keep eight.
 #if defined(ISPC_TARGET_AVX512SKX)
-#define G 6
+#define G 8
 #else
 #define G 8
 #endif
