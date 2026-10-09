@@ -87,3 +87,38 @@ rogiervandam_base;30150;5.000070;1;algorithm=base,faithful=yes,bits=1
 rogiervandam_classic64bit;16560;5.000093;1;algorithm=base,faithful=yes,bits=1
 rogiervandam_classic8bit;16382;5.000106;1;algorithm=base,faithful=yes,bits=1
 == round 2 Chapel
+GordonBGood_bittwiddle;20498;5.00023;1;algorithm=base,faithful=yes,bits=1
+GordonBGood_stride8;24069;5.00014;1;algorithm=base,faithful=yes,bits=1
+GordonBGood_stride8_block16K;24070;5.00025;1;algorithm=base,faithful=yes,bits=1
+GordonBGood_extreme;44452;5.00022;1;algorithm=base,faithful=yes,bits=1
+GordonBGood_extreme_hybrid;108912;5.00016;1;algorithm=base,faithful=yes,bits=1
+GordonBGood_bittwiddle;82237;5.00033;4;algorithm=base,faithful=yes,bits=1
+GordonBGood_stride8;95924;5.00022;4;algorithm=base,faithful=yes,bits=1
+GordonBGood_stride8_block16K;96764;5.00032;4;algorithm=base,faithful=yes,bits=1
+GordonBGood_extreme;180391;5.00024;4;algorithm=base,faithful=yes,bits=1
+GordonBGood_extreme_hybrid;433471;5.00017;4;algorithm=base,faithful=yes,bits=1
+== round 3 new
+cauldnz-ispc;146935;5.000006;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1209669;5.000196;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1073460;5.000109;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;567043;5.000075;4;algorithm=wheel,faithful=yes,bits=1
+== round 3 old
+cauldnz-ispc;145621;5.000012;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1216742;5.000206;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1082191;5.000119;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;562868;5.000076;4;algorithm=wheel,faithful=yes,bits=1
+== round 3 avx2
+cauldnz-ispc;120406;5.000029;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;965515;5.000213;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;940176;5.000109;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;487335;5.000089;4;algorithm=wheel,faithful=yes,bits=1
+== round 3 C5
+rogiervandam_extend_epar;1179063;5.000030;16;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;949457;5.000019;8;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;501890;5.000022;4;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;260684;5.000031;2;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend;130713;5.000028;1;algorithm=other,faithful=yes,bits=1
+rogiervandam_base;32137;5.000079;1;algorithm=base,faithful=yes,bits=1
+rogiervandam_classic64bit;18060;5.000189;1;algorithm=base,faithful=yes,bits=1
+rogiervandam_classic8bit;17329;5.000213;1;algorithm=base,faithful=yes,bits=1
+== round 3 Chapel
