@@ -142,9 +142,10 @@ static inline void build_group(uniform Group * uniform g, const uniform int * un
         if (j < n) {
             g->L[j] = build_pattern(g->buf[j], g->tab[j], primes[j]);
             g->pp[j] = g->buf[j];
-        } else {
+        } else {                    // an unused member: an empty pattern in its own row
             g->L[j] = programCount;
-            g->pp[j] = g->zero;
+            foreach (k = 0 ... 2 * programCount) g->buf[j][k] = 0;
+            g->pp[j] = g->buf[j];
         }
     }
 }
@@ -181,30 +182,33 @@ static void apply_group(uniform uint64 * uniform w, uniform int nw,
 #if TAIL_OVERRUN
     unmasked {   // callers run with every lane on; without this each store is masked
 #endif
+    // Patterns are read from their fixed rows of g->buf, not through g->pp, so each member
+    // needs only its phase in a register: pointers per member spilled on x86. Phases and
+    // periods are 64-bit, so addressing needs no sign extension.
     uniform int n = g->n;
-    uniform int r[G];
+    uniform int64 r[G], L[G];
     uniform int start = nw;
     for (uniform int j = 0; j < n; j++) start = min(start, b[j] >> 6);
     for (uniform int j = 0; j < G; j++) {
+        L[j] = g->L[j];
         if (j < n) {
-            uniform int L = g->L[j];
-            uniform int r0 = g->tab[j][b[j] & 63] - ((b[j] >> 6) - start) % L;  // phase at start
-            r[j] = (r0 < 0) ? r0 + L : r0;
+            uniform int r0 = g->tab[j][b[j] & 63] - ((b[j] >> 6) - start) % g->L[j];  // phase at start
+            r[j] = (r0 < 0) ? r0 + L[j] : r0;
         } else r[j] = 0;
     }
-    uniform int k = start;
+    uniform int64 k = start;
     for (; k + programCount <= nw; k += programCount) {
         uint64 v = w[k + programIndex];
         for (uniform int j = 0; j < G; j++) {
-            v |= g->pp[j][r[j] + programIndex];
-            uniform int t = r[j] + programCount;
-            r[j] = (t >= g->L[j]) ? t - g->L[j] : t;
+            v |= g->buf[j][r[j] + programIndex];
+            uniform int64 t = r[j] + programCount;
+            r[j] = (t >= L[j]) ? t - L[j] : t;
         }
         w[k + programIndex] = v;
     }
     if (TAIL_OVERRUN ? k < nw : k + programIndex < nw) {
         uint64 v = w[k + programIndex];
-        for (uniform int j = 0; j < G; j++) v |= g->pp[j][r[j] + programIndex];
+        for (uniform int j = 0; j < G; j++) v |= g->buf[j][r[j] + programIndex];
         w[k + programIndex] = v;
     }
 #if TAIL_OVERRUN
