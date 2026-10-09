@@ -93,14 +93,16 @@ cauldnz-ispc;1399782;5.000106;8;algorithm=wheel,faithful=yes,bits=1
 cauldnz-ispc;756188;5.000046;4;algorithm=wheel,faithful=yes,bits=1
 ```
 
-Passes in 5 seconds against rogiervandam's C (PrimeC/solution_5), measured in the same
-interleaved rounds on Azure Spot nodes, median of five rounds, one thread / all 16 threads:
+Passes in 5 seconds against danielspaangberg's fastest faithful wheel (PrimeC/solution_2,
+`5760of30030`) and rogiervandam's C (PrimeC/solution_5), measured in the same interleaved
+rounds on Azure Spot nodes, median of six rounds, one thread / all threads:
 
-| CPU | this entry | rogiervandam C | lead |
-|---|---|---|---|
-| AMD EPYC 7763 (Zen 3, AVX2) | 103,500 / 850,400 | 66,800 / 534,400 | +55% / +59% |
-| AMD EPYC 9V74 (Zen 4, AVX-512) | 115,100 / 952,900 | 97,000 / 769,900 | +19% / +24% |
-| AMD EPYC 9V45 (Zen 5, AVX-512) | 191,000 / 1,470,000 | 139,200 / 1,160,000 | +37% / +27% |
+| CPU | this entry | danielspaangberg (wheel) | rogiervandam C | lead over each |
+|---|---|---|---|---|
+| AMD EPYC 7763 (Zen 3, AVX2), 16 threads | 99,800 / 882,100 | 38,100 / 308,100 | 65,100 / 535,200 | 2.6× / 2.9×; +53% / +65% |
+| AMD EPYC 9V74 (Zen 4, AVX-512), 16 threads | 116,600 / 982,200 | 45,300 / 372,500 | 97,100 / 769,900 | 2.6× / 2.6×; +20% / +28% |
+| AMD EPYC 9V45 (Zen 5, AVX-512), 16 threads | 182,700 / 1,480,000 | 66,600 / 500,500 | 133,600 / 1,210,000 | 2.7× / 3.0×; +37% / +24% |
+| Azure Cobalt 100 (Neoverse N2), 4 threads | 94,200 / 376,400 | 42,500 / 169,600 | n/a | 2.2× / 2.2× |
 
 Self-test:
 

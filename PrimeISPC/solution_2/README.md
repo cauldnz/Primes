@@ -83,14 +83,14 @@ cauldnz-ispc-base;458802;5.000046;4;algorithm=base,faithful=yes,bits=1
 
 Passes in 5 seconds against mike-barber's Rust (PrimeRust/solution_1, `bit-extreme-hybrid`)
 and davepl's C++ (PrimeCPP/solution_5), measured in the same interleaved rounds on Azure Spot
-nodes, median of five rounds, one thread / all threads:
+nodes, median of six rounds, one thread / all threads:
 
 | CPU | this entry | mike-barber Rust | davepl C++ |
 |---|---|---|---|
-| AMD EPYC 7763 (Zen 3, AVX2) | 58,100 / 428,000 | 55,100 / 411,900 | 38,400 / 307,100 |
-| AMD EPYC 9V74 (Zen 4, AVX-512) | 81,400 / 649,800 | 76,600 / 607,800 | 60,600 / 483,700 |
-| AMD EPYC 9V45 (Zen 5, AVX-512) | 122,700 / 996,000 | 126,400 / 876,000 | 92,300 / 712,300 |
-| Azure Cobalt 100 (Neoverse N2, 4 vCPUs) | 41,100 / 164,000 | 42,900 / 171,300 | 32,200 / 128,600 |
+| AMD EPYC 7763 (Zen 3, AVX2) | 56,000 / 431,800 | 52,500 / 411,500 | 36,500 / 306,800 |
+| AMD EPYC 9V74 (Zen 4, AVX-512) | 82,900 / 656,000 | 76,500 / 608,300 | 60,700 / 482,700 |
+| AMD EPYC 9V45 (Zen 5, AVX-512) | 128,100 / 1,018,700 | 125,600 / 880,000 | 91,400 / 713,800 |
+| Azure Cobalt 100 (Neoverse N2, 4 vCPUs) | 41,100 / 163,800 | 42,900 / 171,300 | 32,200 / 128,600 |
 
 Self-test:
 
