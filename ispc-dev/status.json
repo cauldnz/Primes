@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T06:32:00Z",
+  "updated_utc": "2026-10-09T06:36:25Z",
   "run": {
     "id": "ap-20261009T0607Z",
     "state": "running",
@@ -148,24 +148,88 @@
       "utc": "2026-10-09T06:32:00Z",
       "level": "info",
       "text": "hc-001 done. Where the cycles go is in STATUS.md and on this page."
+    },
+    {
+      "utc": "2026-10-09T06:36:25Z",
+      "level": "info",
+      "text": "Research agent finished: RESEARCH.md committed. Adopted: wheel masked tails, wheel 13 fast path, base dense limit. solution_3: not now."
     }
   ],
   "research": {
-    "state": "running",
+    "state": "done",
     "started_utc": "2026-10-09T06:20:00Z",
-    "done_utc": null,
-    "note": "Surveying leader sources and sieve literature; assessing a solution_3 entry in the other lane. Writes ispc-dev/RESEARCH.md.",
+    "done_utc": "2026-10-09T06:41:00Z",
+    "note": "RESEARCH.md on ispc-dev: leader techniques, literature, ISPC techniques, ranked ideas. Sandbox Xeon numbers only; nothing run on Zen by the agent.",
     "ideas": [
       {
-        "title": "SLP-style vector dense resets",
+        "title": "Vector dense kernel (lane-constant ORs)",
         "entry": "base",
         "phase": "dense",
-        "gain": "up to 15-25% 1T",
-        "summary": "Rust dense cost is flat at ~2.7k cycles per factor: LLVM vectorises its word-ordered load/OR/store into AVX2. Ours stays scalar (~1.6x the cycles for small factors).",
+        "gain": "+10-20%",
+        "summary": "Per-lane single-bit ORs that LLVM folds into constant vector ORs, as SLP does for Rust. Same idea as hc-002.",
+        "backlog": "running as hc-002"
+      },
+      {
+        "title": "No masked tails on AVX2",
+        "entry": "wheel",
+        "phase": "dense lead-ins/tails",
+        "gain": "+3-6% Zen 3/4 AVX2",
+        "summary": "~2,000 vmaskmovpd stores a pass; pad planes to 16 words and overrun unmasked (OR is idempotent).",
         "backlog": true
+      },
+      {
+        "title": "One-member fast path for 13",
+        "entry": "wheel",
+        "phase": "dense (13)",
+        "gain": "+3-4%",
+        "summary": "13 alone costs ~9k cycles a pass because apply_group streams seven empty patterns.",
+        "backlog": true
+      },
+      {
+        "title": "Raise dense limit to 192-256",
+        "entry": "base",
+        "phase": "dense/sparse",
+        "gain": "+2-4%",
+        "summary": "Vector dense costs a flat ~2k cycles per factor; sparse 131-251 costs more.",
+        "backlog": true
+      },
+      {
+        "title": "Start-up autotune of thresholds",
+        "entry": "both",
+        "phase": "all",
+        "gain": "0-5%",
+        "summary": "Time a few settings before the timed loop, as C5 does; insurance for untested runners.",
+        "backlog": false
+      },
+      {
+        "title": "Cut lead-in overhead",
+        "entry": "wheel",
+        "phase": "dense groups",
+        "gain": "+2-5%",
+        "summary": "Start all group members at the earliest start word, clear own bits after.",
+        "backlog": "after W-a, W-b"
+      },
+      {
+        "title": "Arithmetic masks for some members",
+        "entry": "wheel",
+        "phase": "dense groups",
+        "gain": "0-8%",
+        "summary": "Balance load and ALU ports for primes above 64.",
+        "backlog": false
+      },
+      {
+        "title": "Next-prime scan by word",
+        "entry": "base",
+        "phase": "scan",
+        "gain": "<3%",
+        "summary": "Scan costs ~2% of a pass.",
+        "backlog": "low"
       }
     ],
-    "other_lane": null
+    "other_lane": {
+      "assessment": "Other permits nothing the wheel cannot already use, and the faithful 1-bit board ranks all algorithms together; our wheel already beats rogiervandam C at 1T on Zen 3-5. Tying his C from the odds-only prototype needs about +19%: 3-5 days, about a one-in-three chance on Zen 5.",
+      "recommendation": "Do not build solution_3 now. Revisit after the PR merges; if a reviewer retags the wheel as other, it already wins that lane."
+    }
   },
   "cycles": {
     "source": "Zen 4 (9V74) and Zen 5 (9V45), TSC timers per phase, 1T, 3 rounds within 0.1%.",

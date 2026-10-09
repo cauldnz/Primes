@@ -5,3 +5,19 @@ BIOS Model name:                         AMD EPYC 9V45 96-Core Processor        
 AVX-512: yes
 entry=2 rounds=5
 build cand
+build champ
+build ctrl
+control=mike-barber_bit-extreme-hybrid
+self-test cand: 13 ok, 0 bad, exit=0
+self-test champ: 13 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-ispc-base;107774;5.000045;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;881673;5.000224;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;764787;5.000101;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;402080;5.000075;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ
+cauldnz-ispc-base;86531;5.000009;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;684345;5.000233;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;626317;5.000114;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;328860;5.000071;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ2

@@ -7,3 +7,12 @@ entry=2 rounds=5
 build cand
 build champ
 build ctrl
+control=mike-barber_bit-extreme-hybrid
+self-test cand: 13 ok, 0 bad, exit=0
+self-test champ: 13 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-ispc-base;60990;5.000055;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;495778;5.000345;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;489148;5.000179;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;244039;5.000111;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ

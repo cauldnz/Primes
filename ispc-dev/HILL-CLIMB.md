@@ -112,6 +112,14 @@ Rust is 51k on Zen 4 and 49k on Zen 5).
 
 ### Wheel (solution_1)
 
+Adopted from `RESEARCH.md` section 7 on 2026-10-09 at 16:50 AEST, ahead of the older items below:
+
+- W-a. **No masked tails on AVX2.** Pad planes to 16 words and run lead-ins and tails unmasked.
+  About 2,000 `vmaskmovpd` stores a pass, slow on Zen 2 to Zen 4. Predict +3–6% on the AVX2
+  path; the `D16as_v5` nodes (Zen 4, AVX-512 hidden) run that path.
+- W-b. **One-member group fast path for 13.** 13 costs about 9k cycles a pass on its own.
+  Predict +3–4%.
+
 1. ~~Zen 5 drift~~ Resolved: round 1 is a warm-up effect (see the evaluation protocol).
 2. ~~Gang width on arm64~~ Done: `neon-i32x8` is now the arm64 default (+4% on Neoverse N1, +15%
    on N2).
