@@ -6,3 +6,38 @@ AVX-512: yes
 entry=2 rounds=5
 build cand
 build champ
+build ctrl
+control=mike-barber_bit-extreme-hybrid
+self-test cand: 13 ok, 0 bad, exit=0
+self-test champ: 13 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-ispc-base;122662;5.000024;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;979838;5.000208;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;880993;5.000099;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;464426;5.000052;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ
+cauldnz-ispc-base;120124;5.000011;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;990898;5.000210;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;882653;5.000096;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;466609;5.000052;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ2
+cauldnz-ispc-base;122304;5.000007;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;989582;5.000218;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;882309;5.000095;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;465903;5.000060;4;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl
+mike-barber_bit-extreme-hybrid;125005;5.0000123978;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;472187;5.0000729561;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;886383;5.0001668930;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;879430;5.0003223419;16;algorithm=base,faithful=yes,bits=1
+== round 1 cand
+cauldnz-ispc-base;121576;5.000036;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;979091;5.000206;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;880873;5.000090;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;464320;5.000049;4;algorithm=base,faithful=yes,bits=1
+== round 1 champ2
+cauldnz-ispc-base;124083;5.000020;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;987684;5.000192;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;884137;5.000093;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;466531;5.000054;4;algorithm=base,faithful=yes,bits=1
+== round 1 champ

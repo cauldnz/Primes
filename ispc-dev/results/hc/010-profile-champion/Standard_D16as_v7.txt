@@ -1,0 +1,11 @@
+perf: /usr/lib/linux-tools/6.17.0-1022-azure/perf (perf version 6.17.13)
+kernel: 6.17.0-1022-azure
+Architecture:                            x86_64
+CPU(s):                                  16
+Model name:                              AMD EPYC 9V45 96-Core Processor
+BIOS Model name:                         AMD EPYC 9V45 96-Core Processor                 None CPU @ 2.6GHz
+AVX-512: yes
+build wheel
+build base
+build c5
+build rust

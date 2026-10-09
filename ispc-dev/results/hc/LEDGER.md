@@ -55,3 +55,4 @@ Zen 4; the AVX-512 code is byte-identical, so Zen 5 can't move. The acceptance r
 which is AVX2-only.
 
 **008, tile memcpy.** No gain on Zen 5. The copy is too small a share of the pass to matter.
+| 011 | 2026-10-09 | wheel | Fusion group size G = 6 instead of 8 | +2% to +5% 1T; local Xeon medians G=6 +5% over G=8 (noisy) | pending | pending | pending | `hc/011-wheel-g6` |
