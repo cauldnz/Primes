@@ -96,3 +96,31 @@ cauldnz-ispc-base;431816;5.000357;16;algorithm=base,faithful=yes,bits=1
 cauldnz-ispc-base;447577;5.000149;8;algorithm=base,faithful=yes,bits=1
 cauldnz-ispc-base;224014;5.000123;4;algorithm=base,faithful=yes,bits=1
 == round 3 ctrl
+mike-barber_bit-extreme-hybrid;53139;5.0000753403;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;210602;5.0001130104;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;420914;5.0002226830;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;411547;5.0004448891;16;algorithm=base,faithful=yes,bits=1
+== round 4 ctrl2
+davepl_array_optimized;36391;5.00028;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;307171;5.00038;16;algorithm=base,faithful=yes,bits=1
+== round 4 cand
+cauldnz-ispc-base;56592;5.000017;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;432092;5.000331;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;447423;5.000162;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;223818;5.000085;4;algorithm=base,faithful=yes,bits=1
+== round 4 champ
+cauldnz-ispc-base;55713;5.000024;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;427442;5.000316;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;443235;5.000186;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;221691;5.000106;4;algorithm=base,faithful=yes,bits=1
+== round 4 ctrl
+mike-barber_bit-extreme-hybrid;53578;5.0000376701;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;210623;5.0001196861;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;420871;5.0002002716;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;411628;5.0003938675;16;algorithm=base,faithful=yes,bits=1
+== round 4 champ2
+cauldnz-ispc-base;56237;5.000075;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;425952;5.000341;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;442168;5.000157;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;220872;5.000119;4;algorithm=base,faithful=yes,bits=1
+== round 5 champ

@@ -6,3 +6,17 @@ AVX-512: yes
 kind=zig rounds=5 id=13012626789
 build cand
 build champ
+build ctx
+self-test cand: 0 ok, 0 bad, exit=0
+self-test champ: 0 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-zig-base;124353;5.000051;1;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;1012158;5.000606;16;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;877098;5.000391;8;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;463557;5.000160;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ
+cauldnz-zig-base;113757;5.000058;1;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;791998;5.000607;16;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;806580;5.000297;8;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;424196;5.000130;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ2
