@@ -16,6 +16,8 @@
 #        copying its stdout to <outdir>/<size>.txt as it grows.
 #   hc-pool.sh down <size>                              delete the pool and its job
 #   hc-pool.sh status                                   list pools, nodes and tasks
+#   FLOOR=1 hc-pool.sh floor <size>                      keep at least FLOOR nodes until the deadline
+#        (saves an 8-minute start task per batch; FLOOR=0 releases them)
 #
 # Labels in the output: cand, champ, champ2 (the champion again: the A/A noise floor), ctrl and
 # ctrl2 (rivals). wheel: ctrl = C5 (x86) or Rust (arm64). base: ctrl = Rust, ctrl2 = davepl.
@@ -114,20 +116,23 @@ PY
   echo "pool $P up (max $MAXN nodes, deadline $DEADLINE)"; rm -rf "$D"
 }
 
-kick() {  # set the target to the open task count now; it holds 60 minutes, then the queue metric
+kick() {  # set the target to the open task count now; it holds 60 minutes, then the queue metric.
+  # The floor (FLOOR env, else the pool's current $floor) keeps nodes warm between batches.
   local P=$1 F N
   F=$(az batch pool show --pool-id "$P" --query autoScaleFormula -o tsv)
   N=$(az batch task list --job-id "$P" --query "[?state!='completed'] | length(@)" -o tsv 2>/dev/null || echo 0)
-  F=$(python3 - "$F" "$N" <<'PY'
+  F=$(python3 - "$F" "$N" "${FLOOR:-}" <<'PY'
 import re, sys, datetime as dt
-f, n = sys.argv[1], int(sys.argv[2])
-deadline = re.search(r'time\(\) < time\("([^"]+)"\) \? (?:min\((\d+), \$q\)|\$hold)', f) or re.search(r'time\("([^"]+)"\) \?', f)
+f, n, floor = sys.argv[1], int(sys.argv[2]), sys.argv[3]
 dl = re.findall(r'time\("([^"]+)"\)', f)[-1]
 mx = int(re.search(r'min\((\d+),', f).group(1))
+fm = re.search(r'\$floor = (\d+);', f)
+fl = int(floor) if floor else (int(fm.group(1)) if fm else 0)
 hold = (dt.datetime.now(dt.timezone.utc) + dt.timedelta(minutes=60)).strftime('%Y-%m-%dT%H:%M:%SZ')
 print('$q = max(0, $PendingTasks.GetSample(1));\n'
       f'$hold = time() < time("{hold}") ? min({mx}, {n}) : min({mx}, $q);\n'
-      f'$TargetLowPriorityNodes = time() < time("{dl}") ? $hold : 0;\n'
+      f'$floor = {fl};\n'
+      f'$TargetLowPriorityNodes = time() < time("{dl}") ? max($floor, $hold) : 0;\n'
       '$TargetDedicatedNodes = 0;\n$NodeDeallocationOption = taskcompletion;')
 PY
 )
@@ -234,6 +239,7 @@ cmd_status() {
 }
 
 case "${1:-}" in
+  floor) shift; kick "$(pool_id "$1")" ;;
   up) shift; cmd_up "$@" ;; run) shift; cmd_run "$@" ;; down) shift; cmd_down "$@" ;;
   status) cmd_status ;; *) sed -n '2,30p' "$0"; exit 2 ;;
 esac
