@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T13:49:31Z",
+  "updated_utc": "2026-10-09T14:10:31Z",
   "run": {
     "id": "ap-20261009T1349Z",
     "state": "running",
@@ -12,9 +12,9 @@
     "spend_cap_nzd": 30
   },
   "current": {
-    "id": "setup",
-    "phase": "plan",
-    "detail": "Pools up; first batch: wheel scratch shrink, wheel single allocation, Rust dense cutoff 191"
+    "id": "running",
+    "phase": "hc-030",
+    "detail": "7 tasks queued: hc-030, hc-031, hc-032, r06, r07"
   },
   "scoreboard": [
     {
@@ -460,6 +460,46 @@
       "delta_1t": -0.9,
       "delta_mt": -0.4,
       "note": "ISPC 1.28 no better. 1.22 stays."
+    },
+    {
+      "id": "hc-030",
+      "entry": "wheel",
+      "hypothesis": "Size the Group scratch to the dense limit (MAXPAT 1024 to 256); 70KB to 20KB",
+      "verdict": "running",
+      "where": "Zen 3, Zen 5, Cobalt 100",
+      "note": "Both reviews. Predict +0-3%: only touched lines count, so the real footprint was smaller than 70KB."
+    },
+    {
+      "id": "hc-031",
+      "entry": "base",
+      "hypothesis": "Dense resets up to 191 on AVX-512 (vector form still folds there)",
+      "verdict": "running",
+      "where": "Zen 5 (other targets byte-identical)",
+      "note": "Both reviews. Predict +2-5% on Zen 5. AVX2/SSE stop folding past 119."
+    },
+    {
+      "id": "hc-032",
+      "entry": "base",
+      "hypothesis": "Immediate byte offsets in the sparse loop for factors 129-383",
+      "verdict": "running",
+      "where": "Zen 3, Zen 5, Cobalt 100",
+      "note": "Grok idea 2. Predict 0-3%."
+    },
+    {
+      "id": "r06",
+      "entry": "rust",
+      "hypothesis": "Rust extreme dense resets up to 191 (was 129)",
+      "verdict": "running",
+      "where": "Zen 3, Zen 5",
+      "note": "Both reviews. Predict +2-5% on Zen 5."
+    },
+    {
+      "id": "r07",
+      "entry": "rust",
+      "hypothesis": "Rust sparse resetter: raw pointer walk",
+      "verdict": "running",
+      "where": "Zen 3, Zen 5",
+      "note": "GPT and Grok. hc-003 gained 12% on Zen 5 for ISPC; Rust chunks_exact_mut may already compile to this. Predict 0-5%."
     }
   ],
   "azure_queue": 0,

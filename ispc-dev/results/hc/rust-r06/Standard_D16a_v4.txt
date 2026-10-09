@@ -1,0 +1,30 @@
+Architecture:                            x86_64
+CPU(s):                                  16
+Model name:                              AMD EPYC 7763 64-Core Processor
+BIOS Model name:                         AMD EPYC 7763 64-Core Processor                 None CPU @ 2.4GHz
+AVX-512: no
+kind=rust rounds=6 id=13580529740
+build cand
+build champ
+build ctx
+== round warmup cand
+mike-barber_bit-extreme-hybrid;53447;5.0000276566;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;213269;5.0001854897;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;427113;5.0001859665;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;416594;5.0004744530;16;algorithm=base,faithful=yes,bits=1
+== round warmup champ
+mike-barber_bit-extreme-hybrid;52513;5.0000424385;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;210405;5.0001530647;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;420957;5.0002007484;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;411811;5.0003752708;16;algorithm=base,faithful=yes,bits=1
+== round warmup champ2
+mike-barber_bit-extreme-hybrid;52580;5.0000672340;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;210304;5.0001235008;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;420793;5.0002093315;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;411854;5.0004448891;16;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl
+cauldnz-ispc-base;55599;5.000058;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;428628;5.001014;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;444774;5.000153;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;222221;5.000134;4;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl2
