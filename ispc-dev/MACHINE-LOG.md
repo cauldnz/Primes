@@ -110,6 +110,14 @@ last. Public, like the rest of the repo.
   229 events from 111 versions, including the 2.5 hours the run forgot to log. Keeping state in
   git paid for itself again.
 
+### 10 October, 09:05: the machine goes public too
+
+- Chris decided the machine is as much the story as the sieves. It gets its own public repo,
+  MIT licence, with Primes as the worked example (`PUBLISH-PLAN.md`). The work splits the
+  generic machine from a per-target adapter, so someone else can point it at their own hill.
+- It ships after it has climbed on ticks at least once, from fresh history, after an audit
+  against the public-repo rules.
+
 ## Lessons so far
 
 1. Controls in every round matter more than any optimisation. Without them, machine noise
