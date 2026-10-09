@@ -170,9 +170,9 @@
       "id": "hc-007",
       "entry": "wheel",
       "hypothesis": "Unmasked group loop and tail overrun, AVX2/SSE only",
-      "verdict": "queued",
+      "verdict": "kept",
       "where": "Zen 3 +3.7%/+4.4%, AVX2 Zen 4 +5.3%/+3.8%, Zen 5 identical code",
-      "note": "Waiting for Chris: the rule needs 2% on Zen 5, which this change cannot move. Recommend keep.",
+      "note": "Merged as part of hc-019 (Chris, 2026-10-09).",
       "delta_1t": 5.3,
       "delta_mt": 3.8
     },
@@ -238,20 +238,20 @@
       "id": "hc-013",
       "entry": "base",
       "hypothesis": "Add the AVX-512 x8 target (vector dense in one zmm)",
-      "verdict": "queued",
+      "verdict": "kept",
       "where": "Zen 5 +1.0%/+0.6%, 5/5",
       "delta_1t": 1.0,
       "delta_mt": 0.6,
-      "note": "Chris to decide: small, AVX-512 only. Base now level with Rust at 1T on Zen 5 (124.5k vs 126.0k) and 13% ahead at 16T."
+      "note": "Merged into hc/champion on Chris's decision, 2026-10-09."
     },
     {
       "id": "hc-014",
       "entry": "wheel",
       "hypothesis": "G=6 for AVX-512, 8 otherwise",
-      "verdict": "queued",
+      "verdict": "kept",
       "delta_1t": 4.3,
       "where": "Zen 4 AVX-512 +4.3%/+0.9%; Zen 5 +4.5%/-0.3% (via hc-011)",
-      "note": "Chris to decide: recommend keep.",
+      "note": "Merged as part of hc-019 (Chris, 2026-10-09).",
       "delta_mt": 0.9
     },
     {
@@ -298,11 +298,11 @@
       "id": "hc-019",
       "entry": "wheel",
       "hypothesis": "hc-007 + hc-014 on top of the current champion (measurement for Chris)",
-      "verdict": "queued",
+      "verdict": "kept",
       "where": "Zen 3 +1.1%/+2.3%, Zen 5 +6.4%/+1.6% (+7-8% at 4-8T)",
       "delta_1t": 6.4,
       "delta_mt": 1.6,
-      "note": "Passes the rule as one change; waits for Chris because its parts were not accepted separately. Recommend merge."
+      "note": "Merged into hc/champion on Chris's decision, 2026-10-09."
     },
     {
       "id": "hc-020",
@@ -376,11 +376,11 @@
       "id": "hc-024",
       "entry": "base",
       "hypothesis": "unmasked clear_factor: 13,924 masked moves to 4 on AVX2",
-      "verdict": "inconclusive",
+      "verdict": "kept",
       "where": "10 rounds: Zen 5 +1.9%/+1.4% (8/8), Zen 3 flat",
       "delta_1t": 1.9,
       "delta_mt": 1.4,
-      "note": "Below the 2%-on-both rule. Combined with hc-026 in hc-028."
+      "note": "Merged as part of hc-028 (Chris, 2026-10-10)."
     },
     {
       "id": "hc-025",
@@ -416,11 +416,11 @@
       "id": "hc-026",
       "entry": "base",
       "hypothesis": "Factor-3 pass initialises the sieve (vs hc-024)",
-      "verdict": "inconclusive",
+      "verdict": "kept",
       "where": "Zen 3 +1.1%/+0.7%, Zen 5 +0.7%/+0.2% (vs hc-024)",
       "delta_1t": 1.1,
       "delta_mt": 0.7,
-      "note": "Small, consistent. Held with hc-024."
+      "note": "Merged as part of hc-028 (Chris, 2026-10-10)."
     },
     {
       "id": "hc-027",
@@ -436,11 +436,11 @@
       "id": "hc-028",
       "entry": "base",
       "hypothesis": "hc-024 + hc-026 combined vs champion (for Chris)",
-      "verdict": "queued",
+      "verdict": "kept",
       "where": "Zen 5 +4.2%/+3.4%, Zen 3 +1.3%/+1.0%, Cobalt flat",
       "delta_1t": 4.2,
       "delta_mt": 3.4,
-      "note": "Just misses 2% on Zen 3. Recommend merge."
+      "note": "Merged into hc/champion (4c7dc69) on Chris's decision, 2026-10-10."
     },
     {
       "id": "z-04",

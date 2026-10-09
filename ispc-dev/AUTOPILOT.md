@@ -54,6 +54,8 @@ change: cycles per phase (dense, sparse, next-prime scan, set-up) with `clock()`
 `perf`, for ours and the rival. Write the result into the "Where the cycles go" section of
 `STATUS.md`. Every later hypothesis must name the phase it targets and the share of cycles at
 stake. A change to a phase that takes 10% of the time can't deliver 15%.
+This applies to ideas from reviews and research too: on 2026-10-09 the run took two reviews'
+estimates without a profile, and 3 of 11 predictions landed (`REVIEW-2026-10-10.md`).
 
 **Exploit, then explore.** Work down the ranked backlog. After three experiments on one line fail
 the acceptance rule, park that line and move to the next. Every third experiment, try something
@@ -170,4 +172,9 @@ Before you exit:
    - what is waiting in `AZURE-QUEUE.md`;
    - the three best next experiments;
    - anything Chris needs to decide.
-3. Clear the lock line, commit and push.
+3. Write the retrospective in `results/hc/RETRO.md` (newest first): each experiment's
+   predicted range against its result, cost per kept change in node-minutes, node-minutes lost
+   to idle floors and preemption, protocol steps skipped and why, and at most three new items
+   for `HARNESS-BACKLOG.md`. Put the calibration line ("N of M predictions in range") in the
+   morning report.
+4. Clear the lock line, commit and push.

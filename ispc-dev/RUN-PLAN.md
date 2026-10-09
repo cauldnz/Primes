@@ -26,6 +26,14 @@ Everything else in the brief, the runbook and `HILL-CLIMB.md` still applies, inc
   against a Python sieve; run it on every wheel change, for each target you touch).
 - New acceptance rule for small gains: see "Small consistent gains" in `HILL-CLIMB.md`.
 
+## First 40 minutes: improve the harness
+
+Read `REVIEW-2026-10-10.md`, then do items 1 and 2 of `HARNESS-BACKLOG.md` while the pools
+warm up: the phase-profile diagnostic builds (ours, the Zig wheel, and Rust for the base) and
+danielspaangberg's best wheel as a rival in `hc-pool.sh`. Test each on one node before relying
+on it. If a Spot node is preempted, salvage its rounds with `tools/salvage.py` instead of
+rerunning. If there is time, item 3 (the two-stage screen).
+
 ## Priorities, in order
 
 1. **Explain the Zig wheel's lead.** The Zig wheel (`hc/zig-champion`, `PrimeZig/solution_4`)
@@ -35,6 +43,9 @@ Everything else in the brief, the runbook and `HILL-CLIMB.md` still applies, inc
    (tile, 13, fused groups, sparse, candidate scan, count) to both wheels on a diagnostic
    branch that is never merged, run both on Zen 3 and Zen 5, and find the phase that differs.
    Then port what Zig does there, one change per experiment.
+   Also on the wheel list, each needing a phase share first: the byte sparse kernel on Zen 5
+   (it lost 9% only on the Xeon sandbox), and the wheel against danielspaangberg on every
+   machine.
 2. **Base against Rust on Zen 5 and arm64.** Re-measure the champion base against
    mike-barber's Rust first; hc-028 should have it level on Zen 5 at 1T. The dense limit is
    settled at 128 (hc-031, hc-036) and the sparse loop is store-bound (hc-032, hc-034); look
