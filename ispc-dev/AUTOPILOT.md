@@ -14,6 +14,14 @@ acceptance rule, rules gate, backlog), `STATUS.md`, `status.json` and `results/h
 Chris is offline. Don't wait for answers. Decide, write down what you decided and why, and carry
 on. Stop only for the items under "Never without Chris".
 
+## 0. Your role
+
+You are the climber: run experiments, record them and report. Ideas, plans and changes to this
+machine come from the workshop (the Claude.ai session with Chris) between runs; see "Who does
+what" in `HANDOFF.md`. Work from the commit you started on: don't pull new tools, briefs or plans
+mid-run, apart from pulling and rebasing to push your own results. Fix a tool only when it
+blocks the run, and log the fix. Put anything bigger in `HARNESS-BACKLOG.md` for the workshop.
+
 ## 1. Objective
 
 Make both ISPC entries faster on the official runners without breaking their rules, and leave a

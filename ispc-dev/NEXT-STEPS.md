@@ -1,9 +1,15 @@
 # Next steps for Claude Code (from the Claude.ai session)
 
-**Last updated:** 2026-10-10 08:55 AEST.
+**Last updated:** 2026-10-10 09:05 AEST.
 `git log -p ispc-dev/NEXT-STEPS.md`.
 
 ## Changes since last update
+
+**09:05: roles.** Chris set the pattern: the Claude.ai session is the workshop (ideas,
+monitoring, queueing work, improving the machine) and Claude Code is the climber (grind up the
+hill). Written into `HANDOFF.md` ("Who does what") and `AUTOPILOT.md` section 0. Runs now work
+from the commit they started on and don't pick up harness changes mid-run.
+
 
 **08:55: Chris's priorities for the next run (and the next RUN-PLAN).**
 

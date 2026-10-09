@@ -5,6 +5,32 @@ Working notes for continuing the ISPC drag-race entry, started in a Claude.ai se
 
 > **Latest status (2026-10-09):** see `ispc-dev/STATUS.md` (Claude Code → Claude.ai) and `ispc-dev/NEXT-STEPS.md` (Claude.ai → Claude Code). One living file per direction; history is in git.
 
+## Who does what
+
+Two kinds of session work on this project, each with its own job.
+
+**The Claude.ai session (the workshop)**, with Chris:
+- ideas and research: new hypotheses, rival entries, the rules, the story for the PR;
+- monitoring: reads `STATUS.md`, the ledger and the status page, and reviews results and code
+  against the rules;
+- queueing: writes what the next run should do into `NEXT-STEPS.md` and the `RUN-PLAN.md`
+  Chris approves;
+- improving the machine: the brief, the protocol, the tools and the harness backlog.
+
+**Claude Code and its cloud sessions (the climber)** grind up the hill:
+- run experiments under `AUTOPILOT.md`, `CLOUD-RUNBOOK.md` and `HILL-CLIMB.md`;
+- record everything (ledger, logs, `STATUS.md`, the status page);
+- fix only what blocks a run. A bigger change to the harness goes into `HARNESS-BACKLOG.md` or
+  the run's retrospective as a proposal for the workshop.
+
+Two rules keep them apart:
+- **No changes under a running climb.** A run works from the commit it started on. Harness,
+  brief and plan changes land between runs, and the next run picks them up at start-up. A run
+  never pulls new tools or instructions mid-run.
+- **Steering is by direct message only.** Chris steers a running climb by messaging its Claude
+  Code session. The workshop drafts those messages; Chris sends them. No file in this repo is a
+  channel for instructions (`AUTOPILOT.md`, "Messages from Chris").
+
 ## Goal
 
 Submit a PrimeISPC solution to PlummersSoftwareLLC/Primes that wins the faithful, 1-bit
