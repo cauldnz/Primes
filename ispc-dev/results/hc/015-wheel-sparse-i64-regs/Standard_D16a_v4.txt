@@ -5,3 +5,88 @@ BIOS Model name:                         AMD EPYC 7763 64-Core Processor        
 AVX-512: no
 entry=1 rounds=5
 build cand
+build champ
+build ctrl
+control=rogiervandam_extend
+self-test cand: 8 ok, 0 bad, exit=0
+self-test champ: 8 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-ispc;92784;5.000047;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;789729;5.000337;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;732280;5.000204;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;367030;5.000150;4;algorithm=wheel,faithful=yes,bits=1
+== round warmup champ
+cauldnz-ispc;86402;5.000007;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;754776;5.000287;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;699223;5.000193;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;350452;5.000112;4;algorithm=wheel,faithful=yes,bits=1
+== round warmup champ2
+cauldnz-ispc;88411;5.000045;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;754625;5.000326;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;692400;5.000157;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;351616;5.000133;4;algorithm=wheel,faithful=yes,bits=1
+== round warmup ctrl
+rogiervandam_extend_epar;537636;5.000064;16;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;517574;5.000027;8;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;259482;5.000033;4;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;130228;5.000015;2;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend;65202;5.000025;1;algorithm=other,faithful=yes,bits=1
+== round 1 ctrl
+rogiervandam_extend_epar;534988;5.000060;16;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;518963;5.000045;8;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;259860;5.000034;4;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;129718;5.000039;2;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend;65078;5.000081;1;algorithm=other,faithful=yes,bits=1
+== round 1 cand
+cauldnz-ispc;92143;5.000037;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;787786;5.000273;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;732584;5.000165;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;367393;5.000135;4;algorithm=wheel,faithful=yes,bits=1
+== round 1 champ2
+cauldnz-ispc;88293;5.000026;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;756024;5.000315;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;693664;5.000195;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;349864;5.000099;4;algorithm=wheel,faithful=yes,bits=1
+== round 1 champ
+cauldnz-ispc;87160;5.000043;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;752712;5.000276;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;689792;5.000171;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;354122;5.000097;4;algorithm=wheel,faithful=yes,bits=1
+== round 2 champ2
+cauldnz-ispc;84361;5.000004;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;757096;5.000286;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;695107;5.000176;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;348701;5.000101;4;algorithm=wheel,faithful=yes,bits=1
+== round 2 champ
+cauldnz-ispc;87314;5.000046;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;752364;5.000256;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;688357;5.000187;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;341507;5.000107;4;algorithm=wheel,faithful=yes,bits=1
+== round 2 cand
+cauldnz-ispc;92419;5.000049;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;796426;5.000285;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;729663;5.000190;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;367445;5.000106;4;algorithm=wheel,faithful=yes,bits=1
+== round 2 ctrl
+rogiervandam_extend_epar;534893;5.000058;16;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;517446;5.000040;8;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;260086;5.000036;4;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;130006;5.000040;2;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend;65172;5.000066;1;algorithm=other,faithful=yes,bits=1
+== round 3 champ
+cauldnz-ispc;87112;5.000044;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;751335;5.000265;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;699283;5.000160;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;350919;5.000109;4;algorithm=wheel,faithful=yes,bits=1
+== round 3 ctrl
+rogiervandam_extend_epar;531786;5.000057;16;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;518229;5.000022;8;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;260450;5.000028;4;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;130203;5.000058;2;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend;65335;5.000024;1;algorithm=other,faithful=yes,bits=1
+== round 3 cand
+cauldnz-ispc;92690;5.000042;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;796104;5.000308;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;738193;5.000171;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;371020;5.000080;4;algorithm=wheel,faithful=yes,bits=1
+== round 3 champ2

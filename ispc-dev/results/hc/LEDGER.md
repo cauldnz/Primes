@@ -66,8 +66,8 @@ scan is already cheap; the extra branches cost more than they save. Stopped earl
 **010, re-profile.** On Zen 5 the base entry now matches Rust phase for phase (dense 38k,
 sparse 61k, scan 4k cycles a pass). The uninstrumented base runs 123k–125k passes against
 Rust's 125k at 1T. On the wheel, the sparse loop is the largest phase at 52% of samples.
-| 013 | 2026-10-09 | base | Add the avx512skx-x8 target now that dense resets are vectorised | Zen 5 +2% to +5% (dense is 35% of a pass); no change without AVX-512 | n/a (identical code) | pending | pending | `hc/013-base-avx512` |
-| 014 | 2026-10-09 | wheel | G = 6 with AVX-512 only, 8 otherwise | Zen 5 as hc-011, Zen 3 unchanged | identical code to champion | as hc-011 (identical AVX-512 code): +4.5% / −0.3%, +6% at 4T and 8T | Chris to decide; Zen 4 AVX-512 (D16as_v6) check pending | `hc/014-wheel-g6-avx512` |
+| 013 | 2026-10-09 | base | Add the avx512skx-x8 target now that dense resets are vectorised | Zen 5 +2% to +5% (dense is 35% of a pass); no change without AVX-512 | n/a (no AVX-512 on Zen 3) | Zen 5: 125.8k / 993.9k, +1.0% / +0.6%, 5/5, A/A within 0.3% | Chris to decide: small but consistent, AVX-512 only | `hc/013-base-avx512` |
+| 014 | 2026-10-09 | wheel | G = 6 with AVX-512 only, 8 otherwise | Zen 5 as hc-011, Zen 3 unchanged | identical code to champion | Zen 5 as hc-011: +4.5% / −0.3%, +6% at 4T and 8T; Zen 4 AVX-512 (D16as_v6, 9V74): 109.8k / 906.5k, +4.3% / +0.9%, 5/5 | Chris to decide: recommend KEEP | `hc/014-wheel-g6-avx512` |
 
 **011 and 014, group size.** G = 6 helps the AVX-512 build on Zen 5 and hurts the AVX2 build
 on Zen 3 at 1T. hc-014 picks G per target; its AVX-512 code is byte-identical to hc-011's and
@@ -78,3 +78,4 @@ the "2% on both Zen 3 and Zen 5" rule by construction.
 **012 and 015, wheel sparse indices.** 64-bit indices gained about 5% at 1T on both machines,
 but the loop spilled and reloaded its base pointer before every OR, and Zen 5 lost 2.1% at 16T,
 where two threads share a core's load ports. hc-015 frees one register and removes the reloads.
+| 016 | 2026-10-09 | wheel | No lead-ins: all group members start at the earliest start word; own bits cleared afterwards | +3% to +8% 1T (64 lead-in calls a group, 6 groups a pass); local Xeon 3/4 | pending | pending | pending | `hc/016-wheel-no-leadin` |
