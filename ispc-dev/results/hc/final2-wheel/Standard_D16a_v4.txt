@@ -61,3 +61,14 @@ cauldnz-ispc;698251;5.000288;16;algorithm=wheel,faithful=yes,bits=1
 cauldnz-ispc;637525;5.000191;8;algorithm=wheel,faithful=yes,bits=1
 cauldnz-ispc;326189;5.000130;4;algorithm=wheel,faithful=yes,bits=1
 == round 2 ctrl
+rogiervandam_extend_epar;534892;5.000062;16;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;518295;5.000027;8;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;261903;5.000045;4;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;130416;5.000049;2;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend;66823;5.000028;1;algorithm=other,faithful=yes,bits=1
+== round 2 cand
+cauldnz-ispc;103548;5.000036;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;857873;5.000316;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;789320;5.000155;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;396062;5.000122;4;algorithm=wheel,faithful=yes,bits=1
+== round 3 ctrl
