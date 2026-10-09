@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T15:49:35Z",
+  "updated_utc": "2026-10-09T16:03:37Z",
   "run": {
     "id": "ap-20261009T1349Z",
     "state": "running",
@@ -14,7 +14,7 @@
   "current": {
     "id": "running",
     "phase": "hc-035",
-    "detail": "hc-035 10-round confirmation; hc-037 (G=8 AVX-512), hc-038/039 (wheel dense 192/320)"
+    "detail": "Zen 4 (AVX-512) check for hc-035; other pools down"
   },
   "scoreboard": [
     {
@@ -592,11 +592,6 @@
     {
       "utc": "2026-10-09T06:30:42Z",
       "level": "info",
-      "text": "hc-001 Zen 4 profile in: 70% of the base gap to Rust is the dense phase."
-    },
-    {
-      "utc": "2026-10-09T06:30:42Z",
-      "level": "info",
       "text": "hc-002 (vector dense) launched on D16as_v5 and D16as_v7."
     },
     {
@@ -838,6 +833,11 @@
       "utc": "2026-10-09T13:49:31Z",
       "level": "info",
       "text": "Run ap-20261009T1349Z: experiments from the GPT-6 and Grok reviews until the Azure secret expires."
+    },
+    {
+      "utc": "2026-10-09T16:03:37Z",
+      "level": "info",
+      "text": "Zen 5 Spot nodes preempted at 16:00 UTC; hc-035's 10-round confirmation kept 9 rounds. Zen 5, Zen 3 and arm pools taken down; Zen 4 runs hc-035."
     }
   ],
   "research": {

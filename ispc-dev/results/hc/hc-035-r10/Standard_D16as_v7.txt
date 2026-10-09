@@ -1,3 +1,4 @@
+# Partial: 9 of 10 scored rounds. Both Zen 5 Spot nodes were preempted during round 10 (16:00 UTC); the task was stopped and these rounds are taken from the streamed log.
 Architecture:                            x86_64
 CPU(s):                                  16
 Model name:                              AMD EPYC 9V45 96-Core Processor
@@ -218,4 +219,3 @@ rogiervandam_extend_epar;955695;5.000010;8;algorithm=other,faithful=yes,bits=1
 rogiervandam_extend_epar;497069;5.000037;4;algorithm=other,faithful=yes,bits=1
 rogiervandam_extend_epar;276705;5.000014;2;algorithm=other,faithful=yes,bits=1
 rogiervandam_extend;139472;5.000016;1;algorithm=other,faithful=yes,bits=1
-== round 10 ctrl
