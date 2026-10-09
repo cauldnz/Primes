@@ -92,20 +92,23 @@ On the 14:45 matrix the base entry trails mike-barber's Rust extreme-hybrid by 1
 126.5k). It trails GordonBGood's Chapel by 6–21%. On arm64 the gap is 4–5%. Both rivals use the
 same dense and sparse scheme, so the gap is in the details.
 
-1. **Profile against Rust** on Zen 5, where the gap is widest. Use `perf stat` and `perf record`,
-   or `clock()` timers around the dense phase, the sparse phase and the next-prime scan. Compare
-   cycles per phase with the Rust entry's split, then form the next hypotheses from the data.
-2. **Next-prime scan.** Ours tests one bit at a time through `is_composite_index`. Scanning a
-   word at a time with `count trailing zeros` on the inverted word is still base-legal, because it
-   only finds the next clear bit.
-3. **Sparse phase.** Rust's sparse resetter works on byte chunks with a `match` over
-   `skip mod 16`, like ours, but its loop bounds and remainder handling differ. Compare the two
-   loops' generated code.
-4. **Dense dispatch.** Our `switch` over 63 cases may stop LLVM inlining or unrolling the way Rust's
-   const generics do. Check the code generated for a mid-range factor such as 61.
-5. **Dense limit:** 128 against 192 and 256, on Zen.
-6. **Block the dense phase** in L1-sized chunks, the "striped-blocks" idea from the Rust entry.
-   Check against the base rules: each composite must still get its own operation.
+Re-ranked on 2026-10-09 at 16:40 AEST from the hc-001 profile (cycles per pass at 1T; the gap to
+Rust is 51k on Zen 4 and 49k on Zen 5).
+
+1. ~~Profile against Rust~~ Done (hc-001). See "Where the cycles go" in `STATUS.md`.
+2. **Vector dense resets** (hc-002, at stake: 29k–35k). Rust's dense phase is SLP-vectorised by
+   LLVM; ours is scalar. Write the per-composite ORs per SIMD lane so LLVM folds them into
+   constant vector ORs.
+3. **Dense limit with vector resets** (at stake: about 10k). Vector resets cost a flat ~2.2k
+   cycles per factor up to 255; sparse ones cost 2.6k–3.3k for factors 131–251. Sweep 128, 160,
+   192 and 256.
+4. **Sparse loop on Zen 5** (at stake: 15k on Zen 5, 8k on Zen 4). Compare our loop's code with
+   Rust's `chunks_exact_mut` loop: index width, address arithmetic, the tail.
+5. **AVX-512 for the vector dense code** (at stake: part of item 2's remainder on Zen 5). One
+   zmm per 8 words instead of two ymm.
+6. **Next-prime scan** (at stake: under 1k). Word-at-a-time scan with count trailing zeros. Not
+   worth an experiment on its own.
+7. **Block the dense phase** in L1-sized chunks. Check against the base rules first.
 
 ### Wheel (solution_1)
 
