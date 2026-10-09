@@ -193,6 +193,11 @@ static void dense_primes(uniform Sieve * uniform s, const uniform int * uniform 
     uniform int b[G];
     for (uniform int pl = 0; pl < 8; pl++) {
         for (uniform int j = 0; j < n; j++) b[j] = start_bit(primes[j], RES[pl], primes[j]);
+        if (n == 1) {      // a lone prime (13): skip the fused loop and its G-1 empty patterns
+            apply_range(s->bits + pl * s->pw, s->grp->pp[0], s->grp->L[0],
+                        s->grp->tab[0][b[0] & 63], b[0], s->nw);
+            continue;
+        }
         apply_group(s->bits + pl * s->pw, s->nw, s->grp, b);
     }
 }
