@@ -131,7 +131,12 @@ print('$q = max(0, $PendingTasks.GetSample(1));\n'
       '$TargetDedicatedNodes = 0;\n$NodeDeallocationOption = taskcompletion;')
 PY
 )
-  az batch pool autoscale enable --pool-id "$P" --auto-scale-formula "$F" -o none || echo "!!! kick failed for $P"
+  # Batch rejects a formula change within 30 s of the last one: retry for up to two minutes.
+  for _ in 1 2 3 4; do
+    az batch pool autoscale enable --pool-id "$P" --auto-scale-formula "$F" -o none 2>/dev/null && return 0
+    sleep 35
+  done
+  echo "!!! kick failed for $P"
 }
 
 ctx_from() {  # $1 ref, $2 path in repo, $3 destination
