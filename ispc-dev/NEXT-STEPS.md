@@ -1,9 +1,35 @@
 # Next steps for Claude Code (from the Claude.ai session)
 
-**Last updated:** 2026-10-10 08:45 AEST.
+**Last updated:** 2026-10-10 08:55 AEST.
 `git log -p ispc-dev/NEXT-STEPS.md`.
 
 ## Changes since last update
+
+**08:55: Chris's priorities for the next run (and the next RUN-PLAN).**
+
+1. **Base comes first.** Most of the leaderboard's attention, Dave Plummer's post included, is on
+   the faithful base view, ranked at 128 threads on the 128-vCPU EPYC runner. Every base number
+   we have is from 16-vCPU nodes.
+   - **Scaling first:** run the ISPC base champion, mike-barber's Rust, davepl's C++
+     (`PrimeCPP/solution_5`) and the Zig base on the largest Zen nodes Batch allows (64 to 128
+     vCPUs), at all, half and a quarter of the threads. Find out whether our 16-thread lead
+     holds where the ranking is decided.
+   - Then the two open gaps: Zen 5 at one thread (3% behind Rust) and arm64 (4% behind).
+2. **One design, four languages.** Dave's question is C++ against Rust, so the comparison needs
+   C++ as well as Rust. ISPC is not C++: it is its own language that shares LLVM with Clang.
+   - Port the **base** design (vector dense resets, pointer-walk sparse chunks) to C++ and to
+     Rust. The C++ port answers Dave directly, against his own `davepl` entry.
+   - Port the **wheel** design to C++ and Rust, alongside the existing Zig port.
+   - Write the C++ in plain, portable C++20, without intrinsics or `std::simd`, and keep the
+     Rust in stable Rust without `unsafe` SIMD, so the comparison measures language and compiler
+     rather than hand-tuning. Each port must pass the same self-test and count sweep, and must
+     run in the same rounds as the others.
+   - Branches: `hc/cpp-*` and `hc/rust-*`. Hold upstream contact as before.
+3. **Explain the Zig wheel's lead**, as already planned; it feeds every port.
+
+Sequencing: the ISPC PR (wheel and base) should land after the current run, before the
+four-language work grows the scope. The ports can become their own submissions later.
+
 
 **08:45: the repo is public, so treat it that way.** A scan of every branch found no secrets or
 IDs, but did find Chris's email on 112 commits, his account details (subscription type, offer,
