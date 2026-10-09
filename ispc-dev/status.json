@@ -1,21 +1,17 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T11:03:40Z",
+  "updated_utc": "2026-10-09T11:05:40Z",
   "run": {
     "id": "ap-20261009T0607Z",
-    "state": "running",
+    "state": "stopped",
     "mode": "azure",
-    "mode_reason": "Service principal login and az batch pool list worked at 06:07 UTC.",
+    "mode_reason": "Azure mode throughout. Stopped at 21:05 AEST: final scoreboard measured, no pools left. Morning report at the top of ispc-dev/STATUS.md.",
     "started_utc": "2026-10-09T06:07:00Z",
     "time_box_hours": 8,
     "spend_nzd": 4.02,
     "spend_cap_nzd": 30
   },
-  "current": {
-    "id": "hc-020",
-    "phase": "evaluate",
-    "detail": "NEON fix on Cobalt 100: round 3 of 5 against the champion and against the start"
-  },
+  "current": null,
   "scoreboard": [
     {
       "machine": "Zen 3 (EPYC 7763)",
@@ -62,15 +58,26 @@
       "source": "final run, hc/champion 64e94aa, D16a_v4 (7763), median of 5; start of run 46.8k / 342.4k"
     },
     {
-      "machine": "Zen 4 (EPYC 9V74)",
+      "machine": "Cobalt 100 (arm64)",
+      "entry": "wheel",
+      "ours_1t": 77100,
+      "ours_mt": 308000,
+      "rival": "mike-barber Rust (base; no C5 on arm64)",
+      "rival_1t": 42900,
+      "rival_mt": 171300,
+      "threads": 4,
+      "source": "final run, hc/champion, D4ps_v6, median of 5; start of run 63.3k / 253k"
+    },
+    {
+      "machine": "Zen 4 (EPYC 9V74, AVX-512)",
       "entry": "base",
-      "ours_1t": 60800,
-      "ours_mt": 497500,
+      "ours_1t": 82000,
+      "ours_mt": 650000,
       "rival": "mike-barber Rust",
-      "rival_1t": 59400,
-      "rival_mt": 470900,
+      "rival_1t": 76500,
+      "rival_mt": 607400,
       "threads": 16,
-      "source": "hc-002 A/B, D16as_v5 (9V74), median of 5; before hc-003"
+      "source": "final run, hc/champion 64e94aa, D16as_v6, median of 5; start of run 63.7k / 497k"
     },
     {
       "machine": "Zen 5 (EPYC 9V45)",
@@ -82,6 +89,17 @@
       "rival_mt": 872700,
       "threads": 16,
       "source": "final run, hc/champion 64e94aa, D16as_v7, median of 5; start of run 86.1k / 686.5k. Rust 1T from its two full-speed rounds (it ran 92k-96k in the other three)"
+    },
+    {
+      "machine": "Cobalt 100 (arm64)",
+      "entry": "base",
+      "ours_1t": 41100,
+      "ours_mt": 164000,
+      "rival": "mike-barber Rust",
+      "rival_1t": 42900,
+      "rival_mt": 171300,
+      "threads": 4,
+      "source": "hc-020 run, hc/champion c48a327, D4ps_v6, median of 5; level with the start of run"
     }
   ],
   "experiments": [
@@ -292,11 +310,11 @@
       "delta_mt": 63.9
     }
   ],
-  "azure_queue": 3,
+  "azure_queue": 0,
   "next_up": [
-    "Base: hc-009 word-at-a-time scan (queued)",
-    "Base: Zen 5 re-profile of the new champion",
-    "Final scoreboard run: both champions against rivals on Zen 3, 4 and 5"
+    "Chris: merge hc/champion-plus-target-specific-2 (hc-007 + hc-014)?",
+    "Chris: hc-013 base AVX-512 (+1.0% Zen 5)?",
+    "Start-up autotune (RESEARCH idea 5)"
   ],
   "events": [
     {
@@ -493,6 +511,11 @@
       "utc": "2026-10-09T11:03:40Z",
       "level": "info",
       "text": "hc-020 merged: base on Cobalt 100 back to the start of the run (41.0k); x86 unchanged."
+    },
+    {
+      "utc": "2026-10-09T11:05:40Z",
+      "level": "info",
+      "text": "Run stopped at 21:05 AEST. Spend NZ$4.02. No pools left. Morning report in STATUS.md."
     }
   ],
   "research": {

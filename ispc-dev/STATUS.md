@@ -1,9 +1,140 @@
 # Status from the Claude Code session
 
-Autopilot lock: ap-20261009T0607Z 2026-10-09T06:07Z
-
-**Last updated:** 2026-10-09 15:35 AEST. Living file; earlier versions are in
+**Last updated:** 2026-10-09 21:10 AEST. Living file; earlier versions are in
 `git log -p ispc-dev/STATUS.md`. Replies go in `ispc-dev/NEXT-STEPS.md`.
+
+## Morning report: autopilot run ap-20261009T0607Z (16:07–21:05 AEST)
+
+Nothing went to `ispc` or to a PR. Accepted changes are on `hc/champion` (`c48a327`); review
+them with `git diff origin/ispc-dev origin/hc/champion -- PrimeISPC`. Spend: NZ$4.02 of the
+NZ$30 cap. No pools are left running.
+
+### What changed, measured against the start of the run
+
+Final runs: `hc/champion` against the `ispc-dev` code, same node, interleaved, five counted
+rounds, median, 1T / all threads. The x86 runs used `64e94aa`; hc-020 then changed NEON code
+only, and the Cobalt 100 base row is from its run. Raw logs in `results/hc/final-entry1/` and `final-entry2/`.
+
+Wheel (solution_1), 1T / all threads (16, or 4 on Cobalt 100):
+
+| Machine | start of run | `hc/champion` | change | rogiervandam C5 | lead over C5 |
+|---|---|---|---|---|---|
+| Zen 3 (EPYC 7763, AVX2) | 80.7k / 702k | 98.2k / 832k | +21.7% / +18.6% | 65.2k / 533k | +51% / +56% |
+| Zen 4 (EPYC 9V74, AVX-512) | 99.5k / 838k | 112.2k / 947k | +13.0% / +12.8% | 97.1k / 770k | +16% / +23% |
+| Zen 5 (EPYC 9V45) | 150.6k / 1.24M | 179.6k / 1.47M | +19.5% / +18.3% | 139.5k / 1.19M | +29% / +24% |
+| Cobalt 100 (arm64) | 63.3k / 253k | 77.1k / 308k | +21.9% / +21.8% | n/a | n/a |
+
+On Zen 4 the wheel led C5 by 2% at 1T this morning (objective 2); it now leads by 16%.
+
+Base (solution_2), 1T / all threads:
+
+| Machine | start of run | `hc/champion` | change | mike-barber Rust | against Rust |
+|---|---|---|---|---|---|
+| Zen 3 (EPYC 7763) | 46.8k / 342k | 58.2k / 428k | +24.1% / +24.9% | 55.3k / 411k | +5.4% / +4.0% |
+| Zen 4 (EPYC 9V74, AVX-512) | 63.7k / 497k | 82.0k / 650k | +28.7% / +30.7% | 76.5k / 607k | +7.1% / +7.0% |
+| Zen 5 (EPYC 9V45) | 86.1k / 687k | 123.3k / 987k | +43.1% / +43.8% | 125.3k / 873k | −1.6% / +13.1% |
+| Cobalt 100 (arm64) | 41.0k / 164k | 41.0k / 164k | −0.0% / +0.2% | 42.9k / 171k | −4.3% / −4.3% |
+
+On arm64 the base entry is where it started, 4% behind Rust; the NEON target can't use the
+vector dense code (see hc-020 below).
+
+This morning the base entry trailed Rust by 15% on Zen 3, 17% on Zen 4 and 31% on Zen 5
+(objective 1). It now leads on Zen 3 and Zen 4 and is level on Zen 5 at 1T. On Zen 5 the Rust
+control ran at 125k in two rounds and 92k–96k in three; the table uses its full-speed rounds.
+
+The SSE4 builds of both entries also beat the start of the run on the local Xeon (base +3% to
++27%, wheel +20% to +29%, three rounds each), which covers the Celeron runner's instruction set.
+
+Commits on `hc/champion`, with each one's own gain (details in `results/hc/LEDGER.md`):
+
+- Base `164f8c1` (hc-002): dense resets written per SIMD lane, folded by LLVM into vector ORs
+  with constant masks. +22% to +24% at 1T on Zen 3, 4 and 5. Each composite still has its own
+  single-bit OR in the source.
+- Base `d04dc08` (hc-003): pointer walk over sparse chunks. Zen 5 +12.3% at 1T, Zen 4 +3.6%.
+- Wheel `b1cd5c4` (hc-004): the lone prime 13 skips the fused loop. +4.9% to +8.7% at 1T.
+- Wheel `51f0694` (hc-006): `--addressing=64`. +2% to +4%.
+- Wheel `5667529` (hc-015): 64-bit sparse indices without a register spill. +5% to +7% at 1T
+  and 16T on Zen 3 and Zen 5.
+- Wheel `a1a5fad` (hc-016): no lead-ins in the fused group loop. +5% on Zen 3, +2.6% on Zen 5.
+- Base hc-020 (merge after `64e94aa`): the scalar dense routine on NEON. My miss: I didn't run
+  arm64 for hc-002 and hc-003, and the final scoreboard showed the base entry 38.9% slower on
+  Cobalt 100. ISPC's NEON target turns the vector dense code into per-lane loads. With the fix,
+  Cobalt 100 is level with the start of the run; the x86 assembly is unchanged.
+
+### Waiting for you
+
+1. **`hc/champion-plus-target-specific-2`** (hc-019): hc-007 (unmasked stores on AVX2 and SSE
+   only) plus hc-014 (G = 6 with AVX-512 only) on top of the champion. Zen 3 +1.1% / +2.3%,
+   Zen 5 +6.4% / +1.6%, +7% to +8% at 4 and 8 threads on Zen 5; Zen 4 with AVX-512 +4.3% at 1T
+   for hc-014 alone. It passes the acceptance rule as one change, but the brief says to combine
+   winners only after each passes alone, and each touches one instruction set only, so neither
+   can show 2% on both Zen 3 and Zen 5. I recommend merging it. A rule for target-specific
+   changes would help: at least 2% on the machines whose code changes, and byte-identical code
+   on the others.
+2. **hc-013** (base): add `avx512skx-x8`. +1.0% at 1T on Zen 5, every round. Small; your call.
+3. **The README and PR numbers** for both entries are now stale. I haven't touched them.
+4. **`D16as_v5` no longer means Zen 3**: it landed on Zen 4 (EPYC 9V74, AVX-512 hidden) in all
+   four runs today, while `D16a_v4` gave a 7763 every time. I noted this in HILL-CLIMB.md; the
+   example in CLOUD-RUNBOOK.md still uses v5.
+5. **A third entry ("other" lane)**: the research agent recommends against building
+   solution_3 now (RESEARCH.md section 6). Our wheel already beats rogiervandam's C at 1T on
+   every Zen; a third entry would rank below it and draw scrutiny before the first two merge.
+
+### Queue
+
+`AZURE-QUEUE.md` is empty: this run was in Azure mode throughout.
+
+### Next three experiments
+
+1. Autotune at start-up (RESEARCH.md idea 5): time two or three settings of G, the dense limit
+   and the gang before the timed loop, as C5 does. It would settle the target-specific question
+   on unknown runners too.
+2. Wheel: arithmetic masks for some fused-group members (RESEARCH.md idea 7), to balance load
+   and ALU ports. The fused groups are 35% of a Zen 5 pass.
+3. Base: past parity with Rust, the next lever is new: blocking the dense phase in L1-sized
+   chunks (HILL-CLIMB base item 7), checked against the base rules first.
+
+### Why the run stopped early
+
+I stopped at 21:05 AEST, three hours inside the time box. The final scoreboard was measured
+and a new merge would have made it stale. The last two Azure experiments (hc-017, hc-018) and a
+local one (a faster pattern build) failed. The remaining backlog items each need about a day
+(start-up autotune, arithmetic masks) or your decision (hc-007, hc-013, hc-014).
+
+
+## Changes since last update
+
+**Autopilot run ap-20261009T0607Z (16:07–21:05 AEST, finished; see the morning report above).** Details per experiment
+are in `results/hc/LEDGER.md`; the page at https://cauldnz.github.io/Primes/ has the live state.
+
+- Base entry (on `hc/champion`): vector dense resets (hc-002, +22% to +24% at 1T) and a
+  pointer-walk sparse loop (hc-003, +12% at 1T on Zen 5). It now beats mike-barber's Rust at
+  1T on Zen 3 and Zen 4, matches it on Zen 5 (124.5k against 126.0k) and leads at 16T on Zen 5
+  by 13%.
+- Wheel entry (on `hc/champion`): lone-prime path for 13 (hc-004), 64-bit addressing (hc-006),
+  a spill-free sparse loop (hc-015) and no lead-ins in the group loop (hc-016). Each gained 2%
+  to 9% on its own.
+- Waiting for Chris: hc-007 and hc-014 (wheel) and hc-013 (base) change one instruction set
+  only, so they can't meet the "2% on both Zen 3 and Zen 5" rule. hc-019 measures hc-007 and
+  hc-014 together on the current champion.
+- `D16as_v5` now lands on Zen 4 (EPYC 9V74, AVX-512 hidden). `D16a_v4` gives a Zen 3 (7763).
+
+Earlier entries:
+
+- NEXT-STEPS tasks 1 and 2 are done. The tables are below and the raw logs are in
+  `results/azure-202610091445/`. Machines: Zen 3, Zen 4, Zen 5, Ampere Altra and Cobalt 100,
+  all on Batch Spot.
+- Target decision for x86: keep `sse4-i32x8,avx2-i32x16,avx512skx-x16`.
+- Target decision for arm64: switch the default to `neon-i32x8`. It gains 4% on Neoverse-N1 and 15% on Cobalt 100.
+- HILL-CLIMB backlog item 1 (the Zen 5 drift) is explained. The code didn't regress: the old and
+  new builds measured within 1% of each other in the same round, on two separate Zen 5 nodes.
+  The drift comes from the machine, and C5 drifts too.
+- solution_2 builds and passes its self-test (13 of 13) on arm64, on both Ampere and Cobalt 100.
+  This closes the open cell in `RULES-REVIEW.md`.
+- A correction to `HILL-CLIMB.md` base item 1: the Rust run did not fail. All three rounds are
+  in the 14:45 logs (they were still partial when you read them).
+- Times here are now AEST, as you asked.
+
 
 ## Autopilot hourly review
 
@@ -77,39 +208,6 @@ Base entry against mike-barber's Rust, cycles per pass (TSC at 2.6GHz):
   Rust profile under perf is unreliable (the chrooted run used 0.1 CPUs); the TSC build stands.
 - Backlog consequence: dense vectorisation first (hc-002), then the sparse loop on Zen 5, then
   a higher dense limit once dense resets are cheap.
-
-## Changes since last update
-
-**Autopilot run ap-20261009T0607Z (16:07 AEST onwards, in progress).** Details per experiment
-are in `results/hc/LEDGER.md`; the page at https://cauldnz.github.io/Primes/ has the live state.
-
-- Base entry (on `hc/champion`): vector dense resets (hc-002, +22% to +24% at 1T) and a
-  pointer-walk sparse loop (hc-003, +12% at 1T on Zen 5). It now beats mike-barber's Rust at
-  1T on Zen 3 and Zen 4, matches it on Zen 5 (124.5k against 126.0k) and leads at 16T on Zen 5
-  by 13%.
-- Wheel entry (on `hc/champion`): lone-prime path for 13 (hc-004), 64-bit addressing (hc-006),
-  a spill-free sparse loop (hc-015) and no lead-ins in the group loop (hc-016). Each gained 2%
-  to 9% on its own.
-- Waiting for Chris: hc-007 and hc-014 (wheel) and hc-013 (base) change one instruction set
-  only, so they can't meet the "2% on both Zen 3 and Zen 5" rule. hc-019 measures hc-007 and
-  hc-014 together on the current champion.
-- `D16as_v5` now lands on Zen 4 (EPYC 9V74, AVX-512 hidden). `D16a_v4` gives a Zen 3 (7763).
-
-Earlier entries:
-
-- NEXT-STEPS tasks 1 and 2 are done. The tables are below and the raw logs are in
-  `results/azure-202610091445/`. Machines: Zen 3, Zen 4, Zen 5, Ampere Altra and Cobalt 100,
-  all on Batch Spot.
-- Target decision for x86: keep `sse4-i32x8,avx2-i32x16,avx512skx-x16`.
-- Target decision for arm64: switch the default to `neon-i32x8`. It gains 4% on Neoverse-N1 and 15% on Cobalt 100.
-- HILL-CLIMB backlog item 1 (the Zen 5 drift) is explained. The code didn't regress: the old and
-  new builds measured within 1% of each other in the same round, on two separate Zen 5 nodes.
-  The drift comes from the machine, and C5 drifts too.
-- solution_2 builds and passes its self-test (13 of 13) on arm64, on both Ampere and Cobalt 100.
-  This closes the open cell in `RULES-REVIEW.md`.
-- A correction to `HILL-CLIMB.md` base item 1: the Rust run did not fail. All three rounds are
-  in the 14:45 logs (they were still partial when you read them).
-- Times here are now AEST, as you asked.
 
 ## Wheel target matrix (NEXT-STEPS task 1)
 
