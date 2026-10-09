@@ -99,10 +99,10 @@ rounds on Azure Spot nodes, median of six rounds, one thread / all threads:
 
 | CPU | this entry | danielspaangberg (wheel) | rogiervandam C | lead over each |
 |---|---|---|---|---|
-| AMD EPYC 7763 (Zen 3, AVX2), 16 threads | 99,800 / 882,100 | 38,100 / 308,100 | 65,100 / 535,200 | 2.6× / 2.9×; +53% / +65% |
-| AMD EPYC 9V74 (Zen 4, AVX-512), 16 threads | 116,600 / 982,200 | 45,300 / 372,500 | 97,100 / 769,900 | 2.6× / 2.6×; +20% / +28% |
-| AMD EPYC 9V45 (Zen 5, AVX-512), 16 threads | 182,700 / 1,480,000 | 66,600 / 500,500 | 133,600 / 1,210,000 | 2.7× / 3.0×; +37% / +24% |
-| Azure Cobalt 100 (Neoverse N2), 4 threads | 94,200 / 376,400 | 42,500 / 169,600 | n/a | 2.2× / 2.2× |
+| AMD EPYC 7763 (Zen 3, AVX2), 16 threads | 110,100 / 938,900 | 38,100 / 309,000 | 65,200 / 534,100 | 2.9× / 3.0×; +69% / +76% |
+| AMD EPYC 9V74 (Zen 4, AVX-512), 16 threads | 120,900 / 1,013,000 | 45,000 / 372,400 | 97,000 / 769,900 | 2.7× / 2.7×; +25% / +32% |
+| AMD EPYC 9V45 (Zen 5, AVX-512), 16 threads | 207,600 / 1,565,000 | 70,300 / 503,300 | 139,100 / 1,182,100 | 3.0× / 3.1×; +49% / +32% |
+| Azure Cobalt 100 (Neoverse N2), 4 threads | 98,500 / 393,200 | 42,700 / 169,600 | n/a | 2.3× / 2.3× |
 
 Self-test:
 
