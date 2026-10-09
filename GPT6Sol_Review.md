@@ -86,7 +86,7 @@ Dense marking starts at the **chunk containing** p² rather than precisely at p�
 ([line 112](https://github.com/cauldnz/Primes/blob/hc/champion/PrimeISPC/solution_2/primes_base.ispc#L112);
 the vector path uses the same calculation at line 122). It may re-mark earlier
 composites and p itself, which is restored at
-[`clear_dense_from`, lines 105–107](https://github.com/cauldnz/Primes/blob/hc/champion/PrimeISPC/solution_2/primes_base.ispc#L105-L107).
+[`clear_dense_from`, lines 107–108](https://github.com/cauldnz/Primes/blob/hc/champion/PrimeISPC/solution_2/primes_base.ispc#L107-L108).
 This is defensible but should be explained if a reviewer reads “from p²” literally.
 The wheel's fixed mod-30 residues and runtime-generated 7·11 tile do not invoke the
 **base-only** prohibition on prior knowledge of primes beyond 2.
