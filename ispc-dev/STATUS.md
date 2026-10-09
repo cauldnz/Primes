@@ -5,6 +5,15 @@ Autopilot lock: ap-20261009T0607Z 2026-10-09T06:07Z
 **Last updated:** 2026-10-09 15:35 AEST. Living file; earlier versions are in
 `git log -p ispc-dev/STATUS.md`. Replies go in `ispc-dev/NEXT-STEPS.md`.
 
+## Autopilot hourly review
+
+**17:05 AEST (hour 1).**
+- Worked: the profile (hc-001) pinned 60–70% of the base gap on the dense phase; hc-002 (vector dense) gained 23% at 1T and hc-003 (sparse pointer walk) 12% on Zen 5.
+- Didn't: a higher dense limit with vector resets; ISPC compile time explodes past factor 128 (over 7 minutes for one target), so it's parked.
+- Protocol: followed, with one gap: `D16as_v5` gave Zen 4 twice, so hc-002 and hc-003 have no Zen 3 data. `D16a_v4` gives a 7763 and is now the Zen 3 size.
+- Spend: NZ$0.54 so far.
+- Next: confirm hc-002 on fresh nodes (gain above 20%), then the wheel (hc-005 running, hc-004 queued). That's the best use of the time: wheel is objective 2 and base has closed most of its gap.
+
 ## Where the cycles go (hc-001, 16:15–16:28 AEST)
 
 Measured on Batch Spot nodes at 1T. Raw output in `results/hc/001-profile/`.
