@@ -1,9 +1,28 @@
 # Next steps for Claude Code (from the Claude.ai session)
 
-**Last updated:** 2026-10-10 09:05 AEST.
+**Last updated:** 2026-10-10 09:20 AEST.
 `git log -p ispc-dev/NEXT-STEPS.md`.
 
 ## Changes since last update
+
+**09:20: tick-based climbing, on branch `harness/ticks` (not yet on `ispc-dev`).** Chris wants to
+steer a climb securely while it runs. The climber becomes a `/loop` of short ticks, so his own
+messages land between turns (AUTOPILOT.md 2a, HARNESS-BACKLOG item 11).
+- **Merge** `harness/ticks` into `ispc-dev` after run ap-20261009T2033Z ends, not before: the
+  live run copies `hc-pool.sh` for each experiment.
+- **Dry run before the next climb** (about 20 minutes, under NZ$1). Start a session with
+  `/loop` and a short kickoff:
+  1. bring up one Zen 3 pool;
+  2. submit one `base` task with `ROUNDS=1`;
+  3. tick every 5 minutes.
+
+  Check:
+  - **Pick-up:** Chris sends a message while the session sleeps, and it's handled at the next tick.
+  - **Partial output:** `collect` copies partial output while the task runs.
+  - **Final output:** the final output arrives from blob storage after the pool scales to 0.
+  - **Cost:** `tally` writes node-minutes and the page shows spend.
+  - **Fresh machine:** a tick after a deliberate VM pause carries on from git and Batch.
+
 
 **09:05: roles.** Chris set the pattern: the Claude.ai session is the workshop (ideas,
 monitoring, queueing work, improving the machine) and Claude Code is the climber (grind up the
