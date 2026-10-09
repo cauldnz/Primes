@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T14:49:47Z",
+  "updated_utc": "2026-10-09T14:55:45Z",
   "run": {
     "id": "ap-20261009T1349Z",
     "state": "running",
@@ -514,10 +514,12 @@
     {
       "id": "hc-033",
       "entry": "wheel",
-      "hypothesis": "Two gangs (32 words) per step in apply_group, as the Zig wheel does",
-      "verdict": "running",
-      "where": "Zen 3, Zen 5, Cobalt 100",
-      "note": "Zig wheel leads by 12-18% with VW=32 words. Predict +3-8%; risk: spills of r[] with G=8."
+      "hypothesis": "Two gangs (32 words) per step in apply_group",
+      "verdict": "rejected",
+      "where": "Zen 3 +0.6%/+1.2%, Zen 5 -4.0%/+2.0%, arm -3.1%",
+      "note": "More spills. The Zig difference is fixed-row addressing (hc-035).",
+      "delta_1t": -4.0,
+      "delta_mt": 2.0
     },
     {
       "id": "hc-034",

@@ -181,3 +181,9 @@ compare-and-branch, and the counted form compiled to five instructions.
 still loses 7%: for factors over 128 one vector sweep of the whole sieve costs more than the
 sparse loop's 2,600 byte ORs. Rust's r06 lost the same way. AVX2 and SSE4 don't fold past 119
 (16,000 blends), which is why `VEC_LIMIT` is 119. Next: hc-036 tests the other direction (96).
+| 033 | 2026-10-10 | wheel | Two gangs (32 words) per step in `apply_group`, as the Zig wheel does | +3–8% | 100.0k / 861.2k, +0.6% / +1.2% | 183.2k / 1.50M, −4.0% / +2.0% | rejected (Zen 5 −4%, Cobalt 100 −3%) | `hc/033-wheel-two-gangs` |
+
+**033, two gangs per step.** Not the Zig wheel's secret. The unrolled loop needs 16 live
+phase and pointer values on x86 and spilled more (23 reloads and 9 spills per step). The
+assembly shows the real difference: Zig addresses each pattern at a fixed offset from the
+group (`g + j*8704 + 8*r[j]`), so a member costs one register. hc-035 copies that.
