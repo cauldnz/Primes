@@ -5,6 +5,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /opt/app
+ARG ISPC_TARGETS
 COPY primes.ispc build.sh ./
 RUN sh build.sh
 
