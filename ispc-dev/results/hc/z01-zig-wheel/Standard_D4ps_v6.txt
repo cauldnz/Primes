@@ -98,3 +98,10 @@ cauldnz-zig-wheel;105796;5.000058;1;algorithm=wheel,faithful=yes,bits=1
 cauldnz-zig-wheel;421951;5.000179;4;algorithm=wheel,faithful=yes,bits=1
 cauldnz-zig-wheel;211101;5.000182;2;algorithm=wheel,faithful=yes,bits=1
 == round 5 champ2
+cauldnz-zig-wheel;105716;5.000072;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;422546;5.000199;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;211248;5.000093;2;algorithm=wheel,faithful=yes,bits=1
+== round 5 ctrl
+cauldnz-ispc;94084;5.000034;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;376839;5.000114;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;188802;5.000083;2;algorithm=wheel,faithful=yes,bits=1

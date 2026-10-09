@@ -145,3 +145,4 @@ per member count, so short groups don't stream empty patterns. hc-027 tests the 
 The Zig base trails the ISPC base by 10% to 16% at 1T but beats davepl's C++ by 23% to 28%.
 | 028 | 2026-10-09 | base | hc-024 + hc-026 together against the champion (measurement for Chris) | Zen 5 +2% to +3%, Zen 3 +1% | pending | pending | measurement | `hc/026-base-init-with-3` |
 | z04 | 2026-10-09 | zig | Zig base: 64-byte-aligned sieve (the arena header left it at 16 mod 64) and a pointer-bounded sparse loop (16 to 11 instructions per eight ORs, no division) | +5% to +15% 1T, most on Zen 5 | pending | pending | pending | `hc/zig-004-align-sparse` |
+| 024b | 2026-10-09 | base | hc-024 rerun, ten rounds | as 024 | Zen 3 (7763): 56.1k / 428.8k, −0.0% / +0.2%, 3/8 at 1T | Zen 5: 127.9k / 1.00M, +1.9% / +1.4%, 8/8 at 1T, A/A within 1.3% | not kept: Zen 3 flat; see hc-028 | `hc/024-base-unmasked` |

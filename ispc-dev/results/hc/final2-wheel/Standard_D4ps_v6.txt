@@ -1,0 +1,31 @@
+Architecture:                            aarch64
+CPU(s):                                  4
+Model name:                              Neoverse-N2
+BIOS Model name:                         Cobalt 100 None CPU @ 3.4GHz
+AVX-512: no
+kind=wheel rounds=5 id=12521822080
+build cand
+build champ
+self-test cand: 8 ok, 0 bad, exit=0
+self-test champ: 8 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-ispc;94363;5.000048;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;377005;5.000126;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;188741;5.000084;2;algorithm=wheel,faithful=yes,bits=1
+== round warmup champ
+cauldnz-ispc;63469;5.000074;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;252803;5.000109;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;126650;5.000174;2;algorithm=wheel,faithful=yes,bits=1
+== round warmup champ2
+cauldnz-ispc;63448;5.000073;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;252829;5.000104;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;126653;5.000111;2;algorithm=wheel,faithful=yes,bits=1
+== round warmup ctrl
+mike-barber_bit-extreme-hybrid;42884;5.0000987053;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;85715;5.0001087189;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;171320;5.0001583099;4;algorithm=base,faithful=yes,bits=1
+== round 1 cand
+cauldnz-ispc;94472;5.000051;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;377393;5.000106;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;188839;5.000128;2;algorithm=wheel,faithful=yes,bits=1
+== round 1 champ
