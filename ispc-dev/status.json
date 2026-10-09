@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T14:45:06Z",
+  "updated_utc": "2026-10-09T14:49:47Z",
   "run": {
     "id": "ap-20261009T1349Z",
     "state": "running",
@@ -474,10 +474,12 @@
     {
       "id": "hc-031",
       "entry": "base",
-      "hypothesis": "Dense resets up to 191 on AVX-512 (vector form still folds there)",
-      "verdict": "running",
-      "where": "Zen 5 (other targets byte-identical)",
-      "note": "Both reviews. Predict +2-5% on Zen 5. AVX2/SSE stop folding past 119."
+      "hypothesis": "Dense resets up to 191 on AVX-512 (vector form still folds)",
+      "verdict": "rejected",
+      "where": "Zen 5 -7.2%/-3.2%, 0/6 rounds",
+      "note": "Folded, still slower: a full vector sweep costs more than sparse for p > 128.",
+      "delta_1t": -7.2,
+      "delta_mt": -3.2
     },
     {
       "id": "hc-032",
@@ -534,6 +536,14 @@
       "verdict": "running",
       "where": "Zen 3, Zen 5, Cobalt 100",
       "note": "avx2 loop 139 to 115 instr per vector, reloads 23 to 12. Predict +3-8% on x86."
+    },
+    {
+      "id": "hc-036",
+      "entry": "base",
+      "hypothesis": "Dense limit 96 on x86 (was 128)",
+      "verdict": "running",
+      "where": "Zen 3, Zen 5 (NEON identical)",
+      "note": "From hc-031 and r06. Predict 0-3% on Zen 5."
     }
   ],
   "azure_queue": 0,

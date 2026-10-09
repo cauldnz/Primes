@@ -175,3 +175,9 @@ had.
 Cobalt 100 +0.4%. Grok's idea 5 (a counted sparse loop) was dropped from the assembly alone
 (hc-034, not run): the champion's loop is already an eliminated move, an add and a fused
 compare-and-branch, and the counted form compiled to five instructions.
+| 031 | 2026-10-10 | base | Dense resets up to 191 on AVX-512, where the vector form still folds (both reviews, idea 1) | +2–5% Zen 5 (mine); +5–13% (Grok) | n/a (byte-identical) | 115.5k / 965.9k, −7.2% / −3.2% (0/6 rounds) | rejected | `hc/031-base-dense-192` |
+
+**031, dense to 191.** The masks fold (no compares or blends in the AVX-512 assembly) and it
+still loses 7%: for factors over 128 one vector sweep of the whole sieve costs more than the
+sparse loop's 2,600 byte ORs. Rust's r06 lost the same way. AVX2 and SSE4 don't fold past 119
+(16,000 blends), which is why `VEC_LIMIT` is 119. Next: hc-036 tests the other direction (96).

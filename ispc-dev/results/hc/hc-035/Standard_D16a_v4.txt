@@ -1,0 +1,43 @@
+Architecture:                            x86_64
+CPU(s):                                  16
+Model name:                              AMD EPYC 7763 64-Core Processor
+BIOS Model name:                         AMD EPYC 7763 64-Core Processor                 None CPU @ 2.4GHz
+AVX-512: no
+kind=wheel rounds=6 id=1445066108
+build cand
+build champ
+self-test cand: 8 ok, 0 bad, exit=0
+self-test champ: 8 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-ispc;100048;5.000011;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;881306;5.000278;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;797387;5.000170;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;397836;5.000079;4;algorithm=wheel,faithful=yes,bits=1
+== round warmup champ
+cauldnz-ispc;100097;5.000011;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;849566;5.000249;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;790773;5.000138;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;396842;5.000104;4;algorithm=wheel,faithful=yes,bits=1
+== round warmup champ2
+cauldnz-ispc;99650;5.000003;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;852034;5.000304;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;788198;5.000165;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;394269;5.000117;4;algorithm=wheel,faithful=yes,bits=1
+== round warmup ctrl
+rogiervandam_extend_epar;534249;5.000078;16;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;517082;5.000067;8;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;260665;5.000035;4;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;130390;5.000004;2;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend;65205;5.000001;1;algorithm=other,faithful=yes,bits=1
+== round 1 champ2
+cauldnz-ispc;98279;5.000020;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;850902;5.000274;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;788572;5.000151;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;394827;5.000095;4;algorithm=wheel,faithful=yes,bits=1
+== round 1 ctrl
+rogiervandam_extend_epar;534076;5.000055;16;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;514205;5.000049;8;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;260119;5.000032;4;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;130218;5.000046;2;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend;65636;5.000021;1;algorithm=other,faithful=yes,bits=1
+== round 1 cand
