@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T08:20:44Z",
+  "updated_utc": "2026-10-09T08:28:57Z",
   "run": {
     "id": "ap-20261009T0607Z",
     "state": "running",
@@ -12,9 +12,9 @@
     "spend_cap_nzd": 30
   },
   "current": {
-    "id": "hc-011",
+    "id": "hc-012",
     "phase": "evaluate",
-    "detail": "hc-009 (base scan) Zen 3 and Zen 5, hc-010 profile Zen 5, hc-011 (wheel G=6) Zen 5"
+    "detail": "hc-011 Zen 3 and Zen 5, hc-012 Zen 3 and Zen 5"
   },
   "scoreboard": [
     {
@@ -177,23 +177,34 @@
       "id": "hc-009",
       "entry": "base",
       "hypothesis": "Next-prime scan a word at a time (count trailing zeros)",
-      "verdict": "running",
-      "where": "Zen 3 now, Zen 5 next",
-      "note": "Local Xeon too noisy to rank."
+      "verdict": "rejected",
+      "where": "Zen 3 -0.3%, Zen 5 -1.4%",
+      "note": "Stopped early; scan already cheap.",
+      "delta_1t": -1.4,
+      "delta_mt": -1.2
     },
     {
       "id": "hc-010",
       "entry": "both",
       "hypothesis": "Re-profile both champions on Zen 5 (TSC phase builds and perf)",
-      "verdict": "running",
-      "where": "Zen 5"
+      "verdict": "done",
+      "where": "Zen 5",
+      "note": "Base matches Rust phase for phase (38k dense, 61k sparse). Wheel: sparse 52%, groups 35%, tile+13 12%."
     },
     {
       "id": "hc-011",
       "entry": "wheel",
       "hypothesis": "Fusion group size G=6 instead of 8",
       "verdict": "running",
-      "where": "Zen 5 first, Zen 3 next"
+      "where": "Zen 5 running, Zen 3 launched"
+    },
+    {
+      "id": "hc-012",
+      "entry": "wheel",
+      "hypothesis": "64-bit bit indices in the wheel sparse loop",
+      "verdict": "running",
+      "where": "Zen 3, Zen 5",
+      "note": "Local Xeon 4/4."
     }
   ],
   "azure_queue": 3,
@@ -312,6 +323,16 @@
       "utc": "2026-10-09T08:13:34Z",
       "level": "info",
       "text": "hc-008 rejected (tile memcpy flat on Zen 5). hc-010 re-profile launched."
+    },
+    {
+      "utc": "2026-10-09T08:28:57Z",
+      "level": "info",
+      "text": "hc-009 rejected (base word scan, -1.4% Zen 5). hc-010: base now level with Rust on Zen 5 per phase."
+    },
+    {
+      "utc": "2026-10-09T08:28:57Z",
+      "level": "info",
+      "text": "hc-011 (G=6) and hc-012 (wheel sparse 64-bit indices) running."
     }
   ],
   "research": {
@@ -391,7 +412,7 @@
     }
   },
   "cycles": {
-    "source": "Zen 4 (9V74) and Zen 5 (9V45), TSC timers per phase, 1T, 3 rounds within 0.1%.",
+    "source": "hc-010 re-profile on Zen 5 (9V45) with the current champions, TSC phase builds and perf cpu-clock. Earlier Zen 4 rows from hc-001.",
     "phases": [
       "dense",
       "sparse",
@@ -400,37 +421,15 @@
     ],
     "rows": [
       {
-        "program": "ours base",
-        "machine": "Zen 4",
-        "share": {
-          "dense": 42,
-          "sparse": 53,
-          "scan": 2,
-          "setup": 1
-        },
-        "per_pass": "270k"
-      },
-      {
-        "program": "Rust",
-        "machine": "Zen 4",
-        "share": {
-          "dense": 36,
-          "sparse": 62,
-          "scan": 3,
-          "setup": null
-        },
-        "per_pass": "219k"
-      },
-      {
-        "program": "ours base",
+        "program": "ours base (champion)",
         "machine": "Zen 5",
         "share": {
-          "dense": 44,
-          "sparse": 51,
-          "scan": 2,
+          "dense": 35,
+          "sparse": 57,
+          "scan": 4,
           "setup": 1
         },
-        "per_pass": "157k"
+        "per_pass": "108k"
       },
       {
         "program": "Rust",
@@ -441,14 +440,25 @@
           "scan": 4,
           "setup": null
         },
-        "per_pass": "108k"
+        "per_pass": "104k"
       },
       {
-        "program": "ours wheel (perf)",
+        "program": "ours base (start of run)",
         "machine": "Zen 5",
         "share": {
-          "dense": 58,
-          "sparse": 42,
+          "dense": 44,
+          "sparse": 51,
+          "scan": 2,
+          "setup": 1
+        },
+        "per_pass": "157k"
+      },
+      {
+        "program": "ours wheel (champion, perf)",
+        "machine": "Zen 5",
+        "share": {
+          "dense": 47,
+          "sparse": 52,
           "scan": null,
           "setup": null
         },
@@ -456,11 +466,9 @@
       }
     ],
     "notes": [
-      "Base gap to Rust: 51k cycles a pass on Zen 4 (dense 35k, sparse 8k) and 49k on Zen 5 (dense 29k, sparse 15k).",
-      "Rust dense costs a flat ~2.7k cycles per factor: LLVM SLP-vectorises it. Ours is scalar.",
-      "Wheel: fused pattern groups 46%, sparse 42%, 7x11 tile 12% (Zen 5, perf cpu-clock).",
-      "Azure D-series exposes no hardware PMU counters; perf used cpu-clock sampling.",
-      "D16as_v5 came up as Zen 4 (9V74), not Zen 3."
+      "Base now matches Rust phase for phase on Zen 5: dense 38k, sparse 61k, scan 4k cycles a pass.",
+      "Wheel: sparse loop 52%, fused groups 35%, tile and 13 12% (perf, Zen 5).",
+      "Azure D-series exposes no hardware PMU counters; perf used cpu-clock sampling."
     ]
   }
 }

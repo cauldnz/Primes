@@ -56,3 +56,13 @@ which is AVX2-only.
 
 **008, tile memcpy.** No gain on Zen 5. The copy is too small a share of the pass to matter.
 | 011 | 2026-10-09 | wheel | Fusion group size G = 6 instead of 8 | +2% to +5% 1T; local Xeon medians G=6 +5% over G=8 (noisy) | pending | pending | pending | `hc/011-wheel-g6` |
+| 009 | 2026-10-09 | base | (result) | | Zen 3 (7763): 55.5k / 427.3k, −0.3% / −0.3%, 0/2, stopped after 3 rounds | Zen 5: 121.6k / 979.1k, −1.4% / −1.2%, 0/1, stopped | REVERT | `hc/009-base-scan-ctz` |
+| 010 | 2026-10-09 | both | Re-profile both champions on Zen 5 | Base gap to Rust mostly gone | n/a | Zen 5: base and Rust both 38k dense, 61k sparse, 4k scan per pass; wheel perf: sparse (in run_sieve) 52%, groups 35%, tile and 13 12% | measurement | `7360392` |
+| 012 | 2026-10-09 | wheel | 64-bit bit indices in the wheel sparse loop (no sign extension per OR) | +2% to +5% 1T; local Xeon +0.5% to +8%, 4/4 | pending | pending | pending | `hc/012-wheel-sparse-i64` |
+
+**009, base word scan.** Slightly slower on both machines (−0.3% Zen 3, −1.4% Zen 5). The bit
+scan is already cheap; the extra branches cost more than they save. Stopped early.
+
+**010, re-profile.** On Zen 5 the base entry now matches Rust phase for phase (dense 38k,
+sparse 61k, scan 4k cycles a pass). The uninstrumented base runs 123k–125k passes against
+Rust's 125k at 1T. On the wheel, the sparse loop is the largest phase at 52% of samples.

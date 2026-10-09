@@ -9,3 +9,513 @@ build wheel
 build base
 build c5
 build rust
+build baseprof
+build rustprof
+== counters
+   <not supported>      cycles                                                                
+   <not supported>      instructions                                                          
+   <not supported>      branches                                                              
+   <not supported>      branch-misses                                                         
+   <not supported>      L1-dcache-loads                                                       
+   <not supported>      L1-dcache-load-misses                                                 
+hardware cycles not available: sampling cpu-clock
+=== perf stat wheel
+cauldnz-ispc;162382;5.000018;1;algorithm=wheel,faithful=yes,bits=1
+chroot: Interrupt
+ Performance counter stats for 'chroot /rf/wheel /bin/sh -c cd /opt/app && exec ./primes':
+       14438550972      task-clock                       #    2.581 CPUs utilized             
+               121      context-switches                 #    8.380 /sec                      
+                 1      cpu-migrations                   #    0.069 /sec                      
+               803      page-faults                      #   55.615 /sec                      
+   <not supported>      cycles                                                                
+       5.593221725 seconds time elapsed
+      14.433478000 seconds user
+       0.005994000 seconds sys
+=== perf record wheel
+cauldnz-ispc;159635;5.000035;1;algorithm=wheel,faithful=yes,bits=1
+--- report wheel (self, by symbol)
+    52.17%  primes                [.] run_sieve___un_3C_s_5B_unSieve_5D__3E__avx512skx
+    34.85%  primes                [.] apply_group___un_3C_unU_3E_uniun_3C_s_5B__c_unGroup_5D__3E_un_3C_Cuni_3E__avx512skx
+    12.04%  primes                [.] dense_primes___un_3C_s_5B_unSieve_5D__3E_un_3C_Cuni_3E_uni_avx512skx
+     0.06%  libc.so.6             [.] 0x00000000001a1f6f
+     0.05%  [vdso]                [.] 0x0000000000000bfb
+     0.05%  libc.so.6             [.] 0x00000000001a1f47
+     0.04%  libc.so.6             [.] 0x00000000001a1f55
+     0.04%  libc.so.6             [.] 0x00000000001a1f76
+     0.04%  libc.so.6             [.] 0x00000000001a1f2e
+     0.04%  libc.so.6             [.] 0x00000000001a1f7d
+     0.04%  libc.so.6             [.] 0x00000000001a1f5c
+     0.03%  libc.so.6             [.] 0x00000000001a1f07
+     0.03%  libc.so.6             [.] 0x00000000001a1f84
+     0.02%  libc.so.6             [.] 0x00000000001a1f09
+     0.02%  primes                [.] worker___un_3C_unv_3E__avx512skx
+     0.02%  libc.so.6             [.] 0x00000000000a9bdb
+     0.02%  libc.so.6             [.] 0x00000000001a1e80
+     0.02%  libc.so.6             [.] 0x00000000001a1f63
+     0.02%  primes                [.] memset@plt
+     0.01%  libc.so.6             [.] cfree
+     0.01%  libc.so.6             [.] 0x00000000001a1e8a
+     0.01%  [kernel.kallsyms]     [k] 0xffffffffa015f8ca
+     0.01%  [kernel.kallsyms]     [k] 0xffffffffa0287537
+     0.01%  libc.so.6             [.] 0x00000000000ab0a9
+     0.01%  libc.so.6             [.] 0x00000000001a1f4e
+--- annotate wheel: apply_group___un_3C_unU_3E_uniun_3C_s_5B__c_unGroup_5D__3E_un_3C_Cuni_3E__avx512skx (lines >= 0.5%)
+=== perf stat base
+cauldnz-ispc-base;125039;5.000036;1;algorithm=base,faithful=yes,bits=1
+chroot: Interrupt
+ Performance counter stats for 'chroot /rf/base /bin/sh -c cd /opt/app && exec ./primes':
+       14529085830      task-clock                       #    2.596 CPUs utilized             
+               109      context-switches                 #    7.502 /sec                      
+                 2      cpu-migrations                   #    0.138 /sec                      
+               775      page-faults                      #   53.341 /sec                      
+   <not supported>      cycles                                                                
+       5.597772185 seconds time elapsed
+      14.527069000 seconds user
+       0.002998000 seconds sys
+=== perf record base
+cauldnz-ispc-base;122868;5.000004;1;algorithm=base,faithful=yes,bits=1
+--- report base (self, by symbol)
+    63.27%  primes                [.] clear_sparse___un_3C_s_5B_unSieve_5D__3E_uni_avx2
+    34.02%  primes                [.] clear_factor___un_3C_s_5B_unSieve_5D__3E_uni_avx2
+     1.66%  primes                [.] worker___un_3C_unv_3E__avx2
+     0.85%  libc.so.6             [.] 0x00000000001a1efa
+     0.02%  libc.so.6             [.] cfree
+     0.02%  [vdso]                [.] 0x0000000000000bfb
+     0.01%  libc.so.6             [.] 0x00000000000adb41
+     0.01%  [kernel.kallsyms]     [k] 0xffffffffa015f8ca
+     0.01%  [kernel.kallsyms]     [k] 0xffffffffa01b8c0d
+     0.01%  [kernel.kallsyms]     [k] 0xffffffffa1249529
+     0.01%  libc.so.6             [.] clock_gettime
+     0.01%  libc.so.6             [.] 0x00000000001a1f07
+     0.00%  [kernel.kallsyms]     [k] 0xffffffffa01a6f54
+     0.00%  libc.so.6             [.] 0x00000000000aab60
+     0.00%  libc.so.6             [.] 0x00000000000ab50c
+     0.00%  libc.so.6             [.] 0x00000000001a1ef0
+     0.00%  [kernel.kallsyms]     [k] 0xffffffffa012c39c
+     0.00%  [kernel.kallsyms]     [k] 0xffffffffa0153bcb
+     0.00%  [kernel.kallsyms]     [k] 0xffffffffa0176d42
+     0.00%  [kernel.kallsyms]     [k] 0xffffffffa0188a56
+     0.00%  [kernel.kallsyms]     [k] 0xffffffffa0269796
+     0.00%  [kernel.kallsyms]     [k] 0xffffffffa041a515
+     0.00%  [kernel.kallsyms]     [k] 0xffffffffa04a63c5
+     0.00%  [kernel.kallsyms]     [k] 0xffffffffa04a835d
+     0.00%  [kernel.kallsyms]     [k] 0xffffffffa04bc5cf
+--- annotate base: aligned_alloc (lines >= 0.5%)
+=== perf stat c5
+chroot: Interrupt
+ Performance counter stats for 'chroot /rf/c5 /bin/sh -c cd /home/sieve && LD_PRELOAD=/usr/lib/libmimalloc.so exec bin/sieve_extend':
+        5596124042      task-clock                       #    1.000 CPUs utilized             
+                38      context-switches                 #    6.790 /sec                      
+                 1      cpu-migrations                   #    0.179 /sec                      
+               147      page-faults                      #   26.268 /sec                      
+   <not supported>      cycles                                                                
+       5.596835525 seconds time elapsed
+       5.592431000 seconds user
+       0.003999000 seconds sys
+=== perf record c5
+--- report c5 (self, by symbol)
+     1.77%  sieve_extend               [.] 0x000000000000ddbf
+     1.29%  sieve_extend               [.] 0x000000000000bb1b
+     1.06%  sieve_extend               [.] 0x000000000000ddf5
+     0.94%  sieve_extend               [.] 0x000000000000ddd8
+     0.92%  sieve_extend               [.] 0x000000000000ba10
+     0.89%  sieve_extend               [.] 0x000000000000bb2f
+     0.86%  sieve_extend               [.] 0x000000000000c9f9
+     0.85%  sieve_extend               [.] 0x000000000000de15
+     0.83%  sieve_extend               [.] 0x000000000000cae2
+     0.78%  sieve_extend               [.] 0x000000000000cbcd
+     0.77%  sieve_extend               [.] 0x000000000000cb69
+     0.77%  sieve_extend               [.] 0x000000000000dde3
+     0.77%  sieve_extend               [.] 0x000000000000cb84
+     0.75%  sieve_extend               [.] 0x000000000000cb01
+     0.75%  sieve_extend               [.] 0x000000000000ba06
+     0.75%  sieve_extend               [.] 0x000000000000cadc
+     0.74%  sieve_extend               [.] 0x000000000000b955
+     0.71%  sieve_extend               [.] 0x000000000000b977
+     0.69%  sieve_extend               [.] 0x000000000000ddc6
+     0.69%  sieve_extend               [.] 0x000000000000caa7
+     0.69%  sieve_extend               [.] 0x000000000000cb9d
+     0.67%  sieve_extend               [.] 0x000000000000cb36
+     0.66%  sieve_extend               [.] 0x000000000000cb55
+     0.65%  sieve_extend               [.] 0x000000000000caaa
+     0.62%  sieve_extend               [.] 0x000000000000cb63
+--- annotate c5: clock_gettime@plt (lines >= 0.5%)
+=== perf stat rust
+-------------------------------------------------------
+Computing primes to 1000000 on 1 thread for 5 seconds.
+-------------------------------------------------------
+chroot: Interrupt
+ Performance counter stats for 'chroot /rf/rust /bin/sh -c cd /app && exec ./prime-sieve-rust --bits-extreme -t 1':
+         596391154      task-clock                       #    0.107 CPUs utilized             
+                 3      context-switches                 #    5.030 /sec                      
+                 0      cpu-migrations                   #    0.000 /sec                      
+               233      page-faults                      #  390.683 /sec                      
+   <not supported>      cycles                                                                
+       5.596880416 seconds time elapsed
+       0.594789000 seconds user
+       0.001999000 seconds sys
+=== perf record rust
+--- report rust (self, by symbol)
+    61.63%  prime-sieve-rust   [.] prime_sieve_rust::run_implementation_st
+     1.88%  prime-sieve-rust   [.] <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_089
+     1.73%  prime-sieve-rust   [.] <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_007
+     1.73%  prime-sieve-rust   [.] <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_083
+     1.66%  prime-sieve-rust   [.] <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_003
+     1.50%  prime-sieve-rust   [.] <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_005
+     1.50%  prime-sieve-rust   [.] <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_127
+     1.43%  prime-sieve-rust   [.] <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_031
+     1.43%  prime-sieve-rust   [.] <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_047
+     1.43%  prime-sieve-rust   [.] <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_053
+     1.43%  prime-sieve-rust   [.] <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_103
+     1.35%  prime-sieve-rust   [.] <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_011
+     1.35%  prime-sieve-rust   [.] <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_029
+     1.35%  prime-sieve-rust   [.] <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_097
+     1.28%  prime-sieve-rust   [.] <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_043
+     1.28%  prime-sieve-rust   [.] <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_071
+     1.28%  prime-sieve-rust   [.] <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_113
+     1.20%  prime-sieve-rust   [.] <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_037
+     1.20%  prime-sieve-rust   [.] <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_101
+     1.05%  prime-sieve-rust   [.] <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_013
+     0.98%  prime-sieve-rust   [.] <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_019
+     0.98%  prime-sieve-rust   [.] <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_041
+     0.98%  prime-sieve-rust   [.] <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_059
+     0.98%  prime-sieve-rust   [.] <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_061
+     0.98%  prime-sieve-rust   [.] <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_067
+--- annotate rust: <prime_sieve_rust::unrolled_extreme::FlagStorageExtremeHybrid as prime_sieve_rust::primes::FlagStorage>::reset_flags::extreme_reset_003 (lines >= 0.5%)
+=== TSC phase builds
+== round 1 baseprof
+PROF total 12972375083 scan 0.037199 dense 0.350131 sparse 0.568458 create 0.008492 destroy 0.000204 per-pass-cycles 108130.158231
+F 3 868
+F 5 901
+F 7 873
+F 11 872
+F 13 836
+F 17 1065
+F 19 1090
+F 23 1216
+F 29 1272
+F 31 1232
+F 37 1289
+F 41 1373
+F 43 1353
+F 47 1331
+F 53 1347
+F 59 1437
+F 61 1289
+F 67 1434
+F 71 1379
+F 73 1338
+F 79 1416
+F 83 1400
+F 89 1427
+F 97 1418
+F 101 1402
+F 103 1426
+F 107 1360
+F 109 1434
+F 113 1408
+F 127 1361
+F 131 1396
+F 137 1342
+F 139 1327
+F 149 1255
+F 151 1231
+F 157 1182
+F 163 1136
+F 167 1111
+F 173 1086
+F 179 1023
+F 181 1027
+F 191 971
+F 193 986
+F 197 942
+F 199 933
+F 211 888
+F 223 801
+F 227 780
+F 229 804
+F 233 761
+F 239 763
+F 241 753
+F 251 742
+cauldnz-ispc-base;119970;5.000018;1;algorithm=base,faithful=yes,bits=1
+== round 1 rustprof
+F 3 202929228
+F 5 152530295
+F 7 167676672
+F 11 154829710
+F 13 139323833
+F 17 140459986
+F 19 145341741
+F 23 146669586
+F 29 140204322
+F 31 142481676
+F 37 138570944
+F 41 140999052
+F 43 144022968
+F 47 147940777
+F 53 146584956
+F 59 153571364
+F 61 153230141
+F 67 145316294
+F 71 137039649
+F 73 159527965
+F 79 126779090
+F 83 158410608
+F 89 175538242
+F 97 188541588
+F 101 163715660
+F 103 157990613
+F 107 149769277
+F 109 151652346
+F 113 154530059
+F 127 158609554
+F 131 165426278
+F 137 159448855
+F 139 158250692
+F 149 150471941
+F 151 147087949
+F 157 140806864
+F 163 138342264
+F 167 133832407
+F 173 130404615
+F 179 125369820
+F 181 124784621
+F 191 119121702
+F 193 120343509
+F 197 115814728
+F 199 114333897
+F 211 109706698
+F 223 103377965
+F 227 102652252
+F 229 102514852
+F 233 97538243
+F 239 96272967
+F 241 93380238
+F 251 89283688
+PROF scan 0.041 dense 0.370 sparse 0.590 sum 12405360748
+mike-barber_bit-extreme-hybrid;119573;5.0000119209;1;algorithm=base,faithful=yes,bits=1
+== round 2 baseprof
+PROF total 12972351858 scan 0.037100 dense 0.351466 sparse 0.567153 create 0.008496 destroy 0.000203 per-pass-cycles 107955.393113
+F 3 864
+F 5 893
+F 7 875
+F 11 859
+F 13 829
+F 17 1062
+F 19 1085
+F 23 1218
+F 29 1271
+F 31 1256
+F 37 1306
+F 41 1378
+F 43 1365
+F 47 1329
+F 53 1338
+F 59 1455
+F 61 1289
+F 67 1396
+F 71 1374
+F 73 1341
+F 79 1419
+F 83 1419
+F 89 1449
+F 97 1428
+F 101 1422
+F 103 1425
+F 107 1360
+F 109 1435
+F 113 1430
+F 127 1356
+F 131 1387
+F 137 1345
+F 139 1329
+F 149 1255
+F 151 1253
+F 157 1176
+F 163 1137
+F 167 1110
+F 173 1085
+F 179 1022
+F 181 1024
+F 191 968
+F 193 992
+F 197 942
+F 199 933
+F 211 887
+F 223 800
+F 227 783
+F 229 803
+F 233 761
+F 239 757
+F 241 750
+F 251 741
+cauldnz-ispc-base;120164;5.000014;1;algorithm=base,faithful=yes,bits=1
+== round 2 rustprof
+F 3 202415963
+F 5 152177110
+F 7 167503138
+F 11 154483063
+F 13 139024329
+F 17 140372219
+F 19 145138621
+F 23 146413347
+F 29 140046917
+F 31 142268618
+F 37 138261594
+F 41 140673194
+F 43 143701086
+F 47 148461398
+F 53 146218300
+F 59 153260425
+F 61 152787172
+F 67 145571458
+F 71 137705528
+F 73 159334885
+F 79 126725225
+F 83 158151761
+F 89 174822243
+F 97 187559171
+F 101 163863212
+F 103 157494352
+F 107 149456225
+F 109 151113337
+F 113 154032183
+F 127 158270077
+F 131 164840279
+F 137 159118121
+F 139 158132456
+F 149 149252920
+F 151 147071622
+F 157 140483658
+F 163 137471062
+F 167 134489367
+F 173 130053675
+F 179 125431124
+F 181 124402899
+F 191 118649611
+F 193 120169261
+F 197 115509022
+F 199 114128999
+mike-barber_bit-extreme-hybrid;119278;5.0000209808;1;algorithm=base,faithful=yes,bits=1
+F 211 109044791
+F 223 103214340
+F 227 100742566
+F 229 102199462
+F 233 97867812
+F 239 95803414
+F 241 92648812
+F 251 88666167
+PROF scan 0.040 dense 0.369 sparse 0.591 sum 12407682457
+== round 3 baseprof
+PROF total 12972388753 scan 0.037240 dense 0.350538 sparse 0.567928 create 0.008497 destroy 0.000202 per-pass-cycles 107974.569913
+F 3 867
+F 5 899
+F 7 875
+F 11 866
+F 13 837
+F 17 1065
+F 19 1089
+F 23 1239
+F 29 1273
+F 31 1233
+F 37 1275
+F 41 1379
+F 43 1364
+F 47 1330
+F 53 1344
+F 59 1394
+F 61 1290
+F 67 1395
+F 71 1403
+F 73 1347
+F 79 1417
+F 83 1386
+F 89 1477
+F 97 1401
+F 101 1389
+F 103 1450
+F 107 1358
+F 109 1405
+F 113 1435
+F 127 1354
+F 131 1385
+F 137 1337
+F 139 1332
+F 149 1257
+F 151 1250
+F 157 1179
+F 163 1145
+F 167 1111
+F 173 1090
+F 179 1024
+F 181 1028
+F 191 967
+F 193 981
+F 197 941
+F 199 934
+F 211 889
+F 223 799
+F 227 775
+F 229 805
+F 233 761
+F 239 763
+F 241 753
+F 251 742
+cauldnz-ispc-base;120143;5.000030;1;algorithm=base,faithful=yes,bits=1
+== round 3 rustprof
+F 3 201635761
+F 5 151443828
+F 7 166518545
+F 11 153898294
+F 13 138314662
+F 17 139471738
+F 19 144298768
+F 23 145523210
+F 29 139457443
+F 31 141934900
+F 37 137665000
+F 41 140065861
+F 43 142912452
+F 47 147326969
+F 53 145858641
+F 59 152114917
+F 61 152370157
+F 67 144520888
+F 71 136498665
+F 73 158349209
+F 79 126223562
+F 83 157597716
+F 89 174393107
+F 97 186628538
+F 101 162451933
+F 103 156882836
+F 107 148578332
+F 109 149750679
+F 113 151962737
+F 127 157455447
+F 131 164517800
+F 137 158663349
+F 139 157730307
+F 149 149214747
+F 151 145775074
+F 157 140059028
+F 163 137149708
+F 167 132581200
+F 173 129411921
+F 179 124568816
+F 181 124060729
+F 191 118669561
+F 193 119413314
+F 197 115040103
+F 199 113871999
+F 211 109157388
+F 223 103634200
+F 227 100897826
+F 229 102923566
+F 233 97993947
+F 239 96861730
+F 241 94363043
+F 251 90698798
+PROF scan 0.040 dense 0.367 sparse 0.593 sum 12410189904
+mike-barber_bit-extreme-hybrid;118682;5.0000076294;1;algorithm=base,faithful=yes,bits=1
