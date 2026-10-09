@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T11:28:02Z",
+  "updated_utc": "2026-10-09T11:36:11Z",
   "run": {
     "id": "ap-20261009T1112Z",
     "state": "running",
@@ -8,13 +8,13 @@
     "mode_reason": "Chris asked for a few more hours: ISPC against davepl's C++ base, Rust hill climbing, a first Zig entry.",
     "started_utc": "2026-10-09T11:12:00Z",
     "time_box_hours": 4,
-    "spend_nzd": 0,
+    "spend_nzd": 0.0,
     "spend_cap_nzd": 30
   },
   "current": {
     "id": "hc-022",
     "phase": "evaluate",
-    "detail": "Persistent pools up (Zen 3, Zen 5, Cobalt 100); start tasks building rivals; 6 tasks queued"
+    "detail": "Base scoreboard with davepl: round 3 of 5 on Zen 5; Rust r-01 and r-02 building"
   },
   "scoreboard": [
     {
