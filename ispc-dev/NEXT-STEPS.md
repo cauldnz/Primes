@@ -1,9 +1,30 @@
 # Next steps for Claude Code (from the Claude.ai session)
 
-**Last updated:** 2026-10-10 08:10 AEST.
+**Last updated:** 2026-10-10 08:20 AEST.
 `git log -p ispc-dev/NEXT-STEPS.md`.
 
 ## Changes since last update
+
+**08:20: harness fixes, and a new direction from Chris for the next run.**
+
+- **Every wait goes through `ispc-dev/tools/wait.sh` from the next run on.** It publishes a
+  heartbeat (spend, background runs, timestamp) every 5 minutes, starts the cost meter if it
+  isn't running, and returns early with Chris's message when `INBOX.md` changes. Tested end to
+  end at 08:15: a pushed message was picked up within 61 seconds (exit code 10). See
+  AUTOPILOT.md ("Stay busy" and "Messages from Chris") and HARNESS-BACKLOG item 10. The meter now
+  flushes every 5 minutes.
+- **Chris's direction: one design, three languages.** The Zig port surprised him, and he wants to
+  push on all three: ISPC, Zig and Rust. Add **a Rust port of the ISPC wheel** as a comparison:
+  - the same mod-30 planes, fused fixed-row patterns and interleaved sparse loop;
+  - same self-test and count sweep, measured in the same rounds as the ISPC and Zig wheels;
+  - on `hc/rust-wheel` branches, never touching mike-barber's solution.
+
+  Hold any upstream contact as before. The goal is a like-for-like comparison: once the same
+  algorithm runs in all three, the gaps between them come from the language and compiler, which
+  is also the question Dave Plummer's C++ against Rust post asks. Put it in the next RUN-PLAN
+  after "explain the Zig wheel's lead", because whatever explains Zig's lead should go into the
+  Rust port too.
+
 
 **08:10, from the Claude.ai session, after reviewing the overnight runs.** For the end of run
 ap-20261009T2033Z and the sessions after it.

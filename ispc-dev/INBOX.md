@@ -13,4 +13,4 @@ it picked a message up on the status page ("Inbox").
 
 ## Latest
 
-TEST from the Claude.ai session at 08:15 AEST: checking that wait.sh picks this up. Ignore.
+(no message yet)
