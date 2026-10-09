@@ -257,9 +257,14 @@ static void sparse_prime(uniform Sieve * uniform s, uniform int p) {
             i[pl] += p;
         }
     }
+    // The 8 start bits lie within p of each other, so after those rounds each plane has at
+    // most one multiple left. Mark it without a branch: a 0-or-1-trip loop mispredicted often.
     for (uniform int pl = 0; pl < 8; pl++) {
-        uniform int64 end = (uniform int64)pl * pw * 64 + nbits;
-        for (uniform int64 x = i[pl]; x < end; x += p) base[x >> 6] |= ((uniform uint64)1) << (x & 63);
+        uniform int64 lo = (uniform int64)pl * pw * 64;
+        uniform int64 x = i[pl];
+        uniform bool live = x < lo + nbits;
+        uniform int64 at = live ? x : lo;                // an OR of 0 into word lo if not
+        base[at >> 6] |= (live ? ((uniform uint64)1) : 0) << (x & 63);
     }
 }
 
