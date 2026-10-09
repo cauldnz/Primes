@@ -1,7 +1,9 @@
 # Cloud runbook: unattended hill climbing
 
-How to run `HILL-CLIMB.md` in a Claude Code cloud session for a few hours without supervision.
-Set up by the local Claude Code session on 2026-10-09; Chris approved the limits below.
+The mechanics for running `HILL-CLIMB.md` in a Claude Code cloud session for a few hours without
+supervision. `AUTOPILOT.md` is the brief: what to aim for, how to choose experiments, how to check
+your own work and how to report. Read it first. Set up by the local Claude Code session on
+2026-10-09; Chris approved the limits below.
 
 ## Limits (agreed with Chris)
 
@@ -11,7 +13,7 @@ Set up by the local Claude Code session on 2026-10-09; Chris approved the limits
 | Azure budget | NZ$30 for the session, counted from `results/cost-log.csv` |
 | Azure scope | service principal `primes-hc-cloud`: Contributor on `rg-chris-batch-llm` only; secret expires 2026-10-10 03:34 AEST |
 | Compute | Batch Spot only (`MODE=batch`), account `batchllmwestus2gves`, 128 Spot vCPUs; at most 4 pools at once; `MAX_MINUTES` 60 or less per pool |
-| Git | code on `hc/<id>-<slug>` branches; results, `LEDGER.md` and `STATUS.md` on `ispc-dev`. Solution code is never merged into `ispc-dev`, never pushed to `ispc`, and no PR is opened |
+| Git | code on `hc/<id>-<slug>` branches; accepted winners merge into `hc/champion`; results, `LEDGER.md`, `STATUS.md` and `status.json` on `ispc-dev`; the status page on `dashboard`. Solution code is never merged into `ispc-dev`, never pushed to `ispc`, and no PR is opened |
 
 ## Environment setup (Chris, once)
 
@@ -70,9 +72,10 @@ The service principal sees only `rg-chris-batch-llm`. Creating anything outside 
 ## Running one experiment
 
 ```bash
-git checkout -b hc/007-gang-g12 ispc-dev          # candidate branch
+git fetch origin hc/champion
+git checkout -b hc/007-gang-g12 origin/hc/champion   # candidate branch
 # ...edit PrimeISPC/solution_1 or _2, commit...
-BASE=origin/ispc-dev                               # champion = current ispc-dev
+BASE=origin/hc/champion                              # champion = accepted winners so far
 for SIZE in Standard_D16as_v5 Standard_D16as_v7; do   # Zen 3 and Zen 5 are mandatory
   MODE=batch SUITE=ab ENTRY=1 ROUNDS=5 MAX_MINUTES=45 BASE=$BASE \
   OUT=$PWD/ispc-dev/results/hc/007-gang-g12 \
@@ -81,6 +84,9 @@ for SIZE in Standard_D16as_v5 Standard_D16as_v7; do   # Zen 3 and Zen 5 are mand
 done; wait
 python ispc-dev/analyze.py ispc-dev/results/hc/007-gang-g12/Standard_*.txt
 ```
+
+On KEEP, merge the candidate into `hc/champion` and push it. On REVERT, push the candidate branch
+as it is, for the record.
 
 - Copy the bench script before running it if you might edit it mid-run; bash reads scripts as
   it goes.
@@ -112,7 +118,9 @@ node-hours, so the time box will bind first.
    `az batch pool delete --pool-id <id> --yes`.
 2. All logs are committed under `ispc-dev/results/hc/` and pushed.
 3. `ispc-dev/results/hc/LEDGER.md` has one row per experiment, winners and losers.
-4. `ispc-dev/STATUS.md` has a "Changes since last update" entry summarising the session:
+4. `ispc-dev/status.json` shows `run.state` `stopped`, and `ispc-dev/dashboard/publish.sh` has
+   pushed the final page.
+5. `ispc-dev/STATUS.md` has a "Changes since last update" entry summarising the session:
    - experiments run and verdicts
    - the current champion per entry
    - the spend
@@ -124,38 +132,18 @@ Paste this into the new cloud session:
 
 ```text
 You are running an unattended hill-climbing session on the ISPC entries for the Primes drag race.
-Repo cauldnz/Primes, branch ispc-dev. Read, in order:
-  ispc-dev/CLOUD-RUNBOOK.md   (limits, login, how to run an experiment, budget, shutdown)
-  ispc-dev/HILL-CLIMB.md      (the loop, evaluation protocol, acceptance rule, rules gate, backlog)
-  ispc-dev/STATUS.md and ispc-dev/NEXT-STEPS.md (latest state from both sessions)
-  ispc-dev/RULES-REVIEW.md    (faithfulness and base-algorithm rules)
+Repo cauldnz/Primes, branch ispc-dev. Chris is offline: decide, record why, and keep going.
 
-Then:
-1. Log in to Azure with the service principal (runbook, "In-session login"). Check that
-   `az batch pool list` works. If login fails, stop and write that into STATUS.md.
-2. Work the HILL-CLIMB.md backlog in rank order, one hypothesis per experiment:
-   - write the prediction first
-   - use SUITE=ab, champion = origin/ispc-dev, on Zen 3 and Zen 5
-   - decide with ispc-dev/analyze.py and the acceptance rule
-   You may run up to two experiments in parallel (4 pools).
-3. After every experiment, whatever the verdict:
-   - commit its logs under ispc-dev/results/hc/<id>/
-   - add a row and a short note to ispc-dev/results/hc/LEDGER.md
-   - push the candidate code to its hc/<id>-<slug> branch
-   - pull --rebase and push ispc-dev (results and notes only)
-   Never merge solution code into ispc-dev, never touch the ispc branch, never open a PR.
-4. Every hour, update ispc-dev/STATUS.md ("Changes since last update" at the top).
-   Stay busy the whole time: the VM pauses after about 5 idle minutes and kills background runs.
-   While experiments run, block in the foreground (wait, or a sleep-and-check loop, in chunks of
-   10 minutes or less), and plan or analyse between checks. Never end your turn while runs are
-   in flight, and never end it before the stop conditions below are met.
-5. Stop at the first of these:
-   - 4 hours elapsed
-   - estimated spend of NZ$25 (runbook formula)
-   - three failed experiments in a row on every remaining backlog line
-   - an error you cannot fix safely
-   Then run the shutdown checklist and write a final STATUS.md summary.
-Follow the house style for everything you write: Australian English, numbers behind claims, no
-em-dash clauses. The rules are summarised in HILL-CLIMB.md under "Writing". Other sessions push
-to ispc-dev too, so always pull --rebase before pushing.
+Read, in order:
+  ispc-dev/AUTOPILOT.md       (the brief: objective, search strategy, self-supervision, status
+                               page, never-without-Chris list, stopping and the morning report)
+  ispc-dev/CLOUD-RUNBOOK.md   (limits, Azure login, running an experiment, budget, shutdown)
+  ispc-dev/HILL-CLIMB.md      (evaluation protocol, acceptance rule, rules gate, backlog)
+  ispc-dev/STATUS.md, ispc-dev/NEXT-STEPS.md and ispc-dev/status.json (latest state)
+  ispc-dev/RULES-REVIEW.md    (faithfulness and base-algorithm rules)
+  ispc-dev/WRITING.md         (house style for everything you write)
+
+Then follow AUTOPILOT.md from section 2. Where it and the runbook disagree, the runbook's limits
+win. Stay busy until a stop condition is met: never end your turn with runs in flight.
+Other sessions may push to ispc-dev too, so always pull --rebase before pushing.
 ```

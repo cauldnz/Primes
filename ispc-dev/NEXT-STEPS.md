@@ -1,9 +1,23 @@
 # Next steps for Claude Code (from the Claude.ai session)
 
-**Last updated:** 2026-10-09 15:50 AEST. Living file; earlier versions are in
+**Last updated:** 2026-10-09 15:55 AEST. Living file; earlier versions are in
 `git log -p ispc-dev/NEXT-STEPS.md`.
 
 ## Changes since last update
+
+**15:55: the two runbooks, reconciled.**
+
+- `AUTOPILOT.md` is the brief (aims, search strategy, self-supervision, status page, morning
+  report). Your `CLOUD-RUNBOOK.md` is the mechanics, and its limits win where the two differ.
+  The kickoff prompt in the runbook now reads AUTOPILOT.md first.
+- Winners now collect on `hc/champion`, so gains can stack while `ispc-dev` keeps no solution
+  changes. Experiments branch off it and use `BASE=origin/hc/champion`. I created it from
+  `ispc-dev` at this commit.
+- If Azure login fails, the run records why and continues in local mode (`bench-local.sh`),
+  queuing winners in `AZURE-QUEUE.md`, instead of stopping.
+- The A/A spread from `analyze.py` is the noise floor in the brief.
+- Allowed pushes: `hc/*`, results and notes on `ispc-dev`, and `dashboard`.
+
 
 **15:50: the unsupervised brief and the phone dashboard.**
 

@@ -1,9 +1,15 @@
 # Autopilot brief: unsupervised hill climbing
 
 This is the brief for an unattended Claude Code session in a cloud container. Each session starts
-fresh and remembers nothing, so all state lives in this branch. Read this file first, then
-`HILL-CLIMB.md` (the evaluation protocol and backlog), `STATUS.md`, `status.json` and
-`results/hc/LEDGER.md`.
+fresh and remembers nothing, so all state lives in this branch. Two files work together:
+
+- **This file** says what to aim for, how to choose experiments, how to check your own work and
+  how to report.
+- **`CLOUD-RUNBOOK.md`** says how to do it: limits, Azure login, running an experiment with
+  `SUITE=ab`, `analyze.py`, cost accounting, the idle-pause guard and shutdown.
+
+Where they disagree, the runbook's limits win. Read both, then `HILL-CLIMB.md` (protocol,
+acceptance rule, rules gate, backlog), `STATUS.md`, `status.json` and `results/hc/LEDGER.md`.
 
 Chris is offline. Don't wait for answers. Decide, write down what you decided and why, and carry
 on. Stop only for the items under "Never without Chris".
@@ -34,11 +40,15 @@ for a loss of more than 1% elsewhere.
    got there first: pull, re-read the lock and exit.
 3. **Tools:** `sudo apt-get update && sudo apt-get install -y ispc gcc make libomp-dev`. Cargo is
    usually present.
-4. **Azure check.** If `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_CLIENT_SECRET` and
-   `AZURE_SUBSCRIPTION_ID` are set, install the CLI (`pip install --break-system-packages
-   azure-cli`), log in with the service principal and select the subscription. If all of that
-   works you are in **Azure mode**; otherwise **local mode**. Never print or commit the secret.
-5. Set `run` in `status.json` (id, state `running`, mode and the reason, start time), add an event
+4. **Azure check.** Follow "In-session login" in `CLOUD-RUNBOOK.md`. If `az batch pool list`
+   works you are in **Azure mode**. If anything fails (missing variables, blocked network,
+   expired secret), write the error into `STATUS.md` and carry on in **local mode**. Never print
+   or commit the secret.
+5. **Champion branch.** Accepted winners collect on `hc/champion`. If it doesn't exist on the
+   remote, create it from `origin/ispc-dev` and push it. Every experiment branches off
+   `origin/hc/champion` and is measured against it. Solution code never merges into `ispc-dev`;
+   Chris reviews `hc/champion` against `ispc-dev` in the morning.
+6. Set `run` in `status.json` (id, state `running`, mode and the reason, start time), add an event
    and publish the page (section 6).
 
 ## 3. Search strategy
@@ -68,13 +78,17 @@ round, record it as inconclusive and move on.
 Use the protocol in `HILL-CLIMB.md`: the champion and a control in every round, interleaved,
 round 1 discarded.
 
-- **Azure mode:** Batch Spot, Zen 3 and Zen 5 at minimum, five counted rounds. Accept on the
-  HILL-CLIMB rule: at least 2% on both machines, consistent across rounds, and no regression
-  above 1% anywhere. Merge winners into `ispc-dev`. Work through `AZURE-QUEUE.md` first.
+- **Azure mode:** `SUITE=ab` on Batch Spot, champion `BASE=origin/hc/champion`, Zen 3 and Zen 5
+  at minimum, five counted rounds (see "Running one experiment" in `CLOUD-RUNBOOK.md`). Decide
+  with `analyze.py`: KEEP merges the candidate into `hc/champion`, RERUN repeats it with 10
+  rounds, REVERT leaves it on its own branch. Its A/A check (champion against itself) is your
+  noise floor; a gain smaller than the A/A spread is not a gain. Work through `AZURE-QUEUE.md`
+  before new experiments.
 - **Local mode:** `ispc-dev/bench-local.sh <solution> <champion-ref> <candidate-ref> 7`. The
   container is a shared 2-vCPU Intel Xeon, which can rank changes but not confirm them for Zen.
   A local winner needs a 3% median gain and wins in at least 5 of the 6 counted rounds. Keep it
-  on an `hc/<id>-<slug>` branch and add it to `AZURE-QUEUE.md`.
+  on its `hc/<id>-<slug>` branch and add it to `AZURE-QUEUE.md`. Local results never move
+  `hc/champion`.
 
 ## 5. Self-supervision
 
@@ -92,8 +106,11 @@ Nobody is watching, so check your own work.
 - **Hourly review.** Once an hour, append five lines to `STATUS.md`: what worked, what didn't,
   whether the protocol was followed, spend so far, and whether the next experiment is the best
   use of the remaining time. Change course if the answer is no.
-- **Spend.** Track Azure spend in `status.json` from node-hours at Spot rates. Stop starting new
-  Azure work at NZ$25, so the run ends under the NZ$30 cap.
+- **Spend.** Track Azure spend in `status.json` with the formula in `CLOUD-RUNBOOK.md`
+  (`results/cost-log.csv`). Stop starting new pools at NZ$25, so the run ends under the NZ$30 cap.
+- **Stay busy.** The cloud VM pauses after about five idle minutes and kills background runs.
+  Block in the foreground while experiments run, in waits of 10 minutes or less, and use each
+  wake-up to update `status.json` and the page.
 
 ## 6. Instrumentation
 
@@ -132,7 +149,9 @@ Chris if it hasn't updated for 45 minutes, so a silent gap reads as a crash.
 
 ## 8. Never without Chris
 
-- Pushing to the `ispc` branch, or opening or editing a pull request.
+- Pushing to the `ispc` branch, merging solution code into `ispc-dev`, or opening or editing a
+  pull request. Allowed pushes: `hc/*` branches (including `hc/champion`), results and notes on
+  `ispc-dev`, and the `dashboard` branch.
 - Changing a solution's tags, or a claim that affects its category.
 - Spending more than NZ$30 of Azure in a run, or creating anything outside the Batch account
   and its resource group.
@@ -147,9 +166,11 @@ Stop at the 4-hour time box, or earlier if:
 - the backlog is empty.
 
 Before you exit:
-1. Set `run.state` to `stopped`, clear `current` and publish the page.
+1. Run the shutdown checklist in `CLOUD-RUNBOOK.md` (no pools left running). Then set
+   `run.state` to `stopped`, clear `current` and publish the page.
 2. Write a morning report at the top of `STATUS.md`:
-   - what changed and by how much, per entry and machine;
+   - what changed and by how much, per entry and machine, with the `hc/champion` commits that
+     carry each gain;
    - what is waiting in `AZURE-QUEUE.md`;
    - the three best next experiments;
    - anything Chris needs to decide.
