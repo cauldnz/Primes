@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T09:52:52Z",
+  "updated_utc": "2026-10-09T09:57:28Z",
   "run": {
     "id": "ap-20261009T0607Z",
     "state": "running",
@@ -14,7 +14,7 @@
   "current": {
     "id": "final",
     "phase": "evaluate",
-    "detail": "Final scoreboard: wheel and base on Zen 3 and Zen 5 running; Zen 4 and Cobalt 100 next"
+    "detail": "Final scoreboard: wheel Zen 3 round 1; base Zen 3, wheel and base Zen 5 warming up"
   },
   "scoreboard": [
     {
