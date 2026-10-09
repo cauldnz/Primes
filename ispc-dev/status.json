@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T22:52:28Z",
+  "updated_utc": "2026-10-09T22:59:26Z",
   "run": {
     "id": "ap-20261009T2033Z",
     "state": "running",
@@ -644,9 +644,11 @@
       "id": "hc-045",
       "entry": "wheel",
       "hypothesis": "Unsigned arithmetic in start_bit (Zig form)",
-      "verdict": "running",
-      "where": "Zen 3, Zen 5, Cobalt 100",
-      "note": "~1,300 calls a pass; signed div/mod by 30 needs fix-ups. Predict 0-2%."
+      "verdict": "kept",
+      "where": "Zen 3 +10.3%/+5.9%, Zen 5 +9.0%/+5.2%, arm +4.5%/+4.4%, all 6/6",
+      "note": "Merged into hc/champion (059b8f3). Explains most of the Zig sparse lead on Zen 5.",
+      "delta_1t": 9.0,
+      "delta_mt": 5.2
     }
   ],
   "azure_queue": 0,
@@ -656,11 +658,6 @@
     "Find the Zig wheel edge and port it to ISPC"
   ],
   "events": [
-    {
-      "utc": "2026-10-09T06:36:25Z",
-      "level": "info",
-      "text": "Research agent finished: RESEARCH.md committed. Adopted: wheel masked tails, wheel 13 fast path, base dense limit. solution_3: not now."
-    },
     {
       "utc": "2026-10-09T06:56:32Z",
       "level": "info",
@@ -905,6 +902,11 @@
       "utc": "2026-10-09T20:33:20Z",
       "level": "info",
       "text": "Run ap-20261009T2033Z: 4 hours per RUN-PLAN.md. Harness first: danielspaangberg wheel rival, phase profiles."
+    },
+    {
+      "utc": "2026-10-09T22:59:26Z",
+      "level": "info",
+      "text": "hc-045 kept: +9-10% at 1T on Zen 3 and Zen 5, +4.5% on Cobalt 100. Champion now 059b8f3."
     }
   ],
   "research": {

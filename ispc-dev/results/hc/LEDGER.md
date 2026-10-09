@@ -253,3 +253,11 @@ rounds overstate small gains, so the ten-round rerun is doing its job.
 only added work. Harness note from the same hour: `tools/prun.sh` copied `hc-pool.sh` to one
 shared file per launch, and the copy truncated it under a running task (the first Zen 3 base
 scoreboard task died silently). Each launch now gets its own copy.
+| 045 | 2026-10-10 | wheel | Unsigned arithmetic in `start_bit`, as in the Zig port (signed division and remainder by 30 need sign fix-ups; about 1,300 calls a pass) | 0–2% | 110.2k / 937.3k, **+10.3% / +5.9%** (6/6) | 208.9k / 1.57M, **+9.0% / +5.2%** (6/6) | **kept**, merged into `hc/champion` (`059b8f3`); Cobalt 100 +4.5% / +4.4% (6/6) | `hc/045-wheel-unsigned-start-bit` |
+
+**045, unsigned start bits.** The biggest single gain since hc-004, from four lines, and I predicted
+0–2%. It accounts for most of the Zig wheel's sparse lead on Zen 5 (24.0k against 29.9k cycles
+a pass): `start_bit` runs eight times per prime, for 162 primes a pass, and each signed `% 30`
+and `/ 30` costs a sign correction on top of the multiply. The profiles pointed at the phase;
+reading the Zig source line by line found the cause. Lesson for the harness: when a port is
+faster, diff the ports' arithmetic types before their loop shapes.
