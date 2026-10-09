@@ -1,0 +1,59 @@
+Architecture:                            x86_64
+CPU(s):                                  16
+Model name:                              AMD EPYC 9V45 96-Core Processor
+BIOS Model name:                         AMD EPYC 9V45 96-Core Processor                 None CPU @ 2.6GHz
+AVX-512: yes
+kind=wheel rounds=6 id=23251815815
+build cand
+build champ
+self-test cand: 8 ok, 0 bad, exit=0
+self-test champ: 8 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-ispc;211215;5.000000;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1574498;5.000183;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1539548;5.000095;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;803777;5.000057;4;algorithm=wheel,faithful=yes,bits=1
+== round warmup champ
+cauldnz-ispc;208792;5.000002;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1574398;5.000183;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1534344;5.000098;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;799656;5.000051;4;algorithm=wheel,faithful=yes,bits=1
+== round warmup champ2
+cauldnz-ispc;208578;5.000016;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1574225;5.000187;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1532368;5.000090;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;798186;5.000064;4;algorithm=wheel,faithful=yes,bits=1
+== round warmup ctrl
+rogiervandam_extend_epar;1156608;5.000025;16;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;959998;5.000007;8;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;508700;5.000003;4;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;277704;5.000026;2;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend;139505;5.000019;1;algorithm=other,faithful=yes,bits=1
+== round warmup ctrl2
+danielspaangberg_5760of30030_owrb;70467;5.000075;1;algorithm=wheel,faithful=yes,bits=1
+danielspaangberg_5760of30030_epar;504903;5.000739;16;algorithm=wheel,faithful=yes,bits=1
+== round 1 cand
+cauldnz-ispc;211124;5.000003;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1572557;5.000174;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1533315;5.000087;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;802117;5.000050;4;algorithm=wheel,faithful=yes,bits=1
+== round 1 ctrl
+rogiervandam_extend_epar;1157945;5.000027;16;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;958959;5.000013;8;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;508590;5.000019;4;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;277970;5.000019;2;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend;139673;5.000009;1;algorithm=other,faithful=yes,bits=1
+== round 1 ctrl2
+danielspaangberg_5760of30030_owrb;70625;5.000055;1;algorithm=wheel,faithful=yes,bits=1
+danielspaangberg_5760of30030_epar;505212;5.000677;16;algorithm=wheel,faithful=yes,bits=1
+== round 1 champ
+cauldnz-ispc;209395;5.000000;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1575385;5.000168;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1529324;5.000085;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;794982;5.000058;4;algorithm=wheel,faithful=yes,bits=1
+== round 1 champ2
+cauldnz-ispc;210530;5.000007;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1574465;5.000205;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1535498;5.000082;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;800128;5.000069;4;algorithm=wheel,faithful=yes,bits=1
+== round 2 champ2
