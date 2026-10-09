@@ -147,3 +147,32 @@ cauldnz-ispc;1235183;5.000196;16;algorithm=wheel,faithful=yes,bits=1
 cauldnz-ispc;1097082;5.000095;8;algorithm=wheel,faithful=yes,bits=1
 cauldnz-ispc;578118;5.000058;4;algorithm=wheel,faithful=yes,bits=1
 == round 5 ctrl
+rogiervandam_extend_epar;1153600;5.000034;16;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;957422;5.000018;8;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;509979;5.000018;4;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;275972;5.000017;2;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend;139052;5.000033;1;algorithm=other,faithful=yes,bits=1
+== round 6 champ2
+cauldnz-ispc;150483;5.000011;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1236886;5.000190;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1098388;5.000107;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;588148;5.000067;4;algorithm=wheel,faithful=yes,bits=1
+== round 6 ctrl2
+danielspaangberg_5760of30030_owrb;70297;5.000016;1;algorithm=wheel,faithful=yes,bits=1
+danielspaangberg_5760of30030_epar;502798;5.000699;16;algorithm=wheel,faithful=yes,bits=1
+== round 6 cand
+cauldnz-ispc;208985;5.000015;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1565695;5.000178;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1525498;5.000088;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;797764;5.000066;4;algorithm=wheel,faithful=yes,bits=1
+== round 6 ctrl
+rogiervandam_extend_epar;1178996;5.000041;16;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;960930;5.000033;8;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;506616;5.000022;4;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;276244;5.000022;2;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend;139011;5.000010;1;algorithm=other,faithful=yes,bits=1
+== round 6 champ
+cauldnz-ispc;150635;5.000026;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1238536;5.000195;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1099715;5.000096;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;585480;5.000059;4;algorithm=wheel,faithful=yes,bits=1
