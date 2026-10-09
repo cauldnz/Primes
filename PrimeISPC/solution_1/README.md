@@ -19,11 +19,11 @@ A sieve of Eratosthenes written in [ISPC](https://ispc.github.io/), the Intel® 
 
 **Wheel tile.** Multiples of 7 and 11 repeat every 77 words in every plane, so that period is built once and copied along each plane with vector copies. 13 follows on its own, after which every bit below 17² is final.
 
-**Large primes** (above 384) set at most one bit per word, so they use scalar strided bit-setting, with all 8 planes advanced in one loop to give 8 independent memory streams.
+**Large primes** (above 256 by default) set at most one bit per word, so they use scalar strided bit-setting, with all 8 planes advanced in one loop to give 8 independent memory streams.
 
 **Faithfulness.** All of a sieve's state, including its pattern scratch space, lives in the `Sieve` struct (ISPC has no classes; a struct with functions taking it as their first argument is the closest equivalent). A new instance is created and its buffers allocated, sized from the sieve size at run time, on every pass. Nothing is precomputed or carried between passes, and there are no external dependencies.
 
-**Parallelism.** The multi-threaded run starts one pthread per hardware thread, each running independent sieves. SIMD is used within every thread.
+**Parallelism.** Multi-threaded runs start one pthread per thread, each running independent sieves, and are reported at all, half and a quarter of the hardware threads (fewer threads can win when SMT siblings share an L1). SIMD is used within every thread.
 
 **Portability.** On x86-64 the build compiles SSE4, AVX2 and AVX-512 versions into one binary, and ISPC's built-in dispatcher picks the best one the CPU supports when the program starts. On ARM64 the build targets NEON.
 
@@ -52,7 +52,7 @@ sh build.sh
 ### Optional environment variables
 
 - `PRIMES_TEST=1` checks the prime count for every power of ten from 10 to 10⁸, prints the results, and exits non-zero on any mismatch.
-- `PRIMES_DENSE_MAX=<n>` sets the threshold below which primes are applied as word patterns instead of individual bits (default 384).
+- `PRIMES_DENSE_MAX=<n>` sets the threshold below which primes are applied as word patterns instead of individual bits (default 256; best on Zen 3 and Zen 5).
 
 ## Output
 

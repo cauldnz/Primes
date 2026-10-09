@@ -350,10 +350,28 @@ static void self_test(uniform int dense_max) {
     exit(bad);
 }
 
+static void run_threads(uniform Job * uniform jobs, uniform int64 * uniform tids,
+                        uniform int n, uniform int dense_max) {
+    uniform double start = now();
+    for (uniform int t = 0; t < n; t++) {
+        jobs[t].deadline = start + RUN_SECONDS;
+        jobs[t].dense_max = dense_max;
+        pthread_create(&tids[t], NULL, (void * uniform)worker, &jobs[t]);
+    }
+    uniform int64 total = 0;
+    for (uniform int t = 0; t < n; t++) {
+        pthread_join(tids[t], NULL);
+        total += jobs[t].passes;
+        if (jobs[t].count != EXPECTED) { print("ERROR: wrong prime count %\n", jobs[t].count); exit(1); }
+    }
+    uniform double elapsed = now() - start;
+    print("cauldnz-ispc;%;%;%;algorithm=wheel,faithful=yes,bits=1\n", total, elapsed, n);
+}
+
 export uniform int main() {
     uniform int8 n_dense[17] = {80,82,73,77,69,83,95,68,69,78,83,69,95,77,65,88,0}; // PRIMES_DENSE_MAX
     uniform int8 n_test[12] = {80,82,73,77,69,83,95,84,69,83,84,0};                 // PRIMES_TEST
-    uniform int dense_max = env_int(n_dense, 384);
+    uniform int dense_max = env_int(n_dense, 256);
     if (env_int(n_test, 0) != 0) self_test(dense_max);
 
     uniform int nthreads = clamp(get_nprocs(), 1, 1024);
@@ -369,20 +387,9 @@ export uniform int main() {
     if (jobs[0].count != EXPECTED) { print("ERROR: wrong prime count %\n", jobs[0].count); exit(1); }
     print("cauldnz-ispc;%;%;1;algorithm=wheel,faithful=yes,bits=1\n", jobs[0].passes, elapsed);
 
-    // one independent sieve per hardware thread
-    start = now();
-    for (uniform int t = 0; t < nthreads; t++) {
-        jobs[t].deadline = start + RUN_SECONDS;
-        jobs[t].dense_max = dense_max;
-        pthread_create(&tids[t], NULL, (void * uniform)worker, &jobs[t]);
-    }
-    uniform int64 total = 0;
-    for (uniform int t = 0; t < nthreads; t++) {
-        pthread_join(tids[t], NULL);
-        total += jobs[t].passes;
-        if (jobs[t].count != EXPECTED) { print("ERROR: wrong prime count %\n", jobs[t].count); exit(1); }
-    }
-    elapsed = now() - start;
-    print("cauldnz-ispc;%;%;%;algorithm=wheel,faithful=yes,bits=1\n", total, elapsed, nthreads);
+    // One independent sieve per thread at all, half and a quarter of the hardware threads:
+    // where SMT siblings share an L1, fewer threads can complete more passes.
+    for (uniform int n = nthreads; n >= 2 && n * 4 >= nthreads; n /= 2)
+        run_threads(jobs, tids, n, dense_max);
     return 0;
 }
