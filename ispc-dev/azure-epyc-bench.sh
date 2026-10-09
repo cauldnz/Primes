@@ -5,8 +5,15 @@
 # Usage:  SUB=<subscription-id> [MODE=vm|batch] ./azure-epyc-bench.sh <vm-size> [vm-size ...]
 #   e.g. Standard_D16as_v5 (EPYC Zen 3, AVX2 only), Standard_D16as_v6 (Zen 4), Standard_D16as_v7
 #        (Zen 5), Standard_D4ps_v5 (Ampere Altra, arm64), Standard_D4ps_v6 (Cobalt 100, arm64).
-# Common env: SUB (required: every az call is pinned to it), BASE (git ref for the "old" build),
-#   SUITE (default: new/old/AVX2 vs C5/Chapel; targets: ISPC_TARGETS matrix for both entries).
+# Common env: SUB (required: every az call is pinned to it), BASE (git ref for the "old" /
+#   champion build), OUT (results folder; default results/azure-<timestamp>), SUITE:
+#   default  new/old/forced-AVX2 vs C5/Chapel, plus a threshold sweep (solution_1)
+#   targets  ISPC_TARGETS matrix for both entries vs C5/Rust/Chapel
+#   ab       hill-climbing A/B for ENTRY=1|2 (default 1): candidate = working tree, champion =
+#            BASE, champion run twice per round (A/A noise floor) plus a control (C5 for the
+#            wheel on x86, mike-barber Rust otherwise); one discarded warm-up round, then
+#            ROUNDS (default 5) rounds in random order. Analyse with ispc-dev/analyze.py.
+# Every pool/VM run appends "date,mode,size,minutes" to results/cost-log.csv.
 #
 # MODE=vm (default): one VM per size, driven over SSH.
 #   Env: LOCATION (resource group), REGIONS (VM regions to try in order; default LOCATION),
@@ -38,9 +45,13 @@ MAX_MINUTES="${MAX_MINUTES:-90}"
 SIZES=("$@")
 HERE="$(cd "$(dirname "$0")" && pwd)"
 SOLUTION="$HERE/../PrimeISPC/solution_1"
-OUT="$HERE/results/azure-$(date +%Y%m%d%H%M)"
+OUT="${OUT:-$HERE/results/azure-$(date +%Y%m%d%H%M)}"
 mkdir -p "$OUT"
+COSTLOG="$HERE/results/cost-log.csv"
 KEYDIR="$(mktemp -d)"
+ENTRY="${ENTRY:-1}"
+ROUNDS="${ROUNDS:-5}"
+case "$ENTRY" in 1|2) ;; *) echo "ENTRY must be 1 or 2" >&2; exit 2;; esac
 
 # Stage three variants, LF-only (a Windows checkout with core.autocrlf has CRLF, which breaks
 # build.sh): new = working tree, old = $BASE (default HEAD) for interleaved A/B,
@@ -57,6 +68,17 @@ mkdir -p "$STAGE/base"
 for f in "$HERE/../PrimeISPC/solution_2/"*; do sed 's/\r$//' "$f" > "$STAGE/base/$(basename "$f")"; done
 sed -i '/^set -e$/a ISPC_TARGETS=avx2-i32x8' "$STAGE/avx2/build.sh"
 grep -q '^ISPC_TARGETS=avx2-i32x8$' "$STAGE/avx2/build.sh" || { echo "!!! could not force AVX2 target"; exit 1; }
+# SUITE=ab: candidate = working tree of PrimeISPC/solution_$ENTRY, champion = the same folder at BASE.
+mkdir -p "$STAGE/cand" "$STAGE/champ"
+for f in "$HERE/../PrimeISPC/solution_$ENTRY/"*; do sed 's/\r$//' "$f" > "$STAGE/cand/$(basename "$f")"; done
+for f in $(git -C "$HERE/.." ls-tree --name-only "$BASE" "PrimeISPC/solution_$ENTRY/"); do
+  git -C "$HERE/.." show "$BASE:$f" > "$STAGE/champ/$(basename "$f")"
+done
+[ -f "$STAGE/champ/Dockerfile" ] || { echo "!!! no PrimeISPC/solution_$ENTRY at $BASE"; exit 1; }
+if [ "${SUITE:-default}" = ab ] && diff -rq "$STAGE/cand" "$STAGE/champ" >/dev/null; then
+  echo "!!! candidate equals champion (BASE=$BASE): commit the candidate elsewhere or set BASE"; exit 1
+fi
+cost() { echo "$(date -u +%Y-%m-%dT%H:%M:%SZ),$MODE,$1,$2" >> "$COSTLOG"; }
 
 azs() { az "$@" --subscription "$SUB"; }
 is_arm() { case "$1" in Standard_[A-Z]*[0-9]p*_v*) return 0;; *) return 1;; esac; }
@@ -151,9 +173,44 @@ else
   done
 fi
 '
+
+# SUITE=ab: candidate vs champion vs champion again (A/A) vs a control, warm-up round discarded,
+# then $ROUNDS rounds with the order shuffled each round. Labels: cand, champ, champ2, ctrl.
+REMOTE_AB='
+set -e
+STAGE="${STAGE:-$HOME/stage}"
+export DEBIAN_FRONTEND=noninteractive DOCKER_BUILDKIT=1
+APT="sudo apt-get -o DPkg::Lock::Timeout=600 -qq"
+$APT update && $APT install -y docker.io docker-buildx git >/dev/null
+lscpu | grep -E "Model name|^CPU\(s\)|^Architecture" || true
+grep -q avx512f /proc/cpuinfo && echo "AVX-512: yes" || echo "AVX-512: no"
+echo "entry=$ENTRY rounds=$ROUNDS"
+git clone -q --depth 1 -b drag-race https://github.com/PlummersSoftwareLLC/Primes.git
+cd Primes
+build() { echo "build $2"; sudo docker build -q -t "$2" "$1" >/dev/null || { echo "!!! build $2 failed"; exit 3; }; }
+build "$STAGE/cand" cand
+build "$STAGE/champ" champ
+if [ "$(uname -m)" = x86_64 ] && [ "$ENTRY" = 1 ]; then build PrimeC/solution_5 ctrl; CTRL="rogiervandam_extend"
+else build PrimeRust/solution_1 ctrl; CTRL="mike-barber_bit-extreme-hybrid"; fi
+echo "control=$CTRL"
+for i in cand champ; do
+  r=$(sudo docker run --rm -e PRIMES_TEST=1 "$i" 2>&1; echo "exit=$?")
+  echo "self-test $i: $(echo "$r" | grep -c " 1$") ok, $(echo "$r" | grep -c " 0$") bad, $(echo "$r" | tail -1)"
+  echo "$r" | tail -1 | grep -q "exit=0" || { echo "!!! self-test $i failed"; exit 4; }
+done
+img() { case $1 in champ2) echo champ;; *) echo $1;; esac; }
+one() { echo "== round $1 $2"; sudo docker run --rm "$(img $2)" 2>/dev/null | grep ";" \
+          | { [ "$2" = ctrl ] && grep -E "^${CTRL}(_epar)?;" || cat; } || echo "!!! run $2 failed"; }
+for x in cand champ champ2 ctrl; do one warmup $x; done
+for i in $(seq "$ROUNDS"); do
+  for x in $(printf "cand\nchamp\nchamp2\nctrl\n" | shuf); do one "$i" $x; done
+done
+'
 case "${SUITE:-default}" in
   default) ;;
   targets) REMOTE_SCRIPT="$REMOTE_TARGETS" ;;
+  ab) REMOTE_SCRIPT="export ENTRY=$ENTRY ROUNDS=$ROUNDS
+$REMOTE_AB" ;;
   *) echo "unknown SUITE=$SUITE" >&2; exit 2 ;;
 esac
 
@@ -190,7 +247,7 @@ if [ "$MODE" = vm ]; then
       grep -oE "SkuNotAvailable|QuotaExceeded|OperationNotAllowed|NotAvailableForSubscription|[A-Za-z]+ is not supported[^.]*" "$OUT/$SIZE-$LOC.err" | sort -u | head -3
     done
     [ -n "$CREATED" ] || { echo "!!! could not create $SIZE anywhere, skipping"; continue; }
-    echo "  created in $CREATED $(date +%T)"
+    echo "  created in $CREATED $(date +%T)"; T_VM=$(date +%s)
     azs vm auto-shutdown -g "$RG" -n "$VM" --time "$(date -u -d '+2 hours' +%H%M)" -o none || true
     IP=$(azs vm show -d -g "$RG" -n "$VM" --query publicIps -o tsv)
     for _ in $(seq 20); do ssh "${SSHOPTS[@]}" "azureuser@$IP" true 2>/dev/null && break; sleep 6; done
@@ -198,13 +255,16 @@ if [ "$MODE" = vm ]; then
     ssh "${SSHOPTS[@]}" "azureuser@$IP" "bash -s" <<< "$REMOTE_SCRIPT" | tee "$OUT/$SIZE.txt" || true
     echo "### done $SIZE $(date +%T), deleting VM"
     azs vm delete -g "$RG" -n "$VM" --yes -o none || true   # stop paying as soon as it's done
+    cost "$SIZE" $(( ( $(date +%s) - T_VM ) / 60 + 1 ))
   done
 
 # ---------------------------------------------------------------------------------------------
 elif [ "$MODE" = batch ]; then
   TAG="primes-$(date +%Y%m%d%H%M%S)"
   POOLS=()
-  azs batch account login -n "$BATCH_ACCOUNT" -g "$BATCH_RG" -o none
+  # Shared-key auth: needs only management-plane access to the account (e.g. Contributor on its
+  # resource group), so a scoped service principal works without a Batch data-plane role.
+  azs batch account login -n "$BATCH_ACCOUNT" -g "$BATCH_RG" --shared-key-auth -o none
   SA=$(azs batch account show -n "$BATCH_ACCOUNT" -g "$BATCH_RG" --query autoStorage.storageAccountId -o tsv)
   SA="${SA##*/}"
   [ -n "$SA" ] || { echo "!!! Batch account has no linked storage"; exit 1; }
@@ -266,7 +326,7 @@ PY
     if ! az batch pool create --json-file "$KEYDIR/pool.json" 2>"$OUT/$SIZE-pool.err"; then
       echo "!!! pool create failed:"; tail -3 "$OUT/$SIZE-pool.err"; continue
     fi
-    POOLS+=("$P")
+    POOLS+=("$P"); T_POOL=$(date +%s)
     az batch job create --json-file "$KEYDIR/job.json" -o none
     az batch task create --job-id "$P" --json-file "$KEYDIR/task.json" -o none
 
@@ -300,6 +360,7 @@ PY
     echo "### done $SIZE $(date +%T), deleting pool"
     az batch job delete --job-id "$P" --yes 2>/dev/null || true
     az batch pool delete --pool-id "$P" --yes 2>/dev/null || true   # stop paying as soon as it's done
+    cost "$SIZE" $(( ( $(date +%s) - T_POOL ) / 60 + 1 ))
   done
 else
   echo "unknown MODE=$MODE" >&2; exit 2
