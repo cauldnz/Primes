@@ -22,6 +22,10 @@
 #   SPOT_VCPUS             Spot vCPUs you expect to use, for the quota check [64]
 #   SP_NAME                service principal display name [BATCH_RG-climber]
 #
+# Why Batch: in Batch-service mode, pool nodes run in subscriptions Batch manages, so your own
+# subscription's VM quotas and offer restrictions don't apply; the Batch account's quotas do.
+# That can reach VM sizes (and Spot) your subscription can't create directly. AZURE-BENCH.md.
+#
 # What it creates, all inside BATCH_RG:
 #   - a general-purpose v2 storage account (task output, staged builds);
 #   - a Batch account in Batch-service mode, with that storage as its auto-storage;
@@ -132,8 +136,9 @@ quota() {   # warn when the account can't run the pools a climb needs
     if [ "${LP:-0}" -lt "$SPOT_VCPUS" ]; then
         cat <<Q
 !! The Batch account has ${LP:-0} Spot vCPUs; a climb wants about $SPOT_VCPUS (four 16-vCPU nodes).
-   New accounts often start low. Ask for more in the portal: the Batch account, then Quotas,
-   then Request quota increase (Spot/low-priority vCPUs). It is free and usually quick.
+   New accounts usually start low, and raising it takes a quota request: in the portal, open
+   the Batch account, then Quotas, then Request quota increase (Spot/low-priority vCPUs). It is
+   free; ours was approved quickly. Until then pools create without error but stay at 0 nodes.
 Q
     else
         say "Spot quota: $LP vCPUs"
@@ -182,5 +187,5 @@ cmd_down() {
 
 case "$CMD" in
     up) cmd_up ;; rotate) cmd_rotate ;; check) cmd_check ;; down) cmd_down ;;
-    *) sed -n '2,33p' "$0" | sed 's/^# \{0,1\}//' ;;
+    *) sed -n '2,37p' "$0" | sed 's/^# \{0,1\}//' ;;
 esac

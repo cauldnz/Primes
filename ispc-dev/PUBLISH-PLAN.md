@@ -16,6 +16,8 @@ sieves. The upstream Primes PR stays solution-only and links to it.
   a Batch account and a service principal scoped to that group, checks the Spot quota and writes
   the env file; `rotate` issues a fresh short-lived secret per run; `check` proves the principal
   can't reach outside its group; `down` deletes it all. Nothing in the repo names a real account.
+  `AZURE-BENCH.md` explains why Batch: it reaches VM sizes and Spot that a subscription's own
+  offer may block, and a Spot quota needs a support request (ours was approved quickly).
 - **The record.** `MACHINE-LOG.md` becomes the write-up, in Chris's house style. The ledger, the
   full event log and the retrospectives stay in the fork and are linked, with commit hashes.
 

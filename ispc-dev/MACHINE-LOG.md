@@ -118,6 +118,16 @@ last. Public, like the rest of the repo.
 - It ships after it has climbed on ticks at least once, from fresh history, after an audit
   against the public-repo rules.
 
+### 10 October, 09:15: the bench, for anyone
+
+- `tools/azure-setup.sh` stands up a Batch bench from nothing and `AZURE-BENCH.md` explains it.
+  Two points for the write-up, from Chris. Batch runs pool nodes in its own subscriptions, so it
+  reached Spot and VM sizes that our subscription's offer blocked outright. And the Spot quota
+  needed a support request, which came back quickly.
+- Chris's view: Azure Batch is one of the most underrated Azure services. For a machine like
+  this it does three jobs at once: it reaches the hardware, it cleans up after itself on a
+  deadline, and it keeps results safe while the climber sleeps.
+
 ## Lessons so far
 
 1. Controls in every round matter more than any optimisation. Without them, machine noise
