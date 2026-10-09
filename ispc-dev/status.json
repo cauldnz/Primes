@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T09:12:23Z",
+  "updated_utc": "2026-10-09T09:15:03Z",
   "run": {
     "id": "ap-20261009T0607Z",
     "state": "running",
@@ -14,7 +14,7 @@
   "current": {
     "id": "hc-016",
     "phase": "evaluate",
-    "detail": "hc-015 and hc-016 on Zen 3 and Zen 5"
+    "detail": "hc-016 (no lead-ins) and hc-017 (dense 160) on Zen 3 and Zen 5"
   },
   "scoreboard": [
     {
@@ -248,6 +248,13 @@
       "verdict": "running",
       "where": "Zen 3, Zen 5",
       "note": "Counts match a reference for 5,396 sizes on 3 targets x 3 dense limits."
+    },
+    {
+      "id": "hc-017",
+      "entry": "wheel",
+      "hypothesis": "Dense threshold 160 instead of 256 after the faster sparse loop",
+      "verdict": "running",
+      "where": "Zen 3, Zen 5"
     }
   ],
   "azure_queue": 3,

@@ -8,3 +8,32 @@ build cand
 build champ
 build ctrl
 control=rogiervandam_extend
+self-test cand: 8 ok, 0 bad, exit=0
+self-test champ: 8 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-ispc;161522;5.000017;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1376923;5.000191;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1221538;5.000100;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;646120;5.000049;4;algorithm=wheel,faithful=yes,bits=1
+== round warmup champ
+cauldnz-ispc;162551;5.000031;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1344092;5.000202;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1190471;5.000102;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;639726;5.000045;4;algorithm=wheel,faithful=yes,bits=1
+== round warmup champ2
+cauldnz-ispc;162761;5.000016;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1341916;5.000200;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1185494;5.000118;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;620524;5.000061;4;algorithm=wheel,faithful=yes,bits=1
+== round warmup ctrl
+rogiervandam_extend_epar;1156798;5.000040;16;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;960445;5.000020;8;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;506850;5.000015;4;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;277011;5.000028;2;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend;139309;5.000015;1;algorithm=other,faithful=yes,bits=1
+== round 1 champ2
+cauldnz-ispc;160020;5.000002;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1340786;5.000187;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1187899;5.000104;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;623501;5.000052;4;algorithm=wheel,faithful=yes,bits=1
+== round 1 ctrl

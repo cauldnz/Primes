@@ -82,3 +82,4 @@ where two threads share a core's load ports. hc-015 frees one register and remov
 
 **015, the spill fixed.** Freeing one register turned hc-012's −2.1% at 16T on Zen 5 into
 +6.8%, and lifted 1T too (+6.9%). The 16T loss had been the reloads, as suspected.
+| 017 | 2026-10-09 | wheel | Dense threshold 160 instead of 256, now that sparse is cheaper | ±2%; local Xeon medians favour 160 by 6% (noisy) | pending | pending | pending | `hc/017-wheel-dense160` |
