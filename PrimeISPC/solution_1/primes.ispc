@@ -45,6 +45,14 @@ static inline uniform double now() {
 // ---------------------------------------------------------------------------------------
 #define G 8              // prime patterns fused into one pass over a plane
 #define MAXPAT 1024      // largest prime handled as a word pattern
+// Masked vector stores are slow on AVX2 for Zen 2 to Zen 4 (about six cycles each) and cheap
+// with AVX-512. Without AVX-512, the group loop runs unmasked and partial vectors run past their
+// end into the plane's padding instead.
+#if defined(ISPC_TARGET_AVX512SKX)
+#define TAIL_OVERRUN 0
+#else
+#define TAIL_OVERRUN 1
+#endif
 
 static const uniform int RES[8] = {1, 7, 11, 13, 17, 19, 23, 29};
 // plane index of n % 30, or -1 when n shares a factor with 30
@@ -83,7 +91,7 @@ static void sieve_create(uniform Sieve * uniform s, uniform int64 size, uniform 
     s->size = size;
     s->mbits = (uniform int)(size / 30) + 1;
     s->nw = (s->mbits + 63) >> 6;
-    s->pw = (s->nw + 7) & ~7;
+    s->pw = (s->nw + (TAIL_OVERRUN ? programCount - 1 : 0) + 7) & ~7;   // room to overrun nw
     s->dense_max = min(dense_max, MAXPAT);
     s->bits = (uniform uint64 * uniform)aligned_alloc(64, (uniform int64)8 * s->pw * 8);
     s->grp = (uniform Group * uniform)aligned_alloc(64, ((sizeof(uniform Group) + 63) / 64) * 64);
@@ -149,7 +157,10 @@ static inline uniform int apply_range(uniform uint64 * uniform w, const uniform 
         r += programCount;
         r = (r >= L) ? r - L : r;
     }
-    if (k + programIndex < wend) w[k + programIndex] |= pat[r + programIndex];
+    // The last partial vector. With TAIL_OVERRUN it runs past wend: the extra words get this
+    // prime's own pattern, which is correct for them, and past nw they land in padding.
+    if (TAIL_OVERRUN) { if (k < wend) w[k + programIndex] |= pat[r + programIndex]; }
+    else if (k + programIndex < wend) w[k + programIndex] |= pat[r + programIndex];
     r += wend - k; r = (r >= L) ? r - L : r;
     return r;
 }
@@ -161,6 +172,9 @@ static void apply_group(uniform uint64 * uniform w, uniform int nw,
     // Every member starts at the earliest member's first word, so no member needs a lead-in.
     // A member then also marks its multiples below p*p, which are composite, and p itself,
     // which dense_primes clears again.
+#if TAIL_OVERRUN
+    unmasked {   // callers run with every lane on; without this each store is masked
+#endif
     uniform int n = g->n;
     uniform int r[G];
     uniform int start = nw;
@@ -182,11 +196,14 @@ static void apply_group(uniform uint64 * uniform w, uniform int nw,
         }
         w[k + programIndex] = v;
     }
-    if (k + programIndex < nw) {
+    if (TAIL_OVERRUN ? k < nw : k + programIndex < nw) {
         uint64 v = w[k + programIndex];
         for (uniform int j = 0; j < G; j++) v |= g->pp[j][r[j] + programIndex];
         w[k + programIndex] = v;
     }
+#if TAIL_OVERRUN
+    }
+#endif
 }
 
 // Apply a group of primes, from p*p on, to all 8 planes.
