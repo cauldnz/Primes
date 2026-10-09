@@ -131,7 +131,7 @@ per-word extensions. The arm64 gap to Rust (4%) lies elsewhere.
 | r04 | 2026-10-09 | rust | Rust pointer-walk sparse loop (12 to 11 instructions per eight ORs on 1.57) | 0% to +2% | Zen 3 (7763): 52.9k / 411.0k, −0.2% / −0.1% | Zen 5: 129.3k / 923.5k, −0.1% / +0.6% | REVERT (flat under Rust 1.57) | `hc/rust-004-sparse-ptr` |
 | r05 | 2026-10-09 | rust | r04 plus Rust 1.88 on bookworm | +1% to +4% (dense halves under new LLVM) | Zen 3 (7763): 56.8k / 416.7k, −0.4% / −0.2%, stopped | Zen 5: 49.2k / 370.1k, −61.7% / −59.9% (with AVX-512 on): stopped | REVERT: Rust 1.88 with AVX-512 collapses on Zen 5 | `hc/rust-005-sparse-ptr-toolchain` |
 | 026 | 2026-10-09 | base | The factor-3 pass initialises the sieve (no separate zeroing); measured against hc-024 | +1.5% to +2.5% (research pass 2) | Zen 3 (7763): 56.7k / 431.7k, +1.1% / +0.7%, 3/4 at 1T | Zen 5: 129.5k / 1.01M, +0.7% / +0.2%, 4/4 at 1T | below 2%: held with hc-024 for a combined decision | `hc/026-base-init-with-3` |
-| 027 | 2026-10-09 | wheel | Fused group loop: two vectors a trip (Zig streams 32 words and beats the ISPC wheel) | +2% to +8% 1T | pending | pending | pending | `hc/027-wheel-fused-x2` |
+| 027 | 2026-10-09 | wheel | Fused group loop: two vectors a trip (Zig streams 32 words and beats the ISPC wheel) | +2% to +8% 1T | Zen 3 (7763): 105.4k / 831.8k, −2.7% / −3.9%, stopped | Zen 5: 179.0k / 1.47M, −6.3% / +0.4%, stopped | REVERT: the Zig gain is not the loop width | `hc/027-wheel-fused-x2` |
 
 **024 and 025, the execution mask.** Removing the masks from the dense code gained only 1.2% to
 1.4% on Zen 5 and nothing on Zen 3 or Cobalt 100: masked moves inside long unrolled loops cost

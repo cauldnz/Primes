@@ -78,3 +78,38 @@ cauldnz-zig-base;38269;5.000042;1;algorithm=base,faithful=yes,bits=1
 cauldnz-zig-base;152963;5.000258;4;algorithm=base,faithful=yes,bits=1
 cauldnz-zig-base;76681;5.000168;2;algorithm=base,faithful=yes,bits=1
 == round 3 champ
+cauldnz-zig-base;38207;5.000034;1;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;153005;5.000273;4;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;76672;5.000160;2;algorithm=base,faithful=yes,bits=1
+== round 3 ctrl
+cauldnz-ispc-base;41120;5.000113;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;163992;5.000144;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;82072;5.000146;2;algorithm=base,faithful=yes,bits=1
+== round 4 cand
+cauldnz-zig-base;38451;5.000084;1;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;152988;5.000224;4;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;76641;5.000222;2;algorithm=base,faithful=yes,bits=1
+== round 4 ctrl
+cauldnz-ispc-base;41073;5.000057;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;163789;5.000145;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;82087;5.000214;2;algorithm=base,faithful=yes,bits=1
+== round 4 champ2
+cauldnz-zig-base;38241;5.000051;1;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;152817;5.000255;4;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;76538;5.000193;2;algorithm=base,faithful=yes,bits=1
+== round 4 champ
+cauldnz-zig-base;38250;5.000137;1;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;152797;5.000228;4;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;76643;5.000135;2;algorithm=base,faithful=yes,bits=1
+== round 4 ctrl2
+davepl_array_optimized;32205;5.00041;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;128601;5.00084;4;algorithm=base,faithful=yes,bits=1
+== round 5 champ2
+cauldnz-zig-base;38289;5.000081;1;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;152873;5.000246;4;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;76665;5.000205;2;algorithm=base,faithful=yes,bits=1
+== round 5 cand
+cauldnz-zig-base;38257;5.000055;1;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;152679;5.000205;4;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;76676;5.000153;2;algorithm=base,faithful=yes,bits=1
+== round 5 champ

@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T12:46:01Z",
+  "updated_utc": "2026-10-09T12:49:47Z",
   "run": {
     "id": "ap-20261009T1112Z",
     "state": "running",
@@ -425,8 +425,11 @@
       "id": "hc-027",
       "entry": "wheel",
       "hypothesis": "Fused group loop, two vectors a trip (learnt from the Zig port)",
-      "verdict": "queued",
-      "where": "Zen 3, Zen 5"
+      "verdict": "rejected",
+      "where": "Zen 3 -2.7%, Zen 5 -6.3% 1T",
+      "delta_1t": -6.3,
+      "delta_mt": 0.4,
+      "note": "The Zig wheel advantage is not the loop width."
     }
   ],
   "azure_queue": 0,
