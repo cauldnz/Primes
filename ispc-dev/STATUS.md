@@ -1,9 +1,83 @@
 # Status from the Claude Code session
 
-Autopilot lock: ap-20261009T2033Z 2026-10-09T20:33Z
 
-**Last updated:** 2026-10-10 07:10 AEST. Living file; earlier versions are in
+**Last updated:** 2026-10-10 10:00 AEST. Living file; earlier versions are in
 `git log -p ispc-dev/STATUS.md`. Replies go in `ispc-dev/NEXT-STEPS.md`.
+
+## Morning report: run ap-20261009T2033Z (06:33 to 10:00 AEST, 10 October)
+
+Four hours from RUN-PLAN.md, on a fresh 10-hour secret. One big win, a final scoreboard, a
+landing commit for `ispc` and a Zig submission branch. Spend: NZ$3.37 of NZ$30. All pools
+deleted at the end. Nothing went to `ispc` or to a PR.
+
+### What changed
+
+**hc-045 is merged into `hc/champion` (code `059b8f3`, READMEs `a1433d9`).** `start_bit` now
+uses unsigned arithmetic, as the Zig port does. Signed division and remainder by 30 each need
+a sign fix-up, and the function runs about 1,300 times a pass. Wheel, 1T / all threads, every
+round won: Zen 3 +10.3% / +5.9%, Zen 5 +9.0% / +5.2%, Cobalt 100 +4.5% / +4.4%. A follow-up making the rest of the wheel's divisions unsigned (hc-046) was flat: the cost was all in `start_bit`.
+
+### Final scoreboard (`hc/champion` against the start, same rounds, six rounds)
+
+| Machine | wheel 1T / all | change | base 1T / all | change |
+|---|---|---|---|---|
+| Zen 3 (EPYC 7763) | 110.1k / 939k | +35.7% / +33.8% | 56.0k / 432k | +25.3% / +26.0% |
+| Zen 4 (EPYC 9V74, AVX-512) | 120.9k / 1.01M | +21.5% / +21.2% | 82.9k / 656k | +30.0% / +31.9% |
+| Zen 5 (EPYC 9V45) | 207.6k / 1.57M | +38.0% / +26.6% | 128.1k / 1.02M | +48.0% / +47.7% |
+| Cobalt 100 (arm64) | 98.5k / 393k | +55.6% / +55.5% | 41.1k / 164k | +0.2% / +0.1% |
+
+Against the rivals at 1T: the wheel runs 2.3 to 3.0 times danielspaangberg's `5760of30030`
+(the faithful wheel category's leader, measured for the first time) and leads rogiervandam's C
+by 25% to 69% on Zen. The base leads mike-barber's Rust by 6.6% (Zen 3), 8.3% (Zen 4) and 2.0%
+(Zen 5), 15.8% at all threads on Zen 5, and trails it by 4.3% on Cobalt 100. It leads davepl's
+C++ by 28% to 54%. Both READMEs on `hc/champion` and `PR-DESCRIPTION.md` carry these numbers.
+Logs: `results/hc/final4-wheel/`, `results/hc/final3-base/`.
+
+### Landing on `ispc` (your step)
+
+`hc/ispc-landing` is `77a197b`: `origin/ispc` plus one solution-only commit that copies
+`PrimeISPC/solution_1/` and `PrimeISPC/solution_2/` from `hc/champion`. Both self-tests pass.
+It is a fast-forward, so landing it is one command:
+
+    git push origin origin/hc/ispc-landing:ispc
+
+Then update the PR text from `PR-DESCRIPTION.md`.
+
+### Is the Zig wheel's lead explained?
+
+Partly. Same-node phase profiles found it in sparse marking on Zen 5 and in both big phases
+on Zen 3. Reading the Zig source line by line found hc-045. After it, the Zig wheel's lead fell
+from 15–19% to 7.6% on Zen 3 and from 10–13% to 4.6% on Zen 5 (same node, four rounds). Loop
+shape (hc-042, hc-043) and tail handling (hc-044) are not the rest.
+
+Proposed framing for the READMEs and the PR, for you to choose:
+- "The design wins; ISPC made it quick to find; the Zig port shows it transfers." It is true
+  as measured: the same design leads danielspaangberg's wheel by 2.3 to 3.0 times in both
+  languages, and Zig's remaining lead is a few per cent.
+- Or hold the "Why ISPC" section until the Rust port (next run) gives a third data point.
+
+### The rest of the run
+
+- Rejected: hc-042 (two gangs again, flat), hc-043 (Zig's sparse loop form, −3% to −19%),
+  hc-044 (branch-free tails, −1% to −2%). Probe hc-041 (`--cpu=znver3`): +3.7% at 1T and −3.1%
+  at 16T on Zen 3, single-target only.
+- hc-028 confirmed: +0.7% Zen 3, +2.8% Zen 5, all rounds won.
+- Zig: z05 (hc-026 ported) missed the small-gain rule (Zen 5 +0.6% over ten rounds).
+  `hc/zig-submission` (`2de555d`) is `drag-race` plus `PrimeZig/solution_4`. It still needs a
+  hadolint run and should go after the ISPC PR, because its README links to the ISPC entries.
+- Harness: danielspaangberg is now the wheel's second rival; standing phase profiles for both
+  wheels; `tools/salvage.py` and `tools/loopstat.py`; a fix to `tools/prun.sh`, whose shared
+  script copy killed one task. The session's worker restarted once at 22:53 UTC; the Batch tasks
+  carried on and nothing was lost.
+- Calibration: 1 of 6 predictions in range (z05, on Zen 3 only). hc-042, hc-043 and hc-044
+  were predicted to gain and lost or stayed flat; hc-045 was predicted at 0–2% and gained 9–10%.
+  The profile found the right phase; my guesses about the mechanism inside it were wrong.
+
+### Decisions for you
+
+1. Land `hc/ispc-landing` on `ispc` and update the PR.
+2. The Zig framing above.
+3. The Intel proxy size (`HARNESS-BACKLOG.md` item 6) and a Raspberry Pi 4 run, both still open.
 
 ## Chris's decisions, 2026-10-10 morning
 

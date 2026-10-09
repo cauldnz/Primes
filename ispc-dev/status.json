@@ -1,22 +1,19 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T23:44:39Z",
+  "updated_utc": "2026-10-09T23:56:02Z",
   "run": {
     "id": "ap-20261009T2033Z",
-    "state": "running",
+    "state": "stopped",
     "mode": "azure",
     "mode_reason": "Chris re-armed a 4-hour run (RUN-PLAN.md) with a fresh 10-hour secret.",
     "started_utc": "2026-10-09T20:33:00Z",
     "time_box_hours": 4,
-    "spend_nzd": 3.32,
+    "spend_nzd": 3.37,
     "spend_cap_nzd": 30,
-    "background_runs": "0\n0"
+    "background_runs": "0\n0",
+    "ended_utc": "2026-10-10T00:00:00Z"
   },
-  "current": {
-    "id": "hc-046",
-    "phase": "evaluate",
-    "detail": "last experiment; final scoreboard done; landing branch ready"
-  },
+  "current": null,
   "scoreboard": [
     {
       "machine": "Zen 3 (EPYC 7763)",
@@ -653,10 +650,12 @@
     {
       "id": "hc-046",
       "entry": "wheel",
-      "hypothesis": "Unsigned division in apply_group phase, sparse rounds, is_composite (after hc-045)",
-      "verdict": "running",
-      "where": "Zen 3, Zen 5, Cobalt 100",
-      "note": "Predict 0-2%."
+      "hypothesis": "Unsigned division in apply_group phase, sparse rounds, is_composite",
+      "verdict": "rejected",
+      "where": "Zen 3 +1.5%/-1.0%, Zen 5 +0.5%/0.0%, arm 0%",
+      "note": "The cost was all in start_bit (hc-045).",
+      "delta_1t": 0.5,
+      "delta_mt": 0.0
     }
   ],
   "azure_queue": 0,
@@ -666,11 +665,6 @@
     "Find the Zig wheel edge and port it to ISPC"
   ],
   "events": [
-    {
-      "utc": "2026-10-09T06:56:32Z",
-      "level": "info",
-      "text": "hc-002 vector dense: +23% 1T, +28% 16T on Zen 4 and Zen 5. Confirming on fresh nodes before merging."
-    },
     {
       "utc": "2026-10-09T06:56:32Z",
       "level": "info",
@@ -915,6 +909,11 @@
       "utc": "2026-10-09T22:59:26Z",
       "level": "info",
       "text": "hc-045 kept: +9-10% at 1T on Zen 3 and Zen 5, +4.5% on Cobalt 100. Champion now 059b8f3."
+    },
+    {
+      "utc": "2026-10-09T23:56:02Z",
+      "level": "info",
+      "text": "Run ap-20261009T2033Z stopped: hc-045 kept (+9-10% wheel at 1T); final scoreboard; hc/ispc-landing 77a197b ready for Chris; spend NZ$3.37; all pools deleted."
     }
   ],
   "research": {
