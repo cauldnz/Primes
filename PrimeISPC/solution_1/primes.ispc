@@ -269,7 +269,10 @@ static inline uniform bool is_composite(const uniform Sieve * uniform s, uniform
     return ((w[m >> 6] >> (m & 63)) & 1) != 0;
 }
 
+// DIAGNOSTIC BUILD (hc/diag-wheel-phases, never merged): cycle counts per phase.
+static uniform int64 PT[8];   // 0 tile, 1 thirteen, 2 dense groups, 3 sparse, 4 phase-3 total
 static void run_sieve(uniform Sieve * uniform s) {
+    uniform int64 c0 = clock();
     uniform int nw = s->nw, pw = s->pw;
 
     // Phase 1: wheel tile. Multiples of 7 and 11 repeat every 77 words in every plane, so
@@ -294,9 +297,11 @@ static void run_sieve(uniform Sieve * uniform s) {
     s->bits[1 * pw] &= ~((uniform uint64)1);       // 7 is prime
     s->bits[2 * pw] &= ~((uniform uint64)1);       // 11 is prime
 
+    uniform int64 c1 = clock(); PT[0] += c1 - c0;
     // Phase 2: 13 on its own. Afterwards every bit below 17*17 is final.
     uniform int thirteen[1] = {13};
     dense_primes(s, thirteen, 1);
+    uniform int64 c2 = clock(); PT[1] += c2 - c1;
 
     // Phase 3: the remaining primes up to sqrt(size), small ones as fused pattern groups and
     // large ones as strided bit sets. A candidate is only read once every prime up to its
@@ -309,16 +314,17 @@ static void run_sieve(uniform Sieve * uniform s) {
     uniform int n = 0;
     for (uniform int c = 17; c <= q; c += 2) {
         if (PLANE[c % 30] < 0) continue;
-        if (n > 0 && (c >= dm || c >= grp[0] * grp[0])) { dense_primes(s, grp, n); n = 0; }
+        if (n > 0 && (c >= dm || c >= grp[0] * grp[0])) { uniform int64 a = clock(); dense_primes(s, grp, n); n = 0; PT[2] += clock() - a; }
         if (is_composite(s, c)) continue;
         if (c < dm) {
             grp[n++] = c;
-            if (n == G) { dense_primes(s, grp, n); n = 0; }
+            if (n == G) { uniform int64 a = clock(); dense_primes(s, grp, n); n = 0; PT[2] += clock() - a; }
         } else {
-            sparse_prime(s, c);
+            uniform int64 a = clock(); sparse_prime(s, c); PT[3] += clock() - a;
         }
     }
-    if (n > 0) dense_primes(s, grp, n);
+    if (n > 0) { uniform int64 a = clock(); dense_primes(s, grp, n); PT[2] += clock() - a; }
+    PT[4] += clock() - c2;
 }
 
 // Number of primes up to and including size: unmarked bits for numbers <= size, plus 2, 3, 5.
@@ -423,6 +429,29 @@ export uniform int main() {
     uniform int dense_max = env_int(n_dense, 256);
     if (env_int(n_test, 0) != 0) self_test(dense_max);
 
+    {   // DIAGNOSTIC: phase profile over 20,000 single-threaded passes
+        uniform int64 tc = 0, tr = 0, tn = 0, td = 0;
+        for (uniform int i = 0; i < 8; i++) PT[i] = 0;
+        uniform int N = 20000;
+        for (uniform int i = 0; i < N; i++) {
+            uniform Sieve s;
+            uniform int64 a = clock(); sieve_create(&s, SIEVE_SIZE, dense_max);
+            uniform int64 b = clock(); run_sieve(&s);
+            uniform int64 c = clock(); if (i == 0) count_primes(&s);
+            uniform int64 d = clock(); sieve_destroy(&s);
+            uniform int64 e = clock();
+            tc += b - a; tr += c - b; tn += d - c; td += e - d;
+        }
+        print("profile;ispc-wheel;create;%\n", tc / N);
+        print("profile;ispc-wheel;run;%\n", tr / N);
+        print("profile;ispc-wheel;tile;%\n", PT[0] / N);
+        print("profile;ispc-wheel;thirteen;%\n", PT[1] / N);
+        print("profile;ispc-wheel;dense;%\n", PT[2] / N);
+        print("profile;ispc-wheel;sparse;%\n", PT[3] / N);
+        print("profile;ispc-wheel;scan;%\n", (PT[4] - PT[2] - PT[3]) / N);
+        print("profile;ispc-wheel;count;%\n", tn);
+        print("profile;ispc-wheel;destroy;%\n", td / N);
+    }
     uniform int nthreads = clamp(get_nprocs(), 1, 1024);
     uniform Job jobs[1024];
     uniform int64 tids[1024];
