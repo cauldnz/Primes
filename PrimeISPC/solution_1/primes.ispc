@@ -193,6 +193,21 @@ static void apply_group(uniform uint64 * uniform w, uniform int nw,
         } else r[j] = 0;
     }
     uniform int k = start;
+    // Two vectors a trip: twice the independent loads and stores in flight.
+    for (; k + 2 * programCount <= nw; k += 2 * programCount) {
+        uint64 v = w[k + programIndex];
+        uint64 v2 = w[k + programCount + programIndex];
+        for (uniform int j = 0; j < G; j++) {
+            v |= g->pp[j][r[j] + programIndex];
+            uniform int t = r[j] + programCount;
+            t = (t >= g->L[j]) ? t - g->L[j] : t;
+            v2 |= g->pp[j][t + programIndex];
+            t += programCount;
+            r[j] = (t >= g->L[j]) ? t - g->L[j] : t;
+        }
+        w[k + programIndex] = v;
+        w[k + programCount + programIndex] = v2;
+    }
     for (; k + programCount <= nw; k += programCount) {
         uint64 v = w[k + programIndex];
         for (uniform int j = 0; j < G; j++) {
