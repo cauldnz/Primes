@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T13:03:34Z",
+  "updated_utc": "2026-10-09T13:05:34Z",
   "run": {
     "id": "ap-20261009T1112Z",
     "state": "running",
@@ -454,11 +454,6 @@
   ],
   "events": [
     {
-      "utc": "2026-10-09T05:45:00Z",
-      "level": "info",
-      "text": "Dashboard created. Waiting for the first autopilot run."
-    },
-    {
       "utc": "2026-10-09T06:07:32Z",
       "level": "info",
       "text": "Autopilot ap-20261009T0607Z started in Azure mode. Lock taken."
@@ -702,6 +697,11 @@
       "utc": "2026-10-09T12:46:01Z",
       "level": "info",
       "text": "Zen 4 (AVX-512) pool created for the final scoreboard. r-04/r-05 rejected; hc-026 +0.7-1.1%."
+    },
+    {
+      "utc": "2026-10-09T13:05:34Z",
+      "level": "info",
+      "text": "Zig wheel on Cobalt 100: +12% over the ISPC wheel. Zig base builds and runs on arm64 (-7% vs ISPC base)."
     }
   ],
   "research": {

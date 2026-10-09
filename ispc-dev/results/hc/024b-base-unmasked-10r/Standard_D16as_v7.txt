@@ -216,3 +216,31 @@ mike-barber_bit-extreme-hybrid;468124;5.0001125336;4;algorithm=base,faithful=yes
 mike-barber_bit-extreme-hybrid;917733;5.0002746582;8;algorithm=base,faithful=yes,bits=1
 mike-barber_bit-extreme-hybrid;855497;5.0002961159;16;algorithm=base,faithful=yes,bits=1
 == round 9 cand
+cauldnz-ispc-base;123446;5.000035;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;1030218;5.000541;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;943959;5.000132;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;491067;5.000069;4;algorithm=base,faithful=yes,bits=1
+== round 9 champ2
+cauldnz-ispc-base;125697;5.000023;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;1044805;5.000273;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;895838;5.000141;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;465305;5.000067;4;algorithm=base,faithful=yes,bits=1
+== round 9 ctrl
+mike-barber_bit-extreme-hybrid;122535;5.0000262260;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;464193;5.0001311302;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;930209;5.0003347397;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;875399;5.0005698204;16;algorithm=base,faithful=yes,bits=1
+== round 9 ctrl2
+davepl_array_optimized;91654;5.00015;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;708772;5.00119;16;algorithm=base,faithful=yes,bits=1
+== round 9 champ
+cauldnz-ispc-base;125003;5.000024;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;1015914;5.000267;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;898665;5.000144;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;462911;5.000063;4;algorithm=base,faithful=yes,bits=1
+== round 10 cand
+cauldnz-ispc-base;127610;5.000012;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;998490;5.000202;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;921181;5.000144;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;483448;5.000103;4;algorithm=base,faithful=yes,bits=1
+== round 10 champ2
