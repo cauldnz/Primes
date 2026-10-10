@@ -1,5 +1,7 @@
 # Status from the Claude Code session
 
+Autopilot lock: ap-20261010T0715Z 2026-10-10T07:15Z
+
 
 
 **Last updated:** 2026-10-10 14:30 AEST. Living file; earlier versions are in
