@@ -41,7 +41,7 @@ All of a sieve's state lives in the `Sieve` struct. ISPC has no classes; a struc
 
 ### Parallelism
 
-The multi-threaded runs start one pthread per thread, each running its own sieves. The program reports results for all, half and a quarter of the hardware threads, because SMT siblings share an L1 cache and fewer threads can finish more passes.
+The multi-threaded runs start one pthread per thread, each running its own sieves. The program reports results for all, half and a quarter of the hardware threads (the CPUs in its affinity mask, so a container limited with `--cpuset-cpus` is not oversubscribed), because SMT siblings share an L1 cache and fewer threads can finish more passes.
 
 ### Portability
 

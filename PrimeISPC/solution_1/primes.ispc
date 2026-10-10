@@ -21,6 +21,8 @@ extern "C" uniform int pthread_create(uniform int64 * uniform tid, void * unifor
                                       void * uniform fn, void * uniform arg);
 extern "C" uniform int pthread_join(uniform int64 tid, void * uniform * uniform ret);
 extern "C" uniform int get_nprocs();
+extern "C" uniform int sched_getaffinity(uniform int pid, uniform int64 size,
+                                        uniform uint64 * uniform mask);
 extern "C" int8 * uniform getenv(const uniform int8 * uniform name);
 extern "C" uniform int atoi(const uniform int8 * uniform s);
 extern "C" void exit(uniform int code);
@@ -360,6 +362,18 @@ struct Job {
 // Thread entry point, also called directly for the single-threaded run. A function passed
 // to pthread_create is entered without ISPC's execution mask, so the body runs under
 // 'unmasked' to switch all SIMD lanes on.
+
+// Hardware threads this process may run on: the CPUs in its affinity mask, so a container
+// limited with --cpuset-cpus is not oversubscribed. get_nprocs() counts every online CPU.
+static uniform int hardware_threads() {
+    uniform uint64 mask[16];                                       // up to 1024 CPUs
+    for (uniform int i = 0; i < 16; i++) mask[i] = 0;
+    if (sched_getaffinity(0, 16 * 8, mask) != 0) return get_nprocs();
+    uniform int n = 0;
+    for (uniform int i = 0; i < 16; i++) n += popcnt(mask[i]);
+    return n > 0 ? n : get_nprocs();
+}
+
 export void * uniform worker(void * uniform arg) {
     unmasked {
         uniform Job * uniform job = (uniform Job * uniform)arg;
@@ -426,7 +440,7 @@ export uniform int main() {
     uniform int dense_max = env_int(n_dense, 256);
     if (env_int(n_test, 0) != 0) self_test(dense_max);
 
-    uniform int nthreads = clamp(get_nprocs(), 1, 1024);
+    uniform int nthreads = clamp(hardware_threads(), 1, 1024);
     uniform Job jobs[1024];
     uniform int64 tids[1024];
 

@@ -47,7 +47,7 @@ All of a sieve's state, including its pattern scratch space, lives in the `Sieve
 
 ### Parallelism
 
-The multi-threaded runs start one pthread per thread, each running its own sieves, and SIMD runs within every thread. The program reports results for all, half and a quarter of the hardware threads, because SMT siblings share an L1 cache and fewer threads can finish more passes.
+The multi-threaded runs start one pthread per thread, each running its own sieves, and SIMD runs within every thread. The program reports results for all, half and a quarter of the hardware threads (the CPUs in its affinity mask, so a container limited with `--cpuset-cpus` is not oversubscribed), because SMT siblings share an L1 cache and fewer threads can finish more passes.
 
 ### Two lessons for ISPC users
 
