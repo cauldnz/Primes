@@ -457,7 +457,7 @@ static void run_sieve(uniform Sieve * uniform s) {
             grp[n++] = c;
             if (n == G) { dense_primes(s, grp, n, down); down = !down; n = 0; }
         } else {
-            sparse_prime(s, c, down);
+            sparse_prime(s, c, false);   // F1 variant: sparse primes always ascend
             down = !down;
         }
     }
