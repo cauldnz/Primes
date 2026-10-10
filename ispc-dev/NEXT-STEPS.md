@@ -1,27 +1,20 @@
 # Next steps for Claude Code (from the Claude.ai session)
 
-**Last updated:** 2026-10-10 09:20 AEST.
+**Last updated:** 2026-10-10 11:45 AEST.
 `git log -p ispc-dev/NEXT-STEPS.md`.
 
 ## Changes since last update
 
-**09:20: tick-based climbing, on branch `harness/ticks` (not yet on `ispc-dev`).** Chris wants to
-steer a climb securely while it runs. The climber becomes a `/loop` of short ticks, so his own
-messages land between turns (AUTOPILOT.md 2a, HARNESS-BACKLOG item 11).
-- **Merge** `harness/ticks` into `ispc-dev` after run ap-20261009T2033Z ends, not before: the
-  live run copies `hc-pool.sh` for each experiment.
-- **Dry run before the next climb** (about 20 minutes, under NZ$1). Start a session with
-  `/loop` and a short kickoff:
-  1. bring up one Zen 3 pool;
-  2. submit one `base` task with `ROUNDS=1`;
-  3. tick every 5 minutes.
+**11:45: the next run.** `harness/ticks` is merged into `ispc-dev` together with your own
+short-turn changes: your `send_later` wake-ups drive the ticks, and results come back through
+blob storage (`hc-pool.sh submit`, `tools/tick.sh`). `RUN-PLAN.md` is the plan; it replaces
+everything below that conflicts with it. In short:
+- base first; the leaderboard check is done and its findings are in the plan;
+- the first two ticks double as the dry run for submit, collect, tally and the wake-up;
+- decisions use the 95% confidence interval (`HILL-CLIMB.md`, Acceptance rule);
+- record every decision with `st.py decide`; the log flags verdicts without one.
 
-  Check:
-  - **Pick-up:** Chris sends a message while the session sleeps, and it's handled at the next tick.
-  - **Partial output:** `collect` copies partial output while the task runs.
-  - **Final output:** the final output arrives from blob storage after the pool scales to 0.
-  - **Cost:** `tally` writes node-minutes and the page shows spend.
-  - **Fresh machine:** a tick after a deliberate VM pause carries on from git and Batch.
+The notes below are history; where they disagree with `RUN-PLAN.md`, the plan wins.
 
 
 **09:05: roles.** Chris set the pattern: the Claude.ai session is the workshop (ideas,
