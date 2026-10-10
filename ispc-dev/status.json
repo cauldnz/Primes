@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T23:08:09Z",
+  "updated_utc": "2026-10-10T23:13:19Z",
   "run": {
     "id": "ap-20261010T2040Z",
     "state": "running",
@@ -1036,15 +1036,6 @@
   "events": [
     {
       "utc": "2026-10-10T20:57:22Z",
-      "level": "decision",
-      "text": "f2-block: start F2's block sweep (32, 24, 16 KB, 6 rounds each) on Zen 3 now; Zen 5 keeps its first slot for F1's falsification profile, per Chris's order. Why: F2 arrived first and is verified; running it on the Zen 3 node does not delay F1 on Zen 5. Expect: +15-30% at 1T on Zen 3 (32 KB L1D).",
-      "id": "f2-block",
-      "what": "start F2's block sweep (32, 24, 16 KB, 6 rounds each) on Zen 3 now; Zen 5 keeps its first slot for F1's falsification profile, per Chris's order",
-      "why": "F2 arrived first and is verified; running it on the Zen 3 node does not delay F1 on Zen 5",
-      "expect": "+15-30% at 1T on Zen 3 (32 KB L1D)"
-    },
-    {
-      "utc": "2026-10-10T20:57:22Z",
       "level": "info",
       "text": "f2-block running. Zen 3 D16a_v4 (block sweep); Zen 5 after the F1 profile. 7c22f10 by agent; verified: base-only diff plus RULES.md, PRIMES_TEST passes at 16/24/32 KB, buffer bit-identical to the champion for 20,984 sizes at 6 block sizes on avx2 and avx512 (agent harness rerun here; agent also ran sse4 and NEON under qemu). Local 1T +24-31% (indicative). Variants hc/f2-block-16 and -24 for the sweep (default constant only)",
       "auto": true
@@ -1396,6 +1387,11 @@
       "level": "info",
       "text": "f6-no512 (wheel and base) running: IDEAS F6: AVX-512 target off may hold a higher all-core clock at 96T; expect -2% to +4% at 96T",
       "auto": true
+    },
+    {
+      "utc": "2026-10-10T23:13:19Z",
+      "level": "Chris: link Dave's X post (@davepl1968, 'C++ is faster than Rust until Rust programmers can prove otherwise ... If you can make ANY of them faster, please do!') that started this; TODO noted in PR-DESCRIPTION.md's header, URL pending from Chris. Steered over Starlink from Cape Tribulation (for the write-up)",
+      "text": "info"
     }
   ],
   "research": {

@@ -6,6 +6,11 @@ final3-base (4c7dc69; base code unchanged since). hc/ispc-landing (77a197b) carr
 onto ispc; land it before posting. Check every number
 against ispc-dev/results/, and apply the house-style and economist-style skills to any edit.
 Everything below the comment is the PR body.
+TODO (Chris, 2026-10-11): link Dave's X post that started this. Post by @davepl1968: "C++ is faster
+than Rust until Rust programmers can prove otherwise ... If you can make ANY of them faster, please
+do!" URL not yet known (x.com/davepl1968/status/<id>); add it as the PR's opening line, e.g.
+"Prompted by [Dave's post](URL) inviting anyone to make any of the entries faster." Chris steered
+the whole effort over Starlink while on holiday at Cape Tribulation; a line for the write-up, not the PR.
 -->
 
 This PR adds the first two solutions in [ISPC](https://ispc.github.io/), Intel's Implicit SPMD Program Compiler. ISPC is an open-source, C-like language that Intel has maintained since 2011. Unreal Engine uses it for parts of its Chaos physics and animation code, and Intel's Embree and OSPRay rendering libraries use it. Both Dockerfiles install it from Ubuntu 24.04's `ispc` package, so there is no custom toolchain.
