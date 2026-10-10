@@ -359,10 +359,6 @@ struct Job {
     uniform int count;    // prime count from the last pass, for validation
 };
 
-// Thread entry point, also called directly for the single-threaded run. A function passed
-// to pthread_create is entered without ISPC's execution mask, so the body runs under
-// 'unmasked' to switch all SIMD lanes on.
-
 // Hardware threads this process may run on: the CPUs in its affinity mask, so a container
 // limited with --cpuset-cpus is not oversubscribed. get_nprocs() counts every online CPU.
 static uniform int hardware_threads() {
@@ -374,6 +370,9 @@ static uniform int hardware_threads() {
     return n > 0 ? n : get_nprocs();
 }
 
+// Thread entry point, also called directly for the single-threaded run. A function passed
+// to pthread_create is entered without ISPC's execution mask, so the body runs under
+// 'unmasked' to switch all SIMD lanes on.
 export void * uniform worker(void * uniform arg) {
     unmasked {
         uniform Job * uniform job = (uniform Job * uniform)arg;
