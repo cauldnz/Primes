@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T03:28:46Z",
+  "updated_utc": "2026-10-10T03:31:09Z",
   "run": {
     "id": "ap-20261010T0140Z",
     "state": "running",
@@ -723,9 +723,9 @@
       "id": "p4-arm-dense",
       "entry": "base",
       "hypothesis": "NEON-only dense resetter after Rust (q-register masks, one period per run from P>=17): dense phase ~36.5k -> ~30k ns on Cobalt 100",
-      "verdict": "keep (merge pending Chris)",
+      "verdict": "keep",
       "where": "Cobalt 100",
-      "note": "Cobalt 100, 6 rounds: +2.5% at 1T (95% CI +2.2% to +2.8%), +2.9% at 2T and 4T, 6/6 rounds; gap to Rust 4.3% -> 1.9%. x86 --emit-asm identical for sse4, avx2, avx512skx. Fast-forward of hc/champion a1433d9 -> 37e19c7 was blocked by the session permission check; waits for Chris"
+      "note": "Cobalt 100, 6 rounds: +2.5% at 1T (95% CI +2.2% to +2.8%), +2.9% at 2T and 4T, 6/6 rounds; gap to Rust 4.3% -> 1.9%. x86 --emit-asm identical for sse4, avx2, avx512skx. Merged with Chris approval: hc/champion a1433d9 -> 37e19c7"
     },
     {
       "id": "p5-sse4x8",
@@ -751,21 +751,6 @@
     "Zen 5 at one thread: about +3% to pass Swift's official 122.9k"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T01:42:33Z",
-      "level": "decision",
-      "text": "diag-base-phases: start a background agent to build phase-profile diagnostics for our base and Rust's. Why: RUN-PLAN priority 2: every later base hypothesis must name its phase and share; the profiles run as one rust-kind task (Rust diag as candidate, ISPC diag as control) so both share a node. Passed over: starting with a Zen 5 single-thread experiment (no profile yet). Expect: two pushed branches, hc/diag-base-phases and hc/diag-rust-phases, self-tests passing, within 30 minutes.",
-      "id": "diag-base-phases",
-      "what": "start a background agent to build phase-profile diagnostics for our base and Rust's",
-      "why": "RUN-PLAN priority 2: every later base hypothesis must name its phase and share; the profiles run as one rust-kind task (Rust diag as candidate, ISPC diag as control) so both share a node",
-      "instead": "starting with a Zen 5 single-thread experiment (no profile yet)",
-      "expect": "two pushed branches, hc/diag-base-phases and hc/diag-rust-phases, self-tests passing, within 30 minutes"
-    },
-    {
-      "utc": "2026-10-10T01:42:33Z",
-      "level": "info",
-      "text": "Dry run 1a: two base jobs submitted with hc-pool.sh submit; both appear in results/hc/jobs.tsv as open."
-    },
     {
       "utc": "2026-10-10T01:43:22Z",
       "level": "info",
@@ -1110,6 +1095,20 @@
       "utc": "2026-10-10T03:28:46Z",
       "level": "info",
       "text": "p4-arm-init3 (base) running: NEON factor-3 pass initialises the buffer (store-only), dropping the separate 62.5 KB zeroing, as hc-026 does on x86",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T03:31:09Z",
+      "level": "decision",
+      "text": "p4-arm-dense: Merged: hc/champion fast-forwarded a1433d9 -> 37e19c7. Why: Chris approved the fast-forward after the session permission check blocked it.",
+      "id": "p4-arm-dense",
+      "what": "Merged: hc/champion fast-forwarded a1433d9 -> 37e19c7",
+      "why": "Chris approved the fast-forward after the session permission check blocked it"
+    },
+    {
+      "utc": "2026-10-10T03:31:13Z",
+      "level": "info",
+      "text": "p4-arm-dense keep. Cobalt 100. Cobalt 100, 6 rounds: +2.5% at 1T (95% CI +2.2% to +2.8%), +2.9% at 2T and 4T, 6/6 rounds; gap to Rust 4.3% -> 1.9%. x86 --emit-asm identical for sse4, avx2, avx512skx. Merged with Chris approval: hc/champion a1433d9 -> 37e19c7",
       "auto": true
     }
   ],
