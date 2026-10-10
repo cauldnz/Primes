@@ -25,11 +25,10 @@ Bit `i` stands for the odd number `2i + 1`, and a set bit means composite. An ou
 
 ### Wheel algorithm
 
-Bit `m` of plane `R` stands for `30m + R`, for the eight residues `R` coprime to 30. Within one plane, the multiples of a prime `p` form a plain stride-`p` progression, so their word pattern repeats every `p` words. The sieve runs in three phases:
+Bit `m` of plane `R` stands for `30m + R`, for the eight residues `R` coprime to 30. Within one plane, the multiples of a prime `p` form a plain stride-`p` progression, so their word pattern repeats every `p` words. The sieve runs in two phases:
 
-1. Multiples of 7 and 11 repeat every 77 words in every plane. The program marks one 77-word tile and copies it along each plane.
-2. 13 is applied on its own as a word pattern. After that, every bit below 17² is final, so the program can read candidates from the sieve itself.
-3. Primes below 256 are applied in groups of eight. The program builds each prime's pattern once, then makes one pass over each plane, loading each vector of sieve words once and ORing in all eight patterns. Larger primes set single bits, with all eight planes advancing in one loop.
+1. Multiples of 7 and 11 repeat every 77 words in every plane. For each plane the program marks one 77-word tile in scratch space, then writes the plane in one pass: each word is a tile word ORed with the matching word of 13's pattern. After that, every bit below 17² is final, so the program can read candidates from the sieve itself. Folding 13 into the copy saves a separate read-modify-write pass over the planes.
+2. Primes below 256 are applied in groups of eight. The program builds each prime's pattern once, then makes one pass over each plane, loading each vector of sieve words once and ORing in all eight patterns. Larger primes set single bits, with all eight planes advancing in one loop.
 
 The fused loop works in 16 words at a time on SSE2 and NEON and 32 with AVX2 or AVX-512. Each step updates one scalar phase per pattern, and wider steps spread that cost: on the Xeon below, an SSE2 build ran 18% faster with eight words per step than with four, and 16 did no worse than eight.
 

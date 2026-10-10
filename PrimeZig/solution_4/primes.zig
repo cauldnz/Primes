@@ -6,9 +6,9 @@
 //    by its own single-bit OR in the source. Factors below 128 use dense resetters generated at
 //    compile time, one per odd factor; larger factors use a byte resetter whose masks are
 //    compile-time constants chosen by p mod 16.
-//  * cauldnz-zig-wheel: a mod-30 wheel with 8 bit-planes, a 7*11 pattern tile, fused word
-//    patterns for primes below 256 and strided bit sets above. It ports the structure of the
-//    author's ISPC wheel entry (PrimeISPC/solution_1) to Zig vectors.
+//  * cauldnz-zig-wheel: a mod-30 wheel with 8 bit-planes, a 7*11 pattern tile copied with
+//    13 folded in, fused word patterns for primes below 256 and strided bit sets above. It
+//    ports the structure of the author's ISPC wheel entry (PrimeISPC/solution_1) to Zig vectors.
 //
 // Both run single-threaded, then on all, half and a quarter of the hardware threads.
 
@@ -235,6 +235,9 @@ const Group = struct {
     L: [G]usize, // pattern period in words: a multiple of p, at least VW
     tab: [G][64]u16, // starting phase for each bit offset
     buf: [G][MAXPAT + 64]u64, // the patterns, extended by VW words past L
+    tile: [77 + VW]u64, // one plane's 7*11 period, extended by VW words
+    p13: [13 * 3 + 2 * VW]u64, // pattern for 13, extended by VW words past its L
+    tab13: [64]u16,
 };
 
 // First bit in plane R of a multiple p*k with k >= kmin.
@@ -385,32 +388,42 @@ const WheelSieve = struct {
     fn run(self: *WheelSieve) void {
         const nw = self.nw;
 
-        // Phase 1: the wheel tile. Multiples of 7 and 11 repeat every 77 words in each plane,
-        // so mark one period, starting from 7 and 11 themselves to keep it periodic, and copy
-        // it along the plane. 7 and 11 are then unmarked.
-        const t = @min(77, nw);
+        // Phase 1: the wheel tile and 13. Multiples of 7 and 11 repeat every 77 words in each
+        // plane, so mark one period in scratch space, starting from 7 and 11 themselves to keep
+        // it periodic. Each plane is then written in one pass: tile word OR 13's pattern word.
+        // 13's pattern starts at the plane's first word, so it also marks 13 itself and 91 and
+        // 143 (already marked by 7 and 11). 7, 11 and 13 are then unmarked. Afterwards every
+        // bit below 17*17 is final. The last vector runs into the plane's padding.
+        const g = self.grp;
         const tp = [2]u32{ 7, 11 };
         self.buildGroup(&tp);
+        const L13 = buildPattern(&g.p13, &g.tab13, 13);
         for (0..8) |pl| {
             const w = self.plane(pl);
-            @memset(w[0..t], 0);
+            @memset(g.tile[0..77], 0);
             const tb = [2]usize{ startBit(7, RES[pl], 1), startBit(11, RES[pl], 1) };
-            applyGroup(2, w, t, self.grp, &tb);
-            var base: usize = t;
-            while (base < nw) : (base += t) {
-                const n = @min(t, nw - base);
-                @memcpy(w[base .. base + n], w[0..n]);
+            applyGroup(2, &g.tile, 77, g, &tb);
+            for (0..VW) |k| g.tile[77 + k] = g.tile[k];
+            const b13 = startBit(13, RES[pl], 13);
+            const back = (b13 >> 6) % L13; // 13's phase at word 0
+            const t13: usize = g.tab13[b13 & 63];
+            var r13 = if (t13 >= back) t13 - back else t13 + L13 - back;
+            var rt: usize = 0;
+            var k: usize = 0;
+            while (k < nw) : (k += VW) {
+                storeV(VW, w + k, loadV(VW, g.tile[rt..].ptr) | loadV(VW, g.p13[r13..].ptr));
+                rt += VW;
+                if (rt >= 77) rt -= 77;
+                r13 += VW;
+                if (r13 >= L13) r13 -= L13;
             }
         }
         self.plane(0)[0] |= 1; // 1 is not prime
         self.plane(1)[0] &= ~@as(u64, 1); // 7 is prime
         self.plane(2)[0] &= ~@as(u64, 1); // 11 is prime
+        self.plane(3)[0] &= ~@as(u64, 1); // 13 is prime
 
-        // Phase 2: 13 on its own. Afterwards every bit below 17*17 is final.
-        const thirteen = [1]u32{13};
-        self.densePrimes(&thirteen);
-
-        // Phase 3: the remaining primes up to sqrt(size), small ones as fused pattern groups,
+        // Phase 2: the remaining primes up to sqrt(size), small ones as fused pattern groups,
         // large ones as strided bit sets. A candidate is read only once every prime up to its
         // square root has been applied: c < g0*g0 for the smallest prime g0 still pending.
         const q = isqrt(self.size);
