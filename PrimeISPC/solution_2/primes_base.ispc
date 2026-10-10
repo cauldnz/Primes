@@ -35,6 +35,7 @@ extern "C" uniform int pthread_create(uniform int64 * uniform tid, void * unifor
                                       void * uniform fn, void * uniform arg);
 extern "C" uniform int pthread_join(uniform int64 tid, void * uniform * uniform ret);
 extern "C" uniform int get_nprocs();
+extern "C" uniform int nanosleep(const uniform timespec * uniform req, uniform timespec * uniform rem);
 extern "C" uniform int sched_getaffinity(uniform int pid, uniform int64 size,
                                         uniform uint64 * uniform mask);
 extern "C" int8 * uniform getenv(const uniform int8 * uniform name);
@@ -295,7 +296,12 @@ struct Job {
     uniform double deadline;
     uniform int64 passes;
     uniform int count;    // prime count from the first pass, for validation
+    uniform bool flag;    // stop on stop_flag (threaded runs) rather than on the deadline
 };
+
+// Set by the main thread when a threaded run's time is up, so the workers don't each read the
+// clock every pass. The worker loop calls the C library every pass, so the compiler reloads it.
+static uniform int stop_flag = 0;
 
 // Hardware threads this process may run on: the CPUs in its affinity mask, so a container
 // limited with --cpuset-cpus is not oversubscribed. get_nprocs() counts every online CPU.
@@ -316,7 +322,7 @@ export void * uniform worker(void * uniform arg) {
         uniform Job * uniform job = (uniform Job * uniform)arg;
         uniform int64 passes = 0;
         uniform int count = 0;
-        while (now() < job->deadline) {
+        while (job->flag ? stop_flag == 0 : now() < job->deadline) {
             uniform Sieve s;
             sieve_create(&s, SIEVE_SIZE);
             run_sieve(&s);
@@ -356,11 +362,20 @@ static void self_test() {
 }
 
 static void run_threads(uniform Job * uniform jobs, uniform int64 * uniform tids, uniform int n) {
+    stop_flag = 0;
+    memory_barrier();
     uniform double start = now();
     for (uniform int t = 0; t < n; t++) {
         jobs[t].deadline = start + RUN_SECONDS;
+        jobs[t].flag = true;
         pthread_create(&tids[t], NULL, (void * uniform)worker, &jobs[t]);
     }
+    uniform timespec ts;
+    ts.tv_sec = (uniform int64)RUN_SECONDS;
+    ts.tv_nsec = 0;
+    while (nanosleep(&ts, &ts) != 0) {}                            // resume if interrupted
+    stop_flag = 1;
+    memory_barrier();
     uniform int64 total = 0;
     for (uniform int t = 0; t < n; t++) {
         pthread_join(tids[t], NULL);
@@ -381,6 +396,7 @@ export uniform int main() {
 
     uniform double start = now();
     jobs[0].deadline = start + RUN_SECONDS;
+    jobs[0].flag = false;
     worker(&jobs[0]);
     uniform double elapsed = now() - start;
     if (jobs[0].count != EXPECTED) fail_count();
