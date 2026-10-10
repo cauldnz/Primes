@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T23:25:46Z",
+  "updated_utc": "2026-10-10T23:30:07Z",
   "run": {
     "id": "ap-20261010T2040Z",
     "state": "running",
@@ -13,7 +13,7 @@
     "ends_utc": "2026-10-11T00:40:00Z",
     "background_runs": 6,
     "last_tick_utc": "2026-10-10T23:25:46Z",
-    "wakeup": "2026-10-10T23:24:00Z trig_01QQHutFqK5qWegE8cvcJUPb"
+    "wakeup": "2026-10-10T23:45:00Z trig_01ANaet9wWDQBNTyEGbmfpAf"
   },
   "current": null,
   "scoreboard": [
@@ -996,15 +996,15 @@
       "hypothesis": "F2 blocking on x86 only, on top of F1 (champion-grey); NEON build unchanged",
       "verdict": "revert: Zen 5 -2.9% at 1-8T, +10.1% at 16T vs champion-grey",
       "where": "Zen 5 D16as_v7, Zen 3, Zen 4 vs champion-grey, 6 rounds",
-      "note": "vs champion-grey (F1 in): Zen 3 +1.2% +-0.3 1T, +1.5% 8T, +12.7% +-0.1 16T (6/6); Zen 4 -0.4% +-2.0 1T, +0.1% 8T, +4.7% 16T. With F1 in, blocking adds little until SMT siblings share L1. Zen 5 running"
+      "note": "final: vs champion-grey, Zen 5 -2.9% +-0.2 1T, -3.0% 8T, +10.1% +-0.3 16T (6/6 each way); Zen 3 +1.2% 1T, +12.7% 16T; Zen 4 -0.4% 1T, +4.7% 16T"
     },
     {
       "id": "zig-idea12",
       "entry": "Zig wheel (port)",
       "hypothesis": "IDEAS 12 ported to the Zig wheel: 7x11 tile OR a 13 pattern in one store pass, dropping the separate 13 sweep",
-      "verdict": "running",
+      "verdict": "more rounds (Zen 3)",
       "where": "Zen 5 D32as_v7, Zen 3 D16a_v4 vs hc/zig-submission, 6 rounds",
-      "note": "e1a55bb (agent): PRIMES_TEST ok; planes and counts identical for 20,985 sizes, native and baseline builds; local 1s bursts +4-6%, full driver too noisy"
+      "note": "e1a55bb: Zen 5 D32 +1.6% +-0.3 1T, +1.7% 16T, +1.0% +-0.2 32T (6/6); Zen 3 +0.9% +-2.7 1T, +0.7% +-0.7 16T (noisy). 8 more Zen 3 rounds queued. Zig wheel 1T on Zen 5 now 221k vs ISPC wheel 223k"
     },
     {
       "id": "zig-f2",
@@ -1042,21 +1042,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T21:16:06Z",
-      "level": "decision",
-      "text": "f1-alternate: falsification profile first, as RUN-PLAN says: hc/diag-phases-f1 vs hc/diag-phases-champ, 3 rounds, on a separate 16-vCPU Zen 5 node so it does not wait behind IDEAS 12. Why: the plan stops F1 if sparse cycles at 1T do not drop by at least 10% on Zen 5; the local VM (32 KB L1D) showed -33%. Expect: sparse -15 to -35% on Zen 5.",
-      "id": "f1-alternate",
-      "what": "falsification profile first, as RUN-PLAN says: hc/diag-phases-f1 vs hc/diag-phases-champ, 3 rounds, on a separate 16-vCPU Zen 5 node so it does not wait behind IDEAS 12",
-      "why": "the plan stops F1 if sparse cycles at 1T do not drop by at least 10% on Zen 5; the local VM (32 KB L1D) showed -33%",
-      "expect": "sparse -15 to -35% on Zen 5"
-    },
-    {
-      "utc": "2026-10-10T21:16:06Z",
-      "level": "info",
-      "text": "f1-alternate falsification profile running. Zen 5 D16as_v7. 206ef99 by agent: dense (scalar, vector, NEON) and sparse routines get descending forms, direction flips after each factor, factor 3 stays ascending; RULES.md quotes the 2 x factor rule. Verified here: PRIMES_TEST on all three branches; buffer bit-identical to the champion for 28,795 sizes on avx512, avx2, sse4 (agent harness, source matches the pushed branch); agent also NEON under qemu and two deliberately broken builds caught. Local 1T +34%, local sparse cycles -33% (indicative)",
-      "auto": true
-    },
     {
       "utc": "2026-10-10T21:16:38Z",
       "level": "decision",
@@ -1401,6 +1386,18 @@
       "level": "warn",
       "auto": true,
       "text": "zig-f1 changed with no reasoning recorded (st.py decide)."
+    },
+    {
+      "utc": "2026-10-10T23:30:07Z",
+      "level": "info",
+      "text": "zig-idea12 more rounds (Zen 3). Zen 5 D32as_v7, Zen 3 D16a_v4 vs hc/zig-submission, 6 rounds. e1a55bb: Zen 5 D32 +1.6% +-0.3 1T, +1.7% 16T, +1.0% +-0.2 32T (6/6); Zen 3 +0.9% +-2.7 1T, +0.7% +-0.7 16T (noisy). 8 more Zen 3 rounds queued. Zig wheel 1T on Zen 5 now 221k vs ISPC wheel 223k",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T23:30:07Z",
+      "level": "warn",
+      "auto": true,
+      "text": "zig-idea12 changed with no reasoning recorded (st.py decide)."
     }
   ],
   "research": {
