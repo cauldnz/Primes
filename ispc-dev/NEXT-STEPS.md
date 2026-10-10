@@ -1,9 +1,13 @@
 # Next steps for Claude Code (from the Claude.ai session)
 
-**Last updated:** 2026-10-10 11:45 AEST.
+**Last updated:** 2026-10-10 16:45 AEST.
 `git log -p ispc-dev/NEXT-STEPS.md`.
 
 ## Changes since last update
+
+**16:45: the next run.** Chris has given time and budget for one more run: 6 hours, NZ$30, in the
+same session. `RUN-PLAN.md` is the plan: scale to 96 threads, ports of our designs to C++ and
+Rust as entries, the Zig wheel gap, and one Intel size. New gates in `AUTOPILOT.md` 2d.
 
 **11:45: the next run.** `harness/ticks` is merged into `ispc-dev` together with your own
 short-turn changes: your `send_later` wake-ups drive the ticks, and results come back through

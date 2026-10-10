@@ -145,6 +145,21 @@ decision recorded gets a warning in the log. Reasoning is public like everything
 applies. Agent briefs count as reasoning too: the brief you give an agent goes in the decision
 that starts it.
 
+## 2d. Before anything goes to Azure
+
+- **Local gate.** Build the candidate here and run `PRIMES_TEST=1` plus a 5-second local run
+  against the champion. If it is more than 30% slower locally, or the self-test fails, it does not
+  go to Azure. On 10 October an SSE4 build that ran 12 times slower locally was submitted anyway.
+- **Every profile comes with the compiled code.** When you profile a phase, dump the hot loop of
+  ours and the rival from the binaries built on the same node, and record instructions, loads and
+  stores per unit of work, and how strides and unrolling compiled. `llvm-mca` is a screen only;
+  most of our loops are store-bound. The side-by-side also shows a reviewer that a base entry does
+  one operation per composite. Put it in `results/hc/<id>/README.md`, not the raw dump.
+- **Big outputs stay out of git.** `pub.sh` leaves any new file over 2 MB out of the commit. Keep
+  raw dumps local and commit the extract.
+- **No idle floors.** Keep a node warm only while the next task is already queued for it; set the
+  floor to zero between bursts. On 10 October nodes were busy 31% of the time.
+
 ## 3. Search strategy
 
 **Profile before guessing.** The first experiment on each entry in a run is a measurement, not a

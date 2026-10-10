@@ -758,9 +758,9 @@
   ],
   "azure_queue": 0,
   "next_up": [
-    "Pick the second deciding machine: D16as_v5 (Zen 4, AVX2) against the EPYC VM's Rust numbers",
-    "Profile the base, ours and Rust, on Zen 5 and the second machine",
-    "Zen 5 at one thread: about +3% to pass Swift's official 122.9k"
+    "Scale to 96 threads on Zen 5: base and wheel against Rust, C++, Zig; why Rust falls off at full occupancy",
+    "Ports as entries: C++ base and wheel, then Rust wheel and base, in the same rounds as ISPC and Zig",
+    "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
     {
