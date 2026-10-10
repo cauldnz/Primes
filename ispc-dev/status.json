@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T09:48:42Z",
+  "updated_utc": "2026-10-10T09:52:46Z",
   "run": {
     "id": "ap-20261010T0715Z",
     "state": "running",
@@ -871,9 +871,9 @@
       "id": "a-scale-repeat",
       "entry": "both",
       "hypothesis": "The 96-vCPU curve repeats on a second node (first node A/A spread 7%)",
-      "verdict": "queued",
+      "verdict": "running",
       "where": "Zen 5 D96as_v7, fresh node",
-      "note": "after the queue on the first node drains: delete and recreate the pool to get a new node; base and wheel kinds, 4 rounds"
+      "note": "pool deleted and recreated (first node tvmps_35e6...); base and wheel, same refs as the first run (idea1 vs champion), 4 rounds"
     },
     {
       "id": "idea12-tile13",
@@ -931,24 +931,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T08:08:45Z",
-      "level": "decision",
-      "text": "asm-wheel: start an agent on the wheel disassembly image (ISPC vs Zig, built on one Zen 5 node) with a local preview. Why: RUN-PLAN priority 3 and AUTOPILOT 2d: the Zig gap (4.6-7.6%) gets its compiled-code side-by-side before any change.",
-      "id": "asm-wheel",
-      "what": "start an agent on the wheel disassembly image (ISPC vs Zig, built on one Zen 5 node) with a local preview",
-      "why": "RUN-PLAN priority 3 and AUTOPILOT 2d: the Zig gap (4.6-7.6%) gets its compiled-code side-by-side before any change"
-    },
-    {
-      "utc": "2026-10-10T08:08:45Z",
-      "level": "decision",
-      "text": "idea12-tile13: start an agent on IDEAS 12 (fold 13 into the 7x11 tile copy), wheel. Why: top wheel idea in the queue, saves a sweep over the planes; brief requires PRIMES_TEST, the 5,396-size sweep and a pinned local speed check. Passed over: IDEAS 13 (larger change). Expect: +1-3% at 1T on Zen.",
-      "id": "idea12-tile13",
-      "what": "start an agent on IDEAS 12 (fold 13 into the 7x11 tile copy), wheel",
-      "why": "top wheel idea in the queue, saves a sweep over the planes; brief requires PRIMES_TEST, the 5,396-size sweep and a pinned local speed check",
-      "instead": "IDEAS 13 (larger change)",
-      "expect": "+1-3% at 1T on Zen"
-    },
     {
       "utc": "2026-10-10T08:17:39Z",
       "level": "decision",
@@ -1302,6 +1284,21 @@
       "utc": "2026-10-10T09:48:42Z",
       "level": "info",
       "text": "idea20-arenas stop. Zen 5 D32as_v7. D32as_v7, 4 rounds: -1.3% at 1T, +0.7% at 16T, -0.8% +-9.1% at 32T; flat, as predicted",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T09:52:46Z",
+      "level": "decision",
+      "text": "a-scale-repeat: Chris (1): repeat the 96-vCPU base and wheel curves on a new pool with the same refs as the first run. Why: the first node's A/A spread reached 7%; the same refs make the two runs directly comparable. Expect: the plateau (base +1% from 48 to 96 threads) and the wheel's SMT loss repeat.",
+      "id": "a-scale-repeat",
+      "what": "Chris (1): repeat the 96-vCPU base and wheel curves on a new pool with the same refs as the first run",
+      "why": "the first node's A/A spread reached 7%; the same refs make the two runs directly comparable",
+      "expect": "the plateau (base +1% from 48 to 96 threads) and the wheel's SMT loss repeat"
+    },
+    {
+      "utc": "2026-10-10T09:52:46Z",
+      "level": "info",
+      "text": "a-scale-repeat running. Zen 5 D96as_v7, fresh node. pool deleted and recreated (first node tvmps_35e6..); base and wheel, same refs as the first run (idea1 vs champion), 4 rounds",
       "auto": true
     }
   ],

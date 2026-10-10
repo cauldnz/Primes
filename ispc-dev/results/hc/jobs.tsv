@@ -41,3 +41,5 @@ id	pool	size	kind	outdir	submitted	state
 0856162681	hc-standard-d96as-v7	Standard_D96as_v7	base	ispc-dev/results/hc/loaded-1t-sieve-96	2026-10-10T08:56:24Z	done
 08581018494	hc-standard-d32as-v7	Standard_D32as_v7	base	ispc-dev/results/hc/idea21-prefetch-32	2026-10-10T08:58:18Z	open
 09205911891	hc-standard-d32as-v7	Standard_D32as_v7	wheel	ispc-dev/results/hc/wheel-group32-z5b	2026-10-10T09:21:07Z	open
+09513312513	hc-standard-d96as-v7	Standard_D96as_v7	base	ispc-dev/results/hc/a-scale-base-r2	2026-10-10T09:51:41Z	open
+09514731519	hc-standard-d96as-v7	Standard_D96as_v7	wheel	ispc-dev/results/hc/a-scale-wheel-r2	2026-10-10T09:52:38Z	open
