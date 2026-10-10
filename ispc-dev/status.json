@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T02:12:14Z",
+  "updated_utc": "2026-10-10T02:12:39Z",
   "run": {
     "id": "ap-20261010T0140Z",
     "state": "running",
@@ -13,7 +13,7 @@
     "ends_utc": "2026-10-10T05:40:00Z",
     "background_runs": 0,
     "last_tick_utc": "2026-10-10T02:07:54Z",
-    "wakeup": "trig_01LjZ74cXMdhidz9y3jFbbmU"
+    "wakeup": "trig_01YQX6odBU37J1ipKqVazRYf"
   },
   "current": {
     "id": "diag-base-phases",
@@ -696,11 +696,6 @@
   ],
   "events": [
     {
-      "utc": "2026-10-09T10:25:08Z",
-      "level": "info",
-      "text": "Final: wheel champion +13.0% 1T on Zen 4 (AVX-512); lead over C5 at 1T now 15.5% (was 2%)."
-    },
-    {
       "utc": "2026-10-09T10:40:58Z",
       "level": "warn",
       "text": "Final run found a regression: base -38.9% on Cobalt 100 (arm64). Cause: NEON scalarises the vector dense code. Fix hc-020 running."
@@ -968,6 +963,11 @@
       "level": "info",
       "text": "p1-base-standin (base) done: Is D16as_v5 (Zen 4, AVX-512 hidden) a stand-in for the official AVX2 EPYC VM?",
       "auto": true
+    },
+    {
+      "utc": "2026-10-10T02:12:39Z",
+      "level": "info",
+      "text": "Tick 3 done. Waiting for the two base profiles (Zen 5, Zen 3). D16as_v5 pool deleted (retry after a connection reset). Next tick 02:25 UTC."
     }
   ],
   "research": {
