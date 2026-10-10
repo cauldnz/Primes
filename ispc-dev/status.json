@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T08:08:55Z",
+  "updated_utc": "2026-10-10T08:17:39Z",
   "run": {
     "id": "ap-20261010T0715Z",
     "state": "running",
@@ -850,6 +850,30 @@
       "verdict": "queued",
       "where": "one Intel size (phase B)",
       "note": "hc/diag-intel-avx2 5aa86a9 by agent: slot-only diff; all components built and run natively here with the image flags, objdump shows no AVX-512 in any binary; the image itself is unbuilt (no Docker here). About 3 min per round of the cand image"
+    },
+    {
+      "id": "mt-phases",
+      "entry": "base",
+      "hypothesis": "Which base phase stops gaining at scale: per-pass TSC per phase at 1, 24, 48, 96 threads",
+      "verdict": "running",
+      "where": "Zen 5 D96as_v7",
+      "note": "hc/diag-mt-phases (never merged), 3 rounds; Chris 08:12"
+    },
+    {
+      "id": "loaded-1t",
+      "entry": "base",
+      "hypothesis": "How much of the drop at scale is clock speed: one pinned sieve thread (ours, Rust) with busy work on cpu0 SMT sibling, 16 other cores, all 47 other cores, all 95 other vCPUs; spin loop and Rust sieve as loads",
+      "verdict": "running",
+      "where": "Zen 5 D96as_v7",
+      "note": "hc/diag-loaded-1t (never merged), 3 rounds; Chris 08:12"
+    },
+    {
+      "id": "a-scale-repeat",
+      "entry": "both",
+      "hypothesis": "The 96-vCPU curve repeats on a second node (first node A/A spread 7%)",
+      "verdict": "queued",
+      "where": "Zen 5 D96as_v7, fresh node",
+      "note": "after the queue on the first node drains: delete and recreate the pool to get a new node; base and wheel kinds, 4 rounds"
     }
   ],
   "azure_queue": 0,
@@ -859,38 +883,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T03:46:19Z",
-      "level": "info",
-      "text": "p6-scaling-64 (base) running: lead over Rust holds or grows at 64 threads on Zen 5",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T04:04:19Z",
-      "level": "decision",
-      "text": "final5-base: start the final base scoreboard now on the idle Zen 3 and Zen 5 floor nodes. Why: both nodes are idle while the 64-vCPU task runs, and no new experiment is queued before the 04:55 cutoff; running it now leaves margin before the 05:40 shutdown. Passed over: another Zen 5 1T experiment (asm and profile show no sparse-loop lever). Expect: x86 unchanged from final3: about +2% (Zen 5) and +7% (Zen 3) at 1T over Rust.",
-      "id": "final5-base",
-      "what": "start the final base scoreboard now on the idle Zen 3 and Zen 5 floor nodes",
-      "why": "both nodes are idle while the 64-vCPU task runs, and no new experiment is queued before the 04:55 cutoff; running it now leaves margin before the 05:40 shutdown",
-      "instead": "another Zen 5 1T experiment (asm and profile show no sparse-loop lever)",
-      "expect": "x86 unchanged from final3: about +2% (Zen 5) and +7% (Zen 3) at 1T over Rust"
-    },
-    {
-      "utc": "2026-10-10T04:04:19Z",
-      "level": "info",
-      "text": "final5-base (base) running: final scoreboard: base champion 37e19c7 vs Rust and davepl",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T04:26:15Z",
-      "level": "decision",
-      "text": "p6-scaling: the base lead over Rust is a full-occupancy effect: +2.5-2.7% when threads leave vCPUs free, +14% when threads equal vCPUs (16 of 16, 32 of 32, 64 of 64). Why: measured on three node sizes; Rust falls back at full occupancy while ours keeps scaling. The official ranking runs all threads, so this is where the base entry earns its place. Passed over: a thread-pinning or SMT probe this run (no time before the cutoff). Expect: next run: test why Rust drops at full occupancy (scheduler, main-thread contention) and whether ours holds at 96 and 128.",
-      "id": "p6-scaling",
-      "what": "the base lead over Rust is a full-occupancy effect: +2.5-2.7% when threads leave vCPUs free, +14% when threads equal vCPUs (16 of 16, 32 of 32, 64 of 64)",
-      "why": "measured on three node sizes; Rust falls back at full occupancy while ours keeps scaling. The official ranking runs all threads, so this is where the base entry earns its place",
-      "instead": "a thread-pinning or SMT probe this run (no time before the cutoff)",
-      "expect": "next run: test why Rust drops at full occupancy (scheduler, main-thread contention) and whether ours holds at 96 and 128"
-    },
     {
       "utc": "2026-10-10T04:26:15Z",
       "level": "decision",
@@ -1233,6 +1225,34 @@
       "why": "top wheel idea in the queue, saves a sweep over the planes; brief requires PRIMES_TEST, the 5,396-size sweep and a pinned local speed check",
       "instead": "IDEAS 13 (larger change)",
       "expect": "+1-3% at 1T on Zen"
+    },
+    {
+      "utc": "2026-10-10T08:17:39Z",
+      "level": "decision",
+      "text": "a-scale: Chris's three scaling tests, in this order: phase profile at 1/24/48/96 threads and the loaded one-thread test on the current 96-vCPU node (queued after the pin task), then the whole curve again on a fresh node; no conclusion on the 96-vCPU numbers until the repeat agrees. Why: Chris, 08:12: the first node's A/A spread was 7%; a second node, a per-phase view at scale, and clock speed under load separate node noise, a phase that saturates and frequency. Passed over: running the repeat first (the pool would have to be recreated twice). Expect: if the sparse phase per pass grows most from 48 to 96 threads, the SMT siblings compete for store bandwidth; if one-thread speed under load drops as much as the curve flattens, it is clock.",
+      "id": "a-scale",
+      "what": "Chris's three scaling tests, in this order: phase profile at 1/24/48/96 threads and the loaded one-thread test on the current 96-vCPU node (queued after the pin task), then the whole curve again on a fresh node; no conclusion on the 96-vCPU numbers until the repeat agrees",
+      "why": "Chris, 08:12: the first node's A/A spread was 7%; a second node, a per-phase view at scale, and clock speed under load separate node noise, a phase that saturates and frequency",
+      "instead": "running the repeat first (the pool would have to be recreated twice)",
+      "expect": "if the sparse phase per pass grows most from 48 to 96 threads, the SMT siblings compete for store bandwidth; if one-thread speed under load drops as much as the curve flattens, it is clock"
+    },
+    {
+      "utc": "2026-10-10T08:17:39Z",
+      "level": "info",
+      "text": "mt-phases (base) running: Which base phase stops gaining at scale: per-pass TSC per phase at 1, 24, 48, 96 threads",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T08:17:39Z",
+      "level": "info",
+      "text": "loaded-1t (base) running: How much of the drop at scale is clock speed: one pinned sieve thread (ours, Rust) with busy work on cpu0 SMT sibling, 16 other cores, all 47 other cores, all 95 other vCPUs; spin loop and Rust sieve as loads",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T08:17:39Z",
+      "level": "info",
+      "text": "a-scale-repeat (both) queued: The 96-vCPU curve repeats on a second node (first node A/A spread 7%)",
+      "auto": true
     }
   ],
   "research": {

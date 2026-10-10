@@ -26,3 +26,5 @@ id	pool	size	kind	outdir	submitted	state
 0744343557	hc-standard-d32as-v7	Standard_D32as_v7	base	ispc-dev/results/hc/idea18-no512-32	2026-10-10T07:45:25Z	done
 0752407250	hc-standard-d96as-v7	Standard_D96as_v7	base	ispc-dev/results/hc/idea2-pin-96	2026-10-10T07:52:49Z	open
 07525414848	hc-standard-d32as-v7	Standard_D32as_v7	base	ispc-dev/results/hc/idea2-pin-32	2026-10-10T07:53:02Z	open
+08162331146	hc-standard-d96as-v7	Standard_D96as_v7	base	ispc-dev/results/hc/mt-phases-96	2026-10-10T08:16:31Z	open
+08163727413	hc-standard-d96as-v7	Standard_D96as_v7	base	ispc-dev/results/hc/loaded-1t-96	2026-10-10T08:17:29Z	open
