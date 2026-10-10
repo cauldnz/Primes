@@ -146,6 +146,47 @@ static inline void clear_dense_vec(uniform uint64 * uniform w, uniform int nword
     clear_dense_from(w, nwords, P, c);
 }
 
+#if defined(ISPC_TARGET_NEON)
+// NEON form, after the Rust entry's dense resetter. The loop walks a pointer over runs of U
+// periods (U * P words): the whole vectors of a run get the vector single-bit ORs above, and
+// any words after them get scalar ones. Factors below 16 take U = programCount, so a run is a
+// whole number of vectors and its 2P mask vectors still fit in the NEON registers. Larger
+// factors take one period a run, as Rust does: about P / 2 mask registers, which fit up to about
+// P = 63, plus a scalar tail of one to three words. Either way the loop is q-register loads, ORs
+// and stores with 16-byte-aligned offsets from the pointer, which pair into ldp/stp: four
+// words in four instructions, where the scalar routine takes eight.
+static inline void clear_dense_neon(uniform uint64 * uniform w, uniform int nwords,
+                                    const uniform int P) {
+    const uniform int U = (P < 16) ? programCount : 1;             // periods per run
+    const uniform int B = U * P;                                   // words per run
+    const uniform int NV = B / programCount;                       // whole vectors per run
+    const uniform int c = ((P * P / 2) / 64 / P) * P;
+    uniform uint64 * uniform q = w + c;
+    // A run count rather than an end pointer keeps the offsets relative to q itself.
+    for (uniform int n = (nwords - c) / B; n > 0; n--, q += B) {
+        #pragma unroll
+        for (uniform int v = 0; v < NV; v++) {
+            const int k = v * programCount + programIndex;          // word of the run
+            uint64 x = q[k];
+            const uniform int n0 = (64 * programCount * v - P / 2) / P;
+            #pragma unroll
+            for (uniform int i = 0; i < 64 * programCount / P + 2; i++) {
+                const uniform int t = P / 2 + (n0 + i) * P;
+                x |= ((t >> 6) == k) ? ((uniform uint64)1) << (t & 63) : 0;   // one composite
+            }
+            q[k] = x;
+        }
+        #pragma unroll
+        for (uniform int j = 0; j < 64 * U; j++) {                  // words after the vectors
+            const uniform int t = P / 2 + j * P;
+            if ((t >> 6) >= NV * programCount)
+                q[t >> 6] |= ((uniform uint64)1) << (t & 63);       // one composite
+        }
+    }
+    clear_dense_from(w, nwords, P, (uniform int)(q - w));          // the rest, then P itself
+}
+#endif
+
 // Sparse clearing over bytes for an odd factor p > 16. Chunks of p bytes start at byte
 // multiples of p; in each, the 8 multiples sit at bit offsets t_j = p/2 + j*p (j = 0..7).
 // Their bit-in-byte positions depend only on p mod 16 (E), so the masks are constants.
@@ -192,10 +233,8 @@ static void clear_sparse(uniform Sieve * uniform s, uniform int p) {
     }
 }
 
-// ISPC's NEON targets scalarise the vector dense code (per-lane loads), which made the base
-// entry 39% slower on Cobalt 100; NEON keeps the scalar routine.
 #if defined(ISPC_TARGET_NEON)
-#define D(P) case P: clear_dense(s->bits, s->nwords, P); break;
+#define D(P) case P: clear_dense_neon(s->bits, s->nwords, P); break;
 #else
 #define D(P) case P: if (P < VEC_LIMIT) clear_dense_vec(s->bits, s->nwords, P, P == 3); \
                      else clear_dense(s->bits, s->nwords, P); break;
