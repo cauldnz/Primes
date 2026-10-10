@@ -5,9 +5,9 @@ id	pool	size	kind	outdir	submitted	state
 01482615731	hc-standard-d16as-v5	Standard_D16as_v5	rust	ispc-dev/results/hc/diag-base-phases	2026-10-10T01:48:34Z	done
 02110516451	hc-standard-d16as-v7	Standard_D16as_v7	rust	ispc-dev/results/hc/diag-base-phases	2026-10-10T02:11:13Z	done
 02113513452	hc-standard-d16a-v4	Standard_D16a_v4	rust	ispc-dev/results/hc/diag-base-phases	2026-10-10T02:11:43Z	done
-02285113082	hc-standard-d16a-v4	Standard_D16a_v4	rust	ispc-dev/results/hc/p5-sse4	2026-10-10T02:29:00Z	open
+02285113082	hc-standard-d16a-v4	Standard_D16a_v4	rust	ispc-dev/results/hc/p5-sse4	2026-10-10T02:29:00Z	done
 0229239578	hc-standard-d4ps-v6	Standard_D4ps_v6	rust	ispc-dev/results/hc/diag-base-phases	2026-10-10T02:29:31Z	done
-02300120863	hc-standard-d32as-v7	Standard_D32as_v7	base	ispc-dev/results/hc/p6-scaling-32	2026-10-10T02:30:09Z	open
-023920833	hc-standard-d16as-v7	Standard_D16as_v7	base	ispc-dev/results/hc/diag-swift-phases	2026-10-10T02:39:27Z	open
-024234481	hc-standard-d16as-v7	Standard_D16as_v7	base	ispc-dev/results/hc/asm-sparse	2026-10-10T02:42:42Z	open
+02300120863	hc-standard-d32as-v7	Standard_D32as_v7	base	ispc-dev/results/hc/p6-scaling-32	2026-10-10T02:30:09Z	done
+023920833	hc-standard-d16as-v7	Standard_D16as_v7	base	ispc-dev/results/hc/diag-swift-phases	2026-10-10T02:39:27Z	done
+024234481	hc-standard-d16as-v7	Standard_D16as_v7	base	ispc-dev/results/hc/asm-sparse	2026-10-10T02:42:42Z	done
 02595822321	hc-standard-d4ps-v6	Standard_D4ps_v6	base	ispc-dev/results/hc/p4-arm-dense	2026-10-10T03:00:07Z	open

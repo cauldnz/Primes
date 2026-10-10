@@ -66,3 +66,21 @@ cauldnz-ispc-base;1011436;5.000197;16;algorithm=base,faithful=yes,bits=1
 cauldnz-ispc-base;917450;5.000117;8;algorithm=base,faithful=yes,bits=1
 cauldnz-ispc-base;484125;5.000049;4;algorithm=base,faithful=yes,bits=1
 == round 1 champ2
+cauldnz-ispc-base;profile;setup;66
+cauldnz-ispc-base;profile;dense;35462
+cauldnz-ispc-base;profile;sparse;61156
+cauldnz-ispc-base;profile;scan;3962
+cauldnz-ispc-base;profile;destroy;22
+cauldnz-ispc-base;profile;run_total;100581
+cauldnz-ispc-base;129521;5.000032;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;1009092;5.000206;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;902576;5.000116;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;463578;5.000055;4;algorithm=base,faithful=yes,bits=1
+== round 1 cand
+yellowcub_fahlman_striped_UInt8;profile;setup;398.39515
+yellowcub_fahlman_striped_UInt8;profile;dense;17116.0373
+yellowcub_fahlman_striped_UInt8;profile;sparse;30119.8823
+yellowcub_fahlman_striped_UInt8;profile;scan;47.6899
+yellowcub_fahlman_striped_UInt8;profile;destroy;30.37305
+yellowcub_fahlman_striped_UInt8;profile;run_total;47283.6095
+yellowcub_fahlman_striped_UInt8;107097;5.0000141;1;algorithm=base,faithful=yes,bits=1

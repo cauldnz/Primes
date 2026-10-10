@@ -141,3 +141,30 @@ mike-barber_bit-extreme-hybrid;211797;5.0001320839;4;algorithm=base,faithful=yes
 mike-barber_bit-extreme-hybrid;420578;5.0002627373;8;algorithm=base,faithful=yes,bits=1
 mike-barber_bit-extreme-hybrid;411085;5.0005788803;16;algorithm=base,faithful=yes,bits=1
 == round 5 ctrl
+cauldnz-ispc-base;51056;5.000071;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;375542;5.000421;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;391079;5.000197;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;197248;5.000113;4;algorithm=base,faithful=yes,bits=1
+== round 6 champ2
+mike-barber_bit-extreme-hybrid;56845;5.0000648499;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;219235;5.0001606941;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;425504;5.0002527237;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;417851;5.0005354881;16;algorithm=base,faithful=yes,bits=1
+== round 6 ctrl2
+davepl_array_optimized;39022;5.00017;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;309746;5.00088;16;algorithm=base,faithful=yes,bits=1
+== round 6 cand
+mike-barber_bit-extreme-hybrid;53434;5.0000715256;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;205479;5.0001616478;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;397682;5.0002026558;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;387111;5.0004687309;16;algorithm=base,faithful=yes,bits=1
+== round 6 champ
+mike-barber_bit-extreme-hybrid;56684;5.0000486374;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;211093;5.0001673698;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;420852;5.0002675056;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;411401;5.0004677773;16;algorithm=base,faithful=yes,bits=1
+== round 6 ctrl
+cauldnz-ispc-base;50010;5.000017;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;375766;5.000344;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;390794;5.000162;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;195760;5.000141;4;algorithm=base,faithful=yes,bits=1
