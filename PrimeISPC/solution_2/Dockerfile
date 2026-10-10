@@ -1,17 +1,20 @@
-FROM ubuntu:24.04 AS build
-
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends ispc gcc libc6-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-WORKDIR /opt/app
-ARG ISPC_TARGETS
-COPY primes_base.ispc build.sh ./
-RUN sh build.sh
-
-FROM ubuntu:24.04
+# DIAGNOSTIC BUILD (hc/diag-swift-phases): never merge.
+# Builds only upstream's PrimeSwift_1bitStriped_u8 package (with phase-timing
+# instrumentation) using the same toolchain and compiler flags as upstream's
+# PrimeSwift/solution_1/Dockerfile.
+FROM swift:6.3.3 AS build
 
 WORKDIR /opt/app
-COPY --from=build /opt/app/primes .
 
-ENTRYPOINT [ "./primes" ]
+COPY . .
+
+# On x86-64 the striped package targets Haswell (AVX2), as upstream does.
+RUN if [ "$(uname -m)" = x86_64 ]; then set -- -Xswiftc -target-cpu -Xswiftc haswell; fi && \
+    swift build -v --configuration release -Xswiftc -O -Xswiftc -whole-module-optimization "$@"
+
+FROM swift:6.3.3-slim
+WORKDIR /opt/app
+COPY --from=build /opt/app/.build/release/PrimeSieveSwift ./PrimeSwift_1bitStriped_u8/.build/release/PrimeSieveSwift
+COPY run.sh ./run.sh
+
+ENTRYPOINT [ "./run.sh" ]
