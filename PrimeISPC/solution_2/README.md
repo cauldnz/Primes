@@ -45,7 +45,7 @@ The multi-threaded runs start one pthread per thread, each running its own sieve
 
 ### Portability
 
-On x86-64 the binary carries SSE4, AVX2 and AVX-512 code (`sse4-i32x4,avx2-i32x8,avx512skx-x8`), and ISPC's dispatcher picks the path at start-up. Wider gangs (`avx2-i32x16`, `avx512skx-x16`) stopped the compiler folding the dense masks and ran far slower. On arm64 it compiles for NEON.
+On x86-64 the binary carries SSE4, AVX2 and AVX-512 code (`sse4-i32x4,avx2-i32x8,avx512skx-x16`), and ISPC's dispatcher picks the path at start-up. The AVX-512 path uses 16 lanes, so each dense OR and store covers eight words in one 512-bit instruction. That needs each lane to walk only the composites of its own word: written over the whole block, the 16-lane gang stopped the compiler folding the dense masks and ran far slower. On arm64 it compiles for NEON.
 
 ## How this was built
 

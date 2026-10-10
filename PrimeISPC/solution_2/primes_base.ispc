@@ -135,11 +135,15 @@ static inline void clear_dense_vec(uniform uint64 * uniform w, uniform int nword
         for (uniform int kb = 0; kb < programCount * P; kb += programCount) {
             const int k = kb + programIndex;                        // word of the block
             uint64 x = INIT ? 0 : w[c + k];                          // INIT: first factor, no load
-            const uniform int n0 = (64 * kb - P / 2) / P;          // first composite near these words
+            // The block starts at a multiple of P bits, so the composites in word k sit at bits
+            // b0, b0 + P, b0 + 2P, ... below 64, where b0 = (P/2 - 64k) mod P. Each lane walks
+            // the composites of its own word: about 64/P iterations, not 64 * programCount / P,
+            // which keeps the unrolled code small enough for LLVM to fold the masks with 16 lanes.
+            const int b0 = (P / 2 + P - (64 * k) % P) % P;
             #pragma unroll
-            for (uniform int i = 0; i < 64 * programCount / P + 2; i++) {
-                const uniform int t = P / 2 + (n0 + i) * P;
-                x |= ((t >> 6) == k) ? ((uniform uint64)1) << (t & 63) : 0;   // one composite
+            for (uniform int i = 0; i <= 64 / P; i++) {
+                const int b = b0 + i * P;
+                x |= (b < 64) ? ((uint64)1) << b : 0;                // one composite
             }
             w[c + k] = x;
         }
