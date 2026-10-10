@@ -1,6 +1,9 @@
 #!/usr/bin/env -S python3 -W ignore
 # st.py <json-patch-python-expr...>: edit ispc-dev/status.json. Usage examples:
+# (Log events for new experiments, verdicts and phase changes are written by autolog.py when
+#  pub.sh publishes, so they appear however status.json was edited.)
 #   st.py event "text" [level]
+#   st.py decide ID "what I decided" "why" ["what I passed over"] ["what I expect"]
 #   st.py current ID PHASE "detail" | st.py current none
 #   st.py set run.state running
 #   st.py exp '{"id":..}'   (upsert by id)
@@ -11,16 +14,17 @@ import json, sys, datetime, csv
 import os
 P=os.path.join(os.path.dirname(os.path.abspath(__file__)),"..","status.json")
 d=json.load(open(P)); now=datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-def log(text, level="info"):
-    d["events"].append({"utc":now,"level":level,"text":text}); d["events"]=d["events"][-50:]
 a=sys.argv[1:]
 if a[0]=="event":
-    log(a[1], a[2] if len(a)>2 else "info")
+    d["events"].append({"utc":now,"level":a[2] if len(a)>2 else "info","text":a[1]}); d["events"]=d["events"][-50:]
+elif a[0]=="decide":
+    f=dict(zip(["id","what","why","instead","expect"],a[1:6]))
+    t=f"{f.get('id')}: {f.get('what','').rstrip('.')}. Why: {f.get('why','').rstrip('.')}."
+    if f.get("instead"): t+=f" Passed over: {f['instead'].rstrip('.')}."
+    if f.get("expect"): t+=f" Expect: {f['expect'].rstrip('.')}."
+    d["events"].append({"utc":now,"level":"decision","text":t,**{k:v for k,v in f.items() if v}}); d["events"]=d["events"][-50:]
 elif a[0]=="current":
-    old=d.get("current") or {}
     d["current"]=None if a[1]=="none" else {"id":a[1],"phase":a[2],"detail":a[3]}
-    if a[1]!="none" and (old.get("id"),old.get("phase"),old.get("detail"))!=(a[1],a[2],a[3]):
-        log(f"{a[1]} ({a[2]}): {a[3]}")
 elif a[0]=="set":
     o=d; ks=a[1].split(".")
     for k in ks[:-1]: o=o[k]
@@ -31,11 +35,8 @@ elif a[0]=="set":
 elif a[0]=="exp":
     e=json.loads(a[1]); xs=d["experiments"]
     for i,x in enumerate(xs):
-        if x["id"]==e["id"]: before=x.get("verdict"); x.update(e); break
-    else: before=None; xs.append(e)
-    if e.get("verdict") and e.get("verdict")!=before:
-        what=e.get("where") if e["verdict"]!="running" else e.get("hypothesis")
-        log(f'{e["id"]} {e["verdict"]}: {what or ""}'.strip(), "warn" if e["verdict"]=="failed" else "info")
+        if x["id"]==e["id"]: x.update(e); break
+    else: xs.append(e)
 elif a[0]=="spend":
     price={"Standard_D16a_v4":0.13,"Standard_D16as_v5":0.127,"Standard_D16as_v6":0.134,"Standard_D16as_v7":0.134}
     tot=0

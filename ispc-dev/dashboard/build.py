@@ -10,6 +10,12 @@ import html, json, os, sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 SRC = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, "..", "status.json")
 OUT = sys.argv[2] if len(sys.argv) > 2 else os.path.join(HERE, "out", "index.html")
+FULL = os.path.join(os.path.dirname(os.path.abspath(SRC)), "results", "hc", "EVENTS.jsonl")
+CSS_ROOT = """:root{--bg:#f6f5f2;--card:#fff;--ink:#1d1d1b;--muted:#6b6a66;--line:#e4e2dc;--up:#1f7a4d;--down:#b3261e;--accent:#2e5496;--warn:#9a6700}
+@media (prefers-color-scheme:dark){:root{--bg:#141413;--card:#1e1e1c;--ink:#ecebe7;--muted:#9c9a94;--line:#33322f;--up:#5cc28d;--down:#f28b82;--accent:#8ab4f8;--warn:#f2c94c}}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding:16px}
+main{max-width:760px;margin:0 auto} h1{font-size:20px;margin:4px 0 2px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin:12px 0} .sub{color:var(--muted);font-size:13px}"""
 PHASES = ["hypothesis", "plan", "implement", "gate", "evaluate", "decide"]
 
 e = lambda v: html.escape("" if v is None else str(v))
@@ -112,7 +118,34 @@ def events(evs):
     items = "".join(
         f'<li class="{e(v.get("level"))}"><time data-utc="{e(v.get("utc"))}"></time>{e(v.get("text"))}</li>'
         for v in list(reversed(evs))[:25])
-    return f'<section class="card"><h2>Log</h2><ul class="log">{items}</ul></section>'
+    full = ('<p class="sub" style="margin:10px 0 0"><a href="log.html">The whole log, every run since 9 October →</a></p>'
+            if os.path.exists(FULL) else "")
+    return f'<section class="card"><h2>Log</h2><ul class="log">{items}</ul>{full}</section>'
+
+def build_log(evs):
+    """log.html: every event from results/hc/EVENTS.jsonl, newest first, grouped by AEST day."""
+    rows = []
+    for v in reversed(evs):
+        rows.append(f'<li class="{e(v.get("level"))}"><time data-utc="{e(v.get("utc"))}"></time>{e(v.get("text"))}</li>')
+    css = CSS_ROOT + """
+.log{list-style:none;padding:0;margin:0} .log li{font-size:13px;padding:5px 0;border-top:1px solid var(--line)}
+.log time{color:var(--muted);margin-right:8px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.log .warn{color:var(--warn)} .log .error{color:var(--down)} a{color:var(--accent)} .log .decision{border-left:3px solid var(--accent);padding-left:8px}"""
+    return f"""<!doctype html>
+<html lang="en-AU"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta http-equiv="refresh" content="300">
+<title>ISPC autopilot log</title><style>{css}</style></head><body><main>
+<header class="card"><h1>The whole log</h1>
+<p class="sub">{len(evs)} events from every run, newest first. Rebuilt from the git history of status.json, so
+nothing a run forgot to log is missing. <a href="index.html">← Status</a></p></header>
+<section class="card"><ul class="log">{"".join(rows)}</ul></section>
+<footer class="sub" style="text-align:center">Generated from ispc-dev/results/hc/EVENTS.jsonl on cauldnz/Primes.</footer>
+</main><script>
+const fmt=new Intl.DateTimeFormat('en-AU',{{timeZone:'Australia/Brisbane',weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}});
+document.querySelectorAll('time[data-utc]').forEach(t=>{{const d=new Date(t.dataset.utc);t.textContent=isNaN(d)?'–':fmt.format(d);}});
+</script></body></html>
+"""
 
 def build(s):
     run = s.get("run", {})
@@ -159,7 +192,7 @@ td.m{{white-space:nowrap}} td.m b{{font-size:13px;margin-left:6px}} .up b{{color
 .hyp{{margin:3px 0}} .v{{font-size:12px;font-weight:600;padding:1px 7px;border-radius:6px;border:1px solid currentColor}}
 .v.kept,.v.confirmed{{color:var(--up)}} .v.rejected,.v.reverted,.v.failed{{color:var(--down)}} .v.queued,.v.running{{color:var(--warn)}}
 .log li{{font-size:13px;padding:4px 0;border-top:1px solid var(--line)}} .log li:first-child{{border-top:0}}
-.log time{{color:var(--muted);margin-right:8px;font-variant-numeric:tabular-nums}} .log .warn{{color:var(--warn)}} .log .error{{color:var(--down)}}
+.log time{{color:var(--muted);margin-right:8px;font-variant-numeric:tabular-nums}} .log .warn{{color:var(--warn)}} .log .error{{color:var(--down)}} .log .decision{{border-left:3px solid var(--accent);padding-left:8px}}
 .next li{{padding:4px 0}} .next li::before{{content:"→ ";color:var(--muted)}}
 .btn{{display:inline-block;padding:8px 14px;border-radius:8px;border:1px solid var(--accent);color:var(--accent);text-decoration:none;font-weight:600;font-size:14px}}
 footer{{color:var(--muted);font-size:12px;text-align:center;margin:18px 0 8px}}
@@ -201,3 +234,8 @@ if __name__ == "__main__":
     os.makedirs(os.path.dirname(os.path.abspath(OUT)), exist_ok=True)
     with open(OUT, "w") as f: f.write(build(s))
     print(OUT)
+    if os.path.exists(FULL):
+        evs = [json.loads(l) for l in open(FULL) if l.strip()]
+        lo = os.path.join(os.path.dirname(os.path.abspath(OUT)), "log.html")
+        with open(lo, "w") as f: f.write(build_log(evs))
+        print(lo)

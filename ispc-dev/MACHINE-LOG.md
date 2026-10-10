@@ -76,14 +76,99 @@ last. Public, like the rest of the repo.
   does the design owe to the language", and led to the plan to run one design in four
   languages.
 
+### 10 October, 09:15: steering by the person, between ticks
+
+- Chris asked for a secure way to steer a climb while it runs. The answer turned out to be the
+  chat he already had: his messages queued only because a whole run was one long turn.
+- **The climber became a loop of short ticks.** Each tick collects results, decides, submits the
+  next Batch tasks, publishes, schedules its own wake-up and ends its turn. Chris's messages land
+  between ticks as ordinary turns, with his authority and nothing to forge.
+- **The change also fixed the reason for the stay-busy waits.** All long work already ran in Azure
+  Batch, but results came back through local followers that died if the VM paused. Tasks now
+  upload their output when they end, and every tick rebuilds its state from git and Batch.
+- A unit test of the new cost tally caught a generator bug (a literal newline written into
+  embedded Python) before it reached a run.
+
+- **Short ticks, with long work handed off.** Chris's follow-up: make the turns short, or send
+  long work to a sub-agent. Both went in. A tick has a budget of about 5 minutes. Benchmarks
+  already ran in Azure Batch; the rest of the long local work (writing and gating a candidate,
+  local benchmarks, profiling, ports, the morning report) now goes to background agents. The
+  loop stays the dispatcher and the only writer of the record. An agent works on its own branch,
+  can't spend money or merge, and its report is checked like a stranger's pull request.
+
+### 10 October, 09:00: the log that stopped
+
+- Chris noticed the page's log hadn't moved all morning. The run had logged its own start and
+  then nothing for two and a half hours, while it decided five experiments. Every other part of
+  the page was current, because tools kept those up to date; the log depended on the climber
+  remembering to call `st.py event`.
+- **Fix: the log writes itself.** On every publish, `tools/autolog.py` compares the last
+  committed `status.json` with the new one and logs each new experiment, verdict, phase change,
+  scoreboard move and run state change. A full, never-truncated copy goes to
+  `results/hc/EVENTS.jsonl`, shown on the page as `log.html`.
+- **The history was all there.** Every version of `status.json` is in git, so a backfill rebuilt
+  229 events from 111 versions, including the 2.5 hours the run forgot to log. Keeping state in
+  git paid for itself again.
+
+### 10 October, 09:05: the machine goes public too
+
+- Chris decided the machine is as much the story as the sieves. It gets its own public repo,
+  MIT licence, with Primes as the worked example (`PUBLISH-PLAN.md`). The work splits the
+  generic machine from a per-target adapter, so someone else can point it at their own hill.
+- It ships after it has climbed on ticks at least once, from fresh history, after an audit
+  against the public-repo rules.
+
+### 10 October, 09:15: the bench, for anyone
+
+- `tools/azure-setup.sh` stands up a Batch bench from nothing and `AZURE-BENCH.md` explains it.
+  Two points for the write-up, from Chris. Batch runs pool nodes in its own subscriptions, so it
+  reached Spot and VM sizes that our subscription's offer blocked outright. And the Spot quota
+  needed a support request, which came back quickly.
+- Chris's view: Azure Batch is one of the most underrated Azure services. For a machine like
+  this it does three jobs at once: it reaches the hardware, it cleans up after itself on a
+  deadline, and it keeps results safe while the climber sleeps.
+
+### 10 October, 09:35: the climber's reasoning goes on the record
+
+- The workshop can't see the climber's chat, only what it pushes. Results were all on record; the
+  reasons behind each choice weren't, unless a commit message happened to carry them. That's the
+  most interesting part of the trajectory for the write-up, and the hardest to rebuild later.
+- The climber now records each decision with its reason, what it passed over and what it
+  expects (`st.py decide`). The log flags any verdict made with no reasoning, so a lapse shows
+  rather than relying on memory (lesson 2 again).
+
+### 10 October, 10:00: base first, and the machine ships before the sieves
+
+- Chris set the order: v1 of `cauldnz/agentic-hill-climber` goes public before the Primes PR, so
+  the PR can point to it as how the entries were made. v1 is the machine as it ran, cleaned;
+  generalising waits for v2.
+- The next runs put the base entries first. The base leaderboard is where human experts have
+  spent the most effort, so a high place there is the test of the machine. The climber's own
+  plan had put wheel work first; the workshop reordered it (`RUN-PLAN-NEXT.md`).
+
+### 10 October, 11:00: deciding on the interval
+
+- Chris asked whether a 5-second run is enough. The official benchmark runs each entry once per
+  daily session, so a leaderboard number is one sample; ours is six to ten paired rounds. The
+  question was how to use them. `analyze.py` now gives the mean and 95% confidence interval of
+  the per-round paired ratio, and Chris chose to decide on it: keep when the lower end clears
+  +1% on both Zen machines, add rounds while it straddles, revert when it can't get there.
+- A backtest over 44 past experiments: every past KEEP stays a KEEP. Thirteen results the old
+  rule sent to a ten-round rerun are clear reverts under the new one (their whole interval sits
+  below +1%), so those reruns were spent confirming what six rounds already showed. Four go to
+  "more rounds", including hc-028, which Chris merged on judgement.
+
 ## Lessons so far
 
 1. Controls in every round matter more than any optimisation. Without them, machine noise
    looks like progress or regression.
 2. Anything that relies on the agent remembering to do it will lapse in a long run; put it in
-   the tools it already calls.
+   the tools it already calls. It lapsed twice: the heartbeat, then the log.
 3. An unattended agent's authority must come from the person directly, never from a file it
    reads, however convenient the file is.
 4. Write predictions down first. Most of them miss, and the misses are the information.
 5. Separate the workshop from the climber. The climber is best when it doesn't decide what to
    climb or how the machine works.
+6. To make an agent steerable, make its turns short. A long-running agent can't hear you;
+   one that wakes, works and sleeps can. Long work still has to happen somewhere, so the agent
+   you talk to dispatches it and never does it.

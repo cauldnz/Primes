@@ -41,21 +41,26 @@ Claude.ai session reviews the ledger and the backlog; it no longer relays indivi
 
 ## Acceptance rule
 
-Keep a change only if all of these hold:
+From 2026-10-10 (Chris: decide on the confidence interval). Each round gives one paired ratio,
+candidate over champion in the same round. `analyze.py` takes their mean and 95% confidence
+interval per machine and thread count, and decides at 1 thread or all threads, whichever is
+better:
 
-- the median improves by at least 2% on both Zen 3 and Zen 5, at 1 thread or at all threads;
-- every candidate round beats the champion in its own round on at least one of those machines,
-  so noise alone can't account for the gain;
-- no machine or thread count regresses by more than 1%;
-- the code stays readable enough to explain in the README.
+- **Keep** when the interval's lower end is at least +1% on both Zen 3 and Zen 5, nothing loses
+  1% or more on the mean (arm64 included, for shared code), and the code stays readable enough
+  to explain in the README.
+- **More rounds** when the interval straddles +1%. Add the rounds `analyze.py` estimates, up to
+  20 in all, on the same nodes if they are still up.
+- **Revert** on a regression of 1% or more anywhere, when the interval can't reach +1%, or at 20
+  rounds without a decision.
 
-When a result falls between 0 and 2%, rerun it with ten rounds before deciding.
+Start with six counted rounds. At the per-round spread seen so far (0.1% to 1% SD), six resolve
+a gain of 2% or more, and a 1% gain needs about 15 to 20. If the champion's A/A interval
+excludes zero by more than 0.5%, the node is noisy: mark the result inconclusive and rerun on
+another node.
 
-**Small consistent gains** (agreed with Chris, 2026-10-10). A change that misses 2% is still
-kept if its ten-round rerun shows a median gain of at least 1% on both Zen 3 and Zen 5 (1T or
-all threads), wins at least 8 of 10 rounds on each, and loses no more than 0.5% on any machine
-or thread count (arm64 included, for shared code). Queue the rerun as soon as a six-round run
-lands between 1% and 2% on both machines.
+This replaces the earlier rule (median of 2% on both machines with every round won on one, and
+a ten-round rule for gains of 1% to 2%). Ledger rows before 2026-10-10 11:00 AEST used it.
 
 **Target-specific changes** (agreed with Chris, 2026-10-09). A change that alters the code for
 some instruction sets only (for example `#if defined(ISPC_TARGET_AVX512SKX)`) is kept if it
@@ -93,7 +98,7 @@ Then add a short note per experiment under the table: what happened, and what it
 
 ## Budget and stop conditions
 
-- Azure credit. About NZ$248 remains on the Visual Studio subscription. Prefer Batch Spot.
+- Azure: prefer Batch Spot.
   Stop and ask Chris before spending more than NZ$50 in one session.
 - Diminishing returns. Stop a line of attack after three experiments in a row on it fail the
   acceptance rule.
@@ -190,5 +195,5 @@ Adopted from `RESEARCH.md` section 7 on 2026-10-09 at 16:50 AEST, ahead of the o
 ## Writing
 
 Anything committed to `PrimeISPC/`, the PR, or this branch's notes follows Chris's house style:
-the `house-style` and `economist-style` skills in `~/.agents/skills/` on his machine. Load both
+the `house-style` and `economist-style` skills. Load both
 before writing a README, a PR description or a ledger note. Commit messages count too.

@@ -24,7 +24,7 @@ heartbeat() {
         fi
     fi
     python3 "$T/st.py" spend >/dev/null 2>&1 || true
-    local n; n=$(pgrep -fc hc-pool-copy.sh 2>/dev/null || echo 0)
+    local n; n=$(pgrep -fc hc-pool-copy.sh 2>/dev/null); n=${n:-0}
     python3 "$T/st.py" set run.background_runs "$n" >/dev/null
     bash "$T/pub.sh" "Heartbeat" >/dev/null 2>&1 || echo "heartbeat: publish failed (will retry)"
     for f in "$LOGDIR"/*.log; do [ -f "$f" ] && printf '%s: %s\n' "$(basename "$f")" "$(tail -n1 "$f" | cut -c1-160)"; done
