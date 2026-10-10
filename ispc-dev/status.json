@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T09:35:49Z",
+  "updated_utc": "2026-10-10T09:36:08Z",
   "run": {
     "id": "ap-20261010T0715Z",
     "state": "running",
@@ -879,9 +879,9 @@
       "id": "idea12-tile13",
       "entry": "wheel",
       "hypothesis": "Fold 13 into the 7x11 tile copy (IDEAS 12): one store-only pass per plane, one fewer sweep",
-      "verdict": "queued",
+      "verdict": "more rounds (Zen 3, arm)",
       "where": "Zen 5 D32as_v7 now, Zen 3 on the fleet",
-      "note": "3fc54d1 by agent; verified PRIMES_TEST exit 0 and the 5,396-size sweep 0 bad; local +1-3% inside noise. Agent predicts +1-3% at 1T"
+      "note": "Zen 5 D32as_v7, 6 rounds: +2.5% +-1.5% at 1T (6/6), +0.2% at 8T, +1.4% at 16T, +1.5% +-2.7% at 32T. Shared code: needs Zen 3 and the Cobalt 100 gate"
     },
     {
       "id": "asm-wheel",
@@ -903,9 +903,9 @@
       "id": "wheel-group32-g8",
       "entry": "wheel",
       "hypothesis": "G=8 on AVX-512 with the 32-word loop (6 group passes instead of 8)",
-      "verdict": "running",
+      "verdict": "revert",
       "where": "Zen 5 D96as_v7",
-      "note": "vs wheel-group32; local PRIMES_TEST and sweep pass; mca 0.0785 vs 0.084 cycles per word per member"
+      "note": "D96as_v7, 6 rounds vs wheel-group32: -0.4% at 1T, +1.2% at 24T, +1.7% at 48T, -2.4% +-2.3% at 96T (0/6). G stays 6 on AVX-512"
     },
     {
       "id": "idea20-arenas",
@@ -931,34 +931,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T07:55:27Z",
-      "level": "decision",
-      "text": "intel-avx2: start an agent on the Intel image: every entry built AVX2-only (ISPC avx2-i32x8, Rust and C++ and C5 with skylake), run on one Intel Xeon size. Why: RUN-PLAN priority 4; Azure Xeons all have AVX-512 and the i7-9750H does not, so native builds would measure the wrong code path.",
-      "id": "intel-avx2",
-      "what": "start an agent on the Intel image: every entry built AVX2-only (ISPC avx2-i32x8, Rust and C++ and C5 with skylake), run on one Intel Xeon size",
-      "why": "RUN-PLAN priority 4; Azure Xeons all have AVX-512 and the i7-9750H does not, so native builds would measure the wrong code path"
-    },
-    {
-      "utc": "2026-10-10T07:55:27Z",
-      "level": "info",
-      "text": "idea6-i64 (base) queued: One 64-bit word per lane (avx2-i64x4, avx512skx-x4) shrinks the avx2 object from about 1.0 MB to 0.78 MB and helps at threads = vCPUs (SMT)",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T08:06:16Z",
-      "level": "decision",
-      "text": "intel-avx2: accept the Intel image and run it on the fleet's Intel pool, base kind, cand = the image, champ = hc/idea1-affinity, 4 rounds. Why: a measurement, not an experiment (RUN-PLAN 4); the champ lines (native dispatch, AVX-512) show what AVX-512 is worth on that Xeon.",
-      "id": "intel-avx2",
-      "what": "accept the Intel image and run it on the fleet's Intel pool, base kind, cand = the image, champ = hc/idea1-affinity, 4 rounds",
-      "why": "a measurement, not an experiment (RUN-PLAN 4); the champ lines (native dispatch, AVX-512) show what AVX-512 is worth on that Xeon"
-    },
-    {
-      "utc": "2026-10-10T08:06:16Z",
-      "level": "info",
-      "text": "intel-avx2 (both) queued: Intel stand-in for the i7-9750H, every entry built AVX2-only: ours base and wheel vs Rust, davepl, C5, Zig",
-      "auto": true
-    },
     {
       "utc": "2026-10-10T08:08:08Z",
       "level": "decision",
@@ -1303,6 +1275,35 @@
       "why": "Chris's scaling tests come first; the fleet work left is measurement (Intel, ports on Zen 3) and rechecks, which fit in the two hours before the 12:30 cutoff",
       "instead": "starting the fleet now by dropping the fresh-node repeat",
       "expect": "fleet up by 10:35"
+    },
+    {
+      "utc": "2026-10-10T09:36:08Z",
+      "level": "decision",
+      "text": "wheel-group32-g8: revert: G=8 adds nothing at one thread and loses 2.4% at 96 threads. Why: the 32-word loop already took the per-member overhead that hc-011's G=6 traded against; more members per pass now only add register pressure.",
+      "id": "wheel-group32-g8",
+      "what": "revert: G=8 adds nothing at one thread and loses 2.4% at 96 threads",
+      "why": "the 32-word loop already took the per-member overhead that hc-011's G=6 traded against; more members per pass now only add register pressure"
+    },
+    {
+      "utc": "2026-10-10T09:36:08Z",
+      "level": "decision",
+      "text": "idea12-tile13: promising on Zen 5 (+2.5% at 1T, 6/6); run Zen 3 and the Cobalt 100 gate on the fleet before deciding. Why: shared code across targets, so the CI rule needs Zen 3 too, and arm because it touches NEON code. Expect: +1-2% on Zen 3.",
+      "id": "idea12-tile13",
+      "what": "promising on Zen 5 (+2.5% at 1T, 6/6); run Zen 3 and the Cobalt 100 gate on the fleet before deciding",
+      "why": "shared code across targets, so the CI rule needs Zen 3 too, and arm because it touches NEON code",
+      "expect": "+1-2% on Zen 3"
+    },
+    {
+      "utc": "2026-10-10T09:36:08Z",
+      "level": "info",
+      "text": "idea12-tile13 more rounds (Zen 3, arm). Zen 5 D32as_v7 now, Zen 3 on the fleet. Zen 5 D32as_v7, 6 rounds: +2.5% +-1.5% at 1T (6/6), +0.2% at 8T, +1.4% at 16T, +1.5% +-2.7% at 32T. Shared code: needs Zen 3 and the Cobalt 100 gate",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T09:36:08Z",
+      "level": "info",
+      "text": "wheel-group32-g8 revert. Zen 5 D96as_v7. D96as_v7, 6 rounds vs wheel-group32: -0.4% at 1T, +1.2% at 24T, +1.7% at 48T, -2.4% +-2.3% at 96T (0/6). G stays 6 on AVX-512",
+      "auto": true
     }
   ],
   "research": {
