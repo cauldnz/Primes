@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T20:44:28Z",
+  "updated_utc": "2026-10-10T20:57:22Z",
   "run": {
     "id": "ap-20261010T2040Z",
     "state": "running",
@@ -951,9 +951,9 @@
       "id": "f2-block",
       "entry": "base (grey)",
       "hypothesis": "Block the sparse phase into L1-sized pieces (16/24/32 KB), as rogiervandam solution_5 shakeSieve: +30% or more at 1T on Zen 5",
-      "verdict": "agent",
-      "where": "local",
-      "note": "agent writes hc/f2-block off hc/champion-grey with a PRIMES_BLOCK_KB override"
+      "verdict": "running",
+      "where": "Zen 3 D16a_v4 (block sweep); Zen 5 after the F1 profile",
+      "note": "7c22f10 by agent; verified: base-only diff plus RULES.md, PRIMES_TEST passes at 16/24/32 KB, buffer bit-identical to the champion for 20,984 sizes at 6 block sizes on avx2 and avx512 (agent harness rerun here; agent also ran sse4 and NEON under qemu). Local 1T +24-31% (indicative). Variants hc/f2-block-16 and -24 for the sweep (default constant only)"
     }
   ],
   "azure_queue": 0,
@@ -963,22 +963,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T09:21:07Z",
-      "level": "info",
-      "text": "wheel-group32 more rounds. Zen 5 D96as_v7; Zen 4 recheck. D96as_v7, 6 rounds: +3.7% (+0.6 to +6.8) at 1T, +3.2% (+0.9 to +5.5) at 24T, +4.0% (+2.5 to +5.5) at 48T, +2.7% (-1.2 to +6.6) at 96T; 6/6 rounds won at 1, 24, 48T. Second Zen 5 run (D32as_v7, 6 rounds) queued, then Zen 4 recheck",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T09:21:26Z",
-      "level": "decision",
-      "text": "run: hourly review (2.1 h): phase A overran because Chris's three scaling tests went on the 96-vCPU node. Plan: finish the G=8 wheel task and the sieve-load rerun there (about 09:45), then delete and recreate the pool for the fresh-node repeat (base and wheel, 4 rounds, to about 10:30), then take it down and bring up the fleet (Zen 3, Zen 4, Cobalt 100, Intel) for the Intel measurement, the Zen 3 port numbers and the Zen 4 recheck. Quota still 128 Spot vCPUs. Why: Chris's scaling tests come first; the fleet work left is measurement (Intel, ports on Zen 3) and rechecks, which fit in the two hours before the 12:30 cutoff. Passed over: starting the fleet now by dropping the fresh-node repeat. Expect: fleet up by 10:35.",
-      "id": "run",
-      "what": "hourly review (2.1 h): phase A overran because Chris's three scaling tests went on the 96-vCPU node. Plan: finish the G=8 wheel task and the sieve-load rerun there (about 09:45), then delete and recreate the pool for the fresh-node repeat (base and wheel, 4 rounds, to about 10:30), then take it down and bring up the fleet (Zen 3, Zen 4, Cobalt 100, Intel) for the Intel measurement, the Zen 3 port numbers and the Zen 4 recheck. Quota still 128 Spot vCPUs",
-      "why": "Chris's scaling tests come first; the fleet work left is measurement (Intel, ports on Zen 3) and rechecks, which fit in the two hours before the 12:30 cutoff",
-      "instead": "starting the fleet now by dropping the fresh-node repeat",
-      "expect": "fleet up by 10:35"
-    },
     {
       "utc": "2026-10-10T09:36:08Z",
       "level": "decision",
@@ -1321,6 +1305,21 @@
       "utc": "2026-10-10T20:44:18Z",
       "level": "info",
       "text": "f2-block (base (grey)) agent: Block the sparse phase into L1-sized pieces (16/24/32 KB), as rogiervandam solution_5 shakeSieve: +30% or more at 1T on Zen 5",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T20:57:22Z",
+      "level": "decision",
+      "text": "f2-block: start F2's block sweep (32, 24, 16 KB, 6 rounds each) on Zen 3 now; Zen 5 keeps its first slot for F1's falsification profile, per Chris's order. Why: F2 arrived first and is verified; running it on the Zen 3 node does not delay F1 on Zen 5. Expect: +15-30% at 1T on Zen 3 (32 KB L1D).",
+      "id": "f2-block",
+      "what": "start F2's block sweep (32, 24, 16 KB, 6 rounds each) on Zen 3 now; Zen 5 keeps its first slot for F1's falsification profile, per Chris's order",
+      "why": "F2 arrived first and is verified; running it on the Zen 3 node does not delay F1 on Zen 5",
+      "expect": "+15-30% at 1T on Zen 3 (32 KB L1D)"
+    },
+    {
+      "utc": "2026-10-10T20:57:22Z",
+      "level": "info",
+      "text": "f2-block running. Zen 3 D16a_v4 (block sweep); Zen 5 after the F1 profile. 7c22f10 by agent; verified: base-only diff plus RULES.md, PRIMES_TEST passes at 16/24/32 KB, buffer bit-identical to the champion for 20,984 sizes at 6 block sizes on avx2 and avx512 (agent harness rerun here; agent also ran sse4 and NEON under qemu). Local 1T +24-31% (indicative). Variants hc/f2-block-16 and -24 for the sweep (default constant only)",
       "auto": true
     }
   ],
