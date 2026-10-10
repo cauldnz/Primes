@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T10:22:28Z",
+  "updated_utc": "2026-10-10T10:30:27Z",
   "run": {
     "id": "ap-20261010T0715Z",
     "state": "running",
@@ -871,9 +871,9 @@
       "id": "a-scale-repeat",
       "entry": "both",
       "hypothesis": "The 96-vCPU curve repeats on a second node (first node A/A spread 7%)",
-      "verdict": "running",
+      "verdict": "done",
       "where": "Zen 5 D96as_v7, fresh node",
-      "note": "base done on a new node (A/A within 0.7%, vs 7% on the first): ours 1T 129.0k, 24T 2.71M, 48T 4.34M, 96T 4.47M (+3% from 48 to 96); Rust 1T 126.3k, 48T 3.32M, 96T 4.02M (+21%); davepl 96T 3.33M. Lead over Rust: +3.1% at 1T, +31.7% at 48T, +10.9% at 96T (first node: -3.2%, +28.3%, +8.7%). Wheel repeat running"
+      "note": "wheel on the new node: ours 1T 204.6k, 24T 4.67M, 48T 8.05M, 96T 7.73M (-4% from 48 to 96; first node -6%); C5 epar 96T 5.35M (+43%); dsp 96T 2.42M. idea1 vs champion on the wheel: -0.3% to +0.1% at every count"
     },
     {
       "id": "idea12-tile13",
@@ -895,9 +895,9 @@
       "id": "wheel-group32",
       "entry": "wheel",
       "hypothesis": "avx512 fused group loop in Zig form: 32-word steps, unmasked, rows off one base register (target-specific)",
-      "verdict": "more rounds",
+      "verdict": "keep on Zen 5; Zen 4 pending",
       "where": "Zen 5 D96as_v7; Zen 4 recheck",
-      "note": "D96as_v7, 6 rounds: +3.7% (+0.6 to +6.8) at 1T, +3.2% (+0.9 to +5.5) at 24T, +4.0% (+2.5 to +5.5) at 48T, +2.7% (-1.2 to +6.6) at 96T; 6/6 rounds won at 1, 24, 48T. Second Zen 5 run (D32as_v7, 6 rounds) queued, then Zen 4 recheck"
+      "note": "second Zen 5 run (D32as_v7, 6 rounds): +4.4% +-2.0% at 1T, +5.1% at 8T, +4.4% +-1.1% at 16T, +2.5% +-0.7% at 32T, 24/24 rounds won. Zen 4 (D16as_v5) running: the other AVX-512 machine and Chris recheck"
     },
     {
       "id": "wheel-group32-g8",
@@ -931,38 +931,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T08:24:13Z",
-      "level": "info",
-      "text": "idea12-tile13 (wheel) queued: Fold 13 into the 7x11 tile copy (IDEAS 12): one store-only pass per plane, one fewer sweep",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T08:24:13Z",
-      "level": "info",
-      "text": "asm-wheel (wheel) running: Compiled-code side-by-side of the ISPC and Zig wheels on one Zen 5 node",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T08:24:40Z",
-      "level": "decision",
-      "text": "wheel-group32: start an agent on the Zig-form group loop for avx512 (rows off one base register, 32-word steps), target-specific. Why: the preview's three AVX-512 causes, ready to submit as soon as the Zen 5 dump confirms Zig's native build takes the 512-bit path. Passed over: IDEAS 22-23 (wheel sparse pointer-and-mask, generated masks): the preview puts the sparse loop at a wash. Expect: +2-4% at 1T on Zen 5, nothing on Zen 3.",
-      "id": "wheel-group32",
-      "what": "start an agent on the Zig-form group loop for avx512 (rows off one base register, 32-word steps), target-specific",
-      "why": "the preview's three AVX-512 causes, ready to submit as soon as the Zen 5 dump confirms Zig's native build takes the 512-bit path",
-      "instead": "IDEAS 22-23 (wheel sparse pointer-and-mask, generated masks): the preview puts the sparse loop at a wash",
-      "expect": "+2-4% at 1T on Zen 5, nothing on Zen 3"
-    },
-    {
-      "utc": "2026-10-10T08:31:28Z",
-      "level": "decision",
-      "text": "wheel-group32: submit on the 96-vCPU Zen 5 node, 6 rounds; Zen 4 (D16as_v5) recheck when the fleet is up; Zen 3 needs no run (AVX2 code identical). Why: local win in every round and a loop that now matches Zig's in the compiled code; target-specific rule: >= 2% on the AVX-512 machines. Passed over: waiting for the asm-wheel node dump first (the local build already shows the mechanism). Expect: +3-6% at 1T on Zen 5.",
-      "id": "wheel-group32",
-      "what": "submit on the 96-vCPU Zen 5 node, 6 rounds; Zen 4 (D16as_v5) recheck when the fleet is up; Zen 3 needs no run (AVX2 code identical)",
-      "why": "local win in every round and a loop that now matches Zig's in the compiled code; target-specific rule: >= 2% on the AVX-512 machines",
-      "instead": "waiting for the asm-wheel node dump first (the local build already shows the mechanism)",
-      "expect": "+3-6% at 1T on Zen 5"
-    },
     {
       "utc": "2026-10-10T08:31:28Z",
       "level": "info",
@@ -1299,6 +1267,35 @@
       "id": "run",
       "what": "fleet at about 10:25, when the wheel repeat ends and the 96-vCPU pool comes down: Zen 3 D16a_v4 (IDEAS 12, four port measurements), Zen 4 D16as_v5 (wheel-group32 recheck), Cobalt 100 D4ps_v6 (arm gate for the thread-count fix and IDEAS 12), Intel D16s_v5 (AVX2-only image), plus the existing 32-vCPU Zen 5 node: 84 vCPUs",
       "why": "everything left is measurement or a gate for a pending keep; the final scoreboard follows the merges"
+    },
+    {
+      "utc": "2026-10-10T10:30:27Z",
+      "level": "decision",
+      "text": "wheel-group32: passes the target-specific bar on Zen 5 (second run, intervals above +2% at 1, 8, 16T and +1.8% at 32T); keep depends on Zen 4. Why: 24 of 24 rounds won on the quieter node; the code change is AVX-512 only, so Zen 4 is the remaining machine whose code changes. Expect: Zen 4 +2-4%.",
+      "id": "wheel-group32",
+      "what": "passes the target-specific bar on Zen 5 (second run, intervals above +2% at 1, 8, 16T and +1.8% at 32T); keep depends on Zen 4",
+      "why": "24 of 24 rounds won on the quieter node; the code change is AVX-512 only, so Zen 4 is the remaining machine whose code changes",
+      "expect": "Zen 4 +2-4%"
+    },
+    {
+      "utc": "2026-10-10T10:30:27Z",
+      "level": "decision",
+      "text": "run: fleet up at 10:24 with 11 tasks: Zen 4 wheel-group32; Cobalt 100 arm gates (thread-count fix base and wheel, IDEAS 12); Zen 3 IDEAS 12 and the four ports; Intel AVX2-only image; Zen 5 IDEAS 12 second run. The 96-vCPU pool is down. Why: everything queued is a gate, a measurement for the report, or a keep decision.",
+      "id": "run",
+      "what": "fleet up at 10:24 with 11 tasks: Zen 4 wheel-group32; Cobalt 100 arm gates (thread-count fix base and wheel, IDEAS 12); Zen 3 IDEAS 12 and the four ports; Intel AVX2-only image; Zen 5 IDEAS 12 second run. The 96-vCPU pool is down",
+      "why": "everything queued is a gate, a measurement for the report, or a keep decision"
+    },
+    {
+      "utc": "2026-10-10T10:30:27Z",
+      "level": "info",
+      "text": "a-scale-repeat done. Zen 5 D96as_v7, fresh node. wheel on the new node: ours 1T 204.6k, 24T 4.67M, 48T 8.05M, 96T 7.73M (-4% from 48 to 96; first node -6%); C5 epar 96T 5.35M (+43%); dsp 96T 2.42M. idea1 vs champion on the wheel: -0.3% to +0.1% at every count",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T10:30:27Z",
+      "level": "info",
+      "text": "wheel-group32 keep on Zen 5; Zen 4 pending. Zen 5 D96as_v7; Zen 4 recheck. second Zen 5 run (D32as_v7, 6 rounds): +4.4% +-2.0% at 1T, +5.1% at 8T, +4.4% +-1.1% at 16T, +2.5% +-0.7% at 32T, 24/24 rounds won. Zen 4 (D16as_v5) running: the other AVX-512 machine and Chris recheck",
+      "auto": true
     }
   ],
   "research": {
