@@ -37,6 +37,8 @@ extern "C" uniform int pthread_join(uniform int64 tid, void * uniform * uniform 
 extern "C" uniform int get_nprocs();
 extern "C" uniform int sched_getaffinity(uniform int pid, uniform int64 size,
                                         uniform uint64 * uniform mask);
+extern "C" uniform int sched_setaffinity(uniform int pid, uniform int64 size,
+                                        const uniform uint64 * uniform mask);
 extern "C" int8 * uniform getenv(const uniform int8 * uniform name);
 extern "C" uniform int atoi(const uniform int8 * uniform s);
 extern "C" void exit(uniform int code);
@@ -295,17 +297,26 @@ struct Job {
     uniform double deadline;
     uniform int64 passes;
     uniform int count;    // prime count from the first pass, for validation
+    uniform int cpu;      // CPU this worker pins itself to, or -1
 };
 
-// Hardware threads this process may run on: the CPUs in its affinity mask, so a container
-// limited with --cpuset-cpus is not oversubscribed. get_nprocs() counts every online CPU.
-static uniform int hardware_threads() {
+// The CPUs this process may run on, from its affinity mask, so a container limited with
+// --cpuset-cpus is not oversubscribed (get_nprocs() counts every online CPU). Returns how many
+// and lists them in order; thread t of a run pins itself to the t-th. Linux numbers SMT
+// siblings apart (cpu i and i + N/2 on one core), so a run with half the threads gets one
+// thread per core.
+static uniform int allowed_cpus(uniform int * uniform list) {
     uniform uint64 mask[16];                                       // up to 1024 CPUs
     for (uniform int i = 0; i < 16; i++) mask[i] = 0;
-    if (sched_getaffinity(0, 16 * 8, mask) != 0) return get_nprocs();
     uniform int n = 0;
-    for (uniform int i = 0; i < 16; i++) n += popcnt(mask[i]);
-    return n > 0 ? n : get_nprocs();
+    if (sched_getaffinity(0, 16 * 8, mask) == 0)
+        for (uniform int c = 0; c < 1024; c++)
+            if ((mask[c >> 6] >> (c & 63)) & 1) list[n++] = c;
+    if (n == 0) {
+        n = clamp(get_nprocs(), 1, 1024);
+        for (uniform int c = 0; c < n; c++) list[c] = c;
+    }
+    return n;
 }
 
 // Thread entry point, also called directly for the single-threaded run. A function passed
@@ -314,6 +325,12 @@ static uniform int hardware_threads() {
 export void * uniform worker(void * uniform arg) {
     unmasked {
         uniform Job * uniform job = (uniform Job * uniform)arg;
+        if (job->cpu >= 0) {
+            uniform uint64 mask[16];
+            for (uniform int i = 0; i < 16; i++) mask[i] = 0;
+            mask[job->cpu >> 6] = ((uniform uint64)1) << (job->cpu & 63);
+            sched_setaffinity(0, 16 * 8, mask);                    // 0: the calling thread
+        }
         uniform int64 passes = 0;
         uniform int count = 0;
         while (now() < job->deadline) {
@@ -355,10 +372,12 @@ static void self_test() {
     exit(bad);
 }
 
-static void run_threads(uniform Job * uniform jobs, uniform int64 * uniform tids, uniform int n) {
+static void run_threads(uniform Job * uniform jobs, uniform int64 * uniform tids,
+                        const uniform int * uniform cpus, uniform int n) {
     uniform double start = now();
     for (uniform int t = 0; t < n; t++) {
         jobs[t].deadline = start + RUN_SECONDS;
+        jobs[t].cpu = cpus[t];
         pthread_create(&tids[t], NULL, (void * uniform)worker, &jobs[t]);
     }
     uniform int64 total = 0;
@@ -375,12 +394,14 @@ export uniform int main() {
     uniform int8 n_test[12] = {80,82,73,77,69,83,95,84,69,83,84,0};    // PRIMES_TEST
     if (env_int(n_test, 0) != 0) self_test();
 
-    uniform int nthreads = clamp(hardware_threads(), 1, 1024);
+    uniform int cpus[1024];
+    uniform int nthreads = allowed_cpus(cpus);
     uniform Job jobs[1024];
     uniform int64 tids[1024];
 
     uniform double start = now();
     jobs[0].deadline = start + RUN_SECONDS;
+    jobs[0].cpu = -1;
     worker(&jobs[0]);
     uniform double elapsed = now() - start;
     if (jobs[0].count != EXPECTED) fail_count();
@@ -388,6 +409,6 @@ export uniform int main() {
 
     // One independent sieve per thread at all, half and a quarter of the hardware threads.
     for (uniform int n = nthreads; n >= 2 && n * 4 >= nthreads; n /= 2)
-        run_threads(jobs, tids, n);
+        run_threads(jobs, tids, cpus, n);
     return 0;
 }
