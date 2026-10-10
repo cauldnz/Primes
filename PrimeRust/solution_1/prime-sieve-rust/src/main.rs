@@ -25,12 +25,19 @@ pub mod profile {
         unsafe { core::arch::x86_64::_rdtsc() }
     }
 
+    // aarch64: nanoseconds from a monotonic clock (Rust 1.57, the Dockerfile's toolchain, has
+    // no stable asm! to read cntvct_el0). Compare phase shares, not absolute counts, on arm64.
     #[cfg(target_arch = "aarch64")]
     #[inline(always)]
     pub fn cycles() -> u64 {
-        let v: u64;
-        unsafe { core::arch::asm!("mrs {}, cntvct_el0", out(reg) v, options(nomem, nostack)) };
-        v
+        use std::sync::Once;
+        use std::time::Instant;
+        static INIT: Once = Once::new();
+        static mut T0: Option<Instant> = None;
+        unsafe {
+            INIT.call_once(|| T0 = Some(Instant::now()));
+            T0.unwrap().elapsed().as_nanos() as u64
+        }
     }
 
     #[cfg(not(any(target_arch = "x86_64", target_arch = "aarch64")))]
