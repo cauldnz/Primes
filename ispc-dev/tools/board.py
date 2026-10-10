@@ -8,17 +8,18 @@ ranking (each label's best multi-threaded line). Faithful 1-bit lines only, as o
 """
 import re, statistics, sys
 for path in sys.argv[1:]:
-    vals, rnd, cpu = {}, None, "?"
+    vals, rnd, img, cpu = {}, None, None, "?"
     for line in open(path):
         if line.startswith("Model name:"): cpu = line.split(":", 1)[1].strip()
         m = re.match(r"== round (\S+) (\S+)", line)
-        if m: rnd = m.group(1); continue
+        if m: rnd, img = m.group(1), m.group(2); continue
         p = line.strip().split(";")
         if rnd in (None, "warmup") or len(p) < 5 or not p[1].isdigit(): continue
         tags = p[4]
         if "faithful=yes" not in tags or "bits=1" not in tags: continue
         alg = re.search(r"algorithm=(\w+)", tags); alg = alg.group(1) if alg else "other"
-        vals.setdefault((p[0], int(p[3]), alg), []).append(int(p[1]))
+        # several entries share a label (GordonBGood's Nim, Haskell and V), so key by image too
+        vals.setdefault((f"{img}: {p[0]}", int(p[3]), alg), []).append(int(p[1]))
     med = {k: statistics.median(v) for k, v in vals.items()}
     rounds = max((len(v) for v in vals.values()), default=0)
     print(f"\n### {cpu} ({path}, up to {rounds} scored rounds)\n")
