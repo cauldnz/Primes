@@ -32,10 +32,10 @@ id	pool	size	kind	outdir	submitted	state
 081923204	hc-standard-d32as-v7	Standard_D32as_v7	wheel	ispc-dev/results/hc/port-rust-wheel-z5	2026-10-10T08:20:14Z	done
 0820214766	hc-standard-d32as-v7	Standard_D32as_v7	base	ispc-dev/results/hc/port-cpp-base-z5	2026-10-10T08:21:11Z	done
 0821172592	hc-standard-d32as-v7	Standard_D32as_v7	wheel	ispc-dev/results/hc/port-cpp-wheel-z5	2026-10-10T08:22:08Z	done
-08221412693	hc-standard-d32as-v7	Standard_D32as_v7	base	ispc-dev/results/hc/port-rust-base-z5	2026-10-10T08:23:05Z	open
+08221412693	hc-standard-d32as-v7	Standard_D32as_v7	base	ispc-dev/results/hc/port-rust-base-z5	2026-10-10T08:23:05Z	done
 08235014763	hc-standard-d96as-v7	Standard_D96as_v7	base	ispc-dev/results/hc/asm-wheel	2026-10-10T08:23:59Z	done
 08240529810	hc-standard-d32as-v7	Standard_D32as_v7	wheel	ispc-dev/results/hc/idea12-tile13-z5	2026-10-10T08:24:13Z	open
-08312021205	hc-standard-d96as-v7	Standard_D96as_v7	wheel	ispc-dev/results/hc/wheel-group32-z5	2026-10-10T08:31:28Z	open
+08312021205	hc-standard-d96as-v7	Standard_D96as_v7	wheel	ispc-dev/results/hc/wheel-group32-z5	2026-10-10T08:31:28Z	done
 0832201008	hc-standard-d96as-v7	Standard_D96as_v7	wheel	ispc-dev/results/hc/wheel-group32-g8-z5	2026-10-10T08:32:29Z	open
 08412032334	hc-standard-d32as-v7	Standard_D32as_v7	base	ispc-dev/results/hc/idea20-arenas-32	2026-10-10T08:41:28Z	open
 0856162681	hc-standard-d96as-v7	Standard_D96as_v7	base	ispc-dev/results/hc/loaded-1t-sieve-96	2026-10-10T08:56:24Z	open
