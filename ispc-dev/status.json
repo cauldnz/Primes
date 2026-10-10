@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T21:46:34Z",
+  "updated_utc": "2026-10-10T21:49:52Z",
   "run": {
     "id": "ap-20261010T2040Z",
     "state": "running",
@@ -13,7 +13,7 @@
     "ends_utc": "2026-10-11T00:40:00Z",
     "background_runs": 7,
     "last_tick_utc": "2026-10-10T21:46:34Z",
-    "wakeup": "trig_01TdeJhUrnQfxFzxmBR89c8c"
+    "wakeup": "none"
   },
   "current": null,
   "scoreboard": [
@@ -943,17 +943,17 @@
       "id": "f1-alternate",
       "entry": "base (grey)",
       "hypothesis": "Alternating sweep direction per factor reuses the L1-resident end of the 62.5 KB sieve: sparse cycles at 1T drop >= 10% (falsification test), +10-20% at 1T on Zen 5",
-      "verdict": "falsification passed; evaluating",
+      "verdict": "Zen 5 clears; Zen 3 running",
       "where": "Zen 5 D16as_v7",
-      "note": "Zen 5 (D16as_v7) phase profile, TSC cycles per pass, champion vs F1: sparse 61.2k -> 50.1k (-18%), dense 36.2k -> 35.8k (-1%), scan 4.0k -> 4.1k, run_total 101.4k -> 90.0k (-11%). Bar was sparse -10%. Full evaluation queued on Zen 5 (D32as_v7) and Zen 3, 6 rounds vs clean champion"
+      "note": "Zen 5 D32as_v7 (16c x 2), 6 rounds vs clean champion 5a68114: +12.7% +-0.3% at 1T, +14.0% at 8T, +15.2% +-0.1% at 16T (one per core), +12.6% +-0.2% at 32T, 6/6 each. vs Rust +15.8% / +18.7% / +30.0%. Zen 4 and Cobalt 100 queued"
     },
     {
       "id": "f2-block",
       "entry": "base (grey)",
       "hypothesis": "Block the sparse phase into L1-sized pieces (16/24/32 KB), as rogiervandam solution_5 shakeSieve: +30% or more at 1T on Zen 5",
-      "verdict": "running",
+      "verdict": "Zen 3 and Zen 5 clear; block size by SMT",
       "where": "Zen 3 D16a_v4 (block sweep); Zen 5 after the F1 profile",
-      "note": "Zen 3 (D16a_v4, 8c x 2), 32 KB blocks, 6 rounds vs clean champion: +12.1% +-0.7% at 1T, +12.3% at 4T, +12.4% +-0.4% at 8T (one per core), +0.1% +-0.3% at 16T (SMT). vs Rust: +19.7% at 1T, +5.2% at 16T. 24 and 16 KB running"
+      "note": "Zen 3 (8c x 2), 6 rounds, 1T / 8T / 16T: 32 KB +12.1 / +12.4 / +0.1; 24 KB +11.6 / +11.1 / +6.7; 16 KB +9.4 / +9.4 / +17.8 (vs Rust 16 KB +16.6 / +16.5 / +23.6). Zen 5 D16as_v7 32 KB: +11.2% +-2.1 / +13.0% +-0.6 (8T) / +11.8% +-0.9 (16T); vs Rust +15.2 / +16.9 / +29.4. 16 and 24 KB on Zen 5 running; Zen 4 and Cobalt 100 queued with 16 KB"
     },
     {
       "id": "f5-fold",
@@ -979,40 +979,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T10:09:58Z",
-      "level": "decision",
-      "text": "intel-avx2: use Standard_D16s_v5 (Ice Lake Xeon) as the one Intel size, from the fleet start. Why: available in Batch here; Ice Lake is closer in age and core design to the i7-9750H (Skylake-derived) than v6 (Emerald Rapids); every entry runs AVX2-only in the image anyway. Passed over: D16s_v6.",
-      "id": "intel-avx2",
-      "what": "use Standard_D16s_v5 (Ice Lake Xeon) as the one Intel size, from the fleet start",
-      "why": "available in Batch here; Ice Lake is closer in age and core design to the i7-9750H (Skylake-derived) than v6 (Emerald Rapids); every entry runs AVX2-only in the image anyway",
-      "instead": "D16s_v6"
-    },
-    {
-      "utc": "2026-10-10T10:09:59Z",
-      "level": "decision",
-      "text": "run: fleet at about 10:25, when the wheel repeat ends and the 96-vCPU pool comes down: Zen 3 D16a_v4 (IDEAS 12, four port measurements), Zen 4 D16as_v5 (wheel-group32 recheck), Cobalt 100 D4ps_v6 (arm gate for the thread-count fix and IDEAS 12), Intel D16s_v5 (AVX2-only image), plus the existing 32-vCPU Zen 5 node: 84 vCPUs. Why: everything left is measurement or a gate for a pending keep; the final scoreboard follows the merges.",
-      "id": "run",
-      "what": "fleet at about 10:25, when the wheel repeat ends and the 96-vCPU pool comes down: Zen 3 D16a_v4 (IDEAS 12, four port measurements), Zen 4 D16as_v5 (wheel-group32 recheck), Cobalt 100 D4ps_v6 (arm gate for the thread-count fix and IDEAS 12), Intel D16s_v5 (AVX2-only image), plus the existing 32-vCPU Zen 5 node: 84 vCPUs",
-      "why": "everything left is measurement or a gate for a pending keep; the final scoreboard follows the merges"
-    },
-    {
-      "utc": "2026-10-10T10:30:27Z",
-      "level": "decision",
-      "text": "wheel-group32: passes the target-specific bar on Zen 5 (second run, intervals above +2% at 1, 8, 16T and +1.8% at 32T); keep depends on Zen 4. Why: 24 of 24 rounds won on the quieter node; the code change is AVX-512 only, so Zen 4 is the remaining machine whose code changes. Expect: Zen 4 +2-4%.",
-      "id": "wheel-group32",
-      "what": "passes the target-specific bar on Zen 5 (second run, intervals above +2% at 1, 8, 16T and +1.8% at 32T); keep depends on Zen 4",
-      "why": "24 of 24 rounds won on the quieter node; the code change is AVX-512 only, so Zen 4 is the remaining machine whose code changes",
-      "expect": "Zen 4 +2-4%"
-    },
-    {
-      "utc": "2026-10-10T10:30:27Z",
-      "level": "decision",
-      "text": "run: fleet up at 10:24 with 11 tasks: Zen 4 wheel-group32; Cobalt 100 arm gates (thread-count fix base and wheel, IDEAS 12); Zen 3 IDEAS 12 and the four ports; Intel AVX2-only image; Zen 5 IDEAS 12 second run. The 96-vCPU pool is down. Why: everything queued is a gate, a measurement for the report, or a keep decision.",
-      "id": "run",
-      "what": "fleet up at 10:24 with 11 tasks: Zen 4 wheel-group32; Cobalt 100 arm gates (thread-count fix base and wheel, IDEAS 12); Zen 3 IDEAS 12 and the four ports; Intel AVX2-only image; Zen 5 IDEAS 12 second run. The 96-vCPU pool is down",
-      "why": "everything queued is a gate, a measurement for the report, or a keep decision"
-    },
     {
       "utc": "2026-10-10T10:30:27Z",
       "level": "info",
@@ -1344,6 +1310,33 @@
       "utc": "2026-10-10T21:37:32Z",
       "level": "info",
       "text": "wheel-f1 (wheel) running: Wheel F1: alternate direction per group pass (planes visited 7..0 on down passes) and per sparse prime; ~0 at 1T, +3-6% at all threads",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T21:49:52Z",
+      "level": "decision",
+      "text": "f2-block: lead candidate for the block size is 16 KB: on Zen 3 it gives up 2-3% at 1T but gains +17.8% under SMT, where 32 KB gains nothing; Zen 4 and arm gates run with 16 KB; Zen 5's 16/24 KB results decide. Why: Zen 3's 32 KB L1D is shared by two SMT threads; the official EPYC runner (Zen 3/4 class) runs all threads.",
+      "id": "f2-block",
+      "what": "lead candidate for the block size is 16 KB: on Zen 3 it gives up 2-3% at 1T but gains +17.8% under SMT, where 32 KB gains nothing; Zen 4 and arm gates run with 16 KB; Zen 5's 16/24 KB results decide",
+      "why": "Zen 3's 32 KB L1D is shared by two SMT threads; the official EPYC runner (Zen 3/4 class) runs all threads"
+    },
+    {
+      "utc": "2026-10-10T21:49:52Z",
+      "level": "decision",
+      "text": "f1-alternate: F1 clears on Zen 5 at every thread count (+12.6% to +15.2%); Zen 3 decides, then the Zen 4 recheck and the arm gate (queued). Why: .",
+      "id": "f1-alternate",
+      "what": "F1 clears on Zen 5 at every thread count (+12.6% to +15.2%); Zen 3 decides, then the Zen 4 recheck and the arm gate (queued)"
+    },
+    {
+      "utc": "2026-10-10T21:49:52Z",
+      "level": "info",
+      "text": "f1-alternate Zen 5 clears; Zen 3 running. Zen 5 D16as_v7. Zen 5 D32as_v7 (16c x 2), 6 rounds vs clean champion 5a68114: +12.7% +-0.3% at 1T, +14.0% at 8T, +15.2% +-0.1% at 16T (one per core), +12.6% +-0.2% at 32T, 6/6 each. vs Rust +15.8% / +18.7% / +30.0%. Zen 4 and Cobalt 100 queued",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T21:49:52Z",
+      "level": "info",
+      "text": "f2-block Zen 3 and Zen 5 clear; block size by SMT. Zen 3 D16a_v4 (block sweep); Zen 5 after the F1 profile. Zen 3 (8c x 2), 6 rounds, 1T / 8T / 16T: 32 KB +12.1 / +12.4 / +0.1; 24 KB +11.6 / +11.1 / +6.7; 16 KB +9.4 / +9.4 / +17.8 (vs Rust 16 KB +16.6 / +16.5 / +23.6). Zen 5 D16as_v7 32 KB: +11.2% +-2.1 / +13.0% +-0.6 (8T) / +11.8% +-0.9 (16T); vs Rust +15.2 / +16.9 / +29.4. 16 and 24 KB on Zen 5 running; Zen 4 and Cobalt 100 queued with 16 KB",
       "auto": true
     }
   ],
