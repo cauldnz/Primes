@@ -171,8 +171,8 @@ round 1 discarded.
 
 - **Azure mode:** `SUITE=ab` on Batch Spot, champion `BASE=<the champion commit hash>` (pin it: a merge during a run must not change the champion under it), Zen 3 (`D16a_v4`) and Zen 5
   at minimum, five counted rounds (see "Running one experiment" in `CLOUD-RUNBOOK.md`). Decide
-  with `analyze.py`: KEEP merges the candidate into `hc/champion`, RERUN repeats it with 10
-  rounds, REVERT leaves it on its own branch. Its A/A check (champion against itself) is your
+  with `analyze.py`: KEEP merges the candidate into `hc/champion`, MORE ROUNDS adds the
+  rounds it estimates (up to 20 in all), REVERT leaves it on its own branch. Its A/A check (champion against itself) is your
   noise floor; a gain smaller than the A/A spread is not a gain. Work through `AZURE-QUEUE.md`
   before new experiments.
 - **Local mode:** `ispc-dev/bench-local.sh <solution> <champion-ref> <candidate-ref> 7`. The

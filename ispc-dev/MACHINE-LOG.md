@@ -146,6 +146,18 @@ last. Public, like the rest of the repo.
   spent the most effort, so a high place there is the test of the machine. The climber's own
   plan had put wheel work first; the workshop reordered it (`RUN-PLAN-NEXT.md`).
 
+### 10 October, 11:00: deciding on the interval
+
+- Chris asked whether a 5-second run is enough. The official benchmark runs each entry once per
+  daily session, so a leaderboard number is one sample; ours is six to ten paired rounds. The
+  question was how to use them. `analyze.py` now gives the mean and 95% confidence interval of
+  the per-round paired ratio, and Chris chose to decide on it: keep when the lower end clears
+  +1% on both Zen machines, add rounds while it straddles, revert when it can't get there.
+- A backtest over 44 past experiments: every past KEEP stays a KEEP. Thirteen results the old
+  rule sent to a ten-round rerun are clear reverts under the new one (their whole interval sits
+  below +1%), so those reruns were spent confirming what six rounds already showed. Four go to
+  "more rounds", including hc-028, which Chris merged on judgement.
+
 ## Lessons so far
 
 1. Controls in every round matter more than any optimisation. Without them, machine noise

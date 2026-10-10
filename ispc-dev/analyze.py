@@ -10,11 +10,14 @@ The warm-up round is ignored.
 
 Per machine and thread count it prints medians and ranges, the same-round ratio cand/champ (median
 and range, then mean, 95% confidence interval and SD of the per-round ratios), the A/A spread
-champ2/champ, cand/ctrl and cand/ctrl2. The interval is reported, not yet used in the verdict. Then it gives a verdict:
-  KEEP    median gain >= 2% at 1T or all-threads on every machine; on at least one machine the
-          candidate beat the champion in every round on that metric; nothing regresses > 1%.
-  RERUN   no regression > 1% and the best gain is between 0% and 2% (rerun with 10 rounds).
-  REVERT  anything else.
+champ2/champ, cand/ctrl and cand/ctrl2. The interval is reported, not yet used in the verdict. Then it gives a verdict (HILL-CLIMB.md, "Acceptance rule", from 2026-10-10), on the mean of the
+per-round ratio and its 95% confidence interval, at 1 thread or all threads, whichever is better:
+  KEEP         the interval's lower end is at least +1% on both Zen 3 and Zen 5, and nothing
+               loses 1% or more on the mean.
+  MORE ROUNDS  the interval straddles +1%; it estimates how many rounds would settle it.
+  REVERT       a regression of 1% or more anywhere, an interval that can't reach +1%, or 20
+               rounds without settling.
+A/A intervals that exclude zero by more than 0.5% mark the machine NOISY: rerun it elsewhere.
 HILL-CLIMB.md requires Zen 3 and Zen 5 logs for a decision; the script warns if either is missing.
 """
 import re
@@ -45,6 +48,11 @@ def parse(path):
 # two-sided 95% t critical values by degrees of freedom (n - 1)
 T95 = {1: 12.71, 2: 4.30, 3: 3.18, 4: 2.78, 5: 2.57, 6: 2.45, 7: 2.36, 8: 2.31, 9: 2.26,
        10: 2.23, 11: 2.20, 12: 2.18, 13: 2.16, 14: 2.14, 15: 2.13, 19: 2.09, 24: 2.06, 29: 2.05}
+
+
+THRESH = 0.01      # keep when the 95% interval's lower end clears +1% on both deciding machines
+REGRESS = 0.01     # revert when any machine or thread count loses 1% or more on the mean
+MAX_ROUNDS = 20    # stop adding rounds here
 
 
 def ci95(xs):
@@ -93,14 +101,14 @@ def main(paths):
     if not paths:
         sys.exit(__doc__)
     results = [summarise(p) for p in paths]
-    decisive = []          # per machine: (best median gain at 1T/all-threads, every-round win?)
-    worst = 1.0
+    deciding = {}          # machine -> best (lower bound, mean, sd, n) at 1T or all threads
+    worst = (1.0, "")      # lowest mean ratio anywhere, and where
+    noisy = []
     for res in results:
         print(f"\n### {res['machine']}  ({res['rounds']} scored rounds, {res['file']})\n")
         print("| threads | cand | champ | champ2 | ctrl | ctrl2 | cand/champ median (range) | mean ± 95% CI (SD) | rounds won | A/A spread | cand/ctrl | cand/ctrl2 |")
         print("|---|---|---|---|---|---|---|---|---|---|---|---|")
         tmax = max(res["metrics"]) if res["metrics"] else 1
-        best = None
         for t, (series, ratios) in sorted(res["metrics"].items()):
             med = {lab: statistics.median(s) for lab, s in series.items() if s}
             cc = ratios["cand/champ"]
@@ -112,34 +120,52 @@ def main(paths):
             ci_txt = f"{pct(mu)} ± {hw * 100:.1f}% ({sd * 100:.1f}%)" if hw == hw else "n/a"
             aa = ratios["aa"]
             aa_txt = f"{min(aa) - 1:+.1%} to {max(aa) - 1:+.1%}" if aa else "n/a"
+            if len(aa) > 1:
+                amu, _, ahw = ci95(aa)
+                if abs(amu - 1) - ahw > 0.005:      # the champion against itself differs: a noisy node
+                    noisy.append(f"{res['machine']} {t}T (A/A {pct(amu)} ± {ahw * 100:.1f}%)")
             ctrl = pct(statistics.median(ratios["cand/ctrl"])) if ratios["cand/ctrl"] else "n/a"
             ctrl2 = pct(statistics.median(ratios["cand/ctrl2"])) if ratios["cand/ctrl2"] else "n/a"
             print(f"| {t} | " + " | ".join(kfmt(med[l]) if l in med else "-" for l in ("cand", "champ", "champ2", "ctrl", "ctrl2"))
                   + f" | {pct(gain)} ({pct(min(cc))} to {pct(max(cc))}) | {ci_txt} | {won}/{len(cc)} | {aa_txt} | {ctrl} | {ctrl2} |")
-            worst = min(worst, gain)
-            if t in (1, tmax):
-                cand = (gain, won == len(cc))
-                best = cand if best is None or cand[0] > best[0] else best
-        if best:
-            decisive.append(best)
+            if mu < worst[0]:
+                worst = (mu, f"{res['machine']} {t}T")
+            if t in (1, tmax) and hw == hw:
+                cand = (mu - hw, mu, sd, len(cc))
+                key = res["machine"]
+                if key not in deciding or cand[0] > deciding[key][0]:
+                    deciding[key] = cand
 
     names = " ".join(r["machine"] for r in results)
-    for need, pat in (("Zen 3", "7763|7V73|Zen 3"), ("Zen 5", "9V45|9005|Zen 5")):
-        if not re.search(pat, names):
-            print(f"\nWARNING: no {need} log; HILL-CLIMB.md needs Zen 3 and Zen 5 for a decision.")
-    if not decisive:
+    need = {"Zen 3": "7763|7V73|Zen 3", "Zen 5": "9V45|9005|Zen 5"}
+    picked = {}
+    for label, pat in need.items():
+        hits = [v for m, v in deciding.items() if re.search(pat, m)]
+        if hits:
+            picked[label] = max(hits)
+        else:
+            print(f"\nWARNING: no {label} log; HILL-CLIMB.md needs Zen 3 and Zen 5 for a decision.")
+    if noisy:
+        print("\nNOISY: the champion differs from itself beyond 0.5% on " + "; ".join(noisy)
+              + ". Treat this machine's result as inconclusive and rerun it, ideally on another node.")
+    if not picked:
         print("\nVERDICT: NO DATA")
         return
-    all_gain = all(g >= 1.02 for g, _ in decisive)
-    any_clean = any(w for _, w in decisive)
-    if worst < 0.99:
-        verdict = f"REVERT (a machine/thread count regresses {pct(worst)})"
-    elif all_gain and any_clean:
-        verdict = "KEEP"
-    elif max(g for g, _ in decisive) > 1.0:
-        verdict = "RERUN with 10 rounds (gain under 2%, or not clean in every round)"
+    lows = [v[0] for v in picked.values()]
+    if worst[0] <= 1 - REGRESS:
+        verdict = f"REVERT (regresses {pct(worst[0])} on {worst[1]})"
+    elif len(picked) == 2 and min(lows) >= 1 + THRESH:
+        verdict = "KEEP (95% interval clears +1% on both Zen machines)"
+    elif any(v[1] + (v[1] - v[0]) < 1 + THRESH for v in picked.values()) or max(v[3] for v in picked.values()) >= MAX_ROUNDS:
+        verdict = "REVERT (the interval can't reach +1% on both machines, or the round limit is reached)"
     else:
-        verdict = "REVERT (no gain)"
+        est = []
+        for label, (lo, mu, sd, n) in picked.items():
+            if lo < 1 + THRESH and mu > 1 + THRESH and sd > 0:
+                k = (2.1 * sd / (mu - 1 - THRESH)) ** 2
+                est.append(f"{label} about {min(MAX_ROUNDS, max(n + 2, int(k + 0.999)))}")
+        more = "; ".join(est) if est else f"up to {MAX_ROUNDS}"
+        verdict = f"MORE ROUNDS (the interval straddles +1%; rounds needed: {more})"
     print(f"\nVERDICT: {verdict}")
 
 
