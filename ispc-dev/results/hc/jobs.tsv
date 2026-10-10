@@ -94,6 +94,6 @@ id	pool	size	kind	outdir	submitted	state
 23043118660	hc-standard-d96as-v7	Standard_D96as_v7	base	ispc-dev/results/hc/f2-96	2026-10-10T23:05:23Z	open
 2306439724	hc-standard-d96as-v7	Standard_D96as_v7	wheel	ispc-dev/results/hc/f6-wheel-96	2026-10-10T23:06:53Z	open
 23065931333	hc-standard-d96as-v7	Standard_D96as_v7	base	ispc-dev/results/hc/f6-base-96	2026-10-10T23:07:51Z	open
-23144418377	hc-standard-d16as-v7	Standard_D16as_v7	zig	ispc-dev/results/hc/zig-f1-z5	2026-10-10T23:14:53Z	open
-23150032760	hc-standard-d16a-v4	Standard_D16a_v4	zig	ispc-dev/results/hc/zig-f1-z3	2026-10-10T23:15:09Z	open
+23144418377	hc-standard-d16as-v7	Standard_D16as_v7	zig	ispc-dev/results/hc/zig-f1-z5	2026-10-10T23:14:53Z	done
+23150032760	hc-standard-d16a-v4	Standard_D16a_v4	zig	ispc-dev/results/hc/zig-f1-z3	2026-10-10T23:15:09Z	done
 232952508	hc-standard-d16a-v4	Standard_D16a_v4	zig	ispc-dev/results/hc/zig-idea12-z3b	2026-10-10T23:30:01Z	open
