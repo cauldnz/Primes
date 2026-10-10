@@ -116,3 +116,10 @@ cauldnz-ispc-base;431739;5.000333;16;algorithm=base,faithful=yes,bits=1
 cauldnz-ispc-base;447941;5.000158;8;algorithm=base,faithful=yes,bits=1
 cauldnz-ispc-base;222757;5.000134;4;algorithm=base,faithful=yes,bits=1
 == round 4 ctrl
+mike-barber_bit-extreme-hybrid;52554;5.0000505447;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;210227;5.0001173019;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;420252;5.0002145767;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;411016;5.0004482269;16;algorithm=base,faithful=yes,bits=1
+== round 4 ctrl2
+davepl_array_optimized;36744;5.00029;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;306805;5.00093;16;algorithm=base,faithful=yes,bits=1
