@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T21:16:06Z",
+  "updated_utc": "2026-10-10T21:16:38Z",
   "run": {
     "id": "ap-20261010T2040Z",
     "state": "running",
@@ -966,12 +966,6 @@
     {
       "utc": "2026-10-10T09:36:08Z",
       "level": "info",
-      "text": "idea12-tile13 more rounds (Zen 3, arm). Zen 5 D32as_v7 now, Zen 3 on the fleet. Zen 5 D32as_v7, 6 rounds: +2.5% +-1.5% at 1T (6/6), +0.2% at 8T, +1.4% at 16T, +1.5% +-2.7% at 32T. Shared code: needs Zen 3 and the Cobalt 100 gate",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T09:36:08Z",
-      "level": "info",
       "text": "wheel-group32-g8 revert. Zen 5 D96as_v7. D96as_v7, 6 rounds vs wheel-group32: -0.4% at 1T, +1.2% at 24T, +1.7% at 48T, -2.4% +-2.3% at 96T (0/6). G stays 6 on AVX-512",
       "auto": true
     },
@@ -1319,6 +1313,14 @@
       "level": "info",
       "text": "f1-alternate falsification profile running. Zen 5 D16as_v7. 206ef99 by agent: dense (scalar, vector, NEON) and sparse routines get descending forms, direction flips after each factor, factor 3 stays ascending; RULES.md quotes the 2 x factor rule. Verified here: PRIMES_TEST on all three branches; buffer bit-identical to the champion for 28,795 sizes on avx512, avx2, sse4 (agent harness, source matches the pushed branch); agent also NEON under qemu and two deliberately broken builds caught. Local 1T +34%, local sparse cycles -33% (indicative)",
       "auto": true
+    },
+    {
+      "utc": "2026-10-10T21:16:38Z",
+      "level": "decision",
+      "text": "run: agents on wheel F1 (priority 3) and the F5 fold (priority 4) while F1's profile and F2's sweep run. Why: two agent slots free; both are in-rules and branch off hc/champion.",
+      "id": "run",
+      "what": "agents on wheel F1 (priority 3) and the F5 fold (priority 4) while F1's profile and F2's sweep run",
+      "why": "two agent slots free; both are in-rules and branch off hc/champion"
     }
   ],
   "research": {
