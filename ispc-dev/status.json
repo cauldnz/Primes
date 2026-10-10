@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T07:31:00Z",
+  "updated_utc": "2026-10-10T07:34:09Z",
   "run": {
     "id": "ap-20261010T0715Z",
     "state": "running",
@@ -786,6 +786,22 @@
       "verdict": "queued",
       "where": "Zen 5, Zen 3 (phase B)",
       "note": "hc/port-rust-wheel 72932c7 by agent; verified: only new files, cargo build, PRIMES_TEST (powers of ten + 5,396-size sweep) exit 0, tags right; local 1T 109k vs ISPC ~110k. hadolint clean per agent; image unbuilt here (no Docker). Measured via hc/meas-rust-wheel (port in the solution_1 slot)"
+    },
+    {
+      "id": "port-cpp-base",
+      "entry": "base",
+      "hypothesis": "Our base design as C++20 (PrimeCPP/solution_6) matches the ISPC base",
+      "verdict": "queued",
+      "where": "Zen 5, Zen 3 (phase B)",
+      "note": "hc/port-cpp-base 3045246 by agent; verified: new files only, g++ -O3 -march=native builds, PRIMES_TEST 13 sizes exit 0, tags right; local 1T 52.0k vs ISPC ~47k. Measured via hc/meas-cpp-base (solution_2 slot)"
+    },
+    {
+      "id": "port-cpp-wheel",
+      "entry": "wheel",
+      "hypothesis": "Our wheel design as C++20 (PrimeCPP/solution_7)",
+      "verdict": "tuning",
+      "where": "local",
+      "note": "hc/port-cpp-wheel d2c816e; verified PRIMES_TEST exit 0; local 1T 83.6k vs ISPC ~102k (-18%): GCC spills group periods in the fused loop. Agent resumed to tune"
     }
   ],
   "azure_queue": 0,
@@ -795,36 +811,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T02:36:10Z",
-      "level": "info",
-      "text": "diag-swift-phases (base) running: Phase profile of Swift (yellowcub_fahlman_striped_UInt8) against our base on Zen 5, same node",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T02:38:27Z",
-      "level": "decision",
-      "text": "asm-sparse: build Swift, Rust and our base in one diagnostic image on a Zen 5 node and dump their disassembly; analyse the sparse loops here. Why: Chris asked for a compiled-code comparison of the sparse loop on the same node. The harness builds only the PrimeISPC/solution_2 slot, so a diagnostic branch puts a three-language Dockerfile there (upstream flags each) whose entrypoint prints the sieve functions' disassembly prefixed asm;. Local loop analysis and llvm-mca (LLVM 18, znver4 as the closest model to Zen 5) as a screen. Expect: per-language instructions, loads and stores per bit cleared, and how the stride and unrolling compile.",
-      "id": "asm-sparse",
-      "what": "build Swift, Rust and our base in one diagnostic image on a Zen 5 node and dump their disassembly; analyse the sparse loops here",
-      "why": "Chris asked for a compiled-code comparison of the sparse loop on the same node. The harness builds only the PrimeISPC/solution_2 slot, so a diagnostic branch puts a three-language Dockerfile there (upstream flags each) whose entrypoint prints the sieve functions' disassembly prefixed asm;. Local loop analysis and llvm-mca (LLVM 18, znver4 as the closest model to Zen 5) as a screen.",
-      "expect": "per-language instructions, loads and stores per bit cleared, and how the stride and unrolling compile"
-    },
-    {
-      "utc": "2026-10-10T02:38:37Z",
-      "level": "info",
-      "text": "asm-sparse (base) running: Compiled sparse loops of Swift, Rust and our base on one Zen 5 node",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T02:39:27Z",
-      "level": "decision",
-      "text": "diag-swift-phases: accept the Swift diagnostic and run it on Zen 5 against our ISPC diagnostic, one round. Why: The commit touches only the PrimeISPC/solution_2 slot and keeps upstream's Swift flags (haswell target, -O, WMO). It times dense and sparse as blocks (factors below and above 112), so scan reads near zero and the candidate bit-tests fall into dense and sparse; compare dense+sparse+scan totals with ours. Expect: Swift's dense and sparse against ours, ns per pass.",
-      "id": "diag-swift-phases",
-      "what": "accept the Swift diagnostic and run it on Zen 5 against our ISPC diagnostic, one round",
-      "why": "The commit touches only the PrimeISPC/solution_2 slot and keeps upstream's Swift flags (haswell target, -O, WMO). It times dense and sparse as blocks (factors below and above 112), so scan reads near zero and the candidate bit-tests fall into dense and sparse; compare dense+sparse+scan totals with ours.",
-      "expect": "Swift's dense and sparse against ours, ns per pass"
-    },
     {
       "utc": "2026-10-10T02:42:42Z",
       "level": "decision",
@@ -1180,6 +1166,36 @@
       "utc": "2026-10-10T07:31:00Z",
       "level": "info",
       "text": "port-rust-wheel (wheel) queued: Our wheel design as idiomatic Rust (PrimeRust/solution_8) runs within a few percent of the ISPC wheel",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T07:34:09Z",
+      "level": "decision",
+      "text": "port-cpp-base: queue the C++ base port for phase B. Why: verified locally and 5-12% ahead of the ISPC base at 1T on this Xeon; same badges as davepl's solution_5, so the route (new solution vs improvement) is Chris's call, noted for the report. Expect: within +-5% of the ISPC base on Zen.",
+      "id": "port-cpp-base",
+      "what": "queue the C++ base port for phase B",
+      "why": "verified locally and 5-12% ahead of the ISPC base at 1T on this Xeon; same badges as davepl's solution_5, so the route (new solution vs improvement) is Chris's call, noted for the report",
+      "expect": "within +-5% of the ISPC base on Zen"
+    },
+    {
+      "utc": "2026-10-10T07:34:09Z",
+      "level": "decision",
+      "text": "port-cpp-wheel: hold the C++ wheel back from Azure and resume its agent to tune the fused loop (template over member count, 32-word steps as in the Rust port). Why: it passes the 2d gate (18% slower, under 30%) but a measurement now would only confirm a known gap; the agent saw the cause in the disassembly. Passed over: measuring as is.",
+      "id": "port-cpp-wheel",
+      "what": "hold the C++ wheel back from Azure and resume its agent to tune the fused loop (template over member count, 32-word steps as in the Rust port)",
+      "why": "it passes the 2d gate (18% slower, under 30%) but a measurement now would only confirm a known gap; the agent saw the cause in the disassembly",
+      "instead": "measuring as is"
+    },
+    {
+      "utc": "2026-10-10T07:34:09Z",
+      "level": "info",
+      "text": "port-cpp-base (base) queued: Our base design as C++20 (PrimeCPP/solution_6) matches the ISPC base",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T07:34:09Z",
+      "level": "info",
+      "text": "port-cpp-wheel (wheel) tuning: Our wheel design as C++20 (PrimeCPP/solution_7)",
       "auto": true
     }
   ],
