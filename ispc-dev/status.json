@@ -1,16 +1,16 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T04:28:57Z",
+  "updated_utc": "2026-10-10T07:20:31Z",
   "run": {
-    "id": "ap-20261010T0140Z",
-    "state": "stopped",
+    "id": "ap-20261010T0715Z",
+    "state": "running",
     "mode": "azure",
-    "mode_reason": "Chris kicked off a 4-hour base-first run (RUN-PLAN.md) in this session; Azure login works.",
-    "started_utc": "2026-10-10T01:40:00Z",
-    "time_box_hours": 4,
-    "spend_nzd": 2.08,
+    "mode_reason": "Chris kicked off a 6-hour run (RUN-PLAN.md: scale, ports, Zig gap, Intel) in this session; Azure login works, Spot quota 128 vCPUs.",
+    "started_utc": "2026-10-10T07:15:00Z",
+    "time_box_hours": 6,
+    "spend_nzd": 0,
     "spend_cap_nzd": 30,
-    "ends_utc": "2026-10-10T05:40:00Z",
+    "ends_utc": "2026-10-10T13:15:00Z",
     "background_runs": 0,
     "last_tick_utc": "2026-10-10T04:20:10Z",
     "wakeup": "none"
@@ -754,6 +754,30 @@
       "verdict": "done",
       "where": "Zen 5, Zen 3",
       "note": "6 rounds. Ours vs Rust at 1T / all threads: Zen 5 +0.8% / +13.9%, Zen 3 +6.5% / +4.7%; Cobalt 100 (p4-arm-dense) -1.9% / -1.5%. A/A within 1% except Zen 5 1T (SD 2.3%)"
+    },
+    {
+      "id": "idea1-affinity",
+      "entry": "both",
+      "hypothesis": "thread count from sched_getaffinity, not get_nprocs (IDEAS 1): a correctness fix; expect no change at full machine",
+      "verdict": "running",
+      "where": "Zen 5 96 vCPU",
+      "note": "06c8160; local: taskset -c 0-1 gives 2 threads, PRIMES_TEST passes for both entries"
+    },
+    {
+      "id": "a-scale",
+      "entry": "both",
+      "hypothesis": "Phase A scaling curve on the largest Zen 5 node: ours, Rust, davepl, Zig base; ours, C5, dsp, Zig wheel; 1 to 96 threads",
+      "verdict": "running",
+      "where": "Zen 5 D96as_v7",
+      "note": "4 tasks, 4 rounds each"
+    },
+    {
+      "id": "rust-falloff",
+      "entry": "base",
+      "hypothesis": "Why Rust falls off at threads = vCPUs: ours (taskset, sized from the affinity mask) vs Rust -t K pinned and unpinned, K = N/2, N-2, N-1, N on a 32-vCPU Zen 5",
+      "verdict": "running",
+      "where": "Zen 5 D32as_v7",
+      "note": "diag branch hc/diag-rust-falloff (never merged), 3 rounds; also prints lscpu threads per core"
     }
   ],
   "azure_queue": 0,
@@ -763,77 +787,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T02:12:14Z",
-      "level": "info",
-      "text": "p1-base-standin (base) done: Is D16as_v5 (Zen 4, AVX-512 hidden) a stand-in for the official AVX2 EPYC VM?",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T02:12:39Z",
-      "level": "info",
-      "text": "Tick 3 done. Waiting for the two base profiles (Zen 5, Zen 3). D16as_v5 pool deleted (retry after a connection reset). Next tick 02:25 UTC."
-    },
-    {
-      "utc": "2026-10-10T02:27:31Z",
-      "level": "decision",
-      "text": "run: park priority 3 (Zen 5 at 1T); go to arm64, SSE4 and thread scaling. Why: The profile has us level with Rust in every phase on Zen 5, and sparse (61%) already runs near two single-byte read-modify-writes per core cycle, about the store ports' limit; the base rules forbid merging marks, so I see no 3% at 1T without a rule risk. Passed over: a sparse 32/64-bit store variant (same number of RMWs, no reason to expect a gain).",
-      "id": "run",
-      "what": "park priority 3 (Zen 5 at 1T); go to arm64, SSE4 and thread scaling",
-      "why": "The profile has us level with Rust in every phase on Zen 5, and sparse (61%) already runs near two single-byte read-modify-writes per core cycle, about the store ports' limit; the base rules forbid merging marks, so I see no 3% at 1T without a rule risk.",
-      "instead": "a sparse 32/64-bit store variant (same number of RMWs, no reason to expect a gain)"
-    },
-    {
-      "utc": "2026-10-10T02:30:09Z",
-      "level": "decision",
-      "text": "p5-sse4: SSE4 probe on Zen 3: Rust built for x86-64-v2 against our sse4-i32x4-only base, same node. Why: RUN-PLAN priority 5: the Celeron runner has only SSE4.2; this compares both entries on the code paths that runner will execute. Passed over: an Intel size (needs Chris's OK, backlog item 6). Expect: our base within a few % of Rust on SSE4; no prior data.",
-      "id": "p5-sse4",
-      "what": "SSE4 probe on Zen 3: Rust built for x86-64-v2 against our sse4-i32x4-only base, same node",
-      "why": "RUN-PLAN priority 5: the Celeron runner has only SSE4.2; this compares both entries on the code paths that runner will execute",
-      "instead": "an Intel size (needs Chris's OK, backlog item 6)",
-      "expect": "our base within a few % of Rust on SSE4; no prior data"
-    },
-    {
-      "utc": "2026-10-10T02:30:09Z",
-      "level": "decision",
-      "text": "p6-scaling: start thread scaling on one 32-vCPU Zen 5 node (D32as_v7), 4 rounds. Why: RUN-PLAN priority 6; the official base ranking is decided at 128 threads and all our base numbers are from 16 vCPUs. 32 vCPUs fits the 128-vCPU quota alongside the other pools; a 64-vCPU node follows once arm and Zen 3 work is done. Passed over: 64 vCPUs now (would exceed the quota with four pools up). Expect: the 16-thread lead over Rust (+15% on Zen 5) to hold or grow.",
-      "id": "p6-scaling",
-      "what": "start thread scaling on one 32-vCPU Zen 5 node (D32as_v7), 4 rounds",
-      "why": "RUN-PLAN priority 6; the official base ranking is decided at 128 threads and all our base numbers are from 16 vCPUs. 32 vCPUs fits the 128-vCPU quota alongside the other pools; a 64-vCPU node follows once arm and Zen 3 work is done.",
-      "instead": "64 vCPUs now (would exceed the quota with four pools up)",
-      "expect": "the 16-thread lead over Rust (+15% on Zen 5) to hold or grow"
-    },
-    {
-      "utc": "2026-10-10T02:30:09Z",
-      "level": "decision",
-      "text": "diag-base-phases: profile arm64 on Cobalt 100 too. Why: RUN-PLAN priority 4 (the 4% arm gap to Rust) needs the phase split there first.",
-      "id": "diag-base-phases",
-      "what": "profile arm64 on Cobalt 100 too",
-      "why": "RUN-PLAN priority 4 (the 4% arm gap to Rust) needs the phase split there first"
-    },
-    {
-      "utc": "2026-10-10T02:30:18Z",
-      "level": "info",
-      "text": "Tick 4: base profile done (level with Rust on Zen 5; sparse 61% at the store-port limit), priority 3 parked; SSE4, arm and 32-vCPU scaling jobs submitted. Next tick 02:44 UTC."
-    },
-    {
-      "utc": "2026-10-10T02:30:18Z",
-      "level": "info",
-      "text": "diag-base-phases done. Zen 5: ours 100.7k vs Rust 101.7k cycles/pass; sparse 61% (61.1k vs 61.5k), dense 35% (35.7k vs 35.9k), scan 4%. Zen 3: ours 221.5k vs 235.1k; sparse 67% (149.0k vs 147.4k), dense 30% (66.9k vs 82.0k). Same-node TSC profiles. Phase for phase level with Rust on Zen 5.",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T02:30:18Z",
-      "level": "info",
-      "text": "p5-sse4 (base) running: SSE4-only builds: our base vs Rust (x86-64-v2), as on the Celeron runner",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T02:30:18Z",
-      "level": "info",
-      "text": "p6-scaling (base) running: Does the base lead over Rust hold at 32 threads (and later 64)?",
-      "auto": true
-    },
     {
       "utc": "2026-10-10T02:30:18Z",
       "level": "info",
@@ -1142,6 +1095,84 @@
       "utc": "2026-10-10T04:28:57Z",
       "level": "info",
       "text": "Shutdown complete: az batch pool list is empty; no wake-up pending; lock cleared"
+    },
+    {
+      "utc": "2026-10-10T07:18:03Z",
+      "level": "decision",
+      "text": "a-scale: Phase A on D96as_v7 (96 vCPUs), not the planned D128as_v7. Why: Batch in this region lists no 128-vCPU Zen 5 size: D96as_v7 is the largest (pool create for D128as_v7 failed: invalid vmSize). RUN-PLAN's report already asks for curves to 96 threads. The other 32 vCPUs of quota stay free for a Rust fall-off probe. Passed over: Zen 4 D96as_v6 (not the headline machine). Expect: our full-occupancy lead over Rust holds at 96 threads.",
+      "id": "a-scale",
+      "what": "Phase A on D96as_v7 (96 vCPUs), not the planned D128as_v7",
+      "why": "Batch in this region lists no 128-vCPU Zen 5 size: D96as_v7 is the largest (pool create for D128as_v7 failed: invalid vmSize). RUN-PLAN's report already asks for curves to 96 threads. The other 32 vCPUs of quota stay free for a Rust fall-off probe",
+      "instead": "Zen 4 D96as_v6 (not the headline machine)",
+      "expect": "our full-occupancy lead over Rust holds at 96 threads"
+    },
+    {
+      "utc": "2026-10-10T07:18:03Z",
+      "level": "decision",
+      "text": "idea1-affinity: fix the thread count first and ride it on the phase-A tasks as the candidate. Why: RUN-PLAN asks for idea 1 before phase A; a correctness fix with no expected speed change, so the A/A-style comparison on the 96-vCPU node doubles as its regression check. Expect: within 0.5% of the champion at every thread count.",
+      "id": "idea1-affinity",
+      "what": "fix the thread count first and ride it on the phase-A tasks as the candidate",
+      "why": "RUN-PLAN asks for idea 1 before phase A; a correctness fix with no expected speed change, so the A/A-style comparison on the 96-vCPU node doubles as its regression check",
+      "expect": "within 0.5% of the champion at every thread count"
+    },
+    {
+      "utc": "2026-10-10T07:18:03Z",
+      "level": "decision",
+      "text": "port-cpp: start an agent on the C++ base and wheel ports (hc/port-cpp-base, hc/port-cpp-wheel). Why: RUN-PLAN priority 2 runs alongside Batch; brief: port the design not the ISPC code, idiomatic C++20 with GCC -O3 -march=native, next free PrimeCPP/solution_n, hadolint-clean Dockerfile, PRIMES_TEST at every power of ten to 1e8 (plus the 5,396-size sweep for the wheel), local speed vs ISPC and davepl.",
+      "id": "port-cpp",
+      "what": "start an agent on the C++ base and wheel ports (hc/port-cpp-base, hc/port-cpp-wheel)",
+      "why": "RUN-PLAN priority 2 runs alongside Batch; brief: port the design not the ISPC code, idiomatic C++20 with GCC -O3 -march=native, next free PrimeCPP/solution_n, hadolint-clean Dockerfile, PRIMES_TEST at every power of ten to 1e8 (plus the 5,396-size sweep for the wheel), local speed vs ISPC and davepl"
+    },
+    {
+      "utc": "2026-10-10T07:18:03Z",
+      "level": "decision",
+      "text": "port-rust-wheel: start an agent on the Rust wheel port (hc/port-rust-wheel). Why: second agent slot; Rust's only wheel upstream is 8-bit, so this is new ground. Brief as port-cpp, built like mike-barber's entry with target-cpu=native, Zig arena layout as a reference. Passed over: Rust base comparator (follows the wheel).",
+      "id": "port-rust-wheel",
+      "what": "start an agent on the Rust wheel port (hc/port-rust-wheel)",
+      "why": "second agent slot; Rust's only wheel upstream is 8-bit, so this is new ground. Brief as port-cpp, built like mike-barber's entry with target-cpu=native, Zig arena layout as a reference",
+      "instead": "Rust base comparator (follows the wheel)"
+    },
+    {
+      "utc": "2026-10-10T07:20:31Z",
+      "level": "decision",
+      "text": "rust-falloff: probe Rust's full-occupancy fall-off on D32as_v7 alongside phase A (96 + 32 = 128 vCPUs). Why: both programs run one sieve per thread with the main thread blocked in join, so the code does not explain it on its face; a curve at N-2, N-1, N with Rust pinned and unpinned separates scheduler placement from the work itself. Passed over: per-thread pinning inside Rust (a code change to someone else's entry). Expect: Rust at N-1 well above Rust at N if scheduling is the cause; pinned equal to unpinned if not.",
+      "id": "rust-falloff",
+      "what": "probe Rust's full-occupancy fall-off on D32as_v7 alongside phase A (96 + 32 = 128 vCPUs)",
+      "why": "both programs run one sieve per thread with the main thread blocked in join, so the code does not explain it on its face; a curve at N-2, N-1, N with Rust pinned and unpinned separates scheduler placement from the work itself",
+      "instead": "per-thread pinning inside Rust (a code change to someone else's entry)",
+      "expect": "Rust at N-1 well above Rust at N if scheduling is the cause; pinned equal to unpinned if not"
+    },
+    {
+      "utc": "2026-10-10T07:20:31Z",
+      "level": "decision",
+      "text": "run: Phase B waits for phase A: the 96-vCPU node holds 96 of the 128 Spot vCPUs until its four tasks end (about an hour). Why: RUN-PLAN: one big burst first, then the steady fleet; the 32-vCPU slot carries the fall-off probe meanwhile, and both agents write ports locally.",
+      "id": "run",
+      "what": "Phase B waits for phase A: the 96-vCPU node holds 96 of the 128 Spot vCPUs until its four tasks end (about an hour)",
+      "why": "RUN-PLAN: one big burst first, then the steady fleet; the 32-vCPU slot carries the fall-off probe meanwhile, and both agents write ports locally"
+    },
+    {
+      "utc": "2026-10-10T07:20:31Z",
+      "level": "info",
+      "text": "Run ap-20261010T0715Z started (azure mode).",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T07:20:31Z",
+      "level": "info",
+      "text": "idea1-affinity (both) running: thread count from sched_getaffinity, not get_nprocs (IDEAS 1): a correctness fix; expect no change at full machine",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T07:20:31Z",
+      "level": "info",
+      "text": "a-scale (both) running: Phase A scaling curve on the largest Zen 5 node: ours, Rust, davepl, Zig base; ours, C5, dsp, Zig wheel; 1 to 96 threads",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T07:20:31Z",
+      "level": "info",
+      "text": "rust-falloff (base) running: Why Rust falls off at threads = vCPUs: ours (taskset, sized from the affinity mask) vs Rust -t K pinned and unpinned, K = N/2, N-2, N-1, N on a 32-vCPU Zen 5",
+      "auto": true
     }
   ],
   "research": {
