@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T21:17:26Z",
+  "updated_utc": "2026-10-10T21:17:53Z",
   "run": {
     "id": "ap-20261010T2040Z",
     "state": "running",
@@ -953,7 +953,7 @@
       "hypothesis": "Block the sparse phase into L1-sized pieces (16/24/32 KB), as rogiervandam solution_5 shakeSieve: +30% or more at 1T on Zen 5",
       "verdict": "running",
       "where": "Zen 3 D16a_v4 (block sweep); Zen 5 after the F1 profile",
-      "note": "7c22f10 by agent; verified: base-only diff plus RULES.md, PRIMES_TEST passes at 16/24/32 KB, buffer bit-identical to the champion for 20,984 sizes at 6 block sizes on avx2 and avx512 (agent harness rerun here; agent also ran sse4 and NEON under qemu). Local 1T +24-31% (indicative). Variants hc/f2-block-16 and -24 for the sweep (default constant only)"
+      "note": "Zen 3 (D16a_v4, 8c x 2), 32 KB blocks, 6 rounds vs clean champion: +12.1% +-0.7% at 1T, +12.3% at 4T, +12.4% +-0.4% at 8T (one per core), +0.1% +-0.3% at 16T (SMT). vs Rust: +19.7% at 1T, +5.2% at 16T. 24 and 16 KB running"
     }
   ],
   "azure_queue": 0,
@@ -963,20 +963,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T09:36:08Z",
-      "level": "info",
-      "text": "wheel-group32-g8 revert. Zen 5 D96as_v7. D96as_v7, 6 rounds vs wheel-group32: -0.4% at 1T, +1.2% at 24T, +1.7% at 48T, -2.4% +-2.3% at 96T (0/6). G stays 6 on AVX-512",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T09:48:42Z",
-      "level": "decision",
-      "text": "loaded-1t: Chris (3) answered: with the other 47 cores running a sieve, one thread loses 29%, which matches the 31% per-thread drop in the 48-thread profile. Up to one thread per core the slowdown at scale is frequency (or the chip-wide uncore under load), not our code; Rust drops the same proportion. Why: spin load gives a smaller drop (-24%) than a sieve load (-29%), as expected if a sieve draws more power. A sieving SMT sibling costs us 45% and Rust 49%, which fits our small SMT gain and Rust's loss.",
-      "id": "loaded-1t",
-      "what": "Chris (3) answered: with the other 47 cores running a sieve, one thread loses 29%, which matches the 31% per-thread drop in the 48-thread profile. Up to one thread per core the slowdown at scale is frequency (or the chip-wide uncore under load), not our code; Rust drops the same proportion",
-      "why": "spin load gives a smaller drop (-24%) than a sieve load (-29%), as expected if a sieve draws more power. A sieving SMT sibling costs us 45% and Rust 49%, which fits our small SMT gain and Rust's loss"
-    },
     {
       "utc": "2026-10-10T09:48:42Z",
       "level": "decision",
@@ -1321,6 +1307,23 @@
       "id": "run",
       "what": "agents on wheel F1 (priority 3) and the F5 fold (priority 4) while F1's profile and F2's sweep run",
       "why": "two agent slots free; both are in-rules and branch off hc/champion"
+    },
+    {
+      "utc": "2026-10-10T21:17:53Z",
+      "level": "decision",
+      "text": "f2-block: 32 KB blocks: +12% on Zen 3 at 1-8 threads but nothing at 16 (SMT); wait for the 24 and 16 KB variants before choosing the block size. Why: Zen 3's L1D is 32 KB per core, shared by two SMT threads: two 32 KB blocks cannot both stay resident; a smaller block should keep the gain under SMT. Expect: 16 KB keeps +8-12% at 16T.",
+      "id": "f2-block",
+      "what": "32 KB blocks: +12% on Zen 3 at 1-8 threads but nothing at 16 (SMT); wait for the 24 and 16 KB variants before choosing the block size",
+      "why": "Zen 3's L1D is 32 KB per core, shared by two SMT threads: two 32 KB blocks cannot both stay resident; a smaller block should keep the gain under SMT",
+      "expect": "16 KB keeps +8-12% at 16T"
+    },
+    {
+      "utc": "2026-10-10T21:17:53Z",
+      "level": "decision",
+      "text": "run: the page's spend is inflated by about NZ.4: the first tally charged two pools 261 node-minutes each (time since the previous run's last tally); correct in the report, backlog item 28. Why: the pools were created at 20:43 and 20:54.",
+      "id": "run",
+      "what": "the page's spend is inflated by about NZ.4: the first tally charged two pools 261 node-minutes each (time since the previous run's last tally); correct in the report, backlog item 28",
+      "why": "the pools were created at 20:43 and 20:54"
     }
   ],
   "research": {
