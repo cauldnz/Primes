@@ -17,7 +17,6 @@ individually, increasing the number with 2 * factor on each cycle". This build c
 composite individually with a step of 2 × factor, but every second factor runs the loop
 downwards, so the number decreases by 2 × factor on each cycle: from the last multiple below
 the sieve end down to factor × factor, except on x86 for factors from 128 up. Those run
-downwards only in the first block, from the last multiple below the block end down to
-factor × factor when that falls in the block; in the later blocks they all run upwards.
-Factor 3 always runs upwards, and the set of composites cleared per factor is the same as in
-the upward form.
+downwards inside each block, from the last multiple below the block end down to the first one
+in the block. Factor 3 always runs upwards, and the set of composites cleared per factor is the
+same as in the upward form.

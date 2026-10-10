@@ -33,7 +33,8 @@
 // composites as an ascending one, each with its own single-bit OR and stepping 2 x factor,
 // from the last multiple below the sieve end down to the chunk holding factor squared. The
 // end of one sweep is the start of the next, so that part of the sieve is still in L1. On x86
-// the sparse factors alternate only in the first block; in the later blocks they all sweep up.
+// the sparse factors go on alternating inside each block: one sweeps the block up, the next
+// down.
 //
 // The whole program - entry point, timing loop, threads, sieve and output - is ISPC. The only
 // external calls are to the C library (clock, allocation, pthreads).
@@ -574,8 +575,8 @@ static void run_sieve(uniform Sieve * uniform s) {
     if (factor > q) return;                                         // no sparse factors
 
     // First block: the outer loop goes on, each sparse factor clearing up to first_end. The
-    // sparse factors carry on the alternation here: factor k of the list sweeps the first
-    // block down if (k & 1) != down0.
+    // sparse factors carry on the alternation: in every block, factor k of the list sweeps
+    // down if (k & 1) != down0.
     const uniform bool down0 = down;
     const uniform int nbytes = s->nwords * 8;
     uniform int first_end = max(block_bytes, (q >> 1) / 8 + 1);    // holds bits 0..q/2
@@ -591,11 +592,11 @@ static void run_sieve(uniform Sieve * uniform s) {
         factor = 2 * i + 1;
     }
 
-    // Later blocks: every sparse factor in turn, carrying on upwards from where it stopped.
+    // Later blocks: every sparse factor in turn, carrying on from where it stopped.
     for (uniform int start = first_end; start < nbytes; start += block_bytes) {
         const uniform int end = min(start + block_bytes, nbytes);
         for (uniform int k = 0; k < nf; k++)
-            clear_sparse(s, &fs[k], end, false);
+            clear_sparse(s, &fs[k], end, ((k & 1) != 0) != down0);
     }
 #endif
 }
