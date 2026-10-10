@@ -5,3 +5,4 @@ BIOS Model name:                         AMD EPYC 9V45 96-Core Processor        
 AVX-512: yes
 kind=rust rounds=1 id=01481123058
 build cand
+!!! build cand failed
