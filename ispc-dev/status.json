@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T08:31:28Z",
+  "updated_utc": "2026-10-10T08:32:29Z",
   "run": {
     "id": "ap-20261010T0715Z",
     "state": "running",
@@ -898,6 +898,14 @@
       "verdict": "running",
       "where": "Zen 5 D96as_v7; Zen 4 recheck",
       "note": "5a68114 by agent; verified: avx2 and sse4 emit-asm identical to base, PRIMES_TEST exit 0, sweep 0 bad; local pinned 3 rounds +10% to +14% (agent 5 rounds +17%). mca znver4 0.136 -> 0.084 cycles per word per member, equal to Zig N=6"
+    },
+    {
+      "id": "wheel-group32-g8",
+      "entry": "wheel",
+      "hypothesis": "G=8 on AVX-512 with the 32-word loop (6 group passes instead of 8)",
+      "verdict": "running",
+      "where": "Zen 5 D96as_v7",
+      "note": "vs wheel-group32; local PRIMES_TEST and sweep pass; mca 0.0785 vs 0.084 cycles per word per member"
     }
   ],
   "azure_queue": 0,
@@ -907,23 +915,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T07:18:03Z",
-      "level": "decision",
-      "text": "port-cpp: start an agent on the C++ base and wheel ports (hc/port-cpp-base, hc/port-cpp-wheel). Why: RUN-PLAN priority 2 runs alongside Batch; brief: port the design not the ISPC code, idiomatic C++20 with GCC -O3 -march=native, next free PrimeCPP/solution_n, hadolint-clean Dockerfile, PRIMES_TEST at every power of ten to 1e8 (plus the 5,396-size sweep for the wheel), local speed vs ISPC and davepl.",
-      "id": "port-cpp",
-      "what": "start an agent on the C++ base and wheel ports (hc/port-cpp-base, hc/port-cpp-wheel)",
-      "why": "RUN-PLAN priority 2 runs alongside Batch; brief: port the design not the ISPC code, idiomatic C++20 with GCC -O3 -march=native, next free PrimeCPP/solution_n, hadolint-clean Dockerfile, PRIMES_TEST at every power of ten to 1e8 (plus the 5,396-size sweep for the wheel), local speed vs ISPC and davepl"
-    },
-    {
-      "utc": "2026-10-10T07:18:03Z",
-      "level": "decision",
-      "text": "port-rust-wheel: start an agent on the Rust wheel port (hc/port-rust-wheel). Why: second agent slot; Rust's only wheel upstream is 8-bit, so this is new ground. Brief as port-cpp, built like mike-barber's entry with target-cpu=native, Zig arena layout as a reference. Passed over: Rust base comparator (follows the wheel).",
-      "id": "port-rust-wheel",
-      "what": "start an agent on the Rust wheel port (hc/port-rust-wheel)",
-      "why": "second agent slot; Rust's only wheel upstream is 8-bit, so this is new ground. Brief as port-cpp, built like mike-barber's entry with target-cpu=native, Zig arena layout as a reference",
-      "instead": "Rust base comparator (follows the wheel)"
-    },
     {
       "utc": "2026-10-10T07:20:31Z",
       "level": "decision",
@@ -1281,6 +1272,21 @@
       "utc": "2026-10-10T08:31:28Z",
       "level": "info",
       "text": "wheel-group32 (wheel) running: avx512 fused group loop in Zig form: 32-word steps, unmasked, rows off one base register (target-specific)",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T08:32:29Z",
+      "level": "decision",
+      "text": "wheel-group32-g8: queue G=8 against wheel-group32 right behind it on the same node. Why: hc-011 chose G=6 for the old loop; the agent saw G=8 ahead in four local rounds with the new one. Expect: +1-3% over wheel-group32 on Zen 5.",
+      "id": "wheel-group32-g8",
+      "what": "queue G=8 against wheel-group32 right behind it on the same node",
+      "why": "hc-011 chose G=6 for the old loop; the agent saw G=8 ahead in four local rounds with the new one",
+      "expect": "+1-3% over wheel-group32 on Zen 5"
+    },
+    {
+      "utc": "2026-10-10T08:32:29Z",
+      "level": "info",
+      "text": "wheel-group32-g8 (wheel) running: G=8 on AVX-512 with the 32-word loop (6 group passes instead of 8)",
       "auto": true
     }
   ],
