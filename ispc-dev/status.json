@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T23:02:51Z",
+  "updated_utc": "2026-10-10T23:08:09Z",
   "run": {
     "id": "ap-20261010T2040Z",
     "state": "running",
@@ -13,7 +13,7 @@
     "ends_utc": "2026-10-11T00:40:00Z",
     "background_runs": 3,
     "last_tick_utc": "2026-10-10T23:02:51Z",
-    "wakeup": "2026-10-10T23:01:00Z trig_01Adh6ky9EeM8gRhKDEHbfKq"
+    "wakeup": "2026-10-10T23:24:00Z trig_01QQHutFqK5qWegE8cvcJUPb"
   },
   "current": null,
   "scoreboard": [
@@ -994,9 +994,9 @@
       "id": "f2-x86",
       "entry": "base (grey)",
       "hypothesis": "F2 blocking on x86 only, on top of F1 (champion-grey); NEON build unchanged",
-      "verdict": "running",
+      "verdict": "revert: Zen 5 -2.9% at 1-8T, +10.1% at 16T vs champion-grey",
       "where": "Zen 5 D16as_v7, Zen 3, Zen 4 vs champion-grey, 6 rounds",
-      "note": "20998bc (agent); verified here: PRIMES_TEST 0 at 16 KB and 1 KB, tags unchanged, NEON asm identical; agent: buffers identical to champion-grey for 20,983 sizes at 16 KB and 37 B on avx512/avx2/sse4"
+      "note": "vs champion-grey (F1 in): Zen 3 +1.2% +-0.3 1T, +1.5% 8T, +12.7% +-0.1 16T (6/6); Zen 4 -0.4% +-2.0 1T, +0.1% 8T, +4.7% 16T. With F1 in, blocking adds little until SMT siblings share L1. Zen 5 running"
     },
     {
       "id": "zig-idea12",
@@ -1005,6 +1005,26 @@
       "verdict": "running",
       "where": "Zen 5 D32as_v7, Zen 3 D16a_v4 vs hc/zig-submission, 6 rounds",
       "note": "e1a55bb (agent): PRIMES_TEST ok; planes and counts identical for 20,985 sizes, native and baseline builds; local 1s bursts +4-6%, full driver too noisy"
+    },
+    {
+      "id": "zig-f2",
+      "verdict": "revert: Zen 3 -23% 1T, -12% 16T; Zen 5 +3% 1T, -0.6% 16T"
+    },
+    {
+      "id": "f1f2-96",
+      "entry": "base (grey)",
+      "hypothesis": "F1 (champion-grey) and F2 (f2-block-16) each vs the clean champion at 48/96T on the 96-vCPU node, for the upstream issue",
+      "verdict": "running",
+      "where": "Zen 5 D96as_v7, 6 rounds each",
+      "note": "queued 23:05Z"
+    },
+    {
+      "id": "f6-no512",
+      "entry": "wheel and base",
+      "hypothesis": "IDEAS F6: AVX-512 target off may hold a higher all-core clock at 96T; expect -2% to +4% at 96T",
+      "verdict": "running",
+      "where": "Zen 5 D96as_v7 vs champion, 4 rounds each kind",
+      "note": "hc/f6-no512 d6feacb: build.sh only (both entries), self-tests 0; probe, not for merge as is"
     }
   ],
   "azure_queue": 0,
@@ -1014,53 +1034,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T20:41:23Z",
-      "level": "info",
-      "text": "idea1-affinity keep (merged). Zen 5 96 vCPU. merged into hc/champion 8fd7f1f with Chris approval",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T20:41:23Z",
-      "level": "info",
-      "text": "wheel-group32 keep (merged). Zen 5 D96as_v7; Zen 4 recheck. merged into hc/champion 5a68114 with Chris approval",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T20:44:18Z",
-      "level": "decision",
-      "text": "f1-alternate: start agents on F1 (with the two profile builds) and F2 in parallel; F1's falsification profile goes to Azure first. Why: RUN-PLAN priorities 1 and 2; the plan asks for agents to write F2 while F1's profile runs.",
-      "id": "f1-alternate",
-      "what": "start agents on F1 (with the two profile builds) and F2 in parallel; F1's falsification profile goes to Azure first",
-      "why": "RUN-PLAN priorities 1 and 2; the plan asks for agents to write F2 while F1's profile runs"
-    },
-    {
-      "utc": "2026-10-10T20:44:18Z",
-      "level": "decision",
-      "text": "idea12-v2: use the waiting time on the Zen 5 node for RUN-PLAN priority 5: IDEAS 12 rebased on the new champion, 12 rounds. Why: it was positive on every machine and failed only on noisy Zen 5 intervals; the pool would otherwise wait for the F1 profile builds. Expect: +1-2% at 1T.",
-      "id": "idea12-v2",
-      "what": "use the waiting time on the Zen 5 node for RUN-PLAN priority 5: IDEAS 12 rebased on the new champion, 12 rounds",
-      "why": "it was positive on every machine and failed only on noisy Zen 5 intervals; the pool would otherwise wait for the F1 profile builds",
-      "expect": "+1-2% at 1T"
-    },
-    {
-      "utc": "2026-10-10T20:44:18Z",
-      "level": "info",
-      "text": "idea12-v2 (wheel) running: IDEAS 12 (fold 13 into the tile) on top of the new champion (with wheel-group32), 12 rounds on a quiet Zen 5 node",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T20:44:18Z",
-      "level": "info",
-      "text": "f1-alternate (base (grey)) agent: Alternating sweep direction per factor reuses the L1-resident end of the 62.5 KB sieve: sparse cycles at 1T drop >= 10% (falsification test), +10-20% at 1T on Zen 5",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T20:44:18Z",
-      "level": "info",
-      "text": "f2-block (base (grey)) agent: Block the sparse phase into L1-sized pieces (16/24/32 KB), as rogiervandam solution_5 shakeSieve: +30% or more at 1T on Zen 5",
-      "auto": true
-    },
     {
       "utc": "2026-10-10T20:57:22Z",
       "level": "decision",
@@ -1374,6 +1347,55 @@
       "level": "warn",
       "auto": true,
       "text": "zig-idea12 changed with no reasoning recorded (st.py decide)."
+    },
+    {
+      "utc": "2026-10-10T23:03:24Z",
+      "level": "decision",
+      "text": "zig-f2: REVERT the Zig F2 port as it stands. Why: Zen 3: -23.3% +-0.5 at 1T, -11.7% at 16T (0/6), while the ISPC F2 gains +9-12% there; Zen 5 +3.2% 1T, -0.6% 16T. The port loses on the 32 KB L1 machine, so something in it (per-pass factor list from the arena, per-block sparseReset entry) costs more than blocking saves; worth a profile before a retry.",
+      "id": "zig-f2",
+      "what": "REVERT the Zig F2 port as it stands",
+      "why": "Zen 3: -23.3% +-0.5 at 1T, -11.7% at 16T (0/6), while the ISPC F2 gains +9-12% there; Zen 5 +3.2% 1T, -0.6% 16T. The port loses on the 32 KB L1 machine, so something in it (per-pass factor list from the arena, per-block sparseReset entry) costs more than blocking saves; worth a profile before a retry"
+    },
+    {
+      "utc": "2026-10-10T23:03:24Z",
+      "level": "decision",
+      "text": "f5-addr64: no keep. Why: Zen 5 D32: +0.2% 1T, +0.9% +-0.3 32T; below the 1% bar and not worth 14 more rounds with 1.6 h left.",
+      "id": "f5-addr64",
+      "what": "no keep",
+      "why": "Zen 5 D32: +0.2% 1T, +0.9% +-0.3 32T; below the 1% bar and not worth 14 more rounds with 1.6 h left"
+    },
+    {
+      "utc": "2026-10-10T23:03:58Z",
+      "level": "decision",
+      "text": "f2-x86: REVERT (F2 does not stack on F1). Why: vs champion-grey (F1 in): Zen 5 -2.9% +-0.3 at 1T, -3.0% at 8T, +10.1% at 16T (SMT); Zen 3 +1.2% 1T, +12.7% 16T; Zen 4 -0.4% 1T, +4.7% 16T. Both changes cut the sparse phase's cache misses, so once F1 is in, blocking only pays when SMT siblings share L1. For the upstream issue F1 and F2 are alternatives, each measured alone against the clean champion. Passed over: F2 only when threads exceed cores: thread-count-dependent sieving, not tried.",
+      "id": "f2-x86",
+      "what": "REVERT (F2 does not stack on F1)",
+      "why": "vs champion-grey (F1 in): Zen 5 -2.9% +-0.3 at 1T, -3.0% at 8T, +10.1% at 16T (SMT); Zen 3 +1.2% 1T, +12.7% 16T; Zen 4 -0.4% 1T, +4.7% 16T. Both changes cut the sparse phase's cache misses, so once F1 is in, blocking only pays when SMT siblings share L1. For the upstream issue F1 and F2 are alternatives, each measured alone against the clean champion",
+      "instead": "F2 only when threads exceed cores: thread-count-dependent sieving, not tried"
+    },
+    {
+      "utc": "2026-10-10T23:08:09Z",
+      "level": "info",
+      "text": "f2-x86 revert: Zen 5 -2.9% at 1-8T, +10.1% at 16T vs champion-grey. Zen 5 D16as_v7, Zen 3, Zen 4 vs champion-grey, 6 rounds. vs champion-grey (F1 in): Zen 3 +1.2% +-0.3 1T, +1.5% 8T, +12.7% +-0.1 16T (6/6); Zen 4 -0.4% +-2.0 1T, +0.1% 8T, +4.7% 16T. With F1 in, blocking adds little until SMT siblings share L1. Zen 5 running",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T23:08:09Z",
+      "level": "info",
+      "text": "zig-f2 (?) revert: Zen 3 -23% 1T, -12% 16T; Zen 5 +3% 1T, -0.6% 16T: ",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T23:08:09Z",
+      "level": "info",
+      "text": "f1f2-96 (base (grey)) running: F1 (champion-grey) and F2 (f2-block-16) each vs the clean champion at 48/96T on the 96-vCPU node, for the upstream issue",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T23:08:09Z",
+      "level": "info",
+      "text": "f6-no512 (wheel and base) running: IDEAS F6: AVX-512 target off may hold a higher all-core clock at 96T; expect -2% to +4% at 96T",
+      "auto": true
     }
   ],
   "research": {
