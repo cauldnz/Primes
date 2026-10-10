@@ -319,3 +319,4 @@
 {"utc": "2026-10-10T04:27:10Z", "level": "info", "text": "Run ap-20261010T0140Z is stopped; spend NZ$2.08.", "auto": true}
 {"utc": "2026-10-10T04:27:10Z", "level": "info", "text": "p6-scaling-64 holds. Zen 5 D64as_v7. D64as_v7, 4 rounds: ours vs Rust +2.7% at 1T, +2.5% at 32T, +14.3% at 64T (3.66M vs 3.20M). A/A (x86-identical champions) within 0.3% at every thread count", "auto": true}
 {"utc": "2026-10-10T04:27:10Z", "level": "info", "text": "final5-base done. Zen 5, Zen 3. 6 rounds. Ours vs Rust at 1T / all threads: Zen 5 +0.8% / +13.9%, Zen 3 +6.5% / +4.7%; Cobalt 100 (p4-arm-dense) -1.9% / -1.5%. A/A within 1% except Zen 5 1T (SD 2.3%)", "auto": true}
+{"utc": "2026-10-10T04:28:57Z", "level": "info", "text": "Shutdown complete: az batch pool list is empty; no wake-up pending; lock cleared"}

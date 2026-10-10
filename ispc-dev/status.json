@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T04:26:59Z",
+  "updated_utc": "2026-10-10T04:28:57Z",
   "run": {
     "id": "ap-20261010T0140Z",
     "state": "stopped",
@@ -766,11 +766,6 @@
     {
       "utc": "2026-10-10T02:12:14Z",
       "level": "info",
-      "text": "Harness: Azure calls hit three transient connection resets this hour (tally, floor); retries worked."
-    },
-    {
-      "utc": "2026-10-10T02:12:14Z",
-      "level": "info",
       "text": "p1-base-standin (base) done: Is D16as_v5 (Zen 4, AVX-512 hidden) a stand-in for the official AVX2 EPYC VM?",
       "auto": true
     },
@@ -1142,6 +1137,11 @@
       "level": "info",
       "text": "final5-base done. Zen 5, Zen 3. 6 rounds. Ours vs Rust at 1T / all threads: Zen 5 +0.8% / +13.9%, Zen 3 +6.5% / +4.7%; Cobalt 100 (p4-arm-dense) -1.9% / -1.5%. A/A within 1% except Zen 5 1T (SD 2.3%)",
       "auto": true
+    },
+    {
+      "utc": "2026-10-10T04:28:57Z",
+      "level": "info",
+      "text": "Shutdown complete: az batch pool list is empty; no wake-up pending; lock cleared"
     }
   ],
   "research": {
