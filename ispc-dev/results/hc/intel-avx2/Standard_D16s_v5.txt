@@ -1,0 +1,118 @@
+Architecture:                            x86_64
+CPU(s):                                  16
+Model name:                              Intel(R) Xeon(R) Platinum 8370C CPU @ 2.80GHz
+BIOS Model name:                         Intel(R) Xeon(R) Platinum 8370C CPU @ 2.80GHz None CPU @ 2.8GHz
+CPU(s) scaling MHz:                      109%
+AVX-512: yes
+kind=base rounds=4 id=10263313532
+build cand
+build champ
+self-test cand: 13 ok, 0 bad, exit=0
+self-test champ: 13 ok, 0 bad, exit=0
+== round warmup cand
+diag;lscpu;Model name;Intel(R) Xeon(R) Platinum 8370C CPU @ 2.80GHz
+diag;lscpu;CPU(s);16
+diag;lscpu;Thread(s) per core;2
+diag;lscpu;Core(s) per socket;8
+diag;lscpu;Socket(s);1
+diag;flags;avx2;yes
+diag;flags;avx512f;yes
+diag;build;all entries built for skylake / avx2 only
+cauldnz-ispc-base;57352;5.000084;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;379222;5.000349;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;457332;5.000155;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;228826;5.000105;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc;108203;5.000046;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;801536;5.000234;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;859582;5.000137;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;431748;5.000103;4;algorithm=wheel,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;55594;5.0000128746;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;222075;5.0001173019;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;444596;5.0003075600;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;374128;5.0005612373;16;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;40578;5.00022;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;336680;5.00044;16;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;57628;5.000049;1;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;378671;5.000831;16;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;460212;5.000430;8;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;229854;5.000251;4;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-wheel;119528;5.000064;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;876879;5.000662;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;948150;5.000372;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;475952;5.000201;4;algorithm=wheel,faithful=yes,bits=1
+rogiervandam_extend_epar;619341;5.000053;16;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;650696;5.000032;8;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;324273;5.000014;4;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;161357;5.000056;2;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend;81331;5.000042;1;algorithm=other,faithful=yes,bits=1
+rogiervandam_base;20010;5.000122;1;algorithm=base,faithful=yes,bits=1
+rogiervandam_classic64bit;7678;5.000295;1;algorithm=base,faithful=yes,bits=1
+rogiervandam_classic8bit;8792;5.000424;1;algorithm=base,faithful=yes,bits=1
+== round warmup champ
+cauldnz-ispc-base;57418;5.000004;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;378601;5.000345;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;459204;5.000148;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;229387;5.000134;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ2
+cauldnz-ispc-base;57600;5.000060;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;379457;5.000325;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;455968;5.000136;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;227430;5.000077;4;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl
+mike-barber_bit-extreme-hybrid;55589;5.0000252724;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;221782;5.0001626015;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;442858;5.0002679825;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;371477;5.0004754066;16;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl2
+davepl_array_optimized;39270;5.00023;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;325150;5.00073;16;algorithm=base,faithful=yes,bits=1
+== round 1 cand
+diag;lscpu;Model name;Intel(R) Xeon(R) Platinum 8370C CPU @ 2.80GHz
+diag;lscpu;CPU(s);16
+diag;lscpu;Thread(s) per core;2
+diag;lscpu;Core(s) per socket;8
+diag;lscpu;Socket(s);1
+diag;flags;avx2;yes
+diag;flags;avx512f;yes
+diag;build;all entries built for skylake / avx2 only
+cauldnz-ispc-base;57413;5.000002;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;378895;5.000309;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;456037;5.000125;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;227437;5.000142;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc;108589;5.000003;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;796759;5.000239;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;860465;5.000124;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;430715;5.000092;4;algorithm=wheel,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;55725;5.0000796318;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;221920;5.0001296997;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;444085;5.0002388954;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;370349;5.0004396439;16;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;40544;5.00021;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;336557;5.00106;16;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;57650;5.000086;1;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;372704;5.001528;16;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;456386;5.000390;8;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;229079;5.000243;4;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-wheel;119766;5.000066;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;879075;5.000673;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;952081;5.000383;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;476752;5.000221;4;algorithm=wheel,faithful=yes,bits=1
+rogiervandam_extend_epar;603660;5.000054;16;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;648614;5.000019;8;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;324449;5.000030;4;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;161411;5.000049;2;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend;81281;5.000048;1;algorithm=other,faithful=yes,bits=1
+rogiervandam_base;20016;5.000021;1;algorithm=base,faithful=yes,bits=1
+rogiervandam_classic64bit;7677;5.000402;1;algorithm=base,faithful=yes,bits=1
+rogiervandam_classic8bit;8792;5.000033;1;algorithm=base,faithful=yes,bits=1
+== round 1 ctrl
+mike-barber_bit-extreme-hybrid;55726;5.0000429153;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;222209;5.0001120567;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;444918;5.0002498627;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;372869;5.0004925728;16;algorithm=base,faithful=yes,bits=1
+== round 1 champ
+cauldnz-ispc-base;57512;5.000034;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;375028;5.000558;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;456528;5.000160;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;229131;5.000120;4;algorithm=base,faithful=yes,bits=1
+== round 1 champ2
