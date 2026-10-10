@@ -1,9 +1,0 @@
-Dockerfile:18
---------------------
-  16 |     WORKDIR /app
-  17 |     COPY . .
-  18 | >>> RUN cargo test && cargo build --release
-  19 |     
-  20 |     # 2. runtime stage
---------------------
-ERROR: failed to build: failed to solve: process "/bin/sh -c cargo test && cargo build --release" did not complete successfully: exit code: 101
