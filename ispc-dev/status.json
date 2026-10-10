@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T21:35:29Z",
+  "updated_utc": "2026-10-10T21:37:32Z",
   "run": {
     "id": "ap-20261010T2040Z",
     "state": "running",
@@ -962,6 +962,14 @@
       "verdict": "running",
       "where": "Zen 5 D32as_v7, Zen 4 D16as_v5",
       "note": "9e3a4e2 on 9a976cf (addr64 only). Verified PRIMES_TEST both; agent: buffer identical on sse4, avx2, avx512 x8/x16 and NEON; avx2/sse4 loops unchanged; dense insns/word 0.77 -> 0.27 (avx512, P=31). Local Cascade Lake -7.8% (512-bit clock drop; not predictive for Zen)"
+    },
+    {
+      "id": "wheel-f1",
+      "entry": "wheel",
+      "hypothesis": "Wheel F1: alternate direction per group pass (planes visited 7..0 on down passes) and per sparse prime; ~0 at 1T, +3-6% at all threads",
+      "verdict": "running",
+      "where": "Zen 5 D32as_v7 (16c x 2)",
+      "note": "f3d0e2d by agent (pushed by me); verified PRIMES_TEST and the 5,396-size sweep (bad 0); agent also avx2, sse4, avx512 and NEON sweeps. Variant hc/wheel-f1-dense: sparse primes always ascend"
     }
   ],
   "azure_queue": 0,
@@ -971,18 +979,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T10:09:37Z",
-      "level": "info",
-      "text": "idea1-affinity no regression (arm gate pending). Zen 5 96 vCPU. quiet 96-vCPU node, 4 rounds vs champion: +0.8% +-0.5% at 1T, +0.6% at 24T, +0.9% +-0.4% at 48T, 0.0% +-0.4% at 96T. Correctness fix: keep once the Cobalt 100 gate passes",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T10:09:37Z",
-      "level": "info",
-      "text": "idea21-prefetch revert. Zen 5 D32as_v7. D32as_v7, 4 rounds: -2.6% at 1T, -5.6% at 8T, -5.9% at 16T, -7.4% +-0.5% at 32T. The extra load-port work costs more than the misses it hides, worst under SMT",
-      "auto": true
-    },
     {
       "utc": "2026-10-10T10:09:58Z",
       "level": "decision",
@@ -1333,6 +1329,21 @@
       "utc": "2026-10-10T21:35:29Z",
       "level": "info",
       "text": "f5-fold (base) running: --addressing=64 plus a per-lane x16 dense fold (avx512skx-x16): dense instructions per word halve on AVX-512",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T21:37:32Z",
+      "level": "decision",
+      "text": "wheel-f1: measure wheel F1 and a dense-only variant on the 32-vCPU Zen 5 node, judged at all threads. Why: RUN-PLAN priority 3; the agent's local split hinted the sparse half may cost, so the variant isolates it. Expect: +2-5% at 32T.",
+      "id": "wheel-f1",
+      "what": "measure wheel F1 and a dense-only variant on the 32-vCPU Zen 5 node, judged at all threads",
+      "why": "RUN-PLAN priority 3; the agent's local split hinted the sparse half may cost, so the variant isolates it",
+      "expect": "+2-5% at 32T"
+    },
+    {
+      "utc": "2026-10-10T21:37:32Z",
+      "level": "info",
+      "text": "wheel-f1 (wheel) running: Wheel F1: alternate direction per group pass (planes visited 7..0 on down passes) and per sparse prime; ~0 at 1T, +3-6% at all threads",
       "auto": true
     }
   ],
