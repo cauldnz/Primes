@@ -17,7 +17,7 @@
 #
 # MODE=vm (default): one VM per size, driven over SSH.
 #   Env: LOCATION (resource group), REGIONS (VM regions to try in order; default LOCATION),
-#        PRIORITY (Spot|Regular; Visual Studio subscriptions cannot use Spot VMs).
+#        PRIORITY (Spot|Regular; some subscription offers cannot use Spot VMs).
 #   Every VM lives in one resource group that is deleted at the end (also on Ctrl-C), and each
 #   VM gets an Azure auto-shutdown 2 hours out as a backstop.
 #

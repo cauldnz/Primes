@@ -93,7 +93,7 @@ Then add a short note per experiment under the table: what happened, and what it
 
 ## Budget and stop conditions
 
-- Azure credit. About NZ$248 remains on the Visual Studio subscription. Prefer Batch Spot.
+- Azure: prefer Batch Spot.
   Stop and ask Chris before spending more than NZ$50 in one session.
 - Diminishing returns. Stop a line of attack after three experiments in a row on it fail the
   acceptance rule.
@@ -190,5 +190,5 @@ Adopted from `RESEARCH.md` section 7 on 2026-10-09 at 16:50 AEST, ahead of the o
 ## Writing
 
 Anything committed to `PrimeISPC/`, the PR, or this branch's notes follows Chris's house style:
-the `house-style` and `economist-style` skills in `~/.agents/skills/` on his machine. Load both
+the `house-style` and `economist-style` skills. Load both
 before writing a README, a PR description or a ledger note. Commit messages count too.

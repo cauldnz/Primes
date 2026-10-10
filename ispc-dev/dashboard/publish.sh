@@ -1,26 +1,29 @@
 #!/usr/bin/env bash
-# Rebuild the status page from ispc-dev/status.json and push it to the `dashboard` branch,
-# which GitHub Pages serves at https://cauldnz.github.io/Primes/.
-# Run from anywhere inside the repo, after committing status.json on ispc-dev.
+# Rebuild the status page from the machine's status.json and push it to the `dashboard` branch,
+# which GitHub Pages can serve (Settings, Pages, branch `dashboard`, folder /).
+# Run from anywhere inside the repo, after committing status.json.
+#
+# The branch holds only the page files (index.html, log.html, .nojekyll). It is built with git
+# plumbing from a temporary folder, so it never picks up the rest of the repo and needs no
+# worktree or local branch.
 set -euo pipefail
-REPO="$(git rev-parse --show-toplevel)"
-TMP="$(mktemp -d)"
-python3 "$REPO/ispc-dev/dashboard/build.py" "$REPO/ispc-dev/status.json" "$TMP/index.html" >/dev/null
-touch "$TMP/.nojekyll"
-WT="$(mktemp -d)"
-if git -C "$REPO" ls-remote --exit-code --heads origin dashboard >/dev/null 2>&1; then
-    git -C "$REPO" fetch -q origin dashboard:refs/remotes/origin/dashboard
-    git -C "$REPO" worktree add -q -B dashboard "$WT" origin/dashboard
-else
-    git -C "$REPO" worktree add -q --detach "$WT"
-    git -C "$WT" checkout -q --orphan dashboard
-    git -C "$WT" rm -rq . >/dev/null 2>&1 || true
+HC="$(cd "$(dirname "$0")/.." && pwd)"
+REPO="$(git -C "$HC" rev-parse --show-toplevel)"
+TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
+mkdir "$TMP/site"
+python3 "$HC/dashboard/build.py" "$HC/status.json" "$TMP/site/index.html" >/dev/null
+touch "$TMP/site/.nojekyll"
+
+cd "$REPO"
+PARENT=""
+if git fetch -q origin dashboard 2>/dev/null; then PARENT=$(git rev-parse -q --verify FETCH_HEAD || true); fi
+export GIT_INDEX_FILE="$TMP/index"
+git --work-tree="$TMP/site" add -A .
+TREE=$(git write-tree)
+unset GIT_INDEX_FILE
+if [ -n "$PARENT" ] && [ "$(git rev-parse "$PARENT^{tree}")" = "$TREE" ]; then
+    echo "page unchanged"; exit 0
 fi
-cp "$TMP/index.html" "$TMP/.nojekyll" "$WT/"
-[ -f "$TMP/log.html" ] && cp "$TMP/log.html" "$WT/"
-git -C "$WT" add index.html .nojekyll $( [ -f "$TMP/log.html" ] && echo log.html )
-git -C "$WT" commit -qm "Status page $(date -u +%Y-%m-%dT%H:%MZ)" || true
-git -C "$WT" push -q origin dashboard
-git -C "$REPO" worktree remove --force "$WT"
-rm -rf "$TMP"
-echo "published: https://cauldnz.github.io/Primes/"
+COMMIT=$(git commit-tree "$TREE" ${PARENT:+-p "$PARENT"} -m "Status page $(date -u +%Y-%m-%dT%H:%MZ)")
+git push -q origin "$COMMIT:refs/heads/dashboard"
+echo "published to the dashboard branch"
