@@ -438,3 +438,4 @@
 {"utc": "2026-10-10T12:15:10Z", "level": "info", "text": "Run ap-20261010T0715Z stopped: all pools deleted (az batch pool list empty), lock cleared, no wake-up pending; morning report at the top of STATUS.md, tables in results/hc/run-ap-20261010T0715Z.md"}
 {"utc": "2026-10-10T12:15:10Z", "level": "info", "text": "Run ap-20261010T0715Z is stopped; spend NZ$1.75.", "auto": true}
 {"utc": "2026-10-10T12:15:10Z", "level": "info", "text": "final6 done. Zen 5 D32as_v7, Zen 4 D16as_v5, Zen 3 D16a_v4. Zen 3 wheel: ours vs C5 +70.7% at 1T, +74.4% at 16T, vs dsp +190% / +203% (idea1 +0.9% / -0.6%). All six final tasks done", "auto": true}
+{"utc": "2026-10-10T20:39:53Z", "level": "info", "text": "Run ap-20261010T2040Z started (azure mode).", "auto": true}

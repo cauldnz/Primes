@@ -1,16 +1,16 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T12:15:10Z",
+  "updated_utc": "2026-10-10T20:39:53Z",
   "run": {
-    "id": "ap-20261010T0715Z",
-    "state": "stopped",
+    "id": "ap-20261010T2040Z",
+    "state": "running",
     "mode": "azure",
-    "mode_reason": "Chris kicked off a 6-hour run (RUN-PLAN.md: scale, ports, Zig gap, Intel) in this session; Azure login works, Spot quota 128 vCPUs.",
-    "started_utc": "2026-10-10T07:15:00Z",
-    "time_box_hours": 6,
-    "spend_nzd": 1.75,
+    "mode_reason": "Chris kicked off a 4-hour run (RUN-PLAN.md: the L2 wall, F1/F2 on a grey lineage) after rotating the Azure secret in the session; login works, Spot quota 128.",
+    "started_utc": "2026-10-10T20:40:00Z",
+    "time_box_hours": 4,
+    "spend_nzd": 0,
     "spend_cap_nzd": 30,
-    "ends_utc": "2026-10-10T13:15:00Z",
+    "ends_utc": "2026-10-11T00:40:00Z",
     "background_runs": 1,
     "last_tick_utc": "2026-10-10T12:09:49Z",
     "wakeup": "none"
@@ -941,14 +941,6 @@
   "events": [
     {
       "utc": "2026-10-10T08:58:19Z",
-      "level": "decision",
-      "text": "port-cpp-base: the C++ base port beats Rust (+4-5%) and davepl (+29-40%) on Zen 5 but trails the ISPC base (-4% 1T, -7.5% at 32T SMT); route for Chris: same characteristics as davepl's solution_5. Why: the gap at 32T matches GCC's code losing more to SMT than ours.",
-      "id": "port-cpp-base",
-      "what": "the C++ base port beats Rust (+4-5%) and davepl (+29-40%) on Zen 5 but trails the ISPC base (-4% 1T, -7.5% at 32T SMT); route for Chris: same characteristics as davepl's solution_5",
-      "why": "the gap at 32T matches GCC's code losing more to SMT than ours"
-    },
-    {
-      "utc": "2026-10-10T08:58:19Z",
       "level": "info",
       "text": "port-rust-wheel measured (Zen 5). Zen 5, Zen 3 (phase B). D32as_v7, 4 rounds: Rust wheel port vs ISPC wheel -13.8% at 1T (161k vs 188k), -15.5% at 32T (2.32M vs 2.73M); vs C5 +30% at 1T, +12% at 32T; 2.5x danielspaangberg. Self-test 9 ok in the image",
       "auto": true
@@ -1298,6 +1290,12 @@
       "utc": "2026-10-10T12:15:10Z",
       "level": "info",
       "text": "final6 done. Zen 5 D32as_v7, Zen 4 D16as_v5, Zen 3 D16a_v4. Zen 3 wheel: ours vs C5 +70.7% at 1T, +74.4% at 16T, vs dsp +190% / +203% (idea1 +0.9% / -0.6%). All six final tasks done",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T20:39:53Z",
+      "level": "info",
+      "text": "Run ap-20261010T2040Z started (azure mode).",
       "auto": true
     }
   ],
