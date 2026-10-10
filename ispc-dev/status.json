@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T01:43:11Z",
+  "updated_utc": "2026-10-10T01:43:22Z",
   "run": {
     "id": "ap-20261010T0140Z",
     "state": "running",
@@ -12,7 +12,8 @@
     "spend_cap_nzd": 30,
     "ends_utc": "2026-10-10T05:40:00Z",
     "background_runs": 2,
-    "last_tick_utc": "2026-10-10T01:43:11Z"
+    "last_tick_utc": "2026-10-10T01:43:11Z",
+    "wakeup": "trig_01DJWyRw2HtLs6Wis43S6Rty"
   },
   "current": null,
   "scoreboard": [
@@ -675,11 +676,6 @@
   ],
   "events": [
     {
-      "utc": "2026-10-09T08:13:34Z",
-      "level": "info",
-      "text": "hc-008 rejected (tile memcpy flat on Zen 5). hc-010 re-profile launched."
-    },
-    {
       "utc": "2026-10-09T08:28:57Z",
       "level": "info",
       "text": "hc-009 rejected (base word scan, -1.4% Zen 5). hc-010: base now level with Rust on Zen 5 per phase."
@@ -932,6 +928,11 @@
       "utc": "2026-10-10T01:42:33Z",
       "level": "info",
       "text": "Dry run 1a: two base jobs submitted with hc-pool.sh submit; both appear in results/hc/jobs.tsv as open."
+    },
+    {
+      "utc": "2026-10-10T01:43:22Z",
+      "level": "info",
+      "text": "Tick 1 done. Waiting for the two base jobs to start (nodes booting) and for the profile agent; next tick 01:53 UTC."
     }
   ],
   "research": {
