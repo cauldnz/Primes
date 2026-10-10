@@ -1,0 +1,28 @@
+Architecture:                            x86_64
+CPU(s):                                  16
+Model name:                              AMD EPYC 9V45 96-Core Processor
+BIOS Model name:                         AMD EPYC 9V45 96-Core Processor                 None CPU @ 2.6GHz
+AVX-512: yes
+kind=board rounds=3 id=00013524655
+build cand
+build champ
+build b-swift (PrimeSwift/solution_1)
+build b-chapel (PrimeChapel/solution_1)
+build b-nim (PrimeNim/solution_3)
+build b-haskell (PrimeHaskell/solution_2)
+build b-julia (PrimeJulia/solution_4)
+build b-d (PrimeD/solution_3)
+build b-v (PrimeV/solution_2)
+self-test cand: 13 ok, 0 bad, exit=0
+self-test champ: 8 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-ispc-base;127445;5.000037;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;1008590;5.000209;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;912034;5.000091;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;480663;5.000054;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ
+cauldnz-ispc;206232;5.000001;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1556269;5.000175;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1521624;5.000102;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;794896;5.000051;4;algorithm=wheel,faithful=yes,bits=1
+== round warmup rust

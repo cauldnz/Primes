@@ -266,7 +266,7 @@ cmd_collect() {
       az batch task file download --job-id "$P" --task-id "$ID" --file-path stdout.txt \
          --destination "$OUT/$SIZE.txt.part" -o none 2>/dev/null && mv -f "$OUT/$SIZE.txt.part" "$OUT/$SIZE.txt"
     fi
-    N=$(grep -c "^== round [0-9]" "$OUT/$SIZE.txt" 2>/dev/null || echo 0)
+    N=$(grep -c "^== round [0-9]" "$OUT/$SIZE.txt" 2>/dev/null); N=${N:-0}
     echo "$ID $SIZE $KIND $STATE $N $OUT"
     if [ "$STATE" = completed ] || [ "$STATE" = gone ]; then
       MINS=$(az batch task show --job-id "$P" --task-id "$ID" --query "[executionInfo.startTime, executionInfo.endTime]" -o tsv 2>/dev/null \

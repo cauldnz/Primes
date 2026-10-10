@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T00:02:22Z",
+  "updated_utc": "2026-10-10T00:25:43Z",
   "run": {
     "id": "board-20261010",
     "state": "running",
@@ -8,14 +8,15 @@
     "mode_reason": "Side stream at Chris's request: does our Zen 5 / Zen 3 ranking of the leaderboard's top 10 match the official one?",
     "started_utc": "2026-10-10T00:02:00Z",
     "time_box_hours": 2.5,
-    "spend_nzd": 0,
+    "spend_nzd": 0.04,
     "spend_cap_nzd": 10,
-    "wakeup": "trig_01WeE3WH7gCvLjSdre2aWiVC at 00:23Z"
+    "wakeup": "next wake-up 00:45Z",
+    "background_runs": "0\n0"
   },
   "current": {
     "id": "board-2026-10-10",
     "phase": "evaluate",
-    "detail": "building the top-10 images on one Zen 5 and one Zen 3 node"
+    "detail": "all 7 upstream images built on Zen 5 and Zen 3; warm-up round running"
   },
   "scoreboard": [
     {
@@ -677,16 +678,6 @@
   ],
   "events": [
     {
-      "utc": "2026-10-09T07:01:22Z",
-      "level": "info",
-      "text": "hc-005 (wheel unmasked stores) launched on Zen 3 and Zen 5."
-    },
-    {
-      "utc": "2026-10-09T07:15:49Z",
-      "level": "info",
-      "text": "hc-002 confirm so far: Zen 3 +21.9%, Zen 5 +22.9% at 1T. hc-005 Zen 3 +8% at 1T so far."
-    },
-    {
       "utc": "2026-10-09T07:21:29Z",
       "level": "info",
       "text": "hc-002 confirmed and merged: base +22-24% 1T. Base now beats Rust at 1T on Zen 3 (+3%) and Zen 4 (+2%)."
@@ -925,6 +916,16 @@
       "utc": "2026-10-10T00:02:07Z",
       "level": "info",
       "text": "board-2026-10-10 (evaluate): building the top-10 images on one Zen 5 and one Zen 3 node"
+    },
+    {
+      "utc": "2026-10-10T00:24:41Z",
+      "level": "info",
+      "text": "board-2026-10-10 (evaluate): all 7 upstream images built on Zen 5 and Zen 3; warm-up round running"
+    },
+    {
+      "utc": "2026-10-10T00:25:43Z",
+      "level": "warn",
+      "text": "Cost meter was not running; started it."
     }
   ],
   "research": {

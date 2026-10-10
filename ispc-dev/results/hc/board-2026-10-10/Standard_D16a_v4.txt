@@ -1,0 +1,54 @@
+Architecture:                            x86_64
+CPU(s):                                  16
+Model name:                              AMD EPYC 7763 64-Core Processor
+BIOS Model name:                         AMD EPYC 7763 64-Core Processor                 None CPU @ 2.4GHz
+AVX-512: no
+kind=board rounds=3 id=0001342443
+build cand
+build champ
+build b-swift (PrimeSwift/solution_1)
+build b-chapel (PrimeChapel/solution_1)
+build b-nim (PrimeNim/solution_3)
+build b-haskell (PrimeHaskell/solution_2)
+build b-julia (PrimeJulia/solution_4)
+build b-d (PrimeD/solution_3)
+build b-v (PrimeV/solution_2)
+self-test cand: 13 ok, 0 bad, exit=0
+self-test champ: 8 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-ispc-base;55931;5.000030;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;431380;5.000286;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;447130;5.000151;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;223924;5.000107;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ
+cauldnz-ispc;109681;5.000011;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;938193;5.000257;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;863985;5.000151;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;442460;5.000096;4;algorithm=wheel,faithful=yes,bits=1
+== round warmup rust
+mike-barber_bit-unrolled-hybrid;52229;5.0000758171;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;52537;5.0000162125;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-unrolled-hybrid;208194;5.0001358986;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;210488;5.0001802444;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-unrolled-hybrid;418166;5.0002212524;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;420649;5.0001888275;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-unrolled-hybrid;409011;5.0006275177;16;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;412071;5.0004329681;16;algorithm=base,faithful=yes,bits=1
+== round warmup davepl
+davepl_array_optimized;306953;5.0011;16;algorithm=base,faithful=yes,bits=1
+== round warmup dsp
+danielspaangberg_5760of30030_owrb;37796;5.000026;1;algorithm=wheel,faithful=yes,bits=1
+== round warmup swift
+yellowcub_fahlman_striped_UInt8;43045;5.000031928;1;algorithm=base,faithful=yes,bits=1
+== round warmup chapel
+GordonBGood_bittwiddle;9513;5.00018;1;algorithm=base,faithful=yes,bits=1
+GordonBGood_stride8;13560;5.00016;1;algorithm=base,faithful=yes,bits=1
+GordonBGood_stride8_block16K;14363;5.00034;1;algorithm=base,faithful=yes,bits=1
+GordonBGood_extreme;21394;5.00024;1;algorithm=base,faithful=yes,bits=1
+GordonBGood_extreme_hybrid;47297;5.00017;1;algorithm=base,faithful=yes,bits=1
+GordonBGood_bittwiddle;38403;5.00058;4;algorithm=base,faithful=yes,bits=1
+GordonBGood_stride8;54625;5.00045;4;algorithm=base,faithful=yes,bits=1
+GordonBGood_stride8_block16K;58052;5.00048;4;algorithm=base,faithful=yes,bits=1
+GordonBGood_extreme;86707;5.00039;4;algorithm=base,faithful=yes,bits=1
+GordonBGood_extreme_hybrid;192165;5.00026;4;algorithm=base,faithful=yes,bits=1
+== round warmup nim
