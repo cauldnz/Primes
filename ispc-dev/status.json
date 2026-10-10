@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T03:10:01Z",
+  "updated_utc": "2026-10-10T03:18:03Z",
   "run": {
     "id": "ap-20261010T0140Z",
     "state": "running",
@@ -8,11 +8,11 @@
     "mode_reason": "Chris kicked off a 4-hour base-first run (RUN-PLAN.md) in this session; Azure login works.",
     "started_utc": "2026-10-10T01:40:00Z",
     "time_box_hours": 4,
-    "spend_nzd": 0.77,
+    "spend_nzd": 1.28,
     "spend_cap_nzd": 30,
     "ends_utc": "2026-10-10T05:40:00Z",
     "background_runs": 1,
-    "last_tick_utc": "2026-10-10T03:01:42Z",
+    "last_tick_utc": "2026-10-10T03:18:03Z",
     "wakeup": "trig_01EhcppNErPdLQ7v96UBH32M"
   },
   "current": {
