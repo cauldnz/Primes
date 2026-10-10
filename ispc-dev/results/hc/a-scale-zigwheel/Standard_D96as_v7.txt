@@ -80,3 +80,32 @@ cauldnz-ispc;7844802;5.001681;96;algorithm=wheel,faithful=yes,bits=1
 cauldnz-ispc;8119707;5.000780;48;algorithm=wheel,faithful=yes,bits=1
 cauldnz-ispc;4731061;5.000361;24;algorithm=wheel,faithful=yes,bits=1
 == round 3 champ2
+cauldnz-zig-wheel;211456;5.000034;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;7599957;5.006070;96;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;5174106;5.002688;48;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;4718637;5.001242;24;algorithm=wheel,faithful=yes,bits=1
+== round 3 champ
+cauldnz-zig-wheel;217992;5.000047;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;7691257;5.005708;96;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;5414927;5.002361;48;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;4764979;5.001272;24;algorithm=wheel,faithful=yes,bits=1
+== round 4 cand
+cauldnz-zig-wheel;215764;5.000045;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;7733954;5.005517;96;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;8379528;5.002868;48;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;4702077;5.001340;24;algorithm=wheel,faithful=yes,bits=1
+== round 4 champ2
+cauldnz-zig-wheel;214755;5.000037;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;7829124;5.005457;96;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;4981016;5.002521;48;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;4692497;5.001304;24;algorithm=wheel,faithful=yes,bits=1
+== round 4 champ
+cauldnz-zig-wheel;217475;5.000033;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;7945327;5.005436;96;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;5271309;5.002309;48;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;4804115;5.001152;24;algorithm=wheel,faithful=yes,bits=1
+== round 4 ctrl
+cauldnz-ispc;209951;5.000008;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;7820759;5.002349;96;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;8106102;5.000808;48;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;4591753;5.000378;24;algorithm=wheel,faithful=yes,bits=1
