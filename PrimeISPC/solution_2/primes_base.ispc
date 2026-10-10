@@ -300,7 +300,7 @@ static void clear_dense_factor(uniform Sieve * uniform s, uniform int p) {
 
 // Sparse block size in bytes: 32 KB unless PRIMES_BLOCK_KB says otherwise. main() reads the
 // variable once, before any sieve runs.
-#define BLOCK_KB 32
+#define BLOCK_KB 16
 static uniform int block_bytes = BLOCK_KB * 1024;
 
 // Sizes are below 2^32 (nbits is an int), so sqrt(size) < 65536, below which lie 6542 primes.
