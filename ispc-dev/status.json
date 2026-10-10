@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T03:05:44Z",
+  "updated_utc": "2026-10-10T03:06:04Z",
   "run": {
     "id": "ap-20261010T0140Z",
     "state": "running",
@@ -13,7 +13,7 @@
     "ends_utc": "2026-10-10T05:40:00Z",
     "background_runs": 1,
     "last_tick_utc": "2026-10-10T03:01:42Z",
-    "wakeup": "trig_01MTSm3NqKmPYPae4cWFVav8"
+    "wakeup": "trig_01EhcppNErPdLQ7v96UBH32M"
   },
   "current": {
     "id": "p5-sse4",
