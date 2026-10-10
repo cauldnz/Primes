@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T11:18:45Z",
+  "updated_utc": "2026-10-10T11:19:14Z",
   "run": {
     "id": "ap-20261010T0715Z",
     "state": "running",
@@ -793,7 +793,7 @@
       "hypothesis": "Our base design as C++20 (PrimeCPP/solution_6) matches the ISPC base",
       "verdict": "measured (Zen 5)",
       "where": "Zen 5, Zen 3 (phase B)",
-      "note": "D32as_v7, 4 rounds: C++ base port vs ISPC base -4.0% at 1T, +1.6% at 16T, -7.5% at 32T; vs Rust +5.5% at 1T, +4.4% at 16T, +5.3% at 32T; vs davepl +40% at 1T, +29% at 32T"
+      "note": "Zen 3 (4 rounds): vs ISPC base -8.2% at 1T, -7.6% at 16T; vs Rust -2.1% / -3.0%; vs davepl +40% / +30%"
     },
     {
       "id": "port-cpp-wheel",
@@ -809,7 +809,7 @@
       "hypothesis": "Our base design in Rust (PrimeRust/solution_9) against mike-barber solution_1: the delta and its route",
       "verdict": "measured (Zen 5)",
       "where": "Zen 5, Zen 3 (phase B)",
-      "note": "D32as_v7, 4 rounds: Rust base port vs mike-barber -11.6% at 1T (105.5k vs 118.9k), -8.9% at 16T, -5.2% at 32T; vs ISPC base -13 to -20%; vs davepl +13-20%. Locally it was 5% ahead of mike-barber: the isolated gains did not transfer to Zen 5"
+      "note": "Zen 3 (4 rounds): vs ISPC base -13.8% at 1T, -8.9% at 16T; vs mike-barber -8.3% / -4.5%; vs davepl +31% / +28%"
     },
     {
       "id": "idea2-pin",
@@ -895,9 +895,9 @@
       "id": "wheel-group32",
       "entry": "wheel",
       "hypothesis": "avx512 fused group loop in Zig form: 32-word steps, unmasked, rows off one base register (target-specific)",
-      "verdict": "keep on Zen 5; Zen 4 pending",
+      "verdict": "Chris to decide",
       "where": "Zen 5 D96as_v7; Zen 4 recheck",
-      "note": "second Zen 5 run (D32as_v7, 6 rounds): +4.4% +-2.0% at 1T, +5.1% at 8T, +4.4% +-1.1% at 16T, +2.5% +-0.7% at 32T, 24/24 rounds won. Zen 4 (D16as_v5) running: the other AVX-512 machine and Chris recheck"
+      "note": "Zen 4 (D16as_v5, EPYC 9V74), 6 rounds: -0.0% +-1.6% at 1T, +0.2% at 4T, -0.1% at 8T, +0.2% +-0.4% at 16T. Zen 5: +4.4% (1T) to +2.5% (32T), 24/24 rounds; first Zen 5 run +3.7% to +4.0%. AVX-512-only change: under the written target-specific rule (>= 2% on every machine whose code changes) Zen 4 fails it, with no regression"
     },
     {
       "id": "wheel-group32-g8",
@@ -931,18 +931,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T08:39:39Z",
-      "level": "info",
-      "text": "idea2-pin revert. Zen 5 D96as_v7. 96-vCPU node, 4 rounds vs unpinned: 1T +3.5% (unpinned in both; noise), 24T -5.1% +-3.7%, 48T -0.5%, 96T +1.1% +-7.1%. Placement is not the lead; packing the quarter line onto the first cores loses to the scheduler spreading it",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T08:39:39Z",
-      "level": "info",
-      "text": "idea6-i64 revert. Zen 5, Zen 3 fleet at 16 threads. D32as_v7, 4 rounds vs idea1: 1T -1.1%, 16T -2.5% +-5.3%, 32T +0.2% +-7.3%. Smaller dense code does not help at full occupancy: code footprint is not the SMT limit",
-      "auto": true
-    },
     {
       "utc": "2026-10-10T08:39:39Z",
       "level": "info",
@@ -1296,6 +1284,21 @@
       "id": "run",
       "what": "took the Intel and Cobalt 100 pools down: their work is done (Intel image measured, arm gates for the thread-count fix and IDEAS 12 passed)",
       "why": "AUTOPILOT 2d: no idle floors"
+    },
+    {
+      "utc": "2026-10-10T11:19:14Z",
+      "level": "decision",
+      "text": "wheel-group32: not a mechanical keep: +4.4% on Zen 5 but 0.0% on Zen 4, which runs the same AVX-512 code; left for Chris with the numbers. Why: the target-specific rule asks for >= 2% on every machine whose code changes; it neither regresses anywhere nor reaches 2% on Zen 4 (Genoa splits 512-bit ops, so the 32-word step buys less). The official Threadripper is Zen 5, the official EPYC runner is AVX2-only. Passed over: a Zen-5-only dispatch (not expressible with ISPC targets).",
+      "id": "wheel-group32",
+      "what": "not a mechanical keep: +4.4% on Zen 5 but 0.0% on Zen 4, which runs the same AVX-512 code; left for Chris with the numbers",
+      "why": "the target-specific rule asks for >= 2% on every machine whose code changes; it neither regresses anywhere nor reaches 2% on Zen 4 (Genoa splits 512-bit ops, so the 32-word step buys less). The official Threadripper is Zen 5, the official EPYC runner is AVX2-only",
+      "instead": "a Zen-5-only dispatch (not expressible with ISPC targets)"
+    },
+    {
+      "utc": "2026-10-10T11:19:14Z",
+      "level": "info",
+      "text": "wheel-group32 Chris to decide. Zen 5 D96as_v7; Zen 4 recheck. Zen 4 (D16as_v5, EPYC 9V74), 6 rounds: -0.0% +-1.6% at 1T, +0.2% at 4T, -0.1% at 8T, +0.2% +-0.4% at 16T. Zen 5: +4.4% (1T) to +2.5% (32T), 24/24 rounds; first Zen 5 run +3.7% to +4.0%. AVX-512-only change: under the written target-specific rule (>= 2% on every machine whose code changes) Zen 4 fails it, with no regression",
+      "auto": true
     }
   ],
   "research": {
