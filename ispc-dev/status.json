@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T09:36:20Z",
+  "updated_utc": "2026-10-10T09:48:02Z",
   "run": {
     "id": "ap-20261010T0715Z",
     "state": "running",
@@ -8,11 +8,11 @@
     "mode_reason": "Chris kicked off a 6-hour run (RUN-PLAN.md: scale, ports, Zig gap, Intel) in this session; Azure login works, Spot quota 128 vCPUs.",
     "started_utc": "2026-10-10T07:15:00Z",
     "time_box_hours": 6,
-    "spend_nzd": 0.57,
+    "spend_nzd": 0.61,
     "spend_cap_nzd": 30,
     "ends_utc": "2026-10-10T13:15:00Z",
-    "background_runs": 4,
-    "last_tick_utc": "2026-10-10T09:35:49Z",
+    "background_runs": 2,
+    "last_tick_utc": "2026-10-10T09:48:02Z",
     "wakeup": "trig_0186zxqN8Cz5pDe7yB4CGAaZ"
   },
   "current": null,

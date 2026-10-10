@@ -47,3 +47,96 @@ mike-barber_bit-extreme-hybrid;494654;5.0001583099;4;algorithm=base,faithful=yes
 mike-barber_bit-extreme-hybrid;3172346;5.0023531914;48;algorithm=base,faithful=yes,bits=1
 mike-barber_bit-extreme-hybrid;3666942;5.0047907829;96;algorithm=base,faithful=yes,bits=1
 == round 1 cand
+diag;lscpu;Model name: AMD EPYC 9V45 96-Core Processor
+diag;lscpu;Thread(s) per core: 2
+diag;lscpu;Core(s) per socket: 48
+diag;sets;sib=1;cores=47;all=95
+ours-idle;127331;5.000013;1;algorithm=base,faithful=yes,bits=1
+rust-idle;121754;5.0000324249;1;algorithm=base,faithful=yes,bits=1
+ours-sieve-sib-1;69605;5.000051;1;algorithm=base,faithful=yes,bits=1
+rust-sieve-sib-1;61172;5.0000061989;1;algorithm=base,faithful=yes,bits=1
+ours-sieve-c16-16;105534;5.000035;1;algorithm=base,faithful=yes,bits=1
+rust-sieve-c16-16;100778;5.0000028610;1;algorithm=base,faithful=yes,bits=1
+ours-sieve-cores-47;91218;5.000032;1;algorithm=base,faithful=yes,bits=1
+rust-sieve-cores-47;87856;5.0000166893;1;algorithm=base,faithful=yes,bits=1
+ours-sieve-all-95;48047;5.000016;1;algorithm=base,faithful=yes,bits=1
+rust-sieve-all-95;42669;5.0000753403;1;algorithm=base,faithful=yes,bits=1
+== round 1 champ2
+cauldnz-ispc-base;123893;5.000015;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;4202250;5.002606;96;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;4182333;5.000783;48;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;2580884;5.000406;24;algorithm=base,faithful=yes,bits=1
+== round 1 champ
+cauldnz-ispc-base;124328;5.000027;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;4475437;5.001931;96;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;4131878;5.000797;48;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;2634477;5.000407;24;algorithm=base,faithful=yes,bits=1
+== round 1 ctrl2
+davepl_array_optimized;89311;5.00023;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;3154101;5.00316;96;algorithm=base,faithful=yes,bits=1
+== round 2 ctrl
+mike-barber_bit-extreme-hybrid;116902;5.0000228882;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;500800;5.0002174377;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;3294145;5.0023522377;48;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;4015021;5.0049147606;96;algorithm=base,faithful=yes,bits=1
+== round 2 ctrl2
+davepl_array_optimized;87704;5.00027;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;3132545;5.0032;96;algorithm=base,faithful=yes,bits=1
+== round 2 cand
+diag;lscpu;Model name: AMD EPYC 9V45 96-Core Processor
+diag;lscpu;Thread(s) per core: 2
+diag;lscpu;Core(s) per socket: 48
+diag;sets;sib=1;cores=47;all=95
+ours-idle;121391;5.000020;1;algorithm=base,faithful=yes,bits=1
+rust-idle;117808;5.0000076294;1;algorithm=base,faithful=yes,bits=1
+ours-sieve-sib-1;70562;5.000028;1;algorithm=base,faithful=yes,bits=1
+rust-sieve-sib-1;61292;5.0000352859;1;algorithm=base,faithful=yes,bits=1
+ours-sieve-c16-16;114306;5.000029;1;algorithm=base,faithful=yes,bits=1
+rust-sieve-c16-16;109370;5.0000000000;1;algorithm=base,faithful=yes,bits=1
+ours-sieve-cores-47;90103;5.000040;1;algorithm=base,faithful=yes,bits=1
+rust-sieve-cores-47;87694;5.0000534058;1;algorithm=base,faithful=yes,bits=1
+ours-sieve-all-95;48450;5.000057;1;algorithm=base,faithful=yes,bits=1
+rust-sieve-all-95;43187;5.0000119209;1;algorithm=base,faithful=yes,bits=1
+== round 2 champ2
+cauldnz-ispc-base;127452;5.000026;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;4473862;5.002615;96;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;4363951;5.000742;48;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;2728482;5.000406;24;algorithm=base,faithful=yes,bits=1
+== round 2 champ
+cauldnz-ispc-base;128890;5.000033;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;4481077;5.002340;96;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;4365377;5.000780;48;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;2731781;5.000382;24;algorithm=base,faithful=yes,bits=1
+== round 3 champ2
+cauldnz-ispc-base;127606;5.000022;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;4492390;5.002580;96;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;4382825;5.000813;48;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;2733350;5.000351;24;algorithm=base,faithful=yes,bits=1
+== round 3 cand
+diag;lscpu;Model name: AMD EPYC 9V45 96-Core Processor
+diag;lscpu;Thread(s) per core: 2
+diag;lscpu;Core(s) per socket: 48
+diag;sets;sib=1;cores=47;all=95
+ours-idle;128928;5.000035;1;algorithm=base,faithful=yes,bits=1
+rust-idle;124428;5.0000119209;1;algorithm=base,faithful=yes,bits=1
+ours-sieve-sib-1;70884;5.000002;1;algorithm=base,faithful=yes,bits=1
+rust-sieve-sib-1;61527;5.0000543594;1;algorithm=base,faithful=yes,bits=1
+ours-sieve-c16-16;122423;5.000023;1;algorithm=base,faithful=yes,bits=1
+rust-sieve-c16-16;115999;5.0000247955;1;algorithm=base,faithful=yes,bits=1
+ours-sieve-cores-47;89981;5.000025;1;algorithm=base,faithful=yes,bits=1
+rust-sieve-cores-47;82592;5.0000286102;1;algorithm=base,faithful=yes,bits=1
+ours-sieve-all-95;48283;5.000027;1;algorithm=base,faithful=yes,bits=1
+rust-sieve-all-95;43272;5.0000023842;1;algorithm=base,faithful=yes,bits=1
+== round 3 champ
+cauldnz-ispc-base;129208;5.000007;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;4453336;5.002646;96;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;4363987;5.000815;48;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;2729714;5.000334;24;algorithm=base,faithful=yes,bits=1
+== round 3 ctrl
+mike-barber_bit-extreme-hybrid;125194;5.0000371933;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;499247;5.0001583099;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;3376110;5.0021433830;48;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;4012548;5.0049052238;96;algorithm=base,faithful=yes,bits=1
+== round 3 ctrl2
+davepl_array_optimized;90188;5.00028;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;3317782;5.00279;96;algorithm=base,faithful=yes,bits=1
