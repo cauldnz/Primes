@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T09:20:21Z",
+  "updated_utc": "2026-10-10T09:21:07Z",
   "run": {
     "id": "ap-20261010T0715Z",
     "state": "running",
@@ -807,9 +807,9 @@
       "id": "port-rust-base",
       "entry": "base",
       "hypothesis": "Our base design in Rust (PrimeRust/solution_9) against mike-barber solution_1: the delta and its route",
-      "verdict": "queued",
+      "verdict": "measured (Zen 5)",
       "where": "Zen 5, Zen 3 (phase B)",
-      "note": "hc/port-rust-base b1e49eb by agent; verified new files only, cargo build, PRIMES_TEST 13 sizes exit 0, tags; local 1T 53.9k vs mike-barber ~47-48k. Side-by-side: results/hc/port-rust-base/README.md (dense tail vectors +8%, factor-3 init +3% isolated locally; sparse 1.7 vs 2.4 insns per composite). Agent recommends offering improvements to mike-barber. Rules question for Chris: dense masks built by a const block, one single-bit OR per composite in source. Minor: panics on a broken stdout pipe"
+      "note": "D32as_v7, 4 rounds: Rust base port vs mike-barber -11.6% at 1T (105.5k vs 118.9k), -8.9% at 16T, -5.2% at 32T; vs ISPC base -13 to -20%; vs davepl +13-20%. Locally it was 5% ahead of mike-barber: the isolated gains did not transfer to Zen 5"
     },
     {
       "id": "idea2-pin",
@@ -895,9 +895,9 @@
       "id": "wheel-group32",
       "entry": "wheel",
       "hypothesis": "avx512 fused group loop in Zig form: 32-word steps, unmasked, rows off one base register (target-specific)",
-      "verdict": "running",
+      "verdict": "more rounds",
       "where": "Zen 5 D96as_v7; Zen 4 recheck",
-      "note": "5 of 6 rounds: +2.7% +-2.6% at 1T, +2.7% at 24T, +3.6% +-1.5% at 48T (5/5 rounds won at each), +2.4% +-5.0% at 96T"
+      "note": "D96as_v7, 6 rounds: +3.7% (+0.6 to +6.8) at 1T, +3.2% (+0.9 to +5.5) at 24T, +4.0% (+2.5 to +5.5) at 48T, +2.7% (-1.2 to +6.6) at 96T; 6/6 rounds won at 1, 24, 48T. Second Zen 5 run (D32as_v7, 6 rounds) queued, then Zen 4 recheck"
     },
     {
       "id": "wheel-group32-g8",
@@ -931,39 +931,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T07:47:21Z",
-      "level": "info",
-      "text": "port-cpp-wheel queued. local. c7c3255 after tuning: sparse primes were the gap (GCC spilled the eight-plane stream indices); four planes at a time fixed it. Verified: PRIMES_TEST=1 exit 0, 5,396-size sweep 0 bad (sweep_check.py), 1T pinned locally 108k/97k vs ISPC 107k/109k (level, not the +10% the agent saw). Measured via hc/meas-cpp-wheel",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T07:53:35Z",
-      "level": "decision",
-      "text": "rust-falloff: Rust does not fall off; it gains nothing from SMT, and we gain 8% from it on the 32-vCPU node: that is the full-occupancy lead. Why: the probe ruled out scheduling (pinned equal to unpinned) and the main thread (N-1 no better); lscpu shows 2 threads per core, so threads = vCPUs is the SMT line. In README terms: our sieve leaves enough of each core idle that a second hardware thread fills it; Rust's does not. Expect: next: per-phase profile at 16 vs 32 threads to name which phase gains from SMT.",
-      "id": "rust-falloff",
-      "what": "Rust does not fall off; it gains nothing from SMT, and we gain 8% from it on the 32-vCPU node: that is the full-occupancy lead",
-      "why": "the probe ruled out scheduling (pinned equal to unpinned) and the main thread (N-1 no better); lscpu shows 2 threads per core, so threads = vCPUs is the SMT line. In README terms: our sieve leaves enough of each core idle that a second hardware thread fills it; Rust's does not",
-      "expect": "next: per-phase profile at 16 vs 32 threads to name which phase gains from SMT"
-    },
-    {
-      "utc": "2026-10-10T07:53:35Z",
-      "level": "decision",
-      "text": "idea2-pin: cancelled the first pin task (never ran) and re-queued a topology-aware version on both SMT nodes. Why: Azure numbers SMT siblings adjacently, so packing threads onto the first CPUs put the half-thread line two to a core; the fix reads thread_siblings_list and orders each core's first hardware thread first. Expect: pinned at least level with unpinned at all three lines.",
-      "id": "idea2-pin",
-      "what": "cancelled the first pin task (never ran) and re-queued a topology-aware version on both SMT nodes",
-      "why": "Azure numbers SMT siblings adjacently, so packing threads onto the first CPUs put the half-thread line two to a core; the fix reads thread_siblings_list and orders each core's first hardware thread first",
-      "expect": "pinned at least level with unpinned at all three lines"
-    },
-    {
-      "utc": "2026-10-10T07:53:35Z",
-      "level": "decision",
-      "text": "a-scale: the wheel loses 6% to SMT at 96 threads on the 48-core node (base gains 1.4%); our half-thread line, one thread per core, carries the wheel on SMT machines. Why: C5 gains 18% from SMT; working-set or code footprint per core (IDEAS 5-6) is the obvious suspect, worst for the wheel's planes and patterns. Expect: test IDEAS 6 (avx2-i64x4, smaller code) at threads = vCPUs.",
-      "id": "a-scale",
-      "what": "the wheel loses 6% to SMT at 96 threads on the 48-core node (base gains 1.4%); our half-thread line, one thread per core, carries the wheel on SMT machines",
-      "why": "C5 gains 18% from SMT; working-set or code footprint per core (IDEAS 5-6) is the obvious suspect, worst for the wheel's planes and patterns",
-      "expect": "test IDEAS 6 (avx2-i64x4, smaller code) at threads = vCPUs"
-    },
     {
       "utc": "2026-10-10T07:53:35Z",
       "level": "info",
@@ -1300,6 +1267,37 @@
       "utc": "2026-10-10T09:10:40Z",
       "level": "info",
       "text": "port-cpp-wheel measured (Zen 5). local. D32as_v7, 4 rounds: C++ wheel port vs ISPC wheel -17.8% at 1T (159k vs 195k), -14.0% at 32T; vs C5 +19.5% at 1T, +19.0% at 32T; 2.4-2.7x danielspaangberg",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T09:21:07Z",
+      "level": "decision",
+      "text": "wheel-group32: more rounds: second Zen 5 run on the quieter 32-vCPU node, 6 rounds, then Zen 4 (D16as_v5). Why: won 18 of 18 rounds at 1-48 threads but only the 48-thread interval clears 2% on the noisy 96-vCPU node (A/A spread up to 6%). Passed over: keeping now on the point estimates. Expect: the second run confirms +3-4% at 1T.",
+      "id": "wheel-group32",
+      "what": "more rounds: second Zen 5 run on the quieter 32-vCPU node, 6 rounds, then Zen 4 (D16as_v5)",
+      "why": "won 18 of 18 rounds at 1-48 threads but only the 48-thread interval clears 2% on the noisy 96-vCPU node (A/A spread up to 6%)",
+      "instead": "keeping now on the point estimates",
+      "expect": "the second run confirms +3-4% at 1T"
+    },
+    {
+      "utc": "2026-10-10T09:21:07Z",
+      "level": "decision",
+      "text": "port-rust-base: route note for Chris: the Rust base port is 12% slower than mike-barber's entry on Zen 5, so nothing goes to mike-barber until each change is measured inside his code on Azure. Why: the local Xeon put it 5% ahead; Zen 5 puts it 12% behind at 1T and 5% behind at 32T. Passed over: tuning the port this run.",
+      "id": "port-rust-base",
+      "what": "route note for Chris: the Rust base port is 12% slower than mike-barber's entry on Zen 5, so nothing goes to mike-barber until each change is measured inside his code on Azure",
+      "why": "the local Xeon put it 5% ahead; Zen 5 puts it 12% behind at 1T and 5% behind at 32T",
+      "instead": "tuning the port this run"
+    },
+    {
+      "utc": "2026-10-10T09:21:07Z",
+      "level": "info",
+      "text": "port-rust-base measured (Zen 5). Zen 5, Zen 3 (phase B). D32as_v7, 4 rounds: Rust base port vs mike-barber -11.6% at 1T (105.5k vs 118.9k), -8.9% at 16T, -5.2% at 32T; vs ISPC base -13 to -20%; vs davepl +13-20%. Locally it was 5% ahead of mike-barber: the isolated gains did not transfer to Zen 5",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T09:21:07Z",
+      "level": "info",
+      "text": "wheel-group32 more rounds. Zen 5 D96as_v7; Zen 4 recheck. D96as_v7, 6 rounds: +3.7% (+0.6 to +6.8) at 1T, +3.2% (+0.9 to +5.5) at 24T, +4.0% (+2.5 to +5.5) at 48T, +2.7% (-1.2 to +6.6) at 96T; 6/6 rounds won at 1, 24, 48T. Second Zen 5 run (D32as_v7, 6 rounds) queued, then Zen 4 recheck",
       "auto": true
     }
   ],
