@@ -68,12 +68,12 @@ id	pool	size	kind	outdir	submitted	state
 20562212360	hc-standard-d16a-v4	Standard_D16a_v4	base	ispc-dev/results/hc/f2-block-16-z3	2026-10-10T20:57:14Z	done
 21155513709	hc-standard-d16as-v7	Standard_D16as_v7	base	ispc-dev/results/hc/f1-falsify-z5	2026-10-10T21:16:06Z	done
 21300522809	hc-standard-d32as-v7	Standard_D32as_v7	base	ispc-dev/results/hc/f1-alt-z5	2026-10-10T21:30:15Z	done
-21302320990	hc-standard-d16a-v4	Standard_D16a_v4	base	ispc-dev/results/hc/f1-alt-z3	2026-10-10T21:30:35Z	open
+21302320990	hc-standard-d16a-v4	Standard_D16a_v4	base	ispc-dev/results/hc/f1-alt-z3	2026-10-10T21:30:35Z	done
 21305624185	hc-standard-d16as-v7	Standard_D16as_v7	base	ispc-dev/results/hc/f2-block-z5	2026-10-10T21:31:07Z	done
-2131139429	hc-standard-d16as-v7	Standard_D16as_v7	base	ispc-dev/results/hc/f2-block-16-z5	2026-10-10T21:32:06Z	open
+2131139429	hc-standard-d16as-v7	Standard_D16as_v7	base	ispc-dev/results/hc/f2-block-16-z5	2026-10-10T21:32:06Z	done
 2132138917	hc-standard-d16as-v7	Standard_D16as_v7	base	ispc-dev/results/hc/f2-block-24-z5	2026-10-10T21:33:54Z	open
-21350429	hc-standard-d32as-v7	Standard_D32as_v7	base	ispc-dev/results/hc/f5-fold-z5	2026-10-10T21:35:13Z	open
-21352011152	hc-standard-d16as-v5	Standard_D16as_v5	base	ispc-dev/results/hc/f5-fold-z4	2026-10-10T21:35:29Z	open
+21350429	hc-standard-d32as-v7	Standard_D32as_v7	base	ispc-dev/results/hc/f5-fold-z5	2026-10-10T21:35:13Z	done
+21352011152	hc-standard-d16as-v5	Standard_D16as_v5	base	ispc-dev/results/hc/f5-fold-z4	2026-10-10T21:35:29Z	done
 21362525446	hc-standard-d32as-v7	Standard_D32as_v7	wheel	ispc-dev/results/hc/wheel-f1-z5	2026-10-10T21:36:34Z	open
 21364016349	hc-standard-d32as-v7	Standard_D32as_v7	wheel	ispc-dev/results/hc/wheel-f1-dense-z5	2026-10-10T21:37:32Z	open
 21471631562	hc-standard-d16as-v5	Standard_D16as_v5	base	ispc-dev/results/hc/f1-alternate-z4	2026-10-10T21:47:26Z	open

@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T21:54:10Z",
+  "updated_utc": "2026-10-10T22:03:34Z",
   "run": {
     "id": "ap-20261010T2040Z",
     "state": "running",
@@ -8,11 +8,11 @@
     "mode_reason": "Chris kicked off a 4-hour run (RUN-PLAN.md: the L2 wall, F1/F2 on a grey lineage) after rotating the Azure secret in the session; login works, Spot quota 128.",
     "started_utc": "2026-10-10T20:40:00Z",
     "time_box_hours": 4,
-    "spend_nzd": 2.0,
+    "spend_nzd": 2.26,
     "spend_cap_nzd": 30,
     "ends_utc": "2026-10-11T00:40:00Z",
     "background_runs": 7,
-    "last_tick_utc": "2026-10-10T21:46:34Z",
+    "last_tick_utc": "2026-10-10T22:03:34Z",
     "wakeup": "trig_01V1vTH454UF2oCPqQbUjY4c"
   },
   "current": null,
