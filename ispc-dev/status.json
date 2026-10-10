@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T08:39:03Z",
+  "updated_utc": "2026-10-10T08:39:39Z",
   "run": {
     "id": "ap-20261010T0715Z",
     "state": "running",
@@ -815,9 +815,9 @@
       "id": "idea2-pin",
       "entry": "base",
       "hypothesis": "Pinning thread t to the t-th allowed CPU (IDEAS 2) closes or widens the full-occupancy gap",
-      "verdict": "running",
+      "verdict": "revert",
       "where": "Zen 5 D96as_v7",
-      "note": "D32as_v7 (16c x 2 SMT), 4 rounds vs unpinned: +0.1% at 1T, -1.6% +-1.5% at 8T, -0.2% at 16T, -0.6% +-7.0% at 32T. Flat: the lead is not placement. 96-vCPU result pending"
+      "note": "96-vCPU node, 4 rounds vs unpinned: 1T +3.5% (unpinned in both; noise), 24T -5.1% +-3.7%, 48T -0.5%, 96T +1.1% +-7.1%. Placement is not the lead; packing the quarter line onto the first cores loses to the scheduler spreading it"
     },
     {
       "id": "idea4-stopflag",
@@ -839,9 +839,9 @@
       "id": "idea6-i64",
       "entry": "base",
       "hypothesis": "One 64-bit word per lane (avx2-i64x4, avx512skx-x4) shrinks the avx2 object from about 1.0 MB to 0.78 MB and helps at threads = vCPUs (SMT)",
-      "verdict": "queued",
+      "verdict": "revert",
       "where": "Zen 5, Zen 3 fleet at 16 threads",
-      "note": "local PRIMES_TEST passes, 1T level"
+      "note": "D32as_v7, 4 rounds vs idea1: 1T -1.1%, 16T -2.5% +-5.3%, 32T +0.2% +-7.3%. Smaller dense code does not help at full occupancy: code footprint is not the SMT limit"
     },
     {
       "id": "intel-avx2",
@@ -855,9 +855,9 @@
       "id": "mt-phases",
       "entry": "base",
       "hypothesis": "Which base phase stops gaining at scale: per-pass TSC per phase at 1, 24, 48, 96 threads",
-      "verdict": "running",
+      "verdict": "done",
       "where": "Zen 5 D96as_v7",
-      "note": "hc/diag-mt-phases (never merged), 3 rounds; Chris 08:12"
+      "note": "D96as_v7 (48c x 2 SMT), TSC cycles per pass (2.6 GHz), medians of 3 rounds. 1T: dense 36.7k, sparse 61.2k, scan 4.2k, 25.4k passes/s. 24T: 42.2k / 70.4k / 4.9k (+15% each), 529k/s. 48T: 53.2k / 88.8k / 6.0k (+45% each), 838k/s. 96T: 93.9k / 194.9k / 8.1k, 834k/s. From 48 to 96 threads dense per pass x1.77 (core throughput +13%), sparse x2.19 (core throughput -9%)"
     },
     {
       "id": "loaded-1t",
@@ -915,48 +915,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T07:20:31Z",
-      "level": "decision",
-      "text": "run: Phase B waits for phase A: the 96-vCPU node holds 96 of the 128 Spot vCPUs until its four tasks end (about an hour). Why: RUN-PLAN: one big burst first, then the steady fleet; the 32-vCPU slot carries the fall-off probe meanwhile, and both agents write ports locally.",
-      "id": "run",
-      "what": "Phase B waits for phase A: the 96-vCPU node holds 96 of the 128 Spot vCPUs until its four tasks end (about an hour)",
-      "why": "RUN-PLAN: one big burst first, then the steady fleet; the 32-vCPU slot carries the fall-off probe meanwhile, and both agents write ports locally"
-    },
-    {
-      "utc": "2026-10-10T07:20:31Z",
-      "level": "info",
-      "text": "Run ap-20261010T0715Z started (azure mode).",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T07:20:31Z",
-      "level": "info",
-      "text": "idea1-affinity (both) running: thread count from sched_getaffinity, not get_nprocs (IDEAS 1): a correctness fix; expect no change at full machine",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T07:20:31Z",
-      "level": "info",
-      "text": "a-scale (both) running: Phase A scaling curve on the largest Zen 5 node: ours, Rust, davepl, Zig base; ours, C5, dsp, Zig wheel; 1 to 96 threads",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T07:20:31Z",
-      "level": "info",
-      "text": "rust-falloff (base) running: Why Rust falls off at threads = vCPUs: ours (taskset, sized from the affinity mask) vs Rust -t K pinned and unpinned, K = N/2, N-2, N-1, N on a 32-vCPU Zen 5",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T07:31:00Z",
-      "level": "decision",
-      "text": "port-rust-wheel: accept the Rust wheel port for measurement in phase B (Zen 5 and Zen 3, wheel kind with the port in the solution_1 slot). Why: verified locally; upstream Rust has one wheel (sergio-chumacero, solution_7) and it is 8-bit, so a 1-bit Rust wheel is new ground, which the PR text must say. Passed over: queuing it on the 96-vCPU node now (delays phase A; the plan measures ports on Zen 5 and Zen 3). Expect: within +-5% of the ISPC wheel.",
-      "id": "port-rust-wheel",
-      "what": "accept the Rust wheel port for measurement in phase B (Zen 5 and Zen 3, wheel kind with the port in the solution_1 slot)",
-      "why": "verified locally; upstream Rust has one wheel (sergio-chumacero, solution_7) and it is 8-bit, so a 1-bit Rust wheel is new ground, which the PR text must say",
-      "instead": "queuing it on the 96-vCPU node now (delays phase A; the plan measures ports on Zen 5 and Zen 3)",
-      "expect": "within +-5% of the ISPC wheel"
-    },
     {
       "utc": "2026-10-10T07:31:00Z",
       "level": "decision",
@@ -1283,6 +1241,49 @@
       "utc": "2026-10-10T08:38:01Z",
       "level": "info",
       "text": "Fetched leaderboard sessions 9746 (EPYC), 9747 (Threadripper), 9748 (Celeron), 9749 (i7), 9750 (Pi 4) as raw JSON into results/leaderboard-2026-10-10/ for the workshop (Chris, 08:35)"
+    },
+    {
+      "utc": "2026-10-10T08:39:39Z",
+      "level": "decision",
+      "text": "mt-phases: Chris (2): at 96 threads it is the sparse phase that stops gaining. Up to 48 threads (one per core) every phase slows by the same factor (+15% at 24, +45% at 48); from 48 to 96 (SMT) dense still gains 13% per core but sparse loses 9%, so the second hardware thread buys nothing. Why: uniform slowdown across phases up to 48 threads points at something shared (clock or uncore), not one phase; the SMT split matches two 62.5 KB sieves overflowing a 48 KB L1D in the store-bound sparse loop. The loaded one-thread test (3) separates clock from the rest; the repeat on a fresh node (1) checks the numbers. Expect: if the loaded test shows the one-thread clock dropping about 30% with 47 busy cores, the 48-thread slowdown is frequency.",
+      "id": "mt-phases",
+      "what": "Chris (2): at 96 threads it is the sparse phase that stops gaining. Up to 48 threads (one per core) every phase slows by the same factor (+15% at 24, +45% at 48); from 48 to 96 (SMT) dense still gains 13% per core but sparse loses 9%, so the second hardware thread buys nothing",
+      "why": "uniform slowdown across phases up to 48 threads points at something shared (clock or uncore), not one phase; the SMT split matches two 62.5 KB sieves overflowing a 48 KB L1D in the store-bound sparse loop. The loaded one-thread test (3) separates clock from the rest; the repeat on a fresh node (1) checks the numbers",
+      "expect": "if the loaded test shows the one-thread clock dropping about 30% with 47 busy cores, the 48-thread slowdown is frequency"
+    },
+    {
+      "utc": "2026-10-10T08:39:39Z",
+      "level": "decision",
+      "text": "idea2-pin: revert pinning; the full-occupancy behaviour is not placement. Why: flat at 48 and 96 threads on the 48-core node and on the 16-core node; worse at 24 threads, where packing loses to spreading.",
+      "id": "idea2-pin",
+      "what": "revert pinning; the full-occupancy behaviour is not placement",
+      "why": "flat at 48 and 96 threads on the 48-core node and on the 16-core node; worse at 24 threads, where packing loses to spreading"
+    },
+    {
+      "utc": "2026-10-10T08:39:39Z",
+      "level": "decision",
+      "text": "idea6-i64: revert; the dense code size is not what limits SMT. Why: flat within noise at 16 and 32 threads; the phase profile also shows dense still gaining from SMT, so shrinking it was the wrong target.",
+      "id": "idea6-i64",
+      "what": "revert; the dense code size is not what limits SMT",
+      "why": "flat within noise at 16 and 32 threads; the phase profile also shows dense still gaining from SMT, so shrinking it was the wrong target"
+    },
+    {
+      "utc": "2026-10-10T08:39:39Z",
+      "level": "info",
+      "text": "idea2-pin revert. Zen 5 D96as_v7. 96-vCPU node, 4 rounds vs unpinned: 1T +3.5% (unpinned in both; noise), 24T -5.1% +-3.7%, 48T -0.5%, 96T +1.1% +-7.1%. Placement is not the lead; packing the quarter line onto the first cores loses to the scheduler spreading it",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T08:39:39Z",
+      "level": "info",
+      "text": "idea6-i64 revert. Zen 5, Zen 3 fleet at 16 threads. D32as_v7, 4 rounds vs idea1: 1T -1.1%, 16T -2.5% +-5.3%, 32T +0.2% +-7.3%. Smaller dense code does not help at full occupancy: code footprint is not the SMT limit",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T08:39:39Z",
+      "level": "info",
+      "text": "mt-phases done. Zen 5 D96as_v7. D96as_v7 (48c x 2 SMT), TSC cycles per pass (2.6 GHz), medians of 3 rounds. 1T: dense 36.7k, sparse 61.2k, scan 4.2k, 25.4k passes/s. 24T: 42.2k / 70.4k / 4.9k (+15% each), 529k/s. 48T: 53.2k / 88.8k / 6.0k (+45% each), 838k/s. 96T: 93.9k / 194.9k / 8.1k, 834k/s. From 48 to 96 threads dense per pass x1.77 (core throughput +13%), sparse x2.19 (core throughput -9%)",
+      "auto": true
     }
   ],
   "research": {
