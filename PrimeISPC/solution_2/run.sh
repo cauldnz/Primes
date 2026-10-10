@@ -16,15 +16,15 @@ c=1; while [ "$c" -lt "$N" ]; do
 P16=$(echo $PRIM | tr ' ' '\n' | head -16 | tr '\n' ' ')
 echo "diag;sets;sib=$SIB;cores=$(echo $PRIM | wc -w);all=$(echo $ALL | wc -w)"
 spin() { for c in $1; do taskset -c "$c" sh -c 'while :; do :; done' & done; }
-sieveload() { [ -n "$1" ] && taskset -c "$(echo $1 | tr ' ' ',')" ./prime-sieve-rust --bits-extreme -t "$(echo $1 | wc -w)" -d 40 >/dev/null 2>&1 & }
+sieveload() { [ -n "$1" ] && taskset -c "$(echo $1 | tr ' ' ',')" ./prime-sieve-rust --bits-extreme -t "$(echo $1 | wc -w)" -s 40 >/dev/null 2>&1 & }
 measure() {  # $1 label
   sleep 2
   taskset -c 0 ./primes | grep ";1;" | sed "s/^cauldnz-ispc-base/ours-$1/"
   taskset -c 0 ./prime-sieve-rust --bits-extreme -t 1 2>/dev/null | grep "^mike" | sed "s/^mike-barber_bit-extreme-hybrid/rust-$1/"
 }
-stop() { pkill -f 'while :; do :; done' 2>/dev/null; pkill -f 'prime-sieve-rust --bits-extreme -t [0-9]* -d 40' 2>/dev/null; wait 2>/dev/null; sleep 1; }
+stop() { pkill -f 'while :; do :; done' 2>/dev/null; pkill -f 'prime-sieve-rust --bits-extreme -t [0-9]* -s 40' 2>/dev/null; wait 2>/dev/null; sleep 1; }
 measure idle
-for kind in spin sieve; do
+for kind in sieve; do
   for set in sib c16 cores all; do
     case $set in sib) S="$SIB";; c16) S="$P16";; cores) S="$PRIM";; all) S="$ALL";; esac
     [ -z "$S" ] && continue
