@@ -49,7 +49,7 @@ pub mod profile {
             let t1 = cycles();
             let (r, d, s) = sieve.run_sieve_profiled(dense_cutoff);
             let t2 = cycles();
-            drop(std::hint::black_box(sieve));
+            drop(sieve);
             let t3 = cycles();
             setup += t1.wrapping_sub(t0);
             destroy += t3.wrapping_sub(t2);
