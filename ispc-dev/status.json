@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T02:39:27Z",
+  "updated_utc": "2026-10-10T02:42:42Z",
   "run": {
     "id": "ap-20261010T0140Z",
     "state": "running",
@@ -726,11 +726,6 @@
   ],
   "events": [
     {
-      "utc": "2026-10-09T13:27:36Z",
-      "level": "info",
-      "text": "Zig base z-04 kept: +15.5% Zen 3, +9.1% Zen 5 at 1T. Zig base now within 1.5-3% of the ISPC base."
-    },
-    {
       "utc": "2026-10-09T13:48:04Z",
       "level": "info",
       "text": "Run stopped at 23:50 AEST. Spend NZ$3.82. No pools left. Morning report in STATUS.md."
@@ -1037,6 +1032,15 @@
       "what": "accept the Swift diagnostic and run it on Zen 5 against our ISPC diagnostic, one round",
       "why": "The commit touches only the PrimeISPC/solution_2 slot and keeps upstream's Swift flags (haswell target, -O, WMO). It times dense and sparse as blocks (factors below and above 112), so scan reads near zero and the candidate bit-tests fall into dense and sparse; compare dense+sparse+scan totals with ours.",
       "expect": "Swift's dense and sparse against ours, ns per pass"
+    },
+    {
+      "utc": "2026-10-10T02:42:42Z",
+      "level": "decision",
+      "text": "asm-sparse: accept the disassembly image and run it on Zen 5, one round. Why: The commit touches only the PrimeISPC/solution_2 slot; dump.sh only lists symbols and runs objdump. ISPC and Rust dumps were checked locally by the agent; Swift's stage is untested and its build is the risk. Expect: disassembly of the three sparse loops built on one Zen 5 node.",
+      "id": "asm-sparse",
+      "what": "accept the disassembly image and run it on Zen 5, one round",
+      "why": "The commit touches only the PrimeISPC/solution_2 slot; dump.sh only lists symbols and runs objdump. ISPC and Rust dumps were checked locally by the agent; Swift's stage is untested and its build is the risk.",
+      "expect": "disassembly of the three sparse loops built on one Zen 5 node"
     }
   ],
   "research": {
