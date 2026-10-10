@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T07:37:20Z",
+  "updated_utc": "2026-10-10T07:37:48Z",
   "run": {
     "id": "ap-20261010T0715Z",
     "state": "running",
@@ -759,9 +759,9 @@
       "id": "idea1-affinity",
       "entry": "both",
       "hypothesis": "thread count from sched_getaffinity, not get_nprocs (IDEAS 1): a correctness fix; expect no change at full machine",
-      "verdict": "running",
+      "verdict": "more rounds",
       "where": "Zen 5 96 vCPU",
-      "note": "06c8160; local: taskset -c 0-1 gives 2 threads, PRIMES_TEST passes for both entries"
+      "note": "96-vCPU node: -2.6% +-8.4% at 1T, -2.6% +-4.5% at 96T vs champion, inside an A/A spread of up to 7.4%; inconclusive. Re-measure on the D16 fleet (Zen 5, Zen 3), 6 rounds"
     },
     {
       "id": "a-scale",
@@ -769,7 +769,7 @@
       "hypothesis": "Phase A scaling curve on the largest Zen 5 node: ours, Rust, davepl, Zig base; ours, C5, dsp, Zig wheel; 1 to 96 threads",
       "verdict": "running",
       "where": "Zen 5 D96as_v7",
-      "note": "4 tasks, 4 rounds each"
+      "note": "base task done (4 rounds, D96as_v7, noisy: A/A spread up to 7.4% at 1T). Ours / Rust / davepl: 1T 120.6k / 125.4k / 86.1k; 48T 4.18M / 3.24M (Rust 48) ; 96T 4.24M / 3.83M / 3.19M. Ours +29% over Rust at 48 threads but only +11% at 96: ours gains 1% from 48 to 96 threads, Rust 18%. Wheel and Zig tasks still running"
     },
     {
       "id": "rust-falloff",
@@ -811,25 +811,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T02:42:42Z",
-      "level": "decision",
-      "text": "asm-sparse: accept the disassembly image and run it on Zen 5, one round. Why: The commit touches only the PrimeISPC/solution_2 slot; dump.sh only lists symbols and runs objdump. ISPC and Rust dumps were checked locally by the agent; Swift's stage is untested and its build is the risk. Expect: disassembly of the three sparse loops built on one Zen 5 node.",
-      "id": "asm-sparse",
-      "what": "accept the disassembly image and run it on Zen 5, one round",
-      "why": "The commit touches only the PrimeISPC/solution_2 slot; dump.sh only lists symbols and runs objdump. ISPC and Rust dumps were checked locally by the agent; Swift's stage is untested and its build is the risk.",
-      "expect": "disassembly of the three sparse loops built on one Zen 5 node"
-    },
-    {
-      "utc": "2026-10-10T02:47:40Z",
-      "level": "decision",
-      "text": "p4-arm: Arm profile read (Cobalt 100, 1T, same node): ours 122.0k ns/pass = sparse 83.2k, dense 36.5k, scan 2.3k; Rust's profile build 130.0k (sparse 89.9k, dense 33.4k, scan 6.7k), but its plain build runs 116.5k ns/pass (42.9k passes vs our 41.1k, -4.3%), so the Rust timers inflate it about 11%. Scaled to 116.5k, Rust is sparse ~80k, dense ~30k, scan ~6k: our gap is in dense (+6-7k ns, ~5% of the pass) and a little sparse; our scan is 4k faster. Why: the 4% arm gap sits mostly in the dense phase, not where it is on x86 (sparse); a NEON-specific dense change is the lever for priority 4. Passed over: acting on arm now: priority 3 (Zen 5 1T) still waits on the Swift profile and asm side-by-side, and an arm-only dense change must not regress x86. Expect: a dense-phase change on arm worth 3-5% if it matches Rust's dense; confidence low because the Rust-side shares are scaled.",
-      "id": "p4-arm",
-      "what": "Arm profile read (Cobalt 100, 1T, same node): ours 122.0k ns/pass = sparse 83.2k, dense 36.5k, scan 2.3k; Rust's profile build 130.0k (sparse 89.9k, dense 33.4k, scan 6.7k), but its plain build runs 116.5k ns/pass (42.9k passes vs our 41.1k, -4.3%), so the Rust timers inflate it about 11%. Scaled to 116.5k, Rust is sparse ~80k, dense ~30k, scan ~6k: our gap is in dense (+6-7k ns, ~5% of the pass) and a little sparse; our scan is 4k faster",
-      "why": "the 4% arm gap sits mostly in the dense phase, not where it is on x86 (sparse); a NEON-specific dense change is the lever for priority 4",
-      "instead": "acting on arm now: priority 3 (Zen 5 1T) still waits on the Swift profile and asm side-by-side, and an arm-only dense change must not regress x86",
-      "expect": "a dense-phase change on arm worth 3-5% if it matches Rust's dense; confidence low because the Rust-side shares are scaled"
-    },
     {
       "utc": "2026-10-10T03:00:15Z",
       "level": "decision",
@@ -1196,6 +1177,21 @@
       "utc": "2026-10-10T07:34:09Z",
       "level": "info",
       "text": "port-cpp-wheel (wheel) tuning: Our wheel design as C++20 (PrimeCPP/solution_7)",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T07:37:48Z",
+      "level": "decision",
+      "text": "a-scale: Our base stops scaling at half the 96 vCPUs (4.18M at 48 threads, 4.24M at 96) while Rust keeps gaining; the full-occupancy question now has two sides. Why: on 16-64 vCPU nodes the lead at threads = vCPUs was +14%; on 96 it is +11%, because ours plateaus. Whether the 96 vCPUs are 48 cores with SMT decides the reading: the fall-off probe prints lscpu. Expect: if SMT: ours is SMT-unfriendly (code footprint, IDEAS 5-6) and Rust gains from SMT; next test IDEAS 6 (avx2-i64x4, smaller clear_factor) at 96 threads.",
+      "id": "a-scale",
+      "what": "Our base stops scaling at half the 96 vCPUs (4.18M at 48 threads, 4.24M at 96) while Rust keeps gaining; the full-occupancy question now has two sides",
+      "why": "on 16-64 vCPU nodes the lead at threads = vCPUs was +14%; on 96 it is +11%, because ours plateaus. Whether the 96 vCPUs are 48 cores with SMT decides the reading: the fall-off probe prints lscpu",
+      "expect": "if SMT: ours is SMT-unfriendly (code footprint, IDEAS 5-6) and Rust gains from SMT; next test IDEAS 6 (avx2-i64x4, smaller clear_factor) at 96 threads"
+    },
+    {
+      "utc": "2026-10-10T07:37:48Z",
+      "level": "info",
+      "text": "idea1-affinity more rounds. Zen 5 96 vCPU. 96-vCPU node: -2.6% +-8.4% at 1T, -2.6% +-4.5% at 96T vs champion, inside an A/A spread of up to 7.4%; inconclusive. Re-measure on the D16 fleet (Zen 5, Zen 3), 6 rounds",
       "auto": true
     }
   ],
