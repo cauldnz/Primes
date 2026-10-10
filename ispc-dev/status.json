@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T07:46:14Z",
+  "updated_utc": "2026-10-10T07:47:21Z",
   "run": {
     "id": "ap-20261010T0715Z",
     "state": "running",
@@ -799,9 +799,9 @@
       "id": "port-cpp-wheel",
       "entry": "wheel",
       "hypothesis": "Our wheel design as C++20 (PrimeCPP/solution_7)",
-      "verdict": "tuning",
+      "verdict": "queued",
       "where": "local",
-      "note": "hc/port-cpp-wheel d2c816e; verified PRIMES_TEST exit 0; local 1T 83.6k vs ISPC ~102k (-18%): GCC spills group periods in the fused loop. Agent resumed to tune"
+      "note": "c7c3255 after tuning: sparse primes were the gap (GCC spilled the eight-plane stream indices); four planes at a time fixed it. Verified: PRIMES_TEST=1 exit 0, 5,396-size sweep 0 bad (sweep_check.py), 1T pinned locally 108k/97k vs ISPC 107k/109k (level, not the +10% the agent saw). Measured via hc/meas-cpp-wheel"
     },
     {
       "id": "port-rust-base",
@@ -843,18 +843,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T03:05:55Z",
-      "level": "info",
-      "text": "p6-scaling holds. Zen 5, 32 vCPUs. 32 vCPU Zen 5 (D32as_v7), 4 rounds: ours 1.98M at 32T vs Rust 1.72M (+14.4%), +4.3% at 1T; Rust drops from 1.78M at 16T to 1.72M at 32T, ours rises 12%",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T03:05:55Z",
-      "level": "info",
-      "text": "diag-swift-phases done. Zen 5. Zen 5 same node: Swift 107k passes vs ours 126k (Swift -15%); per pass Swift sparse 29.8 us vs ours 24.1, dense+scan 17.1 vs 15.6. No phase where Swift is ahead here",
-      "auto": true
-    },
     {
       "utc": "2026-10-10T03:05:55Z",
       "level": "info",
@@ -1213,6 +1201,21 @@
       "utc": "2026-10-10T07:46:14Z",
       "level": "info",
       "text": "idea18-no512 (base) running: Base without the AVX-512 target at threads = vCPUs (IDEAS 18): does the Zen 5 lead need AVX-512?",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T07:47:21Z",
+      "level": "decision",
+      "text": "port-cpp-wheel: queue the tuned C++ wheel for phase B. Why: it now passes every check and is level with the ISPC wheel locally; G=8 on AVX-512 (agent: +5% on this Intel) waits as a later candidate. Expect: within +-5% of the ISPC wheel on Zen.",
+      "id": "port-cpp-wheel",
+      "what": "queue the tuned C++ wheel for phase B",
+      "why": "it now passes every check and is level with the ISPC wheel locally; G=8 on AVX-512 (agent: +5% on this Intel) waits as a later candidate",
+      "expect": "within +-5% of the ISPC wheel on Zen"
+    },
+    {
+      "utc": "2026-10-10T07:47:21Z",
+      "level": "info",
+      "text": "port-cpp-wheel queued. local. c7c3255 after tuning: sparse primes were the gap (GCC spilled the eight-plane stream indices); four planes at a time fixed it. Verified: PRIMES_TEST=1 exit 0, 5,396-size sweep 0 bad (sweep_check.py), 1T pinned locally 108k/97k vs ISPC 107k/109k (level, not the +10% the agent saw). Measured via hc/meas-cpp-wheel",
       "auto": true
     }
   ],
