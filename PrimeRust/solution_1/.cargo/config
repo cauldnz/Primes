@@ -7,16 +7,16 @@
 rustflags = [ "-C", "target-cpu=native", "-C", "target-feature=-avx512f" ]
 
 [target.x86_64-unknown-linux-gnu]
-rustflags = [ "-C", "target-cpu=native" ]
+rustflags = [ "-C", "target-cpu=x86-64-v2" ]
 
 [target.aarch64-unknown-linux-gnu]
-rustflags = [ "-C", "target-cpu=native" ]
+rustflags = [ "-C", "target-cpu=x86-64-v2" ]
 
 # Apple -- you'll need to add the appropriate ones here if I haven't done so.
 #          these are not tested, as I don't own a Mac.
 
 [target.x86_64-apple-darwin]
-rustflags = [ "-C", "target-cpu=native" ]
+rustflags = [ "-C", "target-cpu=x86-64-v2" ]
 
 [target.aarch64-apple-darwin]
-rustflags = [ "-C", "target-cpu=native" ]
+rustflags = [ "-C", "target-cpu=x86-64-v2" ]
