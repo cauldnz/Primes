@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T09:10:20Z",
+  "updated_utc": "2026-10-10T09:10:40Z",
   "run": {
     "id": "ap-20261010T0715Z",
     "state": "running",
@@ -799,9 +799,9 @@
       "id": "port-cpp-wheel",
       "entry": "wheel",
       "hypothesis": "Our wheel design as C++20 (PrimeCPP/solution_7)",
-      "verdict": "queued",
+      "verdict": "measured (Zen 5)",
       "where": "local",
-      "note": "c7c3255 after tuning: sparse primes were the gap (GCC spilled the eight-plane stream indices); four planes at a time fixed it. Verified: PRIMES_TEST=1 exit 0, 5,396-size sweep 0 bad (sweep_check.py), 1T pinned locally 108k/97k vs ISPC 107k/109k (level, not the +10% the agent saw). Measured via hc/meas-cpp-wheel"
+      "note": "D32as_v7, 4 rounds: C++ wheel port vs ISPC wheel -17.8% at 1T (159k vs 195k), -14.0% at 32T; vs C5 +19.5% at 1T, +19.0% at 32T; 2.4-2.7x danielspaangberg"
     },
     {
       "id": "port-rust-base",
@@ -897,7 +897,7 @@
       "hypothesis": "avx512 fused group loop in Zig form: 32-word steps, unmasked, rows off one base register (target-specific)",
       "verdict": "running",
       "where": "Zen 5 D96as_v7; Zen 4 recheck",
-      "note": "5a68114 by agent; verified: avx2 and sse4 emit-asm identical to base, PRIMES_TEST exit 0, sweep 0 bad; local pinned 3 rounds +10% to +14% (agent 5 rounds +17%). mca znver4 0.136 -> 0.084 cycles per word per member, equal to Zig N=6"
+      "note": "5 of 6 rounds: +2.7% +-2.6% at 1T, +2.7% at 24T, +3.6% +-1.5% at 48T (5/5 rounds won at each), +2.4% +-5.0% at 96T"
     },
     {
       "id": "wheel-group32-g8",
@@ -931,21 +931,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T07:46:14Z",
-      "level": "info",
-      "text": "idea18-no512 (base) running: Base without the AVX-512 target at threads = vCPUs (IDEAS 18): does the Zen 5 lead need AVX-512?",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T07:47:21Z",
-      "level": "decision",
-      "text": "port-cpp-wheel: queue the tuned C++ wheel for phase B. Why: it now passes every check and is level with the ISPC wheel locally; G=8 on AVX-512 (agent: +5% on this Intel) waits as a later candidate. Expect: within +-5% of the ISPC wheel on Zen.",
-      "id": "port-cpp-wheel",
-      "what": "queue the tuned C++ wheel for phase B",
-      "why": "it now passes every check and is level with the ISPC wheel locally; G=8 on AVX-512 (agent: +5% on this Intel) waits as a later candidate",
-      "expect": "within +-5% of the ISPC wheel on Zen"
-    },
     {
       "utc": "2026-10-10T07:47:21Z",
       "level": "info",
@@ -1300,6 +1285,21 @@
       "utc": "2026-10-10T08:58:19Z",
       "level": "info",
       "text": "idea21-prefetch running. Zen 5 D32as_v7. 07b268b by agent: 8 prefetchw per chunk 4 chunks ahead, all sparse p; verified PRIMES_TEST, local 1T -4.6%, all threads -8.6% (VM without SMT). Measures at 32 threads = 16c x 2 SMT",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T09:10:40Z",
+      "level": "decision",
+      "text": "port-cpp-wheel: the C++ and Rust wheel ports both trail the ISPC wheel by 14-18% on Zen 5 while leading C5: both compilers emit 256-bit code there; record for the four-language table, no tuning this run. Why: same gap in two independent ports points at the AVX-512 path rather than either port. Passed over: a G=8 C++ variant (agent saw +5% on Intel).",
+      "id": "port-cpp-wheel",
+      "what": "the C++ and Rust wheel ports both trail the ISPC wheel by 14-18% on Zen 5 while leading C5: both compilers emit 256-bit code there; record for the four-language table, no tuning this run",
+      "why": "same gap in two independent ports points at the AVX-512 path rather than either port",
+      "instead": "a G=8 C++ variant (agent saw +5% on Intel)"
+    },
+    {
+      "utc": "2026-10-10T09:10:40Z",
+      "level": "info",
+      "text": "port-cpp-wheel measured (Zen 5). local. D32as_v7, 4 rounds: C++ wheel port vs ISPC wheel -17.8% at 1T (159k vs 195k), -14.0% at 32T; vs C5 +19.5% at 1T, +19.0% at 32T; 2.4-2.7x danielspaangberg",
       "auto": true
     }
   ],
