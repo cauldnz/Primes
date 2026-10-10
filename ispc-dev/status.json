@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T07:20:41Z",
+  "updated_utc": "2026-10-10T07:31:00Z",
   "run": {
     "id": "ap-20261010T0715Z",
     "state": "running",
@@ -778,6 +778,14 @@
       "verdict": "running",
       "where": "Zen 5 D32as_v7",
       "note": "diag branch hc/diag-rust-falloff (never merged), 3 rounds; also prints lscpu threads per core"
+    },
+    {
+      "id": "port-rust-wheel",
+      "entry": "wheel",
+      "hypothesis": "Our wheel design as idiomatic Rust (PrimeRust/solution_8) runs within a few percent of the ISPC wheel",
+      "verdict": "queued",
+      "where": "Zen 5, Zen 3 (phase B)",
+      "note": "hc/port-rust-wheel 72932c7 by agent; verified: only new files, cargo build, PRIMES_TEST (powers of ten + 5,396-size sweep) exit 0, tags right; local 1T 109k vs ISPC ~110k. hadolint clean per agent; image unbuilt here (no Docker). Measured via hc/meas-rust-wheel (port in the solution_1 slot)"
     }
   ],
   "azure_queue": 0,
@@ -787,30 +795,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T02:30:18Z",
-      "level": "info",
-      "text": "p5-sse4: evaluate. SSE4 probe (Zen 3), arm profile (Cobalt 100), 32-vCPU scaling (Zen 5) running",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T02:35:19Z",
-      "level": "decision",
-      "text": "run: Chris: before parking Zen 5 at 1T, read Swift's striped layout and profile Swift on Zen 5. Why: Read PrimeSwift/solution_1 1bitStriped_u8: storage is plain packed bits; its sparse loop is our and Rust's eight single-bit byte ORs per p-byte chunk, unrolled twice (as our flat hc-018). It starts sparse marking at bit p*p and at factors above 111. None of that reduces the number of byte RMWs, so the store-bound sparse phase is no easier. A background agent writes a Swift phase-profile build; it runs on Zen 5 in a base-kind task (Swift diag as candidate, our ISPC diag as champion) so both share a node. Passed over: parking Zen 5 at 1T now (Chris asked for the Swift check first). Expect: the profile shows which phase Swift's lead comes from.",
-      "id": "run",
-      "what": "Chris: before parking Zen 5 at 1T, read Swift's striped layout and profile Swift on Zen 5",
-      "why": "Read PrimeSwift/solution_1 1bitStriped_u8: storage is plain packed bits; its sparse loop is our and Rust's eight single-bit byte ORs per p-byte chunk, unrolled twice (as our flat hc-018). It starts sparse marking at bit p*p and at factors above 111. None of that reduces the number of byte RMWs, so the store-bound sparse phase is no easier. A background agent writes a Swift phase-profile build; it runs on Zen 5 in a base-kind task (Swift diag as candidate, our ISPC diag as champion) so both share a node.",
-      "instead": "parking Zen 5 at 1T now (Chris asked for the Swift check first)",
-      "expect": "the profile shows which phase Swift's lead comes from"
-    },
-    {
-      "utc": "2026-10-10T02:35:19Z",
-      "level": "decision",
-      "text": "run: Chris: Zen 3 stays the decider; every KEEP gets one confirming task on D16as_v5 before it merges. Why: D16as_v5 runs Rust within 5.6% of the official EPYC VM against 17% for Zen 3, so it is the better check for the AVX2 runner even though it missed the plan's 5% bar.",
-      "id": "run",
-      "what": "Chris: Zen 3 stays the decider; every KEEP gets one confirming task on D16as_v5 before it merges",
-      "why": "D16as_v5 runs Rust within 5.6% of the official EPYC VM against 17% for Zen 3, so it is the better check for the AVX2 runner even though it missed the plan's 5% bar."
-    },
     {
       "utc": "2026-10-10T02:36:10Z",
       "level": "info",
@@ -1172,6 +1156,30 @@
       "utc": "2026-10-10T07:20:31Z",
       "level": "info",
       "text": "rust-falloff (base) running: Why Rust falls off at threads = vCPUs: ours (taskset, sized from the affinity mask) vs Rust -t K pinned and unpinned, K = N/2, N-2, N-1, N on a 32-vCPU Zen 5",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T07:31:00Z",
+      "level": "decision",
+      "text": "port-rust-wheel: accept the Rust wheel port for measurement in phase B (Zen 5 and Zen 3, wheel kind with the port in the solution_1 slot). Why: verified locally; upstream Rust has one wheel (sergio-chumacero, solution_7) and it is 8-bit, so a 1-bit Rust wheel is new ground, which the PR text must say. Passed over: queuing it on the 96-vCPU node now (delays phase A; the plan measures ports on Zen 5 and Zen 3). Expect: within +-5% of the ISPC wheel.",
+      "id": "port-rust-wheel",
+      "what": "accept the Rust wheel port for measurement in phase B (Zen 5 and Zen 3, wheel kind with the port in the solution_1 slot)",
+      "why": "verified locally; upstream Rust has one wheel (sergio-chumacero, solution_7) and it is 8-bit, so a 1-bit Rust wheel is new ground, which the PR text must say",
+      "instead": "queuing it on the 96-vCPU node now (delays phase A; the plan measures ports on Zen 5 and Zen 3)",
+      "expect": "within +-5% of the ISPC wheel"
+    },
+    {
+      "utc": "2026-10-10T07:31:00Z",
+      "level": "decision",
+      "text": "port-rust-base: start an agent on the Rust base comparator (hc/port-rust-base, PrimeRust/solution_9) with the side-by-side against mike-barber's entry. Why: RUN-PLAN priority 2: the deliverable is the delta against PrimeRust/solution_1 (dense, sparse, set-up, threading, compiled loops, isolated gains) and the route: new solution or improvements to offer.",
+      "id": "port-rust-base",
+      "what": "start an agent on the Rust base comparator (hc/port-rust-base, PrimeRust/solution_9) with the side-by-side against mike-barber's entry",
+      "why": "RUN-PLAN priority 2: the deliverable is the delta against PrimeRust/solution_1 (dense, sparse, set-up, threading, compiled loops, isolated gains) and the route: new solution or improvements to offer"
+    },
+    {
+      "utc": "2026-10-10T07:31:00Z",
+      "level": "info",
+      "text": "port-rust-wheel (wheel) queued: Our wheel design as idiomatic Rust (PrimeRust/solution_8) runs within a few percent of the ISPC wheel",
       "auto": true
     }
   ],
