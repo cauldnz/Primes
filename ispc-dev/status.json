@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T07:37:58Z",
+  "updated_utc": "2026-10-10T07:46:14Z",
   "run": {
     "id": "ap-20261010T0715Z",
     "state": "running",
@@ -802,6 +802,38 @@
       "verdict": "tuning",
       "where": "local",
       "note": "hc/port-cpp-wheel d2c816e; verified PRIMES_TEST exit 0; local 1T 83.6k vs ISPC ~102k (-18%): GCC spills group periods in the fused loop. Agent resumed to tune"
+    },
+    {
+      "id": "port-rust-base",
+      "entry": "base",
+      "hypothesis": "Our base design in Rust (PrimeRust/solution_9) against mike-barber solution_1: the delta and its route",
+      "verdict": "queued",
+      "where": "Zen 5, Zen 3 (phase B)",
+      "note": "hc/port-rust-base b1e49eb by agent; verified new files only, cargo build, PRIMES_TEST 13 sizes exit 0, tags; local 1T 53.9k vs mike-barber ~47-48k. Side-by-side: results/hc/port-rust-base/README.md (dense tail vectors +8%, factor-3 init +3% isolated locally; sparse 1.7 vs 2.4 insns per composite). Agent recommends offering improvements to mike-barber. Rules question for Chris: dense masks built by a const block, one single-bit OR per composite in source. Minor: panics on a broken stdout pipe"
+    },
+    {
+      "id": "idea2-pin",
+      "entry": "base",
+      "hypothesis": "Pinning thread t to the t-th allowed CPU (IDEAS 2) closes or widens the full-occupancy gap",
+      "verdict": "running",
+      "where": "Zen 5 D96as_v7",
+      "note": "hc/idea2-pin vs hc/idea1-affinity at 96/48/24 threads, 4 rounds"
+    },
+    {
+      "id": "idea4-stopflag",
+      "entry": "base",
+      "hypothesis": "One clock reader and a stop flag (IDEAS 4) at threads = vCPUs",
+      "verdict": "running",
+      "where": "Zen 5 D32as_v7",
+      "note": "vs idea1, 4 rounds; expect flat: Azure clocksource reads via vDSO"
+    },
+    {
+      "id": "idea18-no512",
+      "entry": "base",
+      "hypothesis": "Base without the AVX-512 target at threads = vCPUs (IDEAS 18): does the Zen 5 lead need AVX-512?",
+      "verdict": "running",
+      "where": "Zen 5 D32as_v7",
+      "note": "vs idea1, 4 rounds; a probe, the EPYC runner is AVX2-only"
     }
   ],
   "azure_queue": 0,
@@ -811,58 +843,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T03:00:15Z",
-      "level": "decision",
-      "text": "p4-arm-dense: A/B on Cobalt 100, 6 rounds, champion vs 37e19c7. Why: the arm profile puts the 4% gap in dense; the candidate halves dense instructions per word on NEON (static count 489k -> 290k per pass). Passed over: a NEON pass-3 buffer init (hc-026 style), kept as the follow-up. Expect: +3-8% at 1T on arm; x86 objects are byte-identical, so the Zen 3/Zen 5 legs and the D16as_v5 recheck are satisfied by identity, not by timing.",
-      "id": "p4-arm-dense",
-      "what": "A/B on Cobalt 100, 6 rounds, champion vs 37e19c7",
-      "why": "the arm profile puts the 4% gap in dense; the candidate halves dense instructions per word on NEON (static count 489k -> 290k per pass)",
-      "instead": "a NEON pass-3 buffer init (hc-026 style), kept as the follow-up",
-      "expect": "+3-8% at 1T on arm; x86 objects are byte-identical, so the Zen 3/Zen 5 legs and the D16as_v5 recheck are satisfied by identity, not by timing"
-    },
-    {
-      "utc": "2026-10-10T03:00:15Z",
-      "level": "info",
-      "text": "p4-arm-dense (base) running: NEON-only dense resetter after Rust (q-register masks, one period per run from P>=17): dense phase ~36.5k -> ~30k ns on Cobalt 100",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T03:05:44Z",
-      "level": "decision",
-      "text": "diag-swift-phases: Swift's official lead is not reproducible on Zen 5 and the profile shows no phase where it is ahead; priority 3 stays parked until the asm side-by-side reports. Why: same node, Swift runs 15% behind ours and is slower in sparse (+24%) and dense+scan (+10%); its 122.9k on the Threadripper is a machine or toolchain effect we cannot see here (it ran 15% slower here in the leaderboard check too). The striped layout does one byte RMW per bit, like ours, so it does not ease the store-bound sparse phase. Passed over: chasing Swift's number with a Zen 5 1T change blind. Expect: the asm report confirms no entry does fewer stores per bit than ours.",
-      "id": "diag-swift-phases",
-      "what": "Swift's official lead is not reproducible on Zen 5 and the profile shows no phase where it is ahead; priority 3 stays parked until the asm side-by-side reports",
-      "why": "same node, Swift runs 15% behind ours and is slower in sparse (+24%) and dense+scan (+10%); its 122.9k on the Threadripper is a machine or toolchain effect we cannot see here (it ran 15% slower here in the leaderboard check too). The striped layout does one byte RMW per bit, like ours, so it does not ease the store-bound sparse phase",
-      "instead": "chasing Swift's number with a Zen 5 1T change blind",
-      "expect": "the asm report confirms no entry does fewer stores per bit than ours"
-    },
-    {
-      "utc": "2026-10-10T03:05:44Z",
-      "level": "decision",
-      "text": "p5-sse4: SSE4 path ties Rust; probe sse4-i32x8 next on Zen 3. Why: our SSE4 build matches Rust's x86-64-v2 at 1T (-0.7%, inside the interval) and trails 1.8% at 16T; RUN-PLAN named sse4-i32x8 and the first probe used i32x4. Passed over: Intel sizes for a real Celeron proxy (needs Chris's OK). Expect: i32x8 within +-2% of i32x4; if it wins it is a one-line build.sh change for the SSE4 slot only.",
-      "id": "p5-sse4",
-      "what": "SSE4 path ties Rust; probe sse4-i32x8 next on Zen 3",
-      "why": "our SSE4 build matches Rust's x86-64-v2 at 1T (-0.7%, inside the interval) and trails 1.8% at 16T; RUN-PLAN named sse4-i32x8 and the first probe used i32x4",
-      "instead": "Intel sizes for a real Celeron proxy (needs Chris's OK)",
-      "expect": "i32x8 within +-2% of i32x4; if it wins it is a one-line build.sh change for the SSE4 slot only"
-    },
-    {
-      "utc": "2026-10-10T03:05:44Z",
-      "level": "decision",
-      "text": "p6-scaling: lead holds at 32 threads (+14.4% over Rust); run 64 vCPUs once the arm pool is down (32+32+64 = 128 vCPUs). Why: Rust stops scaling past 16 threads on this node while ours still gains 12%; the official ranking runs at 128 threads. Passed over: 64 vCPUs now: with the arm pool up it would exceed the 128-vCPU quota. Expect: lead grows at 64T.",
-      "id": "p6-scaling",
-      "what": "lead holds at 32 threads (+14.4% over Rust); run 64 vCPUs once the arm pool is down (32+32+64 = 128 vCPUs)",
-      "why": "Rust stops scaling past 16 threads on this node while ours still gains 12%; the official ranking runs at 128 threads",
-      "instead": "64 vCPUs now: with the arm pool up it would exceed the 128-vCPU quota",
-      "expect": "lead grows at 64T"
-    },
-    {
-      "utc": "2026-10-10T03:05:55Z",
-      "level": "info",
-      "text": "p5-sse4 tie. Zen 3. Zen 3, 6 rounds: our SSE4-only (sse4-i32x4) base 50.1k at 1T vs Rust x86-64-v2 50.2k (Rust +0.7%, +1.8% at 16T); Rust loses 6% going from native to v2",
-      "auto": true
-    },
     {
       "utc": "2026-10-10T03:05:55Z",
       "level": "info",
@@ -1192,6 +1172,47 @@
       "utc": "2026-10-10T07:37:48Z",
       "level": "info",
       "text": "idea1-affinity more rounds. Zen 5 96 vCPU. 96-vCPU node: -2.6% +-8.4% at 1T, -2.6% +-4.5% at 96T vs champion, inside an A/A spread of up to 7.4%; inconclusive. Re-measure on the D16 fleet (Zen 5, Zen 3), 6 rounds",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T07:46:13Z",
+      "level": "decision",
+      "text": "run: work the merged IDEAS queue in its new order: pinning on the 96-vCPU node, then the stop flag and AVX-512 off at threads = vCPUs on the 32-vCPU node; items marked not allowed or grey are not built. Why: Chris, 07:40: the order at the top of the new IDEAS section replaces the old order; all three branch from the thread-count fix so each compares against it. Passed over: IDEAS 6 (avx2-i64x4) until the SMT reading is in.",
+      "id": "run",
+      "what": "work the merged IDEAS queue in its new order: pinning on the 96-vCPU node, then the stop flag and AVX-512 off at threads = vCPUs on the 32-vCPU node; items marked not allowed or grey are not built",
+      "why": "Chris, 07:40: the order at the top of the new IDEAS section replaces the old order; all three branch from the thread-count fix so each compares against it",
+      "instead": "IDEAS 6 (avx2-i64x4) until the SMT reading is in"
+    },
+    {
+      "utc": "2026-10-10T07:46:14Z",
+      "level": "decision",
+      "text": "port-rust-base: queue the Rust base port for phase B via hc/meas-rust-base; route: improvements offered to mike-barber, per the agent's side-by-side, pending Azure numbers and Chris's rules call on the const mask table. Why: same characteristics as PrimeRust/solution_1 in the same language; CONTRIBUTING.md sends such work to the existing solution first.",
+      "id": "port-rust-base",
+      "what": "queue the Rust base port for phase B via hc/meas-rust-base; route: improvements offered to mike-barber, per the agent's side-by-side, pending Azure numbers and Chris's rules call on the const mask table",
+      "why": "same characteristics as PrimeRust/solution_1 in the same language; CONTRIBUTING.md sends such work to the existing solution first"
+    },
+    {
+      "utc": "2026-10-10T07:46:14Z",
+      "level": "info",
+      "text": "port-rust-base (base) queued: Our base design in Rust (PrimeRust/solution_9) against mike-barber solution_1: the delta and its route",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T07:46:14Z",
+      "level": "info",
+      "text": "idea2-pin (base) running: Pinning thread t to the t-th allowed CPU (IDEAS 2) closes or widens the full-occupancy gap",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T07:46:14Z",
+      "level": "info",
+      "text": "idea4-stopflag (base) running: One clock reader and a stop flag (IDEAS 4) at threads = vCPUs",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T07:46:14Z",
+      "level": "info",
+      "text": "idea18-no512 (base) running: Base without the AVX-512 target at threads = vCPUs (IDEAS 18): does the Zen 5 lead need AVX-512?",
       "auto": true
     }
   ],

@@ -21,3 +21,6 @@ id	pool	size	kind	outdir	submitted	state
 07164632048	hc-standard-d96as-v7	Standard_D96as_v7	zig	ispc-dev/results/hc/a-scale-zigbase	2026-10-10T07:17:37Z	open
 07174218639	hc-standard-d96as-v7	Standard_D96as_v7	zig	ispc-dev/results/hc/a-scale-zigwheel	2026-10-10T07:18:09Z	open
 07201316963	hc-standard-d32as-v7	Standard_D32as_v7	base	ispc-dev/results/hc/rust-falloff	2026-10-10T07:20:22Z	open
+0741563732	hc-standard-d96as-v7	Standard_D96as_v7	base	ispc-dev/results/hc/idea2-pin-96	2026-10-10T07:42:06Z	open
+07441923195	hc-standard-d32as-v7	Standard_D32as_v7	base	ispc-dev/results/hc/idea4-stopflag-32	2026-10-10T07:44:27Z	open
+0744343557	hc-standard-d32as-v7	Standard_D32as_v7	base	ispc-dev/results/hc/idea18-no512-32	2026-10-10T07:45:25Z	open
