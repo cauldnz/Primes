@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T08:32:29Z",
+  "updated_utc": "2026-10-10T08:38:01Z",
   "run": {
     "id": "ap-20261010T0715Z",
     "state": "running",
@@ -918,16 +918,6 @@
     {
       "utc": "2026-10-10T07:20:31Z",
       "level": "decision",
-      "text": "rust-falloff: probe Rust's full-occupancy fall-off on D32as_v7 alongside phase A (96 + 32 = 128 vCPUs). Why: both programs run one sieve per thread with the main thread blocked in join, so the code does not explain it on its face; a curve at N-2, N-1, N with Rust pinned and unpinned separates scheduler placement from the work itself. Passed over: per-thread pinning inside Rust (a code change to someone else's entry). Expect: Rust at N-1 well above Rust at N if scheduling is the cause; pinned equal to unpinned if not.",
-      "id": "rust-falloff",
-      "what": "probe Rust's full-occupancy fall-off on D32as_v7 alongside phase A (96 + 32 = 128 vCPUs)",
-      "why": "both programs run one sieve per thread with the main thread blocked in join, so the code does not explain it on its face; a curve at N-2, N-1, N with Rust pinned and unpinned separates scheduler placement from the work itself",
-      "instead": "per-thread pinning inside Rust (a code change to someone else's entry)",
-      "expect": "Rust at N-1 well above Rust at N if scheduling is the cause; pinned equal to unpinned if not"
-    },
-    {
-      "utc": "2026-10-10T07:20:31Z",
-      "level": "decision",
       "text": "run: Phase B waits for phase A: the 96-vCPU node holds 96 of the 128 Spot vCPUs until its four tasks end (about an hour). Why: RUN-PLAN: one big burst first, then the steady fleet; the 32-vCPU slot carries the fall-off probe meanwhile, and both agents write ports locally.",
       "id": "run",
       "what": "Phase B waits for phase A: the 96-vCPU node holds 96 of the 128 Spot vCPUs until its four tasks end (about an hour)",
@@ -1288,6 +1278,11 @@
       "level": "info",
       "text": "wheel-group32-g8 (wheel) running: G=8 on AVX-512 with the 32-word loop (6 group passes instead of 8)",
       "auto": true
+    },
+    {
+      "utc": "2026-10-10T08:38:01Z",
+      "level": "info",
+      "text": "Fetched leaderboard sessions 9746 (EPYC), 9747 (Threadripper), 9748 (Celeron), 9749 (i7), 9750 (Pi 4) as raw JSON into results/leaderboard-2026-10-10/ for the workshop (Chris, 08:35)"
     }
   ],
   "research": {
