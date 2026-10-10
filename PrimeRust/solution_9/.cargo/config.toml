@@ -1,0 +1,3 @@
+# The Docker image is built on the machine that runs it, so the build can target that CPU.
+[build]
+rustflags = ["-C", "target-cpu=native"]
