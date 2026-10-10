@@ -498,4 +498,3 @@
 {"utc": "2026-10-10T23:08:09Z", "level": "info", "text": "zig-f2 (?) revert: Zen 3 -23% 1T, -12% 16T; Zen 5 +3% 1T, -0.6% 16T: ", "auto": true}
 {"utc": "2026-10-10T23:08:09Z", "level": "info", "text": "f1f2-96 (base (grey)) running: F1 (champion-grey) and F2 (f2-block-16) each vs the clean champion at 48/96T on the 96-vCPU node, for the upstream issue", "auto": true}
 {"utc": "2026-10-10T23:08:09Z", "level": "info", "text": "f6-no512 (wheel and base) running: IDEAS F6: AVX-512 target off may hold a higher all-core clock at 96T; expect -2% to +4% at 96T", "auto": true}
-{"utc": "2026-10-10T23:13:19Z", "level": "Chris: link Dave's X post (@davepl1968, 'C++ is faster than Rust until Rust programmers can prove otherwise ... If you can make ANY of them faster, please do!') that started this; TODO noted in PR-DESCRIPTION.md's header, URL pending from Chris. Steered over Starlink from Cape Tribulation (for the write-up)", "text": "info"}

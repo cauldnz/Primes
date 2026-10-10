@@ -1387,11 +1387,6 @@
       "level": "info",
       "text": "f6-no512 (wheel and base) running: IDEAS F6: AVX-512 target off may hold a higher all-core clock at 96T; expect -2% to +4% at 96T",
       "auto": true
-    },
-    {
-      "utc": "2026-10-10T23:13:19Z",
-      "level": "Chris: link Dave's X post (@davepl1968, 'C++ is faster than Rust until Rust programmers can prove otherwise ... If you can make ANY of them faster, please do!') that started this; TODO noted in PR-DESCRIPTION.md's header, URL pending from Chris. Steered over Starlink from Cape Tribulation (for the write-up)",
-      "text": "info"
     }
   ],
   "research": {
