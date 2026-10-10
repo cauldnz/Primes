@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T03:21:07Z",
+  "updated_utc": "2026-10-10T03:28:46Z",
   "run": {
     "id": "ap-20261010T0140Z",
     "state": "running",
@@ -734,6 +734,14 @@
       "verdict": "running",
       "where": "Zen 3",
       "note": "probe branch hc/p5-base-sse4x8 vs hc/p5-base-sse4, 6 rounds"
+    },
+    {
+      "id": "p4-arm-init3",
+      "entry": "base",
+      "hypothesis": "NEON factor-3 pass initialises the buffer (store-only), dropping the separate 62.5 KB zeroing, as hc-026 does on x86",
+      "verdict": "running",
+      "where": "Cobalt 100",
+      "note": "8120512 by agent, vs kept 37e19c7; verified x86 emit-asm identical (3 targets), x86 PRIMES_TEST exit 0; agent ran NEON PRIMES_TEST and a 70,933-size bit sweep under qemu"
     }
   ],
   "azure_queue": 0,
@@ -743,20 +751,6 @@
     "Zen 5 at one thread: about +3% to pass Swift's official 122.9k"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T01:40:20Z",
-      "level": "decision",
-      "text": "run: Run ends 05:40 UTC; every pool's deadline is 05:40. Why: The secret was issued about 20:20 UTC on 9 October with a 10-hour life, so it should last to about 06:15; a 4-hour box from 01:40 ends 35 minutes before that. The principal can't read its own expiry, so this is an estimate. Expect: Final scoreboard from 04:55, shutdown by 05:40.",
-      "id": "run",
-      "what": "Run ends 05:40 UTC; every pool's deadline is 05:40",
-      "why": "The secret was issued about 20:20 UTC on 9 October with a 10-hour life, so it should last to about 06:15; a 4-hour box from 01:40 ends 35 minutes before that. The principal can't read its own expiry, so this is an estimate.",
-      "expect": "Final scoreboard from 04:55, shutdown by 05:40"
-    },
-    {
-      "utc": "2026-10-10T01:40:20Z",
-      "level": "info",
-      "text": "Run ap-20261010T0140Z started: base first, per RUN-PLAN.md. Ticks every 5-15 minutes; the first two are the dry run."
-    },
     {
       "utc": "2026-10-10T01:42:33Z",
       "level": "decision",
@@ -1100,6 +1094,22 @@
       "utc": "2026-10-10T03:20:54Z",
       "level": "info",
       "text": "p4-arm-dense keep (merge pending Chris). Cobalt 100. Cobalt 100, 6 rounds: +2.5% at 1T (95% CI +2.2% to +2.8%), +2.9% at 2T and 4T, 6/6 rounds; gap to Rust 4.3% -> 1.9%. x86 --emit-asm identical for sse4, avx2, avx512skx. Fast-forward of hc/champion a1433d9 -> 37e19c7 was blocked by the session permission check; waits for Chris",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T03:28:46Z",
+      "level": "decision",
+      "text": "p4-arm-init3: A/B on Cobalt 100, 6 rounds, against the kept arm candidate 37e19c7. Why: removes one full write of the 62.5 KB buffer and turns the factor-3 RMW into stores; hc-026 gave about 1% on x86. Passed over: more NEON dense tuning for P >= 67 (masks spill, small gain per the agent's count). Expect: +1-2% at 1T on arm; target-specific rule needs >= 2%, so a smaller gain is a no-keep.",
+      "id": "p4-arm-init3",
+      "what": "A/B on Cobalt 100, 6 rounds, against the kept arm candidate 37e19c7",
+      "why": "removes one full write of the 62.5 KB buffer and turns the factor-3 RMW into stores; hc-026 gave about 1% on x86",
+      "instead": "more NEON dense tuning for P >= 67 (masks spill, small gain per the agent's count)",
+      "expect": "+1-2% at 1T on arm; target-specific rule needs >= 2%, so a smaller gain is a no-keep"
+    },
+    {
+      "utc": "2026-10-10T03:28:46Z",
+      "level": "info",
+      "text": "p4-arm-init3 (base) running: NEON factor-3 pass initialises the buffer (store-only), dropping the separate 62.5 KB zeroing, as hc-026 does on x86",
       "auto": true
     }
   ],
