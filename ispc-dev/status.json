@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T21:50:02Z",
+  "updated_utc": "2026-10-10T21:54:10Z",
   "run": {
     "id": "ap-20261010T2040Z",
     "state": "running",
@@ -18,92 +18,70 @@
   "current": null,
   "scoreboard": [
     {
-      "machine": "Zen 3 (EPYC 7763)",
-      "entry": "wheel",
-      "ours_1t": 110100,
-      "ours_mt": 938900,
-      "rival": "rogiervandam C",
-      "rival_1t": 65200,
-      "rival_mt": 534100,
-      "threads": 16,
-      "source": "final4 (wheel, hc/champion 059b8f3) / final3 (base, 4c7dc69), six rounds, same-round medians; as in PR-DESCRIPTION.md"
-    },
-    {
-      "machine": "Zen 4 (EPYC 9V74, AVX-512)",
-      "entry": "wheel",
-      "ours_1t": 120900,
-      "ours_mt": 1013000,
-      "rival": "rogiervandam C",
-      "rival_1t": 97000,
-      "rival_mt": 769900,
-      "threads": 16,
-      "source": "final4 (wheel, hc/champion 059b8f3) / final3 (base, 4c7dc69), six rounds, same-round medians; as in PR-DESCRIPTION.md"
-    },
-    {
-      "machine": "Zen 5 (EPYC 9V45)",
-      "entry": "wheel",
-      "ours_1t": 207600,
-      "ours_mt": 1565000,
-      "rival": "rogiervandam C",
-      "rival_1t": 139100,
-      "rival_mt": 1182100,
-      "threads": 16,
-      "source": "final4 (wheel, hc/champion 059b8f3) / final3 (base, 4c7dc69), six rounds, same-round medians; as in PR-DESCRIPTION.md"
-    },
-    {
-      "machine": "Zen 3 (EPYC 7763)",
+      "machine": "Zen 5 (EPYC 9V45, D32as_v7)",
       "entry": "base",
-      "ours_1t": 56000,
-      "ours_mt": 431800,
+      "ours_1t": 122400,
+      "ours_mt": 1760000,
       "rival": "mike-barber Rust",
-      "rival_1t": 52500,
-      "rival_mt": 411500,
-      "threads": 16,
-      "source": "final4 (wheel, hc/champion 059b8f3) / final3 (base, 4c7dc69), six rounds, same-round medians; as in PR-DESCRIPTION.md"
+      "rival_1t": 124200,
+      "rival_mt": 1550000,
+      "threads": 32,
+      "source": "final6 (run ap-20261010T0715Z, Standard_D32as_v7): thread-count build 8fd7f1f against the rival in the same rounds, six rounds, medians; clean lineage"
     },
     {
-      "machine": "Cobalt 100 (arm64)",
+      "machine": "Zen 4 (EPYC 9V74, D16as_v5)",
+      "entry": "base",
+      "ours_1t": 64400,
+      "ours_mt": 508800,
+      "rival": "mike-barber Rust",
+      "rival_1t": 59400,
+      "rival_mt": 470900,
+      "threads": 16,
+      "source": "final6 (run ap-20261010T0715Z, Standard_D16as_v5): thread-count build 8fd7f1f against the rival in the same rounds, six rounds, medians; clean lineage"
+    },
+    {
+      "machine": "Zen 3 (EPYC 7763, D16a_v4)",
+      "entry": "base",
+      "ours_1t": 56100,
+      "ours_mt": 431700,
+      "rival": "mike-barber Rust",
+      "rival_1t": 52600,
+      "rival_mt": 411700,
+      "threads": 16,
+      "source": "final6 (run ap-20261010T0715Z, Standard_D16a_v4): thread-count build 8fd7f1f against the rival in the same rounds, six rounds, medians; clean lineage"
+    },
+    {
+      "machine": "Zen 5 (EPYC 9V45, D32as_v7)",
       "entry": "wheel",
-      "ours_1t": 98500,
-      "ours_mt": 393200,
-      "rival": "mike-barber Rust (base; no C5 on arm64)",
-      "rival_1t": 42900,
-      "rival_mt": 171300,
-      "threads": 4,
-      "source": "final4 (wheel, hc/champion 059b8f3) / final3 (base, 4c7dc69), six rounds, same-round medians; as in PR-DESCRIPTION.md"
+      "ours_1t": 189600,
+      "ours_mt": 2740000,
+      "rival": "rogiervandam C (C5)",
+      "rival_1t": 126200,
+      "rival_mt": 2040000,
+      "threads": 32,
+      "source": "final6 (run ap-20261010T0715Z, Standard_D32as_v7): thread-count build 8fd7f1f against the rival in the same rounds, six rounds, medians; clean lineage"
     },
     {
-      "machine": "Zen 4 (EPYC 9V74, AVX-512)",
-      "entry": "base",
-      "ours_1t": 82900,
-      "ours_mt": 656000,
-      "rival": "mike-barber Rust",
-      "rival_1t": 76500,
-      "rival_mt": 608300,
+      "machine": "Zen 4 (EPYC 9V74, D16as_v5)",
+      "entry": "wheel",
+      "ours_1t": 100500,
+      "ours_mt": 781500,
+      "rival": "rogiervandam C (C5)",
+      "rival_1t": 71500,
+      "rival_mt": 566700,
       "threads": 16,
-      "source": "final4 (wheel, hc/champion 059b8f3) / final3 (base, 4c7dc69), six rounds, same-round medians; as in PR-DESCRIPTION.md"
+      "source": "final6 (run ap-20261010T0715Z, Standard_D16as_v5): thread-count build 8fd7f1f against the rival in the same rounds, six rounds, medians; clean lineage"
     },
     {
-      "machine": "Zen 5 (EPYC 9V45)",
-      "entry": "base",
-      "ours_1t": 128100,
-      "ours_mt": 1018700,
-      "rival": "mike-barber Rust",
-      "rival_1t": 125600,
-      "rival_mt": 880000,
+      "machine": "Zen 3 (EPYC 7763, D16a_v4)",
+      "entry": "wheel",
+      "ours_1t": 111200,
+      "ours_mt": 932400,
+      "rival": "rogiervandam C (C5)",
+      "rival_1t": 65100,
+      "rival_mt": 534800,
       "threads": 16,
-      "source": "final4 (wheel, hc/champion 059b8f3) / final3 (base, 4c7dc69), six rounds, same-round medians; as in PR-DESCRIPTION.md"
-    },
-    {
-      "machine": "Cobalt 100 (arm64)",
-      "entry": "base",
-      "ours_1t": 41100,
-      "ours_mt": 163800,
-      "rival": "mike-barber Rust",
-      "rival_1t": 42900,
-      "rival_mt": 171300,
-      "threads": 4,
-      "source": "final4 (wheel, hc/champion 059b8f3) / final3 (base, 4c7dc69), six rounds, same-round medians; as in PR-DESCRIPTION.md"
+      "source": "final6 (run ap-20261010T0715Z, Standard_D16a_v4): thread-count build 8fd7f1f against the rival in the same rounds, six rounds, medians; clean lineage"
     }
   ],
   "experiments": [
@@ -982,12 +960,6 @@
     {
       "utc": "2026-10-10T10:30:27Z",
       "level": "info",
-      "text": "a-scale-repeat done. Zen 5 D96as_v7, fresh node. wheel on the new node: ours 1T 204.6k, 24T 4.67M, 48T 8.05M, 96T 7.73M (-4% from 48 to 96; first node -6%); C5 epar 96T 5.35M (+43%); dsp 96T 2.42M. idea1 vs champion on the wheel: -0.3% to +0.1% at every count",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T10:30:27Z",
-      "level": "info",
       "text": "wheel-group32 keep on Zen 5; Zen 4 pending. Zen 5 D96as_v7; Zen 4 recheck. second Zen 5 run (D32as_v7, 6 rounds): +4.4% +-2.0% at 1T, +5.1% at 8T, +4.4% +-1.1% at 16T, +2.5% +-0.7% at 32T, 24/24 rounds won. Zen 4 (D16as_v5) running: the other AVX-512 machine and Chris recheck",
       "auto": true
     },
@@ -1338,6 +1310,14 @@
       "level": "info",
       "text": "f2-block Zen 3 and Zen 5 clear; block size by SMT. Zen 3 D16a_v4 (block sweep); Zen 5 after the F1 profile. Zen 3 (8c x 2), 6 rounds, 1T / 8T / 16T: 32 KB +12.1 / +12.4 / +0.1; 24 KB +11.6 / +11.1 / +6.7; 16 KB +9.4 / +9.4 / +17.8 (vs Rust 16 KB +16.6 / +16.5 / +23.6). Zen 5 D16as_v7 32 KB: +11.2% +-2.1 / +13.0% +-0.6 (8T) / +11.8% +-0.9 (16T); vs Rust +15.2 / +16.9 / +29.4. 16 and 24 KB on Zen 5 running; Zen 4 and Cobalt 100 queued with 16 KB",
       "auto": true
+    },
+    {
+      "utc": "2026-10-10T21:54:10Z",
+      "level": "decision",
+      "text": "run: scoreboard replaced with last run's final6 numbers (thread-count build vs Rust for the base and C5 for the wheel, Zen 5, Zen 4, Zen 3), source naming final6; grey rows (hc/champion-grey vs Rust, labelled 'grey (rules pending)') get added as F1/F2 are accepted; both refreshed at shutdown. Why: Chris, 21:51.",
+      "id": "run",
+      "what": "scoreboard replaced with last run's final6 numbers (thread-count build vs Rust for the base and C5 for the wheel, Zen 5, Zen 4, Zen 3), source naming final6; grey rows (hc/champion-grey vs Rust, labelled 'grey (rules pending)') get added as F1/F2 are accepted; both refreshed at shutdown",
+      "why": "Chris, 21:51"
     }
   ],
   "research": {
