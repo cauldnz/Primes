@@ -1,4 +1,0 @@
-(executable
- (public_name prime-ocaml-functional)
- (name main)
- (libraries core PrimeOCamlFunctional))
