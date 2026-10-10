@@ -1,8 +1,16 @@
 # Publishing the machine
 
-Decided 10 October: the hill-climbing machine gets its own public repo under `cauldnz`, MIT
-licence, with the Primes entries as its worked example. The story is as much the machine as the
-sieves. The upstream Primes PR stays solution-only and links to it.
+Decided 10 October: the hill-climbing machine gets its own public repo, `cauldnz/agentic-hill-climber`,
+MIT licence, with the Primes entries as its worked example. The story is as much the machine as
+the sieves. The upstream Primes PR stays solution-only and links to it as "how we did it", so
+**v1 of the repo ships before the PR goes upstream** (Chris, 09:58).
+
+v1 scope (Chris, 09:58):
+- **The machine as it ran, cleaned.** No rewrite into a generic adapter interface; that's v2.
+  Primes-specific scripts gather in `examples/primes/`, and the docs say plainly which parts are
+  general and which are Primes.
+- **Ticks, background agents and reasoning records go in after the dry run passes.** Until then
+  the docs mark them as built but not yet run.
 
 ## What goes in
 
@@ -33,4 +41,5 @@ sieves. The upstream Primes PR stays solution-only and links to it.
 
 ## Waiting on Chris
 
-- The repo name. He creates it empty; the workshop attaches it and does the extraction.
+- Chris creates `cauldnz/agentic-hill-climber` empty; the workshop attaches it and does the
+  extraction.

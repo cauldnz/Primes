@@ -137,6 +137,15 @@ last. Public, like the rest of the repo.
   expects (`st.py decide`). The log flags any verdict made with no reasoning, so a lapse shows
   rather than relying on memory (lesson 2 again).
 
+### 10 October, 10:00: base first, and the machine ships before the sieves
+
+- Chris set the order: v1 of `cauldnz/agentic-hill-climber` goes public before the Primes PR, so
+  the PR can point to it as how the entries were made. v1 is the machine as it ran, cleaned;
+  generalising waits for v2.
+- The next runs put the base entries first. The base leaderboard is where human experts have
+  spent the most effort, so a high place there is the test of the machine. The climber's own
+  plan had put wheel work first; the workshop reordered it (`RUN-PLAN-NEXT.md`).
+
 ## Lessons so far
 
 1. Controls in every round matter more than any optimisation. Without them, machine noise
