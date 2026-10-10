@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T20:58:14Z",
+  "updated_utc": "2026-10-10T21:16:06Z",
   "run": {
     "id": "ap-20261010T2040Z",
     "state": "running",
@@ -943,9 +943,9 @@
       "id": "f1-alternate",
       "entry": "base (grey)",
       "hypothesis": "Alternating sweep direction per factor reuses the L1-resident end of the 62.5 KB sieve: sparse cycles at 1T drop >= 10% (falsification test), +10-20% at 1T on Zen 5",
-      "verdict": "agent",
-      "where": "local, then Zen 5 profile",
-      "note": "agent writes hc/f1-alternate off hc/champion-grey plus hc/diag-phases-champ and hc/diag-phases-f1 for the same-node profile"
+      "verdict": "falsification profile running",
+      "where": "Zen 5 D16as_v7",
+      "note": "206ef99 by agent: dense (scalar, vector, NEON) and sparse routines get descending forms, direction flips after each factor, factor 3 stays ascending; RULES.md quotes the 2 x factor rule. Verified here: PRIMES_TEST on all three branches; buffer bit-identical to the champion for 28,795 sizes on avx512, avx2, sse4 (agent harness, source matches the pushed branch); agent also NEON under qemu and two deliberately broken builds caught. Local 1T +34%, local sparse cycles -33% (indicative)"
     },
     {
       "id": "f2-block",
@@ -963,23 +963,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T09:36:08Z",
-      "level": "decision",
-      "text": "wheel-group32-g8: revert: G=8 adds nothing at one thread and loses 2.4% at 96 threads. Why: the 32-word loop already took the per-member overhead that hc-011's G=6 traded against; more members per pass now only add register pressure.",
-      "id": "wheel-group32-g8",
-      "what": "revert: G=8 adds nothing at one thread and loses 2.4% at 96 threads",
-      "why": "the 32-word loop already took the per-member overhead that hc-011's G=6 traded against; more members per pass now only add register pressure"
-    },
-    {
-      "utc": "2026-10-10T09:36:08Z",
-      "level": "decision",
-      "text": "idea12-tile13: promising on Zen 5 (+2.5% at 1T, 6/6); run Zen 3 and the Cobalt 100 gate on the fleet before deciding. Why: shared code across targets, so the CI rule needs Zen 3 too, and arm because it touches NEON code. Expect: +1-2% on Zen 3.",
-      "id": "idea12-tile13",
-      "what": "promising on Zen 5 (+2.5% at 1T, 6/6); run Zen 3 and the Cobalt 100 gate on the fleet before deciding",
-      "why": "shared code across targets, so the CI rule needs Zen 3 too, and arm because it touches NEON code",
-      "expect": "+1-2% on Zen 3"
-    },
     {
       "utc": "2026-10-10T09:36:08Z",
       "level": "info",
@@ -1320,6 +1303,21 @@
       "utc": "2026-10-10T20:57:22Z",
       "level": "info",
       "text": "f2-block running. Zen 3 D16a_v4 (block sweep); Zen 5 after the F1 profile. 7c22f10 by agent; verified: base-only diff plus RULES.md, PRIMES_TEST passes at 16/24/32 KB, buffer bit-identical to the champion for 20,984 sizes at 6 block sizes on avx2 and avx512 (agent harness rerun here; agent also ran sse4 and NEON under qemu). Local 1T +24-31% (indicative). Variants hc/f2-block-16 and -24 for the sweep (default constant only)",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T21:16:06Z",
+      "level": "decision",
+      "text": "f1-alternate: falsification profile first, as RUN-PLAN says: hc/diag-phases-f1 vs hc/diag-phases-champ, 3 rounds, on a separate 16-vCPU Zen 5 node so it does not wait behind IDEAS 12. Why: the plan stops F1 if sparse cycles at 1T do not drop by at least 10% on Zen 5; the local VM (32 KB L1D) showed -33%. Expect: sparse -15 to -35% on Zen 5.",
+      "id": "f1-alternate",
+      "what": "falsification profile first, as RUN-PLAN says: hc/diag-phases-f1 vs hc/diag-phases-champ, 3 rounds, on a separate 16-vCPU Zen 5 node so it does not wait behind IDEAS 12",
+      "why": "the plan stops F1 if sparse cycles at 1T do not drop by at least 10% on Zen 5; the local VM (32 KB L1D) showed -33%",
+      "expect": "sparse -15 to -35% on Zen 5"
+    },
+    {
+      "utc": "2026-10-10T21:16:06Z",
+      "level": "info",
+      "text": "f1-alternate falsification profile running. Zen 5 D16as_v7. 206ef99 by agent: dense (scalar, vector, NEON) and sparse routines get descending forms, direction flips after each factor, factor 3 stays ascending; RULES.md quotes the 2 x factor rule. Verified here: PRIMES_TEST on all three branches; buffer bit-identical to the champion for 28,795 sizes on avx512, avx2, sse4 (agent harness, source matches the pushed branch); agent also NEON under qemu and two deliberately broken builds caught. Local 1T +34%, local sparse cycles -33% (indicative)",
       "auto": true
     }
   ],
