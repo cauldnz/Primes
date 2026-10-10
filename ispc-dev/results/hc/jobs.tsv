@@ -67,3 +67,5 @@ id	pool	size	kind	outdir	submitted	state
 20552223304	hc-standard-d16a-v4	Standard_D16a_v4	base	ispc-dev/results/hc/f2-block-24-z3	2026-10-10T20:56:15Z	open
 20562212360	hc-standard-d16a-v4	Standard_D16a_v4	base	ispc-dev/results/hc/f2-block-16-z3	2026-10-10T20:57:14Z	open
 21155513709	hc-standard-d16as-v7	Standard_D16as_v7	base	ispc-dev/results/hc/f1-falsify-z5	2026-10-10T21:16:06Z	open
+21300522809	hc-standard-d32as-v7	Standard_D32as_v7	base	ispc-dev/results/hc/f1-alt-z5	2026-10-10T21:30:15Z	open
+21302320990	hc-standard-d16a-v4	Standard_D16a_v4	base	ispc-dev/results/hc/f1-alt-z3	2026-10-10T21:30:35Z	open
