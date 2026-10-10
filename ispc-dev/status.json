@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T10:09:09Z",
+  "updated_utc": "2026-10-10T10:09:37Z",
   "run": {
     "id": "ap-20261010T0715Z",
     "state": "running",
@@ -759,9 +759,9 @@
       "id": "idea1-affinity",
       "entry": "both",
       "hypothesis": "thread count from sched_getaffinity, not get_nprocs (IDEAS 1): a correctness fix; expect no change at full machine",
-      "verdict": "more rounds",
+      "verdict": "no regression (arm gate pending)",
       "where": "Zen 5 96 vCPU",
-      "note": "96-vCPU node: -2.6% +-8.4% at 1T, -2.6% +-4.5% at 96T vs champion, inside an A/A spread of up to 7.4%; inconclusive. Re-measure on the D16 fleet (Zen 5, Zen 3), 6 rounds"
+      "note": "quiet 96-vCPU node, 4 rounds vs champion: +0.8% +-0.5% at 1T, +0.6% at 24T, +0.9% +-0.4% at 48T, 0.0% +-0.4% at 96T. Correctness fix: keep once the Cobalt 100 gate passes"
     },
     {
       "id": "a-scale",
@@ -873,7 +873,7 @@
       "hypothesis": "The 96-vCPU curve repeats on a second node (first node A/A spread 7%)",
       "verdict": "running",
       "where": "Zen 5 D96as_v7, fresh node",
-      "note": "pool deleted and recreated (first node tvmps_35e6...); base and wheel, same refs as the first run (idea1 vs champion), 4 rounds"
+      "note": "base done on a new node (A/A within 0.7%, vs 7% on the first): ours 1T 129.0k, 24T 2.71M, 48T 4.34M, 96T 4.47M (+3% from 48 to 96); Rust 1T 126.3k, 48T 3.32M, 96T 4.02M (+21%); davepl 96T 3.33M. Lead over Rust: +3.1% at 1T, +31.7% at 48T, +10.9% at 96T (first node: -3.2%, +28.3%, +8.7%). Wheel repeat running"
     },
     {
       "id": "idea12-tile13",
@@ -919,9 +919,9 @@
       "id": "idea21-prefetch",
       "entry": "base",
       "hypothesis": "Software prefetch ahead in the sparse loop recovers the 9% the sparse phase loses under SMT (IDEAS 21)",
-      "verdict": "running",
+      "verdict": "revert",
       "where": "Zen 5 D32as_v7",
-      "note": "07b268b by agent: 8 prefetchw per chunk 4 chunks ahead, all sparse p; verified PRIMES_TEST, local 1T -4.6%, all threads -8.6% (VM without SMT). Measures at 32 threads = 16c x 2 SMT"
+      "note": "D32as_v7, 4 rounds: -2.6% at 1T, -5.6% at 8T, -5.9% at 16T, -7.4% +-0.5% at 32T. The extra load-port work costs more than the misses it hides, worst under SMT"
     }
   ],
   "azure_queue": 0,
@@ -931,34 +931,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T08:17:39Z",
-      "level": "decision",
-      "text": "a-scale: Chris's three scaling tests, in this order: phase profile at 1/24/48/96 threads and the loaded one-thread test on the current 96-vCPU node (queued after the pin task), then the whole curve again on a fresh node; no conclusion on the 96-vCPU numbers until the repeat agrees. Why: Chris, 08:12: the first node's A/A spread was 7%; a second node, a per-phase view at scale, and clock speed under load separate node noise, a phase that saturates and frequency. Passed over: running the repeat first (the pool would have to be recreated twice). Expect: if the sparse phase per pass grows most from 48 to 96 threads, the SMT siblings compete for store bandwidth; if one-thread speed under load drops as much as the curve flattens, it is clock.",
-      "id": "a-scale",
-      "what": "Chris's three scaling tests, in this order: phase profile at 1/24/48/96 threads and the loaded one-thread test on the current 96-vCPU node (queued after the pin task), then the whole curve again on a fresh node; no conclusion on the 96-vCPU numbers until the repeat agrees",
-      "why": "Chris, 08:12: the first node's A/A spread was 7%; a second node, a per-phase view at scale, and clock speed under load separate node noise, a phase that saturates and frequency",
-      "instead": "running the repeat first (the pool would have to be recreated twice)",
-      "expect": "if the sparse phase per pass grows most from 48 to 96 threads, the SMT siblings compete for store bandwidth; if one-thread speed under load drops as much as the curve flattens, it is clock"
-    },
-    {
-      "utc": "2026-10-10T08:17:39Z",
-      "level": "info",
-      "text": "mt-phases (base) running: Which base phase stops gaining at scale: per-pass TSC per phase at 1, 24, 48, 96 threads",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T08:17:39Z",
-      "level": "info",
-      "text": "loaded-1t (base) running: How much of the drop at scale is clock speed: one pinned sieve thread (ours, Rust) with busy work on cpu0 SMT sibling, 16 other cores, all 47 other cores, all 95 other vCPUs; spin loop and Rust sieve as loads",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T08:17:39Z",
-      "level": "info",
-      "text": "a-scale-repeat (both) queued: The 96-vCPU curve repeats on a second node (first node A/A spread 7%)",
-      "auto": true
-    },
     {
       "utc": "2026-10-10T08:24:13Z",
       "level": "decision",
@@ -1299,6 +1271,34 @@
       "utc": "2026-10-10T09:52:46Z",
       "level": "info",
       "text": "a-scale-repeat running. Zen 5 D96as_v7, fresh node. pool deleted and recreated (first node tvmps_35e6..); base and wheel, same refs as the first run (idea1 vs champion), 4 rounds",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T10:09:37Z",
+      "level": "decision",
+      "text": "a-scale-repeat: Chris (1): the repeat on a second, quieter node agrees with the first: our base gains about 3% from 48 to 96 threads where Rust gains about 21%, so the lead over Rust narrows from about 30% at one thread per core to about 11% at all threads. The 96-vCPU conclusions stand. Why: same shape on both nodes; the second node's A/A spread is 0.7% against 7%, so its numbers are the ones to quote.",
+      "id": "a-scale-repeat",
+      "what": "Chris (1): the repeat on a second, quieter node agrees with the first: our base gains about 3% from 48 to 96 threads where Rust gains about 21%, so the lead over Rust narrows from about 30% at one thread per core to about 11% at all threads. The 96-vCPU conclusions stand",
+      "why": "same shape on both nodes; the second node's A/A spread is 0.7% against 7%, so its numbers are the ones to quote"
+    },
+    {
+      "utc": "2026-10-10T10:09:37Z",
+      "level": "decision",
+      "text": "idea21-prefetch: revert: prefetch makes the sparse phase worse under SMT, not better. Why: -7.4% at 32 threads with a tight interval; the sparse loop is limited by load and store ports as much as by misses.",
+      "id": "idea21-prefetch",
+      "what": "revert: prefetch makes the sparse phase worse under SMT, not better",
+      "why": "-7.4% at 32 threads with a tight interval; the sparse loop is limited by load and store ports as much as by misses"
+    },
+    {
+      "utc": "2026-10-10T10:09:37Z",
+      "level": "info",
+      "text": "idea1-affinity no regression (arm gate pending). Zen 5 96 vCPU. quiet 96-vCPU node, 4 rounds vs champion: +0.8% +-0.5% at 1T, +0.6% at 24T, +0.9% +-0.4% at 48T, 0.0% +-0.4% at 96T. Correctness fix: keep once the Cobalt 100 gate passes",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T10:09:37Z",
+      "level": "info",
+      "text": "idea21-prefetch revert. Zen 5 D32as_v7. D32as_v7, 4 rounds: -2.6% at 1T, -5.6% at 8T, -5.9% at 16T, -7.4% +-0.5% at 32T. The extra load-port work costs more than the misses it hides, worst under SMT",
       "auto": true
     }
   ],
