@@ -6,3 +6,66 @@ AVX-512: no
 kind=rust rounds=1 id=0229239578
 build cand
 build champ
+build ctx
+== round warmup cand
+mike-barber_bit-extreme-hybrid;profile;setup;364
+mike-barber_bit-extreme-hybrid;profile;dense;33355
+mike-barber_bit-extreme-hybrid;profile;sparse;90193
+mike-barber_bit-extreme-hybrid;profile;scan;6681
+mike-barber_bit-extreme-hybrid;profile;destroy;47
+mike-barber_bit-extreme-hybrid;profile;run_total;130229
+mike-barber_bit-extreme-hybrid;42954;5.0000114441;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;85781;5.0001964569;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;171161;5.0001668930;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ
+mike-barber_bit-extreme-hybrid;42932;5.0000243187;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;85736;5.0001626015;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;171254;5.0001435280;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ2
+mike-barber_bit-extreme-hybrid;42852;5.0000705719;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;85748;5.0001964569;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;171332;5.0001406670;4;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl
+cauldnz-ispc-base;profile;setup;339
+cauldnz-ispc-base;profile;dense;36494
+cauldnz-ispc-base;profile;sparse;83249
+cauldnz-ispc-base;profile;scan;2266
+cauldnz-ispc-base;profile;destroy;22
+cauldnz-ispc-base;profile;run_total;122009
+cauldnz-ispc-base;41076;5.000111;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;163822;5.000149;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;82086;5.000169;2;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl2
+davepl_array_optimized;32203;5.00036;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;128635;5.00043;4;algorithm=base,faithful=yes,bits=1
+== round 1 ctrl
+cauldnz-ispc-base;profile;setup;339
+cauldnz-ispc-base;profile;dense;36511
+cauldnz-ispc-base;profile;sparse;83192
+cauldnz-ispc-base;profile;scan;2265
+cauldnz-ispc-base;profile;destroy;22
+cauldnz-ispc-base;profile;run_total;121969
+cauldnz-ispc-base;41023;5.000072;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;163815;5.000100;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;82084;5.000146;2;algorithm=base,faithful=yes,bits=1
+== round 1 cand
+mike-barber_bit-extreme-hybrid;profile;setup;357
+mike-barber_bit-extreme-hybrid;profile;dense;33408
+mike-barber_bit-extreme-hybrid;profile;sparse;89851
+mike-barber_bit-extreme-hybrid;profile;scan;6695
+mike-barber_bit-extreme-hybrid;profile;destroy;46
+mike-barber_bit-extreme-hybrid;profile;run_total;129955
+mike-barber_bit-extreme-hybrid;42870;5.0000681877;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;85785;5.0001802444;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;171376;5.0001440048;4;algorithm=base,faithful=yes,bits=1
+== round 1 champ
+mike-barber_bit-extreme-hybrid;42956;5.0000429153;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;85768;5.0001049042;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;171294;5.0001482964;4;algorithm=base,faithful=yes,bits=1
+== round 1 ctrl2
+davepl_array_optimized;32205;5.00039;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;128406;5.00111;4;algorithm=base,faithful=yes,bits=1
+== round 1 champ2
+mike-barber_bit-extreme-hybrid;42881;5.0000319481;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;85736;5.0001645088;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;171320;5.0001091957;4;algorithm=base,faithful=yes,bits=1
