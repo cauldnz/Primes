@@ -16,6 +16,10 @@ RUN cargo build --release
 
 FROM ubuntu:24.04
 
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends procps \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /opt/app
 COPY --from=build /opt/app/primes .
 COPY --from=rust /app/target/release/prime-sieve-rust .
