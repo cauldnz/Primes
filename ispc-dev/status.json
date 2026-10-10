@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T23:13:19Z",
+  "updated_utc": "2026-10-10T23:15:09Z",
   "run": {
     "id": "ap-20261010T2040Z",
     "state": "running",
@@ -1025,6 +1025,14 @@
       "verdict": "running",
       "where": "Zen 5 D96as_v7 vs champion, 4 rounds each kind",
       "note": "hc/f6-no512 d6feacb: build.sh only (both entries), self-tests 0; probe, not for merge as is"
+    },
+    {
+      "id": "zig-f1",
+      "entry": "Zig base (port, grey)",
+      "hypothesis": "F1 ported to the Zig base",
+      "verdict": "running",
+      "where": "Zen 5 D16as_v7, Zen 3 vs hc/zig-submission, 6 rounds",
+      "note": "72e5b42 (agent): PRIMES_TEST ok; base buffer and wheel planes identical for 20,986 sizes, native and baseline builds; local 1T +32% (Intel, indicative)"
     }
   ],
   "azure_queue": 0,
@@ -1034,12 +1042,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T20:57:22Z",
-      "level": "info",
-      "text": "f2-block running. Zen 3 D16a_v4 (block sweep); Zen 5 after the F1 profile. 7c22f10 by agent; verified: base-only diff plus RULES.md, PRIMES_TEST passes at 16/24/32 KB, buffer bit-identical to the champion for 20,984 sizes at 6 block sizes on avx2 and avx512 (agent harness rerun here; agent also ran sse4 and NEON under qemu). Local 1T +24-31% (indicative). Variants hc/f2-block-16 and -24 for the sweep (default constant only)",
-      "auto": true
-    },
     {
       "utc": "2026-10-10T21:16:06Z",
       "level": "decision",
@@ -1387,6 +1389,18 @@
       "level": "info",
       "text": "f6-no512 (wheel and base) running: IDEAS F6: AVX-512 target off may hold a higher all-core clock at 96T; expect -2% to +4% at 96T",
       "auto": true
+    },
+    {
+      "utc": "2026-10-10T23:15:09Z",
+      "level": "info",
+      "text": "zig-f1 (Zig base (port, grey)) running: F1 ported to the Zig base",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T23:15:09Z",
+      "level": "warn",
+      "auto": true,
+      "text": "zig-f1 changed with no reasoning recorded (st.py decide)."
     }
   ],
   "research": {
