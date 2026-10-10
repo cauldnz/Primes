@@ -1,5 +1,44 @@
 # Performance review: ISPC base and wheel entries
 
+## Updated ranked suggestions (2026-10-10)
+
+These supersede the priority order of the original review below. The newer profile says the
+base sparse loop is identical to Rust's compiled loop (12 instructions per eight composites)
+and apparently store-bound; the 422 KB dense code is much larger than Rust's 89 KB. The wheel
+Zig port is 5–8% faster. The earlier suggestion to **raise the dense threshold** is withdrawn:
+it was measured to lose 7%. Do not merge marks into wider base stores or segment the sieve.
+The following whole-pass gains are hypotheses, not measurements or additive forecasts.
+
+For every A/B test, verify prime counts and interleave at least five baseline/candidate runs
+on the same host at both 1 thread and all hardware threads. Reject gains within A/A noise.
+“Base: yes” below requires sequential odd-factor search, an individual source-level mark
+for each composite, and a freshly allocated and initialized runtime-sized sieve each pass.
+For the wheel-only ideas, “base: no” refers to the proposed wheel technique, not to whether
+the wheel entry itself is faithful.
+
+| Rank | Change | Target and rationale | Allowed for faithful base? | Expected gain; single A/B falsifier |
+| --- | --- | --- | --- | --- |
+| 1 | **Base:** Compare fresh allocation and zeroing strategies in `sieve_create`; still create and fully initialize an independent sieve every pass. | Setup and all-thread memory traffic could cost more than the marking-only profile indicates. | **Yes**, if runtime-sized and genuinely fresh per pass. | **0–5% all-thread**, uncertain; reject if setup cycles and all-thread throughput do not both improve. |
+| 2 | **Base:** Reduce the 422 KB dense instruction footprint via inlining choices, out-of-line kernels, code layout or size-focused compilation of cold cases. | Dense front end and shared instruction resources under SMT; Rust's dense code is 89 KB. | **Yes**, if all odd-factor cases and individual marks remain. | **0–5% all-thread**; reject if hot code shrinks but I-cache behavior and throughput do not improve. |
+| 3 | **Wheel:** Compare Zig and ISPC assembly for `sparse_prime`; isolate one addressing, spill, store-order or loop-control difference per experiment. | Sparse is about 52% of the wheel pass and Zig is 5–8% faster. | **No** for the eight-plane wheel representation as a base entry; **yes** for a fresh faithful wheel. | **1–5% wheel**; reject if the targeted assembly difference is absent or all-thread throughput stays flat. |
+| 4 | **Base:** Test per-thread first-touch NUMA placement for newly allocated sieves, without retaining or sharing sieve contents. | Cross-node traffic with 192 workers; unlikely to affect 1 thread. | **Yes**, if each pass still creates and initializes its own buffer. | **0–5% all-thread**, host-dependent; reject if pages are already local or placement reduces throughput. |
+| 5 | **Wheel:** In `apply_group`, generate an arithmetic mask for one pattern member instead of loading its word pattern; inspect spills. | Fused groups are about 35% of wheel time; trades pattern loads against ALU pressure. | **No** if used as fused multi-composite base marking; **yes** for wheel. | **0–3% wheel**; reject if reduced loads are offset by spills or ALU stalls. |
+| 6 | **Base:** Place frequently executed dense cases together, with cold cases elsewhere, retaining full odd-factor dispatch. | Dense branch and I-cache locality, especially with SMT. | **Yes**; code layout changes neither discovery nor clearing. | **0–2%**; reject if counters and throughput do not move. |
+| 7 | **Wheel:** Sweep fused-group widths near the existing per-target AVX-512 and AVX2 choices. | Fewer passes compete with spills and pattern-build work. | **No** for fused base marking; **yes** for wheel. | **0–3% wheel**; reject a 1-thread gain if all-thread throughput loses. |
+| 8 | **Base:** Reschedule the eight individual byte ORs in `clear_sparse_e`, preserving increasing composite order and the pointer walk. | Sparse is about 61% of marking cycles, but matching Rust's store-bound loop suggests little headroom. | **Yes**; each composite still gets an individual byte OR. | **0–1%**; reject if the same 12-instruction kernel results or throughput is flat. |
+| 9 | **Wheel:** Try limited software pipelining or stream reordering in `sparse_prime`, preserving the spill-free 64-bit indices. | Could hide sparse-store latency; extra registers may hurt SMT. | **No** in eight-plane form for base; **yes** for wheel. | **0–2% wheel**; reject on a new spill or all-thread regression. |
+| 10 | **Base:** Compare SIMD shapes and the vector/scalar cutover **below 128**, confirming that lane conditions still fold to constants and retaining the NEON scalar route. | Dense is about 35% of the pass; could improve issue efficiency or footprint without raising the threshold. | **Yes**, with separate source-level marks for each composite. | **0–2%**; reject if code grows, runtime compares appear, or AVX2/NEON regresses. |
+| 11 | **Wheel:** Profile per-pass pattern construction and scratch-space occupancy at all threads; try smaller per-pass scratch layout, not cached patterns between passes. | Workers' independent patterns may stress caches under load. | **No** for fused base patterns; **yes** for wheel with all state per pass. | **0–2% wheel**; reject if construction is negligible or scratch reduction does not improve all-thread throughput. |
+| 12 | **Both:** Compare separately compiled CPU-specific variants selected before timing, with identical per-pass algorithm and honest output tags. | Avoid choosing Zen 5 settings for the AVX2 EPYC. | **Yes** for base variants preserving its marks and fresh passes; **yes** for faithful wheel variants. | **0–3% where currently mismatched**; reject if selection/binary footprint or either runner's all-thread throughput worsens. |
+
+Rule basis: [`CONTRIBUTING.md`](CONTRIBUTING.md) requires an odd-by-odd next-factor search,
+individual clearing in increasing `2 × factor` steps (lines 248–262), and a new runtime-sized
+sieve instance each pass (lines 294–301). Compiler folding of separate single-bit source ORs
+is the existing base approach, but a maintainer could still question it; do not handwrite
+multi-composite base marks. Segmentation remains out of scope pending maintainer guidance.
+
+## Original review (historical context)
+
 Reviewed `hc/champion` (`5170556`) against the measurements in
 [`STATUS.md`](https://github.com/cauldnz/Primes/blob/ispc-dev/ispc-dev/STATUS.md),
 [`LEDGER.md`](https://github.com/cauldnz/Primes/blob/ispc-dev/ispc-dev/results/hc/LEDGER.md),
