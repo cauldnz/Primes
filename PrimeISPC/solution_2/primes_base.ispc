@@ -21,11 +21,19 @@
 //    each with a fixed bit position; their byte offsets are computed per factor and the 8
 //    masks are compile-time constants selected by p mod 16.
 //
+// On x86, after the dense phase the sparse factors clear the sieve block by block, as
+// rogiervandam's base entry (PrimeC/solution_5, shakeSieve) does: for each block of the bit
+// array (16 KB by default, so it stays in L1), every sparse factor clears its multiples inside
+// the block, stepping 2 x factor, and carries its next position on to the following block.
+// Each composite is still cleared by its own single-bit OR; only the nesting of the loops
+// changes. NEON builds keep the unblocked sparse phase.
+//
 // Sweep direction alternates by factor: the first factor (3) sweeps the sieve from the low end
 // up, the next from the high end down, and so on. A descending sweep visits the same
 // composites as an ascending one, each with its own single-bit OR and stepping 2 x factor,
 // from the last multiple below the sieve end down to the chunk holding factor squared. The
-// end of one sweep is the start of the next, so that part of the sieve is still in L1.
+// end of one sweep is the start of the next, so that part of the sieve is still in L1. On x86
+// the sparse factors alternate only in the first block; in the later blocks they all sweep up.
 //
 // The whole program - entry point, timing loop, threads, sieve and output - is ISPC. The only
 // external calls are to the C library (clock, allocation, pthreads).
@@ -289,6 +297,9 @@ static inline void clear_dense_neon_down(uniform uint64 * uniform w, uniform int
 }
 #endif
 
+// The sparse factors clear the sieve block by block on x86 only. On NEON each one sweeps the
+// whole sieve, as the dense factors do: blocking cost 2% on a Neoverse N2.
+#if defined(ISPC_TARGET_NEON)
 // Sparse clearing over bytes for an odd factor p > 16. Chunks of p bytes start at byte
 // multiples of p; in each, the 8 multiples sit at bit offsets t_j = p/2 + j*p (j = 0..7).
 // Their bit-in-byte positions depend only on p mod 16 (E), so the masks are constants.
@@ -363,6 +374,125 @@ static void clear_sparse(uniform Sieve * uniform s, uniform int p, uniform bool 
                  else clear_sparse_e(b, nbytes, p, 15); break;
     }
 }
+#else
+// Sparse clearing over bytes for an odd factor p > 16, one block at a time. Chunks of p bytes
+// start at byte multiples of p; in each, the 8 multiples sit at bit offsets t_j = p/2 + j*p
+// (j = 0..7), at byte offsets o_j < p in ascending order. Their bit-in-byte positions depend
+// only on p mod 16 (E), so the masks are constants. A factor's state is the chunk it has
+// reached and the first of that chunk's 8 multiples it has not cleared yet.
+struct Sparse {
+    uniform int p;        // the factor
+    uniform int c;        // byte offset of the current chunk (a multiple of p)
+    uniform int j;        // next multiple in that chunk, 0..7
+};
+
+static inline void sparse_init(uniform Sparse * uniform f, uniform int p) {
+    f->p = p;
+    f->c = ((p * p / 2) / 8 / p) * p;     // the chunk holding p*p; smaller multiples are composite too
+    f->j = 0;
+}
+
+// Clear f's multiples in the bytes below end_off, starting where f stopped.
+static inline void clear_sparse_e(uniform uint8 * uniform bytes, uniform Sparse * uniform f,
+                                  uniform int end_off, const uniform int E) {
+    const uniform int p = f->p;
+    uniform int o0 = (p / 2) >> 3,           o1 = (p / 2 + p) >> 3;
+    uniform int o2 = (p / 2 + 2 * p) >> 3,   o3 = (p / 2 + 3 * p) >> 3;
+    uniform int o4 = (p / 2 + 4 * p) >> 3,   o5 = (p / 2 + 5 * p) >> 3;
+    uniform int o6 = (p / 2 + 6 * p) >> 3,   o7 = (p / 2 + 7 * p) >> 3;
+    const uniform uint8 m0 = 1 << ((E / 2) & 7),         m1 = 1 << ((E / 2 + E) & 7);
+    const uniform uint8 m2 = 1 << ((E / 2 + 2 * E) & 7), m3 = 1 << ((E / 2 + 3 * E) & 7);
+    const uniform uint8 m4 = 1 << ((E / 2 + 4 * E) & 7), m5 = 1 << ((E / 2 + 5 * E) & 7);
+    const uniform uint8 m6 = 1 << ((E / 2 + 6 * E) & 7), m7 = 1 << ((E / 2 + 7 * E) & 7);
+    uniform uint8 * uniform q = bytes + f->c;
+    uniform uint8 * uniform end = bytes + end_off;
+    // Head: the rest of a chunk that the previous block's edge cut short.
+    uniform int j = f->j;
+    if (j != 0) {
+        uniform int o[8] = {o0, o1, o2, o3, o4, o5, o6, o7};
+        uniform uint8 m[8] = {m0, m1, m2, m3, m4, m5, m6, m7};
+        for (; j < 8; j++) {
+            if (q + o[j] >= end) { f->j = j; return; }
+            q[o[j]] |= m[j];                                        // one composite
+        }
+        q += p;
+    }
+    // Whole chunks inside the block. Walk a pointer over the chunks: each OR is then one
+    // instruction with a register offset. Indexing with a 32-bit chunk offset cost a sign
+    // extension and an add per composite.
+    for (; q + p <= end; q += p) {                                  // one composite each
+        q[o0] |= m0; q[o1] |= m1; q[o2] |= m2; q[o3] |= m3;
+        q[o4] |= m4; q[o5] |= m5; q[o6] |= m6; q[o7] |= m7;
+    }
+    // Tail: the part of the next chunk that lies below end. Record where it stopped.
+    f->c = (uniform int)(q - bytes);
+    f->j = 0;
+    if (q + o0 < end) q[o0] |= m0; else return;
+    f->j = 1; if (q + o1 < end) q[o1] |= m1; else return;
+    f->j = 2; if (q + o2 < end) q[o2] |= m2; else return;
+    f->j = 3; if (q + o3 < end) q[o3] |= m3; else return;
+    f->j = 4; if (q + o4 < end) q[o4] |= m4; else return;
+    f->j = 5; if (q + o5 < end) q[o5] |= m5; else return;
+    f->j = 6; if (q + o6 < end) q[o6] |= m6; else return;
+    f->j = 7; if (q + o7 < end) q[o7] |= m7; else return;
+    f->c += p;                                                      // the whole chunk fitted
+    f->j = 0;
+}
+
+// Descending form of clear_sparse_e: the same multiples of f, those from where f stopped up to
+// end_off, visited top down. f's state moves on to the first multiple at or above end_off
+// first; then the chunk holding end_off goes, its multiples below end_off from the highest
+// down, then the whole chunks from the highest down, then the chunk where f stopped, down to
+// the multiple it stopped at.
+static inline void clear_sparse_e_down(uniform uint8 * uniform bytes, uniform Sparse * uniform f,
+                                       uniform int end_off, const uniform int E) {
+    const uniform int p = f->p;
+    uniform int o0 = (p / 2) >> 3,           o1 = (p / 2 + p) >> 3;
+    uniform int o2 = (p / 2 + 2 * p) >> 3,   o3 = (p / 2 + 3 * p) >> 3;
+    uniform int o4 = (p / 2 + 4 * p) >> 3,   o5 = (p / 2 + 5 * p) >> 3;
+    uniform int o6 = (p / 2 + 6 * p) >> 3,   o7 = (p / 2 + 7 * p) >> 3;
+    const uniform uint8 m0 = 1 << ((E / 2) & 7),         m1 = 1 << ((E / 2 + E) & 7);
+    const uniform uint8 m2 = 1 << ((E / 2 + 2 * E) & 7), m3 = 1 << ((E / 2 + 3 * E) & 7);
+    const uniform uint8 m4 = 1 << ((E / 2 + 4 * E) & 7), m5 = 1 << ((E / 2 + 5 * E) & 7);
+    const uniform uint8 m6 = 1 << ((E / 2 + 6 * E) & 7), m7 = 1 << ((E / 2 + 7 * E) & 7);
+    if (f->c >= end_off) return;                                    // nothing below end_off
+    uniform int o[8] = {o0, o1, o2, o3, o4, o5, o6, o7};
+    uniform uint8 m[8] = {m0, m1, m2, m3, m4, m5, m6, m7};
+    uniform uint8 * uniform first = bytes + f->c;
+    const uniform int j0 = f->j;
+    uniform uint8 * uniform q = first + (end_off - f->c) / p * p;   // q <= end < q + p
+    uniform uint8 * uniform end = bytes + end_off;
+    uniform int jn = (q == first) ? j0 : 0;                         // first multiple at or above end
+    while (jn < 8 && q + o[jn] < end) jn++;
+    if (jn == 8) { f->c = (uniform int)(q - bytes) + p; f->j = 0; }
+    else         { f->c = (uniform int)(q - bytes);     f->j = jn; }
+    const uniform int lo = (q == first) ? j0 : 0;
+    for (uniform int j = jn - 1; j >= lo; j--) q[o[j]] |= m[j];    // one composite each
+    if (q == first) return;
+    q -= p;
+    while (q > first) {                                             // one composite each
+        q[o7] |= m7; q[o6] |= m6; q[o5] |= m5; q[o4] |= m4;
+        q[o3] |= m3; q[o2] |= m2; q[o1] |= m1; q[o0] |= m0;
+        q -= p;
+    }
+    for (uniform int j = 7; j >= j0; j--) q[o[j]] |= m[j];         // where f stopped
+}
+
+#define SPARSE(E) case E: if (down) clear_sparse_e_down(b, f, end_off, E); \
+                          else clear_sparse_e(b, f, end_off, E); break;
+
+// Clear sparse factor f's multiples up to byte end_off of the sieve, from where it stopped,
+// from the low end up or from the high end down.
+static void clear_sparse(uniform Sieve * uniform s, uniform Sparse * uniform f,
+                         uniform int end_off, uniform bool down) {
+    uniform uint8 * uniform b = (uniform uint8 * uniform)s->bits;
+    switch (f->p & 15) {
+        SPARSE(1) SPARSE(3) SPARSE(5) SPARSE(7) SPARSE(9) SPARSE(11) SPARSE(13)
+        default: if (down) clear_sparse_e_down(b, f, end_off, 15);
+                 else clear_sparse_e(b, f, end_off, 15); break;
+    }
+}
+#endif
 
 #if defined(ISPC_TARGET_NEON)
 #define D(P) case P: if (down) clear_dense_neon_down(s->bits, s->nwords, P); \
@@ -377,12 +507,15 @@ static void clear_sparse(uniform Sieve * uniform s, uniform int p, uniform bool 
                      else clear_dense(s->bits, s->nwords, P); break;
 #endif
 
-// Clear all odd multiples of factor p, from the low end up or from the high end down.
+// Clear all odd multiples of factor p, from the low end up or from the high end down. On x86
+// p is always dense; the sparse factors go through the blocked loop in run_sieve.
 static void clear_factor(uniform Sieve * uniform s, uniform int p, uniform bool down) {
     // clear_factor isn't inlined, so ISPC would compile it for an unknown execution mask and
     // mask every vector load and store in the dense code. Callers run with all lanes on.
     unmasked {
+#if defined(ISPC_TARGET_NEON)
         if (p >= DENSE_LIMIT) { clear_sparse(s, p, down); return; }
+#endif
         switch (p) {
             D(3)   D(5)   D(7)   D(9)   D(11)  D(13)  D(15)  D(17)  D(19)  D(21)  D(23)  D(25)
             D(27)  D(29)  D(31)  D(33)  D(35)  D(37)  D(39)  D(41)  D(43)  D(45)  D(47)  D(49)
@@ -394,7 +527,28 @@ static void clear_factor(uniform Sieve * uniform s, uniform int p, uniform bool 
     }
 }
 
+#if !defined(ISPC_TARGET_NEON)
+// Sparse block size in bytes: 16 KB unless PRIMES_BLOCK_KB says otherwise. main() reads the
+// variable once, before any sieve runs.
+#define BLOCK_KB 16
+static uniform int block_bytes = BLOCK_KB * 1024;
+
+// Sizes are below 2^32 (nbits is an int), so sqrt(size) < 65536, below which lie 6542 primes.
+#define MAX_SPARSE 6560
+#endif
+
 // The base algorithm: find the next prime, clear its multiples, repeat up to sqrt(size).
+// Dense factors clear the whole sieve one after another. On x86 the sparse factors clear it
+// block by block (see the header); on NEON they go on as the dense ones do.
+//
+// The sparse factors are the ones the unblocked loop finds, collected as the outer loop runs
+// over the first block. The scan for the next prime reads bits up to index q/2 (factor q) and
+// stops there or at the first prime before it; any bit it reads past q/2 only ends the loop.
+// The first block is made at least q/2 bits long, and each factor found clears its multiples
+// in the first block before the scan moves on. So when the scan reaches a candidate, every
+// smaller factor, dense or sparse, has already cleared every bit the scan can act on, as in
+// the unblocked loop: it sees the same bits and finds the same factors. The later blocks hold
+// no candidates, so the list is complete before they start.
 static void run_sieve(uniform Sieve * uniform s) {
     uniform int q = (uniform int)sqrt((uniform double)s->size);
     while ((uniform int64)(q + 1) * (q + 1) <= s->size) q++;
@@ -409,10 +563,41 @@ static void run_sieve(uniform Sieve * uniform s) {
         while (i < s->nbits && is_composite_index(s, i)) i++;     // next prime
         factor = 2 * i + 1;
         if (factor > q) break;
+#if !defined(ISPC_TARGET_NEON)
+        if (factor >= DENSE_LIMIT) break;                           // the sparse factors follow
+#endif
         clear_factor(s, factor, down);
         down = !down;
         factor += 2;
     }
+#if !defined(ISPC_TARGET_NEON)
+    if (factor > q) return;                                         // no sparse factors
+
+    // First block: the outer loop goes on, each sparse factor clearing up to first_end. The
+    // sparse factors carry on the alternation here: factor k of the list sweeps the first
+    // block down if (k & 1) != down0.
+    const uniform bool down0 = down;
+    const uniform int nbytes = s->nwords * 8;
+    uniform int first_end = max(block_bytes, (q >> 1) / 8 + 1);    // holds bits 0..q/2
+    first_end = min(first_end, nbytes);
+    uniform Sparse fs[MAX_SPARSE];
+    uniform int nf = 0;
+    while (factor <= q) {                                           // factor is the next prime
+        sparse_init(&fs[nf], factor);
+        clear_sparse(s, &fs[nf], first_end, ((nf & 1) != 0) != down0);
+        nf++;
+        uniform int i = (factor + 2) >> 1;
+        while (i < s->nbits && is_composite_index(s, i)) i++;     // next prime
+        factor = 2 * i + 1;
+    }
+
+    // Later blocks: every sparse factor in turn, carrying on upwards from where it stopped.
+    for (uniform int start = first_end; start < nbytes; start += block_bytes) {
+        const uniform int end = min(start + block_bytes, nbytes);
+        for (uniform int k = 0; k < nf; k++)
+            clear_sparse(s, &fs[k], end, false);
+    }
+#endif
 }
 
 // Number of primes up to and including size: unmarked odd numbers 3..size, plus 2.
@@ -512,6 +697,10 @@ static void run_threads(uniform Job * uniform jobs, uniform int64 * uniform tids
 }
 
 export uniform int main() {
+#if !defined(ISPC_TARGET_NEON)
+    uniform int8 n_block[16] = {80,82,73,77,69,83,95,66,76,79,67,75,95,75,66,0}; // PRIMES_BLOCK_KB
+    block_bytes = max(env_int(n_block, BLOCK_KB), 1) * 1024;
+#endif
     uniform int8 n_test[12] = {80,82,73,77,69,83,95,84,69,83,84,0};    // PRIMES_TEST
     if (env_int(n_test, 0) != 0) self_test();
 
