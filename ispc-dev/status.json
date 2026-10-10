@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T09:21:07Z",
+  "updated_utc": "2026-10-10T09:21:26Z",
   "run": {
     "id": "ap-20261010T0715Z",
     "state": "running",
@@ -932,12 +932,6 @@
   ],
   "events": [
     {
-      "utc": "2026-10-10T07:53:35Z",
-      "level": "info",
-      "text": "rust-falloff done. Zen 5 D32as_v7. D32as_v7 is 16 cores x 2 SMT (lscpu). Unpinned 16 threads (one per core): ours 1.64M, Rust 1.60M (+3%). 32 threads (SMT): ours 1.77M (+8% from SMT), Rust 1.55M (-3%): the full-occupancy lead is ours gaining from SMT while Rust does not. Rust pinned to 32 CPUs 1.51M vs unpinned 1.55M, and 30 or 31 threads no better: not scheduling or the main thread. Azure numbers SMT siblings adjacently (taskset 0-15 at 16 threads: ours 0.99M, i.e. 8 cores)",
-      "auto": true
-    },
-    {
       "utc": "2026-10-10T07:55:27Z",
       "level": "decision",
       "text": "intel-avx2: start an agent on the Intel image: every entry built AVX2-only (ISPC avx2-i32x8, Rust and C++ and C5 with skylake), run on one Intel Xeon size. Why: RUN-PLAN priority 4; Azure Xeons all have AVX-512 and the i7-9750H does not, so native builds would measure the wrong code path.",
@@ -1299,6 +1293,16 @@
       "level": "info",
       "text": "wheel-group32 more rounds. Zen 5 D96as_v7; Zen 4 recheck. D96as_v7, 6 rounds: +3.7% (+0.6 to +6.8) at 1T, +3.2% (+0.9 to +5.5) at 24T, +4.0% (+2.5 to +5.5) at 48T, +2.7% (-1.2 to +6.6) at 96T; 6/6 rounds won at 1, 24, 48T. Second Zen 5 run (D32as_v7, 6 rounds) queued, then Zen 4 recheck",
       "auto": true
+    },
+    {
+      "utc": "2026-10-10T09:21:26Z",
+      "level": "decision",
+      "text": "run: hourly review (2.1 h): phase A overran because Chris's three scaling tests went on the 96-vCPU node. Plan: finish the G=8 wheel task and the sieve-load rerun there (about 09:45), then delete and recreate the pool for the fresh-node repeat (base and wheel, 4 rounds, to about 10:30), then take it down and bring up the fleet (Zen 3, Zen 4, Cobalt 100, Intel) for the Intel measurement, the Zen 3 port numbers and the Zen 4 recheck. Quota still 128 Spot vCPUs. Why: Chris's scaling tests come first; the fleet work left is measurement (Intel, ports on Zen 3) and rechecks, which fit in the two hours before the 12:30 cutoff. Passed over: starting the fleet now by dropping the fresh-node repeat. Expect: fleet up by 10:35.",
+      "id": "run",
+      "what": "hourly review (2.1 h): phase A overran because Chris's three scaling tests went on the 96-vCPU node. Plan: finish the G=8 wheel task and the sieve-load rerun there (about 09:45), then delete and recreate the pool for the fresh-node repeat (base and wheel, 4 rounds, to about 10:30), then take it down and bring up the fleet (Zen 3, Zen 4, Cobalt 100, Intel) for the Intel measurement, the Zen 3 port numbers and the Zen 4 recheck. Quota still 128 Spot vCPUs",
+      "why": "Chris's scaling tests come first; the fleet work left is measurement (Intel, ports on Zen 3) and rechecks, which fit in the two hours before the 12:30 cutoff",
+      "instead": "starting the fleet now by dropping the fresh-node repeat",
+      "expect": "fleet up by 10:35"
     }
   ],
   "research": {
