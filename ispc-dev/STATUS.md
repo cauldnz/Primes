@@ -1,10 +1,89 @@
 # Status from the Claude Code session
 
-Autopilot lock: ap-20261010T0140Z 2026-10-10T01:40Z
 
 
-**Last updated:** 2026-10-10 10:00 AEST. Living file; earlier versions are in
+**Last updated:** 2026-10-10 14:30 AEST. Living file; earlier versions are in
 `git log -p ispc-dev/STATUS.md`. Replies go in `ispc-dev/NEXT-STEPS.md`.
+
+## Morning report: run ap-20261010T0140Z (11:40 to 14:30 AEST, 10 October)
+
+Base-first run under the new tick harness. One keep (arm), every RUN-PLAN priority answered,
+a final base scoreboard, and an early shutdown at 04:26Z (planned end 05:40Z). Spend: about
+NZ$2.1 of NZ$30. All pools deleted. Nothing went to `ispc` or to a PR.
+
+### What changed
+
+**p4-arm-dense is merged into `hc/champion` (`37e19c7`, with Chris's approval).** A NEON-only
+dense resetter after Rust's: masks held in q registers, one period per run from P = 17, so the
+loop is `ldp q` / `orr` / `stp q`. Cobalt 100, six rounds: +2.5% at 1T (95% CI +2.2% to +2.8%),
++2.9% at 2T and 4T, every round won. The x86 `--emit-asm` output is identical for all three
+targets, so Zen 3, Zen 5 and the D16as_v5 recheck are met by identity. Rust's lead on arm falls
+from 4.3% to about 1.9%.
+
+### Final scoreboard: base entry (`37e19c7`) against mike-barber's Rust, same rounds
+
+| Machine | 1T | all threads | source |
+|---|---|---|---|
+| Zen 5 (D16as_v7) | 124.9k, +0.8% | 988k, +13.9% | final5, 6 rounds (1T A/A SD 2.3%: noisy) |
+| Zen 3 (D16a_v4) | 56.0k, +6.5% | 431k, +4.7% | final5, 6 rounds |
+| Cobalt 100 (D4ps_v6) | 42.1k, -1.9% | 169k (4T), -1.5% | p4-arm-dense, 6 rounds |
+| Zen 5, 32 vCPU | 127.0k, +4.3% | 1.98M, +14.4% | p6-scaling-32, 4 rounds |
+| Zen 5, 64 vCPU | 129.7k, +2.7% | 3.66M, +14.3% (32T: +2.5%) | p6-scaling-64, 4 rounds |
+
+Against Swift (`yellowcub_fahlman_striped_UInt8`) on our Zen 5: ours 126k, Swift 107k (+18%).
+Against the official numbers: Swift's 122,869 on the Threadripper is not reproducible here; our
+Zen 5 tracks the Threadripper for Rust within 2%, which puts our 1T within about 1-3% of Swift's
+official figure. That gap is machine or toolchain, not a phase we can see (below).
+
+### Findings
+
+- **The all-threads lead is a full-occupancy effect.** With threads equal to vCPUs (16/16,
+  32/32, 64/64) we lead Rust by 14%; with vCPUs to spare (32 of 64) by 2.5%. Rust falls back
+  when every vCPU is busy; ours keeps scaling. The official ranking runs all threads.
+- **Swift's lead is not in the code.** Same-node profile: Swift is slower in every phase
+  (sparse 29.8 vs 24.1 us, dense+scan 17.1 vs 15.6). Its striped layout still does one byte RMW
+  per composite.
+- **The compiled sparse loops** (`results/hc/asm-sparse/README.md`, Chris's request): ours and
+  Rust's are the same 12 instructions per 8 bits (one `orb` RMW per composite, the floor under
+  the base rules for p >= 113); Swift's is 25 per 16 with 6 spilled pointer reloads. llvm-mca
+  (znver4, a screen) 0.67 / 0.67 / 0.81 cycles per bit. No sparse-loop change is supported; any
+  gain left is in the memory system (a perf-counter run would tell).
+- **Stand-in:** D16as_v5 ran Rust 5.6% below the EPYC VM, outside the 5% bar; Zen 3 stayed the
+  decider, with Chris's D16as_v5 recheck for every keep.
+- **SSE4 (Celeron path):** our `sse4-i32x4` build ties Rust's x86-64-v2 build at 1T (-0.7%) and
+  trails 1.8% at 16T. `sse4-i32x8` is 12x slower (scalarised 64-bit lanes): reverted.
+- **Arm phases:** the gap was in dense (ours 36.5 us vs Rust about 30), which p4-arm-dense
+  targeted. The follow-up (factor 3 initialises the buffer on NEON) gained +0.5%: reverted.
+
+### Decisions and why
+
+- **p1 stand-in:** kept D16a_v4 as decider because D16as_v5 missed the 5% bar; passed over
+  switching on a near miss.
+- **p2 profiles first:** every later hypothesis named its phase; the base profile put sparse at
+  61% on Zen 5 and near the store limit, so p3 waited for evidence.
+- **p3 parked:** Swift profile and asm both showed no lever; passed over a blind Zen 5 1T change.
+- **p4 arm:** the profile named dense; an agent wrote the NEON resetter; kept on the
+  target-specific rule (lower bound +2.2% >= 2%, x86 asm identical). init3 failed the 2% bar.
+- **p5 SSE4:** tied Rust; i32x8 probe reverted. An Intel proxy needs Chris's OK.
+- **p6 scaling:** 32 then 64 vCPUs, one large node at a time inside the quota.
+- **Early stop:** no candidate could finish six rounds plus the D16as_v5 check before 04:55.
+
+### Dry-run checks (first two ticks)
+
+All four passed: submit appears in `jobs.tsv` and partial output is copied; final output comes
+from blob storage and the job is marked done; tally moves spend on the page; the `send_later`
+wake-up fires and the tick resumes from git and Batch. Faults seen later: one submit failed
+silently (caught by checking `jobs.tsv`, resubmitted); transient Azure connection resets
+(retried); one tick.sh took 7 minutes on blob deletes; the 13 MB asm dump went into git via
+`git add ispc-dev` (backlog 23); `jobs.tsv` records pool ids (backlog 22).
+
+### Overhead
+
+568 node-minutes (cost log) for 17 tasks totalling 174 task-minutes: tasks occupied 31% of
+node time, short of the 60% measuring target. The split between builds and measuring inside a
+task was not recorded. The rest is boot, start task and idle floor nodes (the Zen 5 pool held
+two nodes for much of the run). Next run: floors of zero between bursts, or queue the next
+experiment before the current one ends.
 
 ## Morning report: run ap-20261009T2033Z (06:33 to 10:00 AEST, 10 October)
 

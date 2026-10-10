@@ -1,9 +1,9 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T04:20:10Z",
+  "updated_utc": "2026-10-10T04:26:59Z",
   "run": {
     "id": "ap-20261010T0140Z",
-    "state": "running",
+    "state": "stopped",
     "mode": "azure",
     "mode_reason": "Chris kicked off a 4-hour base-first run (RUN-PLAN.md) in this session; Azure login works.",
     "started_utc": "2026-10-10T01:40:00Z",
@@ -13,13 +13,9 @@
     "ends_utc": "2026-10-10T05:40:00Z",
     "background_runs": 0,
     "last_tick_utc": "2026-10-10T04:20:10Z",
-    "wakeup": "trig_01FEtJD1QHpNWLW3mZLXXNPS"
+    "wakeup": "none"
   },
-  "current": {
-    "id": "p5-sse4",
-    "phase": "evaluate",
-    "detail": "SSE4 probe (Zen 3), arm profile (Cobalt 100), 32-vCPU scaling (Zen 5) running"
-  },
+  "current": null,
   "scoreboard": [
     {
       "machine": "Zen 3 (EPYC 7763)",
@@ -747,17 +743,17 @@
       "id": "p6-scaling-64",
       "entry": "base",
       "hypothesis": "lead over Rust holds or grows at 64 threads on Zen 5",
-      "verdict": "running",
+      "verdict": "holds",
       "where": "Zen 5 D64as_v7",
-      "note": "cand hc/champion 37e19c7, champ a1433d9 (x86-identical, so an A/A), ctrl Rust; 4 rounds"
+      "note": "D64as_v7, 4 rounds: ours vs Rust +2.7% at 1T, +2.5% at 32T, +14.3% at 64T (3.66M vs 3.20M). A/A (x86-identical champions) within 0.3% at every thread count"
     },
     {
       "id": "final5-base",
       "entry": "base",
       "hypothesis": "final scoreboard: base champion 37e19c7 vs Rust and davepl",
-      "verdict": "running",
+      "verdict": "done",
       "where": "Zen 5, Zen 3",
-      "note": "6 rounds each; arm figures come from p4-arm-dense (42.1k vs Rust 42.9k at 1T)"
+      "note": "6 rounds. Ours vs Rust at 1T / all threads: Zen 5 +0.8% / +13.9%, Zen 3 +6.5% / +4.7%; Cobalt 100 (p4-arm-dense) -1.9% / -1.5%. A/A within 1% except Zen 5 1T (SD 2.3%)"
     }
   ],
   "azure_queue": 0,
@@ -767,39 +763,6 @@
     "Zen 5 at one thread: about +3% to pass Swift's official 122.9k"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T01:55:22Z",
-      "level": "info",
-      "text": "Dry run check 3 passed: tally's node-minutes reach the page (NZ$0.07, now NZ$0.15). One tally call hit a transient connection reset; a retry worked."
-    },
-    {
-      "utc": "2026-10-10T01:55:22Z",
-      "level": "info",
-      "text": "Tick 2: stand-in jobs in round 3 of 6; profiles starting. Next tick 02:05 UTC. Check 2 (final output from blob storage) waits for the first job to end."
-    },
-    {
-      "utc": "2026-10-10T02:09:31Z",
-      "level": "decision",
-      "text": "p1-base-standin: keep D16a_v4 (Zen 3) as the second deciding machine; take the D16as_v5 pool down. Why: RUN-PLAN priority 1 asks for Rust within 5% of the EPYC VM's 62.7k-63.1k; on D16as_v5 Rust ran 59.4k, 5.6% below, so it just misses. It is far closer than Zen 3 (17% below), which is worth the workshop's attention. Passed over: D16as_v5 as the decider (would bend the plan's threshold).",
-      "id": "p1-base-standin",
-      "what": "keep D16a_v4 (Zen 3) as the second deciding machine; take the D16as_v5 pool down",
-      "why": "RUN-PLAN priority 1 asks for Rust within 5% of the EPYC VM's 62.7k-63.1k; on D16as_v5 Rust ran 59.4k, 5.6% below, so it just misses. It is far closer than Zen 3 (17% below), which is worth the workshop's attention.",
-      "instead": "D16as_v5 as the decider (would bend the plan's threshold)"
-    },
-    {
-      "utc": "2026-10-10T02:12:14Z",
-      "level": "info",
-      "text": "Dry run check 2 passed: when the four jobs ended, tick.sh fetched their final output from blob storage and marked them done (02:07). All four dry-run checks passed; submit/collect/tally stay in use."
-    },
-    {
-      "utc": "2026-10-10T02:12:14Z",
-      "level": "decision",
-      "text": "diag-base-phases: fix the Rust diagnostic myself and resubmit on Zen 5 and Zen 3. Why: Its Docker build failed: the Dockerfile builds with Rust 1.57 and the agent used std::hint::black_box (Rust 1.66). A one-line fix (drop the black_box) was quicker than a new agent. Expect: both profiles within ~20 minutes.",
-      "id": "diag-base-phases",
-      "what": "fix the Rust diagnostic myself and resubmit on Zen 5 and Zen 3",
-      "why": "Its Docker build failed: the Dockerfile builds with Rust 1.57 and the agent used std::hint::black_box (Rust 1.66). A one-line fix (drop the black_box) was quicker than a new agent.",
-      "expect": "both profiles within ~20 minutes"
-    },
     {
       "utc": "2026-10-10T02:12:14Z",
       "level": "info",
@@ -1141,6 +1104,43 @@
       "utc": "2026-10-10T04:04:19Z",
       "level": "info",
       "text": "final5-base (base) running: final scoreboard: base champion 37e19c7 vs Rust and davepl",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T04:26:15Z",
+      "level": "decision",
+      "text": "p6-scaling: the base lead over Rust is a full-occupancy effect: +2.5-2.7% when threads leave vCPUs free, +14% when threads equal vCPUs (16 of 16, 32 of 32, 64 of 64). Why: measured on three node sizes; Rust falls back at full occupancy while ours keeps scaling. The official ranking runs all threads, so this is where the base entry earns its place. Passed over: a thread-pinning or SMT probe this run (no time before the cutoff). Expect: next run: test why Rust drops at full occupancy (scheduler, main-thread contention) and whether ours holds at 96 and 128.",
+      "id": "p6-scaling",
+      "what": "the base lead over Rust is a full-occupancy effect: +2.5-2.7% when threads leave vCPUs free, +14% when threads equal vCPUs (16 of 16, 32 of 32, 64 of 64)",
+      "why": "measured on three node sizes; Rust falls back at full occupancy while ours keeps scaling. The official ranking runs all threads, so this is where the base entry earns its place",
+      "instead": "a thread-pinning or SMT probe this run (no time before the cutoff)",
+      "expect": "next run: test why Rust drops at full occupancy (scheduler, main-thread contention) and whether ours holds at 96 and 128"
+    },
+    {
+      "utc": "2026-10-10T04:26:15Z",
+      "level": "decision",
+      "text": "run-end: stop experiments at 04:26 and shut down early. Why: the final scoreboard and all planned priorities are done or parked with reasons; no queued candidate could finish the six-round protocol and the D16as_v5 check before the 04:55 cutoff. Passed over: an extra full-occupancy probe (half-measured at best).",
+      "id": "run-end",
+      "what": "stop experiments at 04:26 and shut down early",
+      "why": "the final scoreboard and all planned priorities are done or parked with reasons; no queued candidate could finish the six-round protocol and the D16as_v5 check before the 04:55 cutoff",
+      "instead": "an extra full-occupancy probe (half-measured at best)"
+    },
+    {
+      "utc": "2026-10-10T04:27:10Z",
+      "level": "info",
+      "text": "Run ap-20261010T0140Z is stopped; spend NZ$2.08.",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T04:27:10Z",
+      "level": "info",
+      "text": "p6-scaling-64 holds. Zen 5 D64as_v7. D64as_v7, 4 rounds: ours vs Rust +2.7% at 1T, +2.5% at 32T, +14.3% at 64T (3.66M vs 3.20M). A/A (x86-identical champions) within 0.3% at every thread count",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T04:27:10Z",
+      "level": "info",
+      "text": "final5-base done. Zen 5, Zen 3. 6 rounds. Ours vs Rust at 1T / all threads: Zen 5 +0.8% / +13.9%, Zen 3 +6.5% / +4.7%; Cobalt 100 (p4-arm-dense) -1.9% / -1.5%. A/A within 1% except Zen 5 1T (SD 2.3%)",
       "auto": true
     }
   ],
