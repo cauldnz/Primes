@@ -18,11 +18,11 @@ id	pool	size	kind	outdir	submitted	state
 0403571287	hc-standard-d16a-v4	Standard_D16a_v4	base	ispc-dev/results/hc/final5-base	2026-10-10T04:04:05Z	done
 0715341705	hc-standard-d96as-v7	Standard_D96as_v7	base	ispc-dev/results/hc/a-scale-base	2026-10-10T07:15:42Z	done
 07154814053	hc-standard-d96as-v7	Standard_D96as_v7	wheel	ispc-dev/results/hc/a-scale-wheel	2026-10-10T07:16:39Z	done
-07164632048	hc-standard-d96as-v7	Standard_D96as_v7	zig	ispc-dev/results/hc/a-scale-zigbase	2026-10-10T07:17:37Z	open
+07164632048	hc-standard-d96as-v7	Standard_D96as_v7	zig	ispc-dev/results/hc/a-scale-zigbase	2026-10-10T07:17:37Z	done
 07174218639	hc-standard-d96as-v7	Standard_D96as_v7	zig	ispc-dev/results/hc/a-scale-zigwheel	2026-10-10T07:18:09Z	open
 07201316963	hc-standard-d32as-v7	Standard_D32as_v7	base	ispc-dev/results/hc/rust-falloff	2026-10-10T07:20:22Z	done
 0741563732	hc-standard-d96as-v7	Standard_D96as_v7	base	ispc-dev/results/hc/idea2-pin-96	2026-10-10T07:42:06Z	cancelled
-07441923195	hc-standard-d32as-v7	Standard_D32as_v7	base	ispc-dev/results/hc/idea4-stopflag-32	2026-10-10T07:44:27Z	open
-0744343557	hc-standard-d32as-v7	Standard_D32as_v7	base	ispc-dev/results/hc/idea18-no512-32	2026-10-10T07:45:25Z	open
+07441923195	hc-standard-d32as-v7	Standard_D32as_v7	base	ispc-dev/results/hc/idea4-stopflag-32	2026-10-10T07:44:27Z	done
+0744343557	hc-standard-d32as-v7	Standard_D32as_v7	base	ispc-dev/results/hc/idea18-no512-32	2026-10-10T07:45:25Z	done
 0752407250	hc-standard-d96as-v7	Standard_D96as_v7	base	ispc-dev/results/hc/idea2-pin-96	2026-10-10T07:52:49Z	open
 07525414848	hc-standard-d32as-v7	Standard_D32as_v7	base	ispc-dev/results/hc/idea2-pin-32	2026-10-10T07:53:02Z	open

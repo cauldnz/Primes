@@ -1,0 +1,47 @@
+Architecture:                            x86_64
+CPU(s):                                  32
+Model name:                              AMD EPYC 9V45 96-Core Processor
+BIOS Model name:                         AMD EPYC 9V45 96-Core Processor                 None CPU @ 2.6GHz
+AVX-512: yes
+kind=base rounds=4 id=07525414848
+build cand
+build champ
+self-test cand: 13 ok, 0 bad, exit=0
+self-test champ: 13 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-ispc-base;115672;5.000019;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;1711716;5.000573;32;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;1633555;5.000251;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;868527;5.000149;8;algorithm=base,faithful=yes,bits=1
+== round warmup champ
+cauldnz-ispc-base;115573;5.000013;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;1671684;5.000505;32;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;1617481;5.000286;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;882622;5.000186;8;algorithm=base,faithful=yes,bits=1
+== round warmup champ2
+cauldnz-ispc-base;115708;5.000016;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;1714975;5.000581;32;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;1569662;5.000252;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;847997;5.000166;8;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl
+mike-barber_bit-extreme-hybrid;100475;5.0000472069;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;437209;5.0001745224;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;1527652;5.0004882812;16;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;1502952;5.0011796951;32;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl2
+davepl_array_optimized;80747;5.00022;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;1213147;5.00132;32;algorithm=base,faithful=yes,bits=1
+== round 1 ctrl2
+davepl_array_optimized;78948;5.00018;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;1217404;5.00137;32;algorithm=base,faithful=yes,bits=1
+== round 1 champ
+cauldnz-ispc-base;112643;5.000027;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;1745088;5.000718;32;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;1582127;5.000244;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;841661;5.000161;8;algorithm=base,faithful=yes,bits=1
+== round 1 champ2
+cauldnz-ispc-base;112533;5.000035;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;1820559;5.000530;32;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;1644657;5.000258;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;829598;5.000196;8;algorithm=base,faithful=yes,bits=1
+== round 1 cand
