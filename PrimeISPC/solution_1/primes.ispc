@@ -45,13 +45,9 @@ static inline uniform double now() {
 // ---------------------------------------------------------------------------------------
 // Wheel constants
 // ---------------------------------------------------------------------------------------
-// Prime patterns fused into one pass over a plane. Six suits AVX-512 on Zen 5 (+4.5% at 1T,
-// hc-011) but costs AVX2 on Zen 3 (-1.2%), so the AVX2 and SSE builds keep eight.
-#if defined(ISPC_TARGET_AVX512SKX)
-#define G 6
-#else
+// Prime patterns fused into one pass over a plane. hc-011 chose six for AVX-512 on Zen 5 with
+// the 16-word loop; with the 32-word loop eight passes fewer times over the planes.
 #define G 8
-#endif
 #define MAXPAT 1024      // largest prime handled as a word pattern
 // Masked vector stores are slow on AVX2 for Zen 2 to Zen 4 (about six cycles each) and cheap
 // with AVX-512. Without AVX-512, the group loop runs unmasked and partial vectors run past their
