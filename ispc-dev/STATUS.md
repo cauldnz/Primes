@@ -419,6 +419,20 @@ Earlier entries:
 
 ## Where the cycles go
 
+**Update, 2026-10-10 (12:10–12:25 AEST): the base against Rust, same node.** TSC cycles a pass at
+1T from `hc/diag-base-phases` and `hc/diag-rust-phases` (raw output in `results/hc/diag-base-phases/`):
+
+| Phase | Zen 5 ours | Zen 5 Rust | Zen 3 ours | Zen 3 Rust |
+|---|---|---|---|---|
+| sparse (factors 128 and up) | 61.1k | 61.5k | 149.0k | 147.4k |
+| dense (factors below 128) | 35.7k | 35.9k | 66.9k | 82.0k |
+| next-prime scan | 4.0k | 4.2k | 5.7k | 5.7k |
+| set-up and destroy | 0.1k | 0.9k | 0.1k | 1.8k |
+| whole pass | 100.7k | 101.7k | 221.5k | 235.1k |
+
+On Zen 5 the two are level phase for phase. Sparse marking is 61% of a pass and already runs near
+two single-byte read-modify-writes per core cycle, about the store ports' limit.
+
 **Update, 2026-10-10 (07:30–07:35 AEST): the wheel against the Zig wheel, same node.** TSC
 cycles a pass at 1T, from the diagnostic branches `hc/diag-wheel-phases` and
 `hc/diag-zig-wheel-phases` (raw output in `results/hc/diag-phases/same-node/`):
