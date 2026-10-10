@@ -3,3 +3,5 @@ id	pool	size	kind	outdir	submitted	state
 01414820118	hc-standard-d16as-v7	Standard_D16as_v7	base	ispc-dev/results/hc/p1-base-standin	2026-10-10T01:41:56Z	done
 01481123058	hc-standard-d16as-v7	Standard_D16as_v7	rust	ispc-dev/results/hc/diag-base-phases	2026-10-10T01:48:20Z	done
 01482615731	hc-standard-d16as-v5	Standard_D16as_v5	rust	ispc-dev/results/hc/diag-base-phases	2026-10-10T01:48:34Z	done
+02110516451	hc-standard-d16as-v7	Standard_D16as_v7	rust	ispc-dev/results/hc/diag-base-phases	2026-10-10T02:11:13Z	open
+02113513452	hc-standard-d16a-v4	Standard_D16a_v4	rust	ispc-dev/results/hc/diag-base-phases	2026-10-10T02:11:43Z	open

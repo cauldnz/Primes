@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T02:07:54Z",
+  "updated_utc": "2026-10-10T02:12:14Z",
   "run": {
     "id": "ap-20261010T0140Z",
     "state": "running",
@@ -18,7 +18,7 @@
   "current": {
     "id": "diag-base-phases",
     "phase": "evaluate",
-    "detail": "profiles queued on Zen 5 and D16as_v5; stand-in jobs in round 1"
+    "detail": "profiles running on Zen 5 and Zen 3 (Zen 3 node booting)"
   },
   "scoreboard": [
     {
@@ -678,6 +678,14 @@
       "verdict": "running",
       "where": "Zen 5, D16as_v5",
       "note": "Priority 2. Branches hc/diag-base-phases (a13ae37), hc/diag-rust-phases (9a456f6)."
+    },
+    {
+      "id": "p1-base-standin",
+      "entry": "base",
+      "hypothesis": "Is D16as_v5 (Zen 4, AVX-512 hidden) a stand-in for the official AVX2 EPYC VM?",
+      "verdict": "done",
+      "where": "D16as_v5: Rust 59.4k at 1T (VM 62.7-63.1k, -5.6%); our base 64.4k (+8.4% over Rust). Zen 5: base 127.8k vs Rust 124.0k (+2.2% 1T, +15.4% 16T)",
+      "note": "Misses the 5% bar by 0.6 points; D16a_v4 stays the decider."
     }
   ],
   "azure_queue": 0,
@@ -687,31 +695,6 @@
     "Zen 5 at one thread: about +3% to pass Swift's official 122.9k"
   ],
   "events": [
-    {
-      "utc": "2026-10-09T09:49:06Z",
-      "level": "info",
-      "text": "Experiments frozen except hc-018/019 finishing. Final scoreboard runs starting (both entries; Zen 3, Zen 4 AVX-512, Zen 5, Cobalt 100)."
-    },
-    {
-      "utc": "2026-10-09T09:52:52Z",
-      "level": "info",
-      "text": "hc-019: target-specific pair +6.4% 1T on Zen 5, +2.3% 16T on Zen 3. Waiting for Chris. hc-018 rejected."
-    },
-    {
-      "utc": "2026-10-09T10:10:56Z",
-      "level": "info",
-      "text": "Final: wheel champion +21.7% 1T Zen 3, +19.5% 1T Zen 5 against the start of the run; +51% and +29% over C5."
-    },
-    {
-      "utc": "2026-10-09T10:17:49Z",
-      "level": "info",
-      "text": "Final: base champion +24.1% 1T on Zen 3 against the start of the run; 5.4% ahead of Rust."
-    },
-    {
-      "utc": "2026-10-09T10:20:21Z",
-      "level": "info",
-      "text": "Final: base champion +43.1% 1T and +43.8% 16T on Zen 5 against the start; level with Rust at 1T, 13% ahead at 16T."
-    },
     {
       "utc": "2026-10-09T10:25:08Z",
       "level": "info",
@@ -951,6 +934,40 @@
       "utc": "2026-10-10T01:55:22Z",
       "level": "info",
       "text": "Tick 2: stand-in jobs in round 3 of 6; profiles starting. Next tick 02:05 UTC. Check 2 (final output from blob storage) waits for the first job to end."
+    },
+    {
+      "utc": "2026-10-10T02:09:31Z",
+      "level": "decision",
+      "text": "p1-base-standin: keep D16a_v4 (Zen 3) as the second deciding machine; take the D16as_v5 pool down. Why: RUN-PLAN priority 1 asks for Rust within 5% of the EPYC VM's 62.7k-63.1k; on D16as_v5 Rust ran 59.4k, 5.6% below, so it just misses. It is far closer than Zen 3 (17% below), which is worth the workshop's attention. Passed over: D16as_v5 as the decider (would bend the plan's threshold).",
+      "id": "p1-base-standin",
+      "what": "keep D16a_v4 (Zen 3) as the second deciding machine; take the D16as_v5 pool down",
+      "why": "RUN-PLAN priority 1 asks for Rust within 5% of the EPYC VM's 62.7k-63.1k; on D16as_v5 Rust ran 59.4k, 5.6% below, so it just misses. It is far closer than Zen 3 (17% below), which is worth the workshop's attention.",
+      "instead": "D16as_v5 as the decider (would bend the plan's threshold)"
+    },
+    {
+      "utc": "2026-10-10T02:12:14Z",
+      "level": "info",
+      "text": "Dry run check 2 passed: when the four jobs ended, tick.sh fetched their final output from blob storage and marked them done (02:07). All four dry-run checks passed; submit/collect/tally stay in use."
+    },
+    {
+      "utc": "2026-10-10T02:12:14Z",
+      "level": "decision",
+      "text": "diag-base-phases: fix the Rust diagnostic myself and resubmit on Zen 5 and Zen 3. Why: Its Docker build failed: the Dockerfile builds with Rust 1.57 and the agent used std::hint::black_box (Rust 1.66). A one-line fix (drop the black_box) was quicker than a new agent. Expect: both profiles within ~20 minutes.",
+      "id": "diag-base-phases",
+      "what": "fix the Rust diagnostic myself and resubmit on Zen 5 and Zen 3",
+      "why": "Its Docker build failed: the Dockerfile builds with Rust 1.57 and the agent used std::hint::black_box (Rust 1.66). A one-line fix (drop the black_box) was quicker than a new agent.",
+      "expect": "both profiles within ~20 minutes"
+    },
+    {
+      "utc": "2026-10-10T02:12:14Z",
+      "level": "info",
+      "text": "Harness: Azure calls hit three transient connection resets this hour (tally, floor); retries worked."
+    },
+    {
+      "utc": "2026-10-10T02:12:14Z",
+      "level": "info",
+      "text": "p1-base-standin (base) done: Is D16as_v5 (Zen 4, AVX-512 hidden) a stand-in for the official AVX2 EPYC VM?",
+      "auto": true
     }
   ],
   "research": {
