@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T00:02:07Z",
+  "updated_utc": "2026-10-10T00:02:22Z",
   "run": {
     "id": "board-20261010",
     "state": "running",
@@ -9,7 +9,8 @@
     "started_utc": "2026-10-10T00:02:00Z",
     "time_box_hours": 2.5,
     "spend_nzd": 0,
-    "spend_cap_nzd": 10
+    "spend_cap_nzd": 10,
+    "wakeup": "trig_01WeE3WH7gCvLjSdre2aWiVC at 00:23Z"
   },
   "current": {
     "id": "board-2026-10-10",
