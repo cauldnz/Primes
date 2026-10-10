@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T03:35:31Z",
+  "updated_utc": "2026-10-10T03:35:52Z",
   "run": {
     "id": "ap-20261010T0140Z",
     "state": "running",
@@ -731,9 +731,9 @@
       "id": "p5-sse4x8",
       "entry": "base",
       "hypothesis": "sse4-i32x8 beats sse4-i32x4 for the SSE4-only Celeron path",
-      "verdict": "running",
+      "verdict": "revert",
       "where": "Zen 3",
-      "note": "probe branch hc/p5-base-sse4x8 vs hc/p5-base-sse4, 6 rounds"
+      "note": "Zen 3, 6 rounds: sse4-i32x8 runs at 8% of sse4-i32x4 (4.0k vs 49.2k at 1T, -92%); the double-pumped SSE4 target scalarises the 64-bit lane code, as NEON once did. The local build showed it too (10k at 2T) and should have stopped the submit"
     },
     {
       "id": "p4-arm-init3",
@@ -751,25 +751,6 @@
     "Zen 5 at one thread: about +3% to pass Swift's official 122.9k"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T01:43:22Z",
-      "level": "info",
-      "text": "Tick 1 done. Waiting for the two base jobs to start (nodes booting) and for the profile agent; next tick 01:53 UTC."
-    },
-    {
-      "utc": "2026-10-10T01:43:32Z",
-      "level": "info",
-      "text": "Corrected run.wakeup to the real trigger id (next tick 01:54 UTC)."
-    },
-    {
-      "utc": "2026-10-10T01:48:34Z",
-      "level": "decision",
-      "text": "diag-base-phases: accept the agent's two diagnostic branches; submit one rust-kind task each on Zen 5 and D16as_v5. Why: Both build, pass their self-tests and touch one file each; only timer reads are unsafe. One task puts Rust's profile (candidate) and ours (control) on the same node. Expect: phase shares for ours and Rust per machine within ~20 minutes.",
-      "id": "diag-base-phases",
-      "what": "accept the agent's two diagnostic branches; submit one rust-kind task each on Zen 5 and D16as_v5",
-      "why": "Both build, pass their self-tests and touch one file each; only timer reads are unsafe. One task puts Rust's profile (candidate) and ours (control) on the same node.",
-      "expect": "phase shares for ours and Rust per machine within ~20 minutes"
-    },
     {
       "utc": "2026-10-10T01:48:59Z",
       "level": "info",
@@ -1109,6 +1090,31 @@
       "utc": "2026-10-10T03:31:13Z",
       "level": "info",
       "text": "p4-arm-dense keep. Cobalt 100. Cobalt 100, 6 rounds: +2.5% at 1T (95% CI +2.2% to +2.8%), +2.9% at 2T and 4T, 6/6 rounds; gap to Rust 4.3% -> 1.9%. x86 --emit-asm identical for sse4, avx2, avx512skx. Merged with Chris approval: hc/champion a1433d9 -> 37e19c7",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T03:35:52Z",
+      "level": "decision",
+      "text": "p5-sse4: SSE4 slot stays sse4-i32x4; priority 5 closed for this run. Why: i32x4 ties Rust's x86-64-v2 build at 1T (-0.7%, inside the interval); i32x8 is 12x slower. No further SSE4 lever without an Intel proxy (needs Chris's OK). Passed over: sse4-i16x8 or sse4-i8x16 (64-bit lane code would scalarise the same way).",
+      "id": "p5-sse4",
+      "what": "SSE4 slot stays sse4-i32x4; priority 5 closed for this run",
+      "why": "i32x4 ties Rust's x86-64-v2 build at 1T (-0.7%, inside the interval); i32x8 is 12x slower. No further SSE4 lever without an Intel proxy (needs Chris's OK)",
+      "instead": "sse4-i16x8 or sse4-i8x16 (64-bit lane code would scalarise the same way)"
+    },
+    {
+      "utc": "2026-10-10T03:35:52Z",
+      "level": "decision",
+      "text": "p6-scaling: 64-vCPU Zen 5 task (D64as_v7, 4 rounds) once the arm init-3 task ends and the arm pool comes down. Why: 32+32+64 = 128 vCPUs fits the quota only without the arm pool; the official ranking runs at 128 threads. Passed over: Zen 3 at 64 vCPUs (Zen 5 is the headline machine). Expect: lead over Rust grows beyond +14%.",
+      "id": "p6-scaling",
+      "what": "64-vCPU Zen 5 task (D64as_v7, 4 rounds) once the arm init-3 task ends and the arm pool comes down",
+      "why": "32+32+64 = 128 vCPUs fits the quota only without the arm pool; the official ranking runs at 128 threads",
+      "instead": "Zen 3 at 64 vCPUs (Zen 5 is the headline machine)",
+      "expect": "lead over Rust grows beyond +14%"
+    },
+    {
+      "utc": "2026-10-10T03:35:52Z",
+      "level": "info",
+      "text": "p5-sse4x8 revert. Zen 3. Zen 3, 6 rounds: sse4-i32x8 runs at 8% of sse4-i32x4 (4.0k vs 49.2k at 1T, -92%); the double-pumped SSE4 target scalarises the 64-bit lane code, as NEON once did. The local build showed it too (10k at 2T) and should have stopped the submit",
       "auto": true
     }
   ],
