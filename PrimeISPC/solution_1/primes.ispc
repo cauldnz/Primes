@@ -82,6 +82,9 @@ struct Group {
     uniform int16 tab[G][64];               // starting phase for each bit offset
     const uniform uint64 * uniform pp[G];   // pattern for each member
     uniform uint64 buf[G][MAXPAT + 64];
+    uniform uint64 tile[77 + 64];           // one plane's 7x11 period, extended by a vector
+    uniform uint64 p13[13 * 5 + 64];        // base pattern for 13
+    uniform int16 tab13[64];
 };
 
 struct Sieve {
@@ -226,7 +229,7 @@ static void dense_primes(uniform Sieve * uniform s, const uniform int * uniform 
     uniform int b[G];
     for (uniform int pl = 0; pl < 8; pl++) {
         for (uniform int j = 0; j < n; j++) b[j] = start_bit(primes[j], RES[pl], primes[j]);
-        if (n == 1) {      // a lone prime (13): skip the fused loop and its G-1 empty patterns
+        if (n == 1) {      // a lone prime: skip the fused loop and its G-1 empty patterns
             apply_range(s->bits + pl * s->pw, s->grp->pp[0], s->grp->L[0],
                         s->grp->tab[0][b[0] & 63], b[0], s->nw);
             continue;
@@ -277,31 +280,48 @@ static inline uniform bool is_composite(const uniform Sieve * uniform s, uniform
 static void run_sieve(uniform Sieve * uniform s) {
     uniform int nw = s->nw, pw = s->pw;
 
-    // Phase 1: wheel tile. Multiples of 7 and 11 repeat every 77 words in every plane, so
-    // mark one period (starting from 7 and 11 themselves, which keeps it exactly periodic)
-    // and copy it along the plane. 7 and 11 are then unmarked.
-    uniform int t = min(77, nw);
+    // Phase 1: wheel tile and 13. Multiples of 7 and 11 repeat every 77 words in every plane,
+    // so mark one period (starting from 7 and 11 themselves, which keeps it exactly periodic)
+    // in scratch space. Each plane is then written in one pass: tile word OR 13's pattern word.
+    // 13's pattern starts at the plane's first word, so it also marks 13 itself and 91 and 143
+    // (already marked by 7 and 11). 7, 11 and 13 are then unmarked. Afterwards every bit below
+    // 17*17 is final.
+    uniform Group * uniform g = s->grp;
     uniform int tp[2] = {7, 11};
-    build_group(s->grp, tp, 2);
+    build_group(g, tp, 2);
+    const uniform int64 L13 = build_pattern(g->p13, g->tab13, 13);
     for (uniform int pl = 0; pl < 8; pl++) {
         uniform uint64 * uniform w = s->bits + pl * pw;
-        foreach (k = 0 ... t) w[k] = 0;
+        foreach (k = 0 ... 77) g->tile[k] = 0;
         uniform int tb[2];
         tb[0] = start_bit(7, RES[pl], 1);
         tb[1] = start_bit(11, RES[pl], 1);
-        apply_group(w, t, s->grp, tb);
-        for (uniform int base = t; base < nw; base += t) {
-            uniform int n = min(t, nw - base);
-            foreach (k = 0 ... n) w[base + k] = w[k];
+        apply_group(g->tile, 77, g, tb);
+        foreach (k = 0 ... programCount) g->tile[77 + k] = g->tile[k];
+        uniform int b13 = start_bit(13, RES[pl], 13);
+        uniform int64 r13 = g->tab13[b13 & 63] - (b13 >> 6) % L13;   // 13's phase at word 0
+        r13 = (r13 < 0) ? r13 + L13 : r13;
+        uniform int64 rt = 0;
+#if TAIL_OVERRUN
+        unmasked {
+#endif
+        uniform int64 k = 0;
+        for (; k + programCount <= nw; k += programCount) {
+            w[k + programIndex] = g->tile[rt + programIndex] | g->p13[r13 + programIndex];
+            rt += programCount; rt = (rt >= 77) ? rt - 77 : rt;
+            r13 += programCount; r13 = (r13 >= L13) ? r13 - L13 : r13;
         }
+        // as in apply_group: with TAIL_OVERRUN the last vector runs on into the padding
+        if (TAIL_OVERRUN ? k < nw : k + programIndex < nw)
+            w[k + programIndex] = g->tile[rt + programIndex] | g->p13[r13 + programIndex];
+#if TAIL_OVERRUN
+        }
+#endif
     }
     s->bits[0]      |= (uniform uint64)1;          // 1 is not prime (plane 1, bit 0)
     s->bits[1 * pw] &= ~((uniform uint64)1);       // 7 is prime
     s->bits[2 * pw] &= ~((uniform uint64)1);       // 11 is prime
-
-    // Phase 2: 13 on its own. Afterwards every bit below 17*17 is final.
-    uniform int thirteen[1] = {13};
-    dense_primes(s, thirteen, 1);
+    s->bits[3 * pw] &= ~((uniform uint64)1);       // 13 is prime
 
     // Phase 3: the remaining primes up to sqrt(size), small ones as fused pattern groups and
     // large ones as strided bit sets. A candidate is only read once every prime up to its
