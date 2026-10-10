@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T03:01:42Z",
+  "updated_utc": "2026-10-10T03:05:44Z",
   "run": {
     "id": "ap-20261010T0140Z",
     "state": "running",
@@ -691,23 +691,25 @@
       "id": "p5-sse4",
       "entry": "base",
       "hypothesis": "SSE4-only builds: our base vs Rust (x86-64-v2), as on the Celeron runner",
-      "verdict": "running",
-      "where": "Zen 3"
+      "verdict": "tie",
+      "where": "Zen 3",
+      "note": "Zen 3, 6 rounds: our SSE4-only (sse4-i32x4) base 50.1k at 1T vs Rust x86-64-v2 50.2k (Rust +0.7%, +1.8% at 16T); Rust loses 6% going from native to v2"
     },
     {
       "id": "p6-scaling",
       "entry": "base",
       "hypothesis": "Does the base lead over Rust hold at 32 threads (and later 64)?",
-      "verdict": "running",
-      "where": "Zen 5, 32 vCPUs"
+      "verdict": "holds",
+      "where": "Zen 5, 32 vCPUs",
+      "note": "32 vCPU Zen 5 (D32as_v7), 4 rounds: ours 1.98M at 32T vs Rust 1.72M (+14.4%), +4.3% at 1T; Rust drops from 1.78M at 16T to 1.72M at 32T, ours rises 12%"
     },
     {
       "id": "diag-swift-phases",
       "entry": "base",
       "hypothesis": "Phase profile of Swift (yellowcub_fahlman_striped_UInt8) against our base on Zen 5, same node",
-      "verdict": "running",
+      "verdict": "done",
       "where": "Zen 5",
-      "note": "Chris asked. Agent writes the Swift diagnostic build."
+      "note": "Zen 5 same node: Swift 107k passes vs ours 126k (Swift -15%); per pass Swift sparse 29.8 us vs ours 24.1, dense+scan 17.1 vs 15.6. No phase where Swift is ahead here"
     },
     {
       "id": "asm-sparse",
@@ -724,6 +726,14 @@
       "verdict": "running",
       "where": "Cobalt 100",
       "note": "37e19c7 by agent; verified x86 objects byte-identical to champion, x86 PRIMES_TEST exit 0; agent ran NEON PRIMES_TEST under qemu"
+    },
+    {
+      "id": "p5-sse4x8",
+      "entry": "base",
+      "hypothesis": "sse4-i32x8 beats sse4-i32x4 for the SSE4-only Celeron path",
+      "verdict": "running",
+      "where": "Zen 3",
+      "note": "probe branch hc/p5-base-sse4x8 vs hc/p5-base-sse4, 6 rounds"
     }
   ],
   "azure_queue": 0,
@@ -733,41 +743,6 @@
     "Zen 5 at one thread: about +3% to pass Swift's official 122.9k"
   ],
   "events": [
-    {
-      "utc": "2026-10-09T16:23:35Z",
-      "level": "info",
-      "text": "Run stopped: hc-035 kept and merged into hc/champion (dc5fa37); 10 others rejected or flat. Spend NZ$2.77. All pools deleted."
-    },
-    {
-      "utc": "2026-10-09T20:33:20Z",
-      "level": "info",
-      "text": "Run ap-20261009T2033Z: 4 hours per RUN-PLAN.md. Harness first: danielspaangberg wheel rival, phase profiles."
-    },
-    {
-      "utc": "2026-10-09T22:59:26Z",
-      "level": "info",
-      "text": "hc-045 kept: +9-10% at 1T on Zen 3 and Zen 5, +4.5% on Cobalt 100. Champion now 059b8f3."
-    },
-    {
-      "utc": "2026-10-09T23:56:02Z",
-      "level": "info",
-      "text": "Run ap-20261009T2033Z stopped: hc-045 kept (+9-10% wheel at 1T); final scoreboard; hc/ispc-landing 77a197b ready for Chris; spend NZ$3.37; all pools deleted."
-    },
-    {
-      "utc": "2026-10-10T00:02:07Z",
-      "level": "info",
-      "text": "board-2026-10-10 running: Leaderboard check: top faithful 1-bit base entries plus ours and the rivals, default commands, on Zen 5 and Zen 3"
-    },
-    {
-      "utc": "2026-10-10T00:02:07Z",
-      "level": "info",
-      "text": "board-2026-10-10 (evaluate): building the top-10 images on one Zen 5 and one Zen 3 node"
-    },
-    {
-      "utc": "2026-10-10T00:24:41Z",
-      "level": "info",
-      "text": "board-2026-10-10 (evaluate): all 7 upstream images built on Zen 5 and Zen 3; warm-up round running"
-    },
     {
       "utc": "2026-10-10T00:25:43Z",
       "level": "warn",
@@ -1059,6 +1034,60 @@
       "utc": "2026-10-10T03:00:15Z",
       "level": "info",
       "text": "p4-arm-dense (base) running: NEON-only dense resetter after Rust (q-register masks, one period per run from P>=17): dense phase ~36.5k -> ~30k ns on Cobalt 100",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T03:05:44Z",
+      "level": "decision",
+      "text": "diag-swift-phases: Swift's official lead is not reproducible on Zen 5 and the profile shows no phase where it is ahead; priority 3 stays parked until the asm side-by-side reports. Why: same node, Swift runs 15% behind ours and is slower in sparse (+24%) and dense+scan (+10%); its 122.9k on the Threadripper is a machine or toolchain effect we cannot see here (it ran 15% slower here in the leaderboard check too). The striped layout does one byte RMW per bit, like ours, so it does not ease the store-bound sparse phase. Passed over: chasing Swift's number with a Zen 5 1T change blind. Expect: the asm report confirms no entry does fewer stores per bit than ours.",
+      "id": "diag-swift-phases",
+      "what": "Swift's official lead is not reproducible on Zen 5 and the profile shows no phase where it is ahead; priority 3 stays parked until the asm side-by-side reports",
+      "why": "same node, Swift runs 15% behind ours and is slower in sparse (+24%) and dense+scan (+10%); its 122.9k on the Threadripper is a machine or toolchain effect we cannot see here (it ran 15% slower here in the leaderboard check too). The striped layout does one byte RMW per bit, like ours, so it does not ease the store-bound sparse phase",
+      "instead": "chasing Swift's number with a Zen 5 1T change blind",
+      "expect": "the asm report confirms no entry does fewer stores per bit than ours"
+    },
+    {
+      "utc": "2026-10-10T03:05:44Z",
+      "level": "decision",
+      "text": "p5-sse4: SSE4 path ties Rust; probe sse4-i32x8 next on Zen 3. Why: our SSE4 build matches Rust's x86-64-v2 at 1T (-0.7%, inside the interval) and trails 1.8% at 16T; RUN-PLAN named sse4-i32x8 and the first probe used i32x4. Passed over: Intel sizes for a real Celeron proxy (needs Chris's OK). Expect: i32x8 within +-2% of i32x4; if it wins it is a one-line build.sh change for the SSE4 slot only.",
+      "id": "p5-sse4",
+      "what": "SSE4 path ties Rust; probe sse4-i32x8 next on Zen 3",
+      "why": "our SSE4 build matches Rust's x86-64-v2 at 1T (-0.7%, inside the interval) and trails 1.8% at 16T; RUN-PLAN named sse4-i32x8 and the first probe used i32x4",
+      "instead": "Intel sizes for a real Celeron proxy (needs Chris's OK)",
+      "expect": "i32x8 within +-2% of i32x4; if it wins it is a one-line build.sh change for the SSE4 slot only"
+    },
+    {
+      "utc": "2026-10-10T03:05:44Z",
+      "level": "decision",
+      "text": "p6-scaling: lead holds at 32 threads (+14.4% over Rust); run 64 vCPUs once the arm pool is down (32+32+64 = 128 vCPUs). Why: Rust stops scaling past 16 threads on this node while ours still gains 12%; the official ranking runs at 128 threads. Passed over: 64 vCPUs now: with the arm pool up it would exceed the 128-vCPU quota. Expect: lead grows at 64T.",
+      "id": "p6-scaling",
+      "what": "lead holds at 32 threads (+14.4% over Rust); run 64 vCPUs once the arm pool is down (32+32+64 = 128 vCPUs)",
+      "why": "Rust stops scaling past 16 threads on this node while ours still gains 12%; the official ranking runs at 128 threads",
+      "instead": "64 vCPUs now: with the arm pool up it would exceed the 128-vCPU quota",
+      "expect": "lead grows at 64T"
+    },
+    {
+      "utc": "2026-10-10T03:05:55Z",
+      "level": "info",
+      "text": "p5-sse4 tie. Zen 3. Zen 3, 6 rounds: our SSE4-only (sse4-i32x4) base 50.1k at 1T vs Rust x86-64-v2 50.2k (Rust +0.7%, +1.8% at 16T); Rust loses 6% going from native to v2",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T03:05:55Z",
+      "level": "info",
+      "text": "p6-scaling holds. Zen 5, 32 vCPUs. 32 vCPU Zen 5 (D32as_v7), 4 rounds: ours 1.98M at 32T vs Rust 1.72M (+14.4%), +4.3% at 1T; Rust drops from 1.78M at 16T to 1.72M at 32T, ours rises 12%",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T03:05:55Z",
+      "level": "info",
+      "text": "diag-swift-phases done. Zen 5. Zen 5 same node: Swift 107k passes vs ours 126k (Swift -15%); per pass Swift sparse 29.8 us vs ours 24.1, dense+scan 17.1 vs 15.6. No phase where Swift is ahead here",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T03:05:55Z",
+      "level": "info",
+      "text": "p5-sse4x8 (base) running: sse4-i32x8 beats sse4-i32x4 for the SSE4-only Celeron path",
       "auto": true
     }
   ],
