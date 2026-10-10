@@ -295,6 +295,8 @@ struct Job {
     uniform double deadline;
     uniform int64 passes;
     uniform int count;    // prime count from the first pass, for validation
+    // DIAGNOSTIC: per-thread phase cycles (TSC), summed over the thread's passes.
+    uniform int64 p_setup, p_dense, p_sparse, p_scan, p_destroy;
 };
 
 // Hardware threads this process may run on: the CPUs in its affinity mask, so a container
@@ -371,6 +373,80 @@ static void run_threads(uniform Job * uniform jobs, uniform int64 * uniform tids
     print("cauldnz-ispc-base;%;%;%;algorithm=base,faithful=yes,bits=1\n", total, elapsed, n);
 }
 
+// ---------------------------------------------------------------------------------------
+// DIAGNOSTIC (never merged): per-phase cycles per pass at 1, N/4, N/2 and N threads, to see
+// which phase stops gaining at scale. TSC via ISPC clock(), so cycles are wall time at the
+// TSC rate, not core cycles.
+// ---------------------------------------------------------------------------------------
+static void run_sieve_prof(uniform Sieve * uniform s, uniform Job * uniform job) {
+    uniform int64 r0 = clock();
+    uniform int q = (uniform int)sqrt((uniform double)s->size);
+    while ((uniform int64)(q + 1) * (q + 1) <= s->size) q++;
+    while ((uniform int64)q * q > s->size) q--;
+    uniform int factor = 3;
+    uniform int64 dense = 0, sparse = 0;
+    while (factor <= q) {
+        uniform int i = factor >> 1;
+        while (i < s->nbits && is_composite_index(s, i)) i++;     // next prime
+        factor = 2 * i + 1;
+        if (factor > q) break;
+        uniform int64 c0 = clock();
+        clear_factor(s, factor);
+        uniform int64 c1 = clock();
+        if (factor < DENSE_LIMIT) dense += c1 - c0; else sparse += c1 - c0;
+        factor += 2;
+    }
+    uniform int64 total = clock() - r0;
+    job->p_dense += dense;
+    job->p_sparse += sparse;
+    job->p_scan += total - dense - sparse;
+}
+
+export void * uniform worker_prof(void * uniform arg) {
+    unmasked {
+        uniform Job * uniform job = (uniform Job * uniform)arg;
+        uniform int64 passes = 0;
+        job->p_setup = job->p_dense = job->p_sparse = job->p_scan = job->p_destroy = 0;
+        while (now() < job->deadline) {
+            uniform Sieve s;
+            uniform int64 t0 = clock();
+            sieve_create(&s, SIEVE_SIZE);
+            uniform int64 t1 = clock();
+            run_sieve_prof(&s, job);
+            uniform int64 t2 = clock();
+            sieve_destroy(&s);
+            uniform int64 t3 = clock();
+            job->p_setup += t1 - t0;
+            job->p_destroy += t3 - t2;
+            passes++;
+        }
+        job->passes = passes;
+    }
+    return NULL;
+}
+
+static void profile_threads(uniform Job * uniform jobs, uniform int64 * uniform tids, uniform int n) {
+    uniform double start = now();
+    for (uniform int t = 0; t < n; t++) {
+        jobs[t].deadline = start + RUN_SECONDS;
+        pthread_create(&tids[t], NULL, (void * uniform)worker_prof, &jobs[t]);
+    }
+    uniform int64 passes = 0, su = 0, de = 0, sp = 0, sc = 0, dt = 0;
+    for (uniform int t = 0; t < n; t++) {
+        pthread_join(tids[t], NULL);
+        passes += jobs[t].passes;
+        su += jobs[t].p_setup; de += jobs[t].p_dense; sp += jobs[t].p_sparse;
+        sc += jobs[t].p_scan; dt += jobs[t].p_destroy;
+    }
+    uniform double elapsed = now() - start;
+    print("cauldnz-ispc-base;mtprofile;%;passes;%;%\n", n, passes, elapsed);
+    print("cauldnz-ispc-base;mtprofile;%;setup;%\n", n, su / passes);
+    print("cauldnz-ispc-base;mtprofile;%;dense;%\n", n, de / passes);
+    print("cauldnz-ispc-base;mtprofile;%;sparse;%\n", n, sp / passes);
+    print("cauldnz-ispc-base;mtprofile;%;scan;%\n", n, sc / passes);
+    print("cauldnz-ispc-base;mtprofile;%;destroy;%\n", n, dt / passes);
+}
+
 export uniform int main() {
     uniform int8 n_test[12] = {80,82,73,77,69,83,95,84,69,83,84,0};    // PRIMES_TEST
     if (env_int(n_test, 0) != 0) self_test();
@@ -378,6 +454,10 @@ export uniform int main() {
     uniform int nthreads = clamp(hardware_threads(), 1, 1024);
     uniform Job jobs[1024];
     uniform int64 tids[1024];
+
+    // DIAGNOSTIC: the phase profile at 1, N/4, N/2 and N threads, then the normal run.
+    uniform int counts[4] = {1, max(nthreads / 4, 1), max(nthreads / 2, 1), nthreads};
+    for (uniform int k = 0; k < 4; k++) profile_threads(jobs, tids, counts[k]);
 
     uniform double start = now();
     jobs[0].deadline = start + RUN_SECONDS;
