@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T07:55:37Z",
+  "updated_utc": "2026-10-10T08:06:16Z",
   "run": {
     "id": "ap-20261010T0715Z",
     "state": "running",
@@ -842,6 +842,14 @@
       "verdict": "queued",
       "where": "Zen 5, Zen 3 fleet at 16 threads",
       "note": "local PRIMES_TEST passes, 1T level"
+    },
+    {
+      "id": "intel-avx2",
+      "entry": "both",
+      "hypothesis": "Intel stand-in for the i7-9750H, every entry built AVX2-only: ours base and wheel vs Rust, davepl, C5, Zig",
+      "verdict": "queued",
+      "where": "one Intel size (phase B)",
+      "note": "hc/diag-intel-avx2 5aa86a9 by agent: slot-only diff; all components built and run natively here with the image flags, objdump shows no AVX-512 in any binary; the image itself is unbuilt (no Docker here). About 3 min per round of the cand image"
     }
   ],
   "azure_queue": 0,
@@ -851,20 +859,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T03:28:46Z",
-      "level": "info",
-      "text": "p4-arm-init3 (base) running: NEON factor-3 pass initialises the buffer (store-only), dropping the separate 62.5 KB zeroing, as hc-026 does on x86",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T03:31:09Z",
-      "level": "decision",
-      "text": "p4-arm-dense: Merged: hc/champion fast-forwarded a1433d9 -> 37e19c7. Why: Chris approved the fast-forward after the session permission check blocked it.",
-      "id": "p4-arm-dense",
-      "what": "Merged: hc/champion fast-forwarded a1433d9 -> 37e19c7",
-      "why": "Chris approved the fast-forward after the session permission check blocked it"
-    },
     {
       "utc": "2026-10-10T03:31:13Z",
       "level": "info",
@@ -1223,6 +1217,20 @@
       "utc": "2026-10-10T07:55:27Z",
       "level": "info",
       "text": "idea6-i64 (base) queued: One 64-bit word per lane (avx2-i64x4, avx512skx-x4) shrinks the avx2 object from about 1.0 MB to 0.78 MB and helps at threads = vCPUs (SMT)",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T08:06:16Z",
+      "level": "decision",
+      "text": "intel-avx2: accept the Intel image and run it on the fleet's Intel pool, base kind, cand = the image, champ = hc/idea1-affinity, 4 rounds. Why: a measurement, not an experiment (RUN-PLAN 4); the champ lines (native dispatch, AVX-512) show what AVX-512 is worth on that Xeon.",
+      "id": "intel-avx2",
+      "what": "accept the Intel image and run it on the fleet's Intel pool, base kind, cand = the image, champ = hc/idea1-affinity, 4 rounds",
+      "why": "a measurement, not an experiment (RUN-PLAN 4); the champ lines (native dispatch, AVX-512) show what AVX-512 is worth on that Xeon"
+    },
+    {
+      "utc": "2026-10-10T08:06:16Z",
+      "level": "info",
+      "text": "intel-avx2 (both) queued: Intel stand-in for the i7-9750H, every entry built AVX2-only: ours base and wheel vs Rust, davepl, C5, Zig",
       "auto": true
     }
   ],
