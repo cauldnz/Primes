@@ -1,5 +1,27 @@
 # Run retrospectives (newest first)
 
+## ap-20261010T0715Z (2026-10-10, 17:15 to 22:30 AEST)
+
+- Calibration: 5 of 12 predictions in range. Hits: thread-count fix level, stop flag flat, arena
+  count flat, scaling repeat agreed, loaded one-thread drop matched the profile. Misses: pinning
+  (expected level, lost 5% at 24T), sparse prefetch (expected +2-5% at 96T, -7% at 32T),
+  avx2-i64x4 (expected a gain under SMT, flat), Rust base port (expected ahead of mike-barber,
+  -12% on Zen 5), wheel-group32 on Zen 4 (expected +2-4%, 0%), IDEAS 12 on Zen 5 (+1-3%
+  expected, three runs disagreed), G=8 (expected +1-3%, -2.4% at 96T).
+- Kept: thread-count fix (merge pending Chris). Candidate for Chris: wheel-group32.
+  Node-minutes 884, 69% in tasks (31% last run).
+- What worked: queues on every node, fed from agent-written candidates verified here; the
+  local gate caught nothing this time but cost little; Chris's three scaling tests turned a
+  vague "full-occupancy lead" into a clear SMT and clock story; the quiet second node made the
+  96-vCPU numbers quotable.
+- What did not: a pool created for a VM size Batch does not offer, and four submits that then
+  failed silently; a diagnostic that passed Rust the wrong flag (`-d` for `-s`); a pinning
+  candidate that assumed Linux's usual SMT sibling numbering, which Azure does not use; an
+  agent's local speed claims (Rust base port +5%, C++ wheel +10%) that the nodes did not bear out.
+- New harness items: 25 (check VM sizes against `az batch location list-skus` before `up`, and
+  make submit fail loudly), 26 (diagnostics prove their background load is running), 27 (agents'
+  local speed claims are indicative only).
+
 ## ap-20261010T0140Z (2026-10-10, 11:40 to 14:30 AEST)
 
 - Calibration: 3 of 6 predictions in range (scaling lead held; asm showed no store saving;

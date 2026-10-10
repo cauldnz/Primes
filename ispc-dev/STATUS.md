@@ -1,11 +1,143 @@
 # Status from the Claude Code session
 
-Autopilot lock: ap-20261010T0715Z 2026-10-10T07:15Z
 
 
 
-**Last updated:** 2026-10-10 14:30 AEST. Living file; earlier versions are in
+**Last updated:** 2026-10-10 22:30 AEST. Living file; earlier versions are in
 `git log -p ispc-dev/STATUS.md`. Replies go in `ispc-dev/NEXT-STEPS.md`.
+
+## Morning report: run ap-20261010T0715Z (17:15 to about 22:30 AEST, 10 October)
+
+Six-hour run from RUN-PLAN.md: scaling, ports, the Zig gap and Intel. Spend about NZ$1.8 of
+NZ$30; nodes busy 69% of node time (608 of 884 node-minutes), against 31% last run. All pools
+deleted at the end. Nothing went to `ispc` or to a PR. Full tables:
+`results/hc/run-ap-20261010T0715Z.md`.
+
+### Waiting for Chris
+
+1. **Merge the thread-count fix** (`hc/idea1-affinity`, 8fd7f1f): fast-forward `hc/champion`
+   37e19c7 -> 8fd7f1f. Both entries take their thread count from the affinity mask, so a
+   container limited with `--cpuset-cpus` is not oversubscribed. Level everywhere (quiet Zen 5
+   96-vCPU node 0.0% to +0.9%, Zen 3, Zen 4, Cobalt 100 base -0.2% and wheel 0.0%). My push was
+   blocked by the session's permission check: `git push origin origin/hc/idea1-affinity:hc/champion`.
+2. **`hc/wheel-group32` (5a68114), keep or drop.** The wheel's AVX-512 group loop in Zig's form:
+   32-word steps, unmasked, every member's row off one base register. Zen 5 +4.4% at 1T,
+   +2.5% at 32T, 24 of 24 rounds (second run; the first, on the noisy 96-vCPU node, +3.7% to
+   +4.0%). Zen 4 0.0% at 1T, +0.2% at 16T. AVX2 and SSE4 code byte-identical, so Zen 3, the
+   EPYC runner and the i7 are unaffected. It fails the written target-specific rule only because
+   Zen 4 runs the same code without gaining; the official Threadripper is Zen 5.
+3. **Port routes** (CONTRIBUTING.md, new solution or improvement to an existing one), below.
+
+### Scaling and the full-occupancy lead (priority 1; Chris's three tests)
+
+The largest Zen 5 size Batch offers here is 96 vCPUs (D96as_v7, 48 cores x 2 SMT); there is no
+128-vCPU size. Second, quiet node (A/A within 0.7%):
+
+| Base | 1T | 48T | 96T |
+|---|---|---|---|
+| ours | 129.0k | 4.34M | 4.47M |
+| mike-barber Rust | 126.3k | 3.32M | 4.02M |
+| davepl C++ | 92.3k | - | 3.33M |
+
+| Wheel | 1T | 48T | 96T |
+|---|---|---|---|
+| ours | 204.6k | 8.05M | 7.73M |
+| C5 (rogiervandam) | 135.5k | 4.53M | 5.35M |
+| danielspaangberg | 69.2k | - | 2.42M |
+
+- The first node gave the same shape (base lead +28% at 48T, +9% at 96T). Our lead is largest at
+  one thread per core and narrows with SMT: ours gains 3% (base) or loses 4% (wheel) from the
+  second hardware thread; Rust gains 21%, C5 18-43%.
+- **Phase profile at scale** (`mt-phases-96`): up to 48 threads every phase slows by the same
+  factor (+15% at 24T, +45% at 48T); from 48 to 96, dense still gains 13% per core and sparse
+  loses 9%. The sparse phase is what stops gaining: two 62.5 KB sieves overflow a 48 KB L1D in a
+  store-bound loop.
+- **Loaded one-thread test**: one thread loses 29% when the other 47 cores run a sieve (24% with
+  a spin loop), against 31% per thread in the 48-thread profile. Up to one thread per core the
+  drop is clock, not our code; Rust drops by the same proportion.
+- **On the 16-core node** (D32as_v7) the picture is the same: our 32T lead over Rust (+14%) is
+  ours gaining 8% from SMT while Rust loses 3%. Not placement: pinning, the stop flag, a malloc
+  arena per thread, smaller code (avx2-i64x4) and sparse prefetch were all flat or worse.
+- **In README terms:** our entry reports all, half and a quarter of the threads; on SMT machines
+  the half line (one thread per core) is the one that carries it.
+
+### One design in four languages (priority 2)
+
+All four ports pass their self-tests in the image; hadolint clean (agents' runs); measured in the
+same rounds as the ISPC entry.
+
+| Port, branch | Zen 5 vs ISPC (1T / all) | Zen 3 vs ISPC | vs nearest upstream |
+|---|---|---|---|
+| C++ base, `hc/port-cpp-base`, PrimeCPP/solution_6 | -4% / -7.5% | -8% / -8% | vs davepl +30-40%; vs Rust Zen 5 +5%, Zen 3 -2% |
+| Rust base, `hc/port-rust-base`, PrimeRust/solution_9 | -13% / -20% | -14% / -9% | vs mike-barber Zen 5 -12% / -5%, Zen 3 -8% / -4.5% |
+| C++ wheel, `hc/port-cpp-wheel`, PrimeCPP/solution_7 | -18% / -14% | -9% / -7% | vs C5 +19-63% |
+| Rust wheel, `hc/port-rust-wheel`, PrimeRust/solution_8 | -14% / -16% | -12% / -15% | vs C5 +12-50% |
+
+Routes:
+- **C++ wheel and Rust wheel:** new ground (C++ has no wheel; Rust's only wheel, solution_7, is
+  8-bit). Both lead C5; the PR text must say why the Rust wheel is not an improvement to
+  solution_7.
+- **C++ base:** same characteristics as davepl's solution_5 and 30-40% faster; per CONTRIBUTING it
+  goes to davepl as an improvement first, unless Chris argues it is a different design.
+- **Rust base:** slower than mike-barber's entry on Zen 5 and Zen 3, though 5% faster on the local
+  Xeon. Nothing goes to mike-barber until each change is measured inside his code on Azure. Its
+  side-by-side is `results/hc/port-rust-base/README.md`. Rules question: its dense masks come from
+  a compile-time table that sets one bit per composite, folded by rustc rather than LLVM.
+
+### Zig wheel gap (priority 3)
+
+- The node dump (`results/hc/asm-wheel`) shows Zig on Zen 5 compiles to 256-bit vectors only; its
+  lead does not come from 512-bit loops. Our AVX-512 group loop in Zig's form is
+  `hc/wheel-group32` (above).
+- On the 96-vCPU node Zig leads at 1T (+2.4%) and ties at 24T; ours leads at 48T and 96T.
+  On Intel (AVX2) the Zig wheel leads ours by 10%.
+
+### Intel (priority 4): Xeon Platinum 8370C, every entry AVX2-only
+
+| Entry | 1T | 8T | 16T |
+|---|---|---|---|
+| ours, base | 57.4k | 455k | 378k |
+| Zig base | 57.7k | 456k | 374k |
+| mike-barber Rust | 55.7k | 444k | 372k |
+| davepl C++ | 40.5k | - | 337k |
+| ours, wheel | 108.5k | 862k | 798k |
+| Zig wheel | 119.3k | 952k | 875k |
+| C5 | 81.4k | 649k | 604k |
+
+Base leads Rust by 2-3%; AVX-512 is worth nothing to the base on this Xeon (native 57.5k).
+SMT costs every entry here. The official i7 session (9749) is tabulated beside these numbers in
+the run file.
+
+### Final scoreboard (thread-count fix build against the rivals, 6 rounds)
+
+| Machine | base vs Rust 1T / all | wheel vs C5 1T / all |
+|---|---|---|
+| Zen 5 (D32as_v7) | +0.9% / +14.4% | +50% / +34% |
+| Zen 4 (D16as_v5) | +8.3% / +8.0% | +41% / +38% |
+| Zen 3 (D16a_v4) | +6.9% / +4.9% | +71% / +74% |
+| Cobalt 100 | -2.1% / -1.9% | no wheel rival built for arm64 |
+| Intel AVX2 | +3.1% / +1.7% | +33% / +32% |
+| Zen 5, 96 vCPU | +3.1% / +10.9% | +50% / +43% |
+
+### Decisions and why
+
+- **Phase A on 96 vCPUs**, not 128: no 128-vCPU Zen 5 size in this region.
+- **IDEAS queue (Chris's 07:40 order):** thread count from the affinity mask (keep), pinning
+  (flat at 48/96T, worse at 24T: revert; it also had to be rewritten for Azure's adjacent
+  sibling numbering), stop flag (flat: park), AVX-512 off (lead holds without it: probe), arena
+  count (flat: stop), sparse prefetch (-7% at 32T: revert), smaller dense code (flat: revert).
+- **Wheel:** IDEAS 12 (fold 13 into the tile) positive on Zen 3 (+1.3-1.9%), Zen 4 and arm (+3%)
+  but its Zen 5 interval never cleared +1% in 20 rounds: no keep, worth a recheck. G=8 with the
+  new loop: -2.4% at 96T, revert.
+- **Ports:** written by background agents; each verified here (build, self-test, sweep, diff)
+  before measuring. The C++ wheel went back for tuning (GCC spilled the sparse loop's eight
+  stream indices; four planes at a time fixed it).
+- Every decision is in the page's log (`st.py decide`).
+
+### Overhead
+
+884 node-minutes, 608 of them in tasks (69%; target 60%). The 96-vCPU node took 269. No floor
+nodes: pools scaled to zero between tasks, and each pool came down when its work ended.
 
 ## Morning report: run ap-20261010T0140Z (11:40 to 14:30 AEST, 10 October)
 

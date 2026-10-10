@@ -1,9 +1,9 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T12:09:49Z",
+  "updated_utc": "2026-10-10T12:15:10Z",
   "run": {
     "id": "ap-20261010T0715Z",
-    "state": "running",
+    "state": "stopped",
     "mode": "azure",
     "mode_reason": "Chris kicked off a 6-hour run (RUN-PLAN.md: scale, ports, Zig gap, Intel) in this session; Azure login works, Spot quota 128 vCPUs.",
     "started_utc": "2026-10-10T07:15:00Z",
@@ -13,7 +13,7 @@
     "ends_utc": "2026-10-10T13:15:00Z",
     "background_runs": 1,
     "last_tick_utc": "2026-10-10T12:09:49Z",
-    "wakeup": "trig_01Rxv5pFwETFKYwjAYm3iEZa"
+    "wakeup": "none"
   },
   "current": null,
   "scoreboard": [
@@ -927,9 +927,9 @@
       "id": "final6",
       "entry": "both",
       "hypothesis": "final scoreboard: champion with the thread-count fix (8fd7f1f) vs the rivals, base and wheel",
-      "verdict": "queued",
+      "verdict": "done",
       "where": "Zen 5 D32as_v7, Zen 4 D16as_v5, Zen 3 D16a_v4",
-      "note": "Zen 3 base: ours vs Rust +6.9% at 1T, +4.9% at 16T, vs davepl +53% / +41% (idea1 level, +0.0% to +0.3%). Zen 4 wheel: vs C5 +40.6% at 1T, +37.9% at 16T, vs dsp +192% / +171% (idea1 level). Zen 5 and Zen 3 wheel running"
+      "note": "Zen 3 wheel: ours vs C5 +70.7% at 1T, +74.4% at 16T, vs dsp +190% / +203% (idea1 +0.9% / -0.6%). All six final tasks done"
     }
   ],
   "azure_queue": 0,
@@ -939,32 +939,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T08:58:19Z",
-      "level": "decision",
-      "text": "loaded-1t: Chris (3): with every other core spinning, one thread loses 24% from clock alone; the 48-thread profile showed each thread 31% slower, so about three quarters of the per-thread drop at one thread per core is frequency, not our code. Rust drops by the same proportion. Why: spin on 16 cores -14%, on 47 cores -24%; a spinning SMT sibling costs 30% and everything busy 49%. The sieve-load half was invalid (wrong Rust flag) and is rerunning: a sieve may draw more power than a spin loop. Expect: the sieve load drops one-thread speed at least as much as the spin load.",
-      "id": "loaded-1t",
-      "what": "Chris (3): with every other core spinning, one thread loses 24% from clock alone; the 48-thread profile showed each thread 31% slower, so about three quarters of the per-thread drop at one thread per core is frequency, not our code. Rust drops by the same proportion",
-      "why": "spin on 16 cores -14%, on 47 cores -24%; a spinning SMT sibling costs 30% and everything busy 49%. The sieve-load half was invalid (wrong Rust flag) and is rerunning: a sieve may draw more power than a spin loop",
-      "expect": "the sieve load drops one-thread speed at least as much as the spin load"
-    },
-    {
-      "utc": "2026-10-10T08:58:19Z",
-      "level": "decision",
-      "text": "asm-wheel: the Zig wheel's Zen 5 lead is not from 512-bit loops: on the node Zig compiles to 256-bit vectors only. Next comparison: our AVX2 build against Zig on Zen 5. Why: the node dump shows no zmm in Zig's code; wheel-group32 (our AVX-512 loop in Zig's 32-word form) is still worth its result, but it is not Zig's mechanism. Expect: if our avx2 build is level with Zig on Zen 5, the gap is the AVX-512 path itself.",
-      "id": "asm-wheel",
-      "what": "the Zig wheel's Zen 5 lead is not from 512-bit loops: on the node Zig compiles to 256-bit vectors only. Next comparison: our AVX2 build against Zig on Zen 5",
-      "why": "the node dump shows no zmm in Zig's code; wheel-group32 (our AVX-512 loop in Zig's 32-word form) is still worth its result, but it is not Zig's mechanism",
-      "expect": "if our avx2 build is level with Zig on Zen 5, the gap is the AVX-512 path itself"
-    },
-    {
-      "utc": "2026-10-10T08:58:19Z",
-      "level": "decision",
-      "text": "port-rust-wheel: the Rust wheel port trails the ISPC wheel by 14-16% on Zen 5 but leads C5 by 12-30%: route stands as a new solution (Rust's only wheel is 8-bit); tuning it is a follow-up, not this run. Why: LLVM's 256-bit loops vs ISPC's AVX-512 path likely explain much of it; the C++ port's sparse fix (four planes at a time) is the first thing to try.",
-      "id": "port-rust-wheel",
-      "what": "the Rust wheel port trails the ISPC wheel by 14-16% on Zen 5 but leads C5 by 12-30%: route stands as a new solution (Rust's only wheel is 8-bit); tuning it is a follow-up, not this run",
-      "why": "LLVM's 256-bit loops vs ISPC's AVX-512 path likely explain much of it; the C++ port's sparse fix (four planes at a time) is the first thing to try"
-    },
     {
       "utc": "2026-10-10T08:58:19Z",
       "level": "decision",
@@ -1308,6 +1282,23 @@
       "id": "run",
       "what": "Zen 4 pool down (work done); remaining: final wheel on Zen 5 and Zen 3, then shutdown, the morning report and the retrospective",
       "why": "no new experiment can finish before the 12:30 cutoff"
+    },
+    {
+      "utc": "2026-10-10T12:15:10Z",
+      "level": "info",
+      "text": "Run ap-20261010T0715Z stopped: all pools deleted (az batch pool list empty), lock cleared, no wake-up pending; morning report at the top of STATUS.md, tables in results/hc/run-ap-20261010T0715Z.md"
+    },
+    {
+      "utc": "2026-10-10T12:15:10Z",
+      "level": "info",
+      "text": "Run ap-20261010T0715Z is stopped; spend NZ$1.75.",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T12:15:10Z",
+      "level": "info",
+      "text": "final6 done. Zen 5 D32as_v7, Zen 4 D16as_v5, Zen 3 D16a_v4. Zen 3 wheel: ours vs C5 +70.7% at 1T, +74.4% at 16T, vs dsp +190% / +203% (idea1 +0.9% / -0.6%). All six final tasks done",
+      "auto": true
     }
   ],
   "research": {
