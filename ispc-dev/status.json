@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T07:53:35Z",
+  "updated_utc": "2026-10-10T07:55:27Z",
   "run": {
     "id": "ap-20261010T0715Z",
     "state": "running",
@@ -834,6 +834,14 @@
       "verdict": "running",
       "where": "Zen 5 D32as_v7",
       "note": "vs idea1, 4 rounds; a probe, the EPYC runner is AVX2-only"
+    },
+    {
+      "id": "idea6-i64",
+      "entry": "base",
+      "hypothesis": "One 64-bit word per lane (avx2-i64x4, avx512skx-x4) shrinks the avx2 object from about 1.0 MB to 0.78 MB and helps at threads = vCPUs (SMT)",
+      "verdict": "queued",
+      "where": "Zen 5, Zen 3 fleet at 16 threads",
+      "note": "local PRIMES_TEST passes, 1T level"
     }
   ],
   "azure_queue": 0,
@@ -843,22 +851,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T03:20:54Z",
-      "level": "info",
-      "text": "p4-arm-dense keep (merge pending Chris). Cobalt 100. Cobalt 100, 6 rounds: +2.5% at 1T (95% CI +2.2% to +2.8%), +2.9% at 2T and 4T, 6/6 rounds; gap to Rust 4.3% -> 1.9%. x86 --emit-asm identical for sse4, avx2, avx512skx. Fast-forward of hc/champion a1433d9 -> 37e19c7 was blocked by the session permission check; waits for Chris",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T03:28:46Z",
-      "level": "decision",
-      "text": "p4-arm-init3: A/B on Cobalt 100, 6 rounds, against the kept arm candidate 37e19c7. Why: removes one full write of the 62.5 KB buffer and turns the factor-3 RMW into stores; hc-026 gave about 1% on x86. Passed over: more NEON dense tuning for P >= 67 (masks spill, small gain per the agent's count). Expect: +1-2% at 1T on arm; target-specific rule needs >= 2%, so a smaller gain is a no-keep.",
-      "id": "p4-arm-init3",
-      "what": "A/B on Cobalt 100, 6 rounds, against the kept arm candidate 37e19c7",
-      "why": "removes one full write of the 62.5 KB buffer and turns the factor-3 RMW into stores; hc-026 gave about 1% on x86",
-      "instead": "more NEON dense tuning for P >= 67 (masks spill, small gain per the agent's count)",
-      "expect": "+1-2% at 1T on arm; target-specific rule needs >= 2%, so a smaller gain is a no-keep"
-    },
     {
       "utc": "2026-10-10T03:28:46Z",
       "level": "info",
@@ -1217,6 +1209,20 @@
       "utc": "2026-10-10T07:53:35Z",
       "level": "info",
       "text": "rust-falloff done. Zen 5 D32as_v7. D32as_v7 is 16 cores x 2 SMT (lscpu). Unpinned 16 threads (one per core): ours 1.64M, Rust 1.60M (+3%). 32 threads (SMT): ours 1.77M (+8% from SMT), Rust 1.55M (-3%): the full-occupancy lead is ours gaining from SMT while Rust does not. Rust pinned to 32 CPUs 1.51M vs unpinned 1.55M, and 30 or 31 threads no better: not scheduling or the main thread. Azure numbers SMT siblings adjacently (taskset 0-15 at 16 threads: ours 0.99M, i.e. 8 cores)",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T07:55:27Z",
+      "level": "decision",
+      "text": "intel-avx2: start an agent on the Intel image: every entry built AVX2-only (ISPC avx2-i32x8, Rust and C++ and C5 with skylake), run on one Intel Xeon size. Why: RUN-PLAN priority 4; Azure Xeons all have AVX-512 and the i7-9750H does not, so native builds would measure the wrong code path.",
+      "id": "intel-avx2",
+      "what": "start an agent on the Intel image: every entry built AVX2-only (ISPC avx2-i32x8, Rust and C++ and C5 with skylake), run on one Intel Xeon size",
+      "why": "RUN-PLAN priority 4; Azure Xeons all have AVX-512 and the i7-9750H does not, so native builds would measure the wrong code path"
+    },
+    {
+      "utc": "2026-10-10T07:55:27Z",
+      "level": "info",
+      "text": "idea6-i64 (base) queued: One 64-bit word per lane (avx2-i64x4, avx512skx-x4) shrinks the avx2 object from about 1.0 MB to 0.78 MB and helps at threads = vCPUs (SMT)",
       "auto": true
     }
   ],
