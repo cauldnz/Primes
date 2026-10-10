@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T01:48:59Z",
+  "updated_utc": "2026-10-10T01:49:10Z",
   "run": {
     "id": "ap-20261010T0140Z",
     "state": "running",
@@ -15,7 +15,11 @@
     "last_tick_utc": "2026-10-10T01:48:59Z",
     "wakeup": "trig_01NRqjjEuEtiPG2pGh38vhAP"
   },
-  "current": null,
+  "current": {
+    "id": "diag-base-phases",
+    "phase": "evaluate",
+    "detail": "profiles queued on Zen 5 and D16as_v5; stand-in jobs in round 1"
+  },
   "scoreboard": [
     {
       "machine": "Zen 3 (EPYC 7763)",
@@ -684,21 +688,6 @@
   ],
   "events": [
     {
-      "utc": "2026-10-09T08:47:55Z",
-      "level": "info",
-      "text": "hc-011 rejected (G=6 hurts Zen 3 1T). hc-014 makes G per target; Zen 5 data carries over."
-    },
-    {
-      "utc": "2026-10-09T08:52:46Z",
-      "level": "info",
-      "text": "hc-012 rejected (Zen 5 16T -2.1% from a register spill); hc-015 fixes the spill and is running."
-    },
-    {
-      "utc": "2026-10-09T09:06:05Z",
-      "level": "info",
-      "text": "hc-014 confirmed on Zen 4 AVX-512: +4.3% 1T. hc-013 base AVX-512 +1.0% only. hc-016 (no lead-ins) launched."
-    },
-    {
       "utc": "2026-10-09T09:12:23Z",
       "level": "info",
       "text": "hc-015 KEPT and merged: wheel sparse loop without the spill, +5% to +7% on Zen 3 and Zen 5 at 1T and 16T."
@@ -945,6 +934,22 @@
       "utc": "2026-10-10T01:48:59Z",
       "level": "info",
       "text": "diag-base-phases (base) running: Phase profile of our base against mike-barber Rust, same node (diagnostic builds)",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T01:49:10Z",
+      "level": "info",
+      "text": "Dry run check 1 passed: submitted jobs appear in jobs.tsv, and tick.sh copied their partial output while they run (01:48 UTC)."
+    },
+    {
+      "utc": "2026-10-10T01:49:10Z",
+      "level": "info",
+      "text": "Dry run check 3, first part: hc-pool.sh tally added node-minutes; spend moved to NZ$0.07. Confirming on the page next tick."
+    },
+    {
+      "utc": "2026-10-10T01:49:10Z",
+      "level": "info",
+      "text": "diag-base-phases: evaluate. profiles queued on Zen 5 and D16as_v5; stand-in jobs in round 1",
       "auto": true
     }
   ],
