@@ -37,6 +37,9 @@ extern "C" uniform int pthread_join(uniform int64 tid, void * uniform * uniform 
 extern "C" uniform int get_nprocs();
 extern "C" uniform int sched_getaffinity(uniform int pid, uniform int64 size,
                                         uniform uint64 * uniform mask);
+extern "C" void * uniform fopen(const uniform int8 * uniform path, const uniform int8 * uniform mode);
+extern "C" uniform int64 fread(void * uniform buf, uniform int64 size, uniform int64 n, void * uniform f);
+extern "C" uniform int fclose(void * uniform f);
 extern "C" uniform int sched_setaffinity(uniform int pid, uniform int64 size,
                                         const uniform uint64 * uniform mask);
 extern "C" int8 * uniform getenv(const uniform int8 * uniform name);
@@ -300,18 +303,51 @@ struct Job {
     uniform int cpu;      // CPU this worker pins itself to, or -1
 };
 
+// The first CPU listed as a sibling of cpu c (its core's first hardware thread), from
+// /sys/devices/system/cpu/cpu<c>/topology/thread_siblings_list; c itself if that can't be read.
+static uniform int first_sibling(uniform int c) {
+    uniform int8 path[64];
+    uniform int8 head[28] = {47,115,121,115,47,100,101,118,105,99,101,115,47,115,121,115,116,101,109,47,99,112,117,47,99,112,117,0};   // "/sys/devices/system/cpu/cpu"
+    uniform int8 tail[31] = {47,116,111,112,111,108,111,103,121,47,116,104,114,101,97,100,95,115,105,98,108,105,110,103,115,95,108,105,115,116,0};   // "/topology/thread_siblings_list"
+    uniform int n = 0;
+    for (uniform int i = 0; head[i] != 0; i++) path[n++] = head[i];
+    uniform int8 digits[8];
+    uniform int nd = 0;
+    uniform int v = c;
+    do { digits[nd++] = (uniform int8)(48 + v % 10); v /= 10; } while (v > 0);
+    while (nd > 0) path[n++] = digits[--nd];
+    for (uniform int i = 0; tail[i] != 0; i++) path[n++] = tail[i];
+    path[n] = 0;
+    uniform int8 mode[2] = {114,0};   // "r"
+    void * uniform fp = fopen(path, mode);
+    if (fp == NULL) return c;
+    uniform int8 buf[32];
+    uniform int64 got = fread(buf, 1, 31, fp);
+    fclose(fp);
+    uniform int first = 0;
+    uniform bool any = false;
+    for (uniform int i = 0; i < got && buf[i] >= 48 && buf[i] <= 57; i++) {
+        first = 10 * first + (buf[i] - 48);
+        any = true;
+    }
+    return any ? first : c;
+}
+
 // The CPUs this process may run on, from its affinity mask, so a container limited with
 // --cpuset-cpus is not oversubscribed (get_nprocs() counts every online CPU). Returns how many
-// and lists them in order; thread t of a run pins itself to the t-th. Linux numbers SMT
-// siblings apart (cpu i and i + N/2 on one core), so a run with half the threads gets one
-// thread per core.
+// and lists them with each core's first hardware thread before any SMT sibling; thread t of a
+// run pins itself to the t-th, so a run with half the threads gets one thread per core however
+// the kernel numbers siblings.
 static uniform int allowed_cpus(uniform int * uniform list) {
     uniform uint64 mask[16];                                       // up to 1024 CPUs
     for (uniform int i = 0; i < 16; i++) mask[i] = 0;
     uniform int n = 0;
-    if (sched_getaffinity(0, 16 * 8, mask) == 0)
-        for (uniform int c = 0; c < 1024; c++)
-            if ((mask[c >> 6] >> (c & 63)) & 1) list[n++] = c;
+    if (sched_getaffinity(0, 16 * 8, mask) == 0) {
+        for (uniform int pass = 0; pass < 2; pass++)               // first siblings, then the rest
+            for (uniform int c = 0; c < 1024; c++)
+                if ((mask[c >> 6] >> (c & 63)) & 1)
+                    if ((first_sibling(c) == c) == (pass == 0)) list[n++] = c;
+    }
     if (n == 0) {
         n = clamp(get_nprocs(), 1, 1024);
         for (uniform int c = 0; c < n; c++) list[c] = c;
