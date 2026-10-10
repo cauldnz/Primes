@@ -41,13 +41,10 @@ constexpr int G = 8;
 // A step of W words as one value. GCC's vector extension (also in Clang) splits it into
 // whatever vector registers the target has: two with AVX-512, four with AVX2 or eight with
 // SSE or NEON.
-using Block = Word __attribute__((vector_size(W * sizeof(Word))));
-inline Block load(const Word* p) {
-    Block b;
-    std::memcpy(&b, p, sizeof b);
-    return b;
-}
-inline void store(Word* p, const Block& b) { std::memcpy(p, &b, sizeof b); }
+// aligned(8) and may_alias make it safe to read and write a Block anywhere in a Word array.
+using Block = Word __attribute__((vector_size(W * sizeof(Word)), aligned(8), may_alias));
+inline Block load(const Word* p) { return *reinterpret_cast<const Block*>(p); }
+inline void store(Word* p, Block b) { *reinterpret_cast<Block*>(p) = b; }
 
 constexpr int DenseMax = 256;         // primes below this are applied as word patterns
 constexpr int RowWords = DenseMax + 2 * W;   // a pattern's period plus one step, rounded up
@@ -190,7 +187,7 @@ private:
             Word* __restrict w = plane(pl);
             std::fill_n(w, std::min(t + W - 1, pw_), Word{0});   // the tile and its overrun
             const std::size_t first[G] = {start_bit(7, Res[pl], 1), start_bit(11, Res[pl], 1)};
-            apply_group(w, t, *group_, first);
+            apply_group<2>(w, t, *group_, first);
             for (std::size_t base = t; base < nw_; base += t)
                 std::memcpy(w + base, w, std::min(t, nw_ - base) * sizeof(Word));
             std::fill(w + nw_, w + pw_, Word{0});                  // padding past the plane
@@ -200,37 +197,45 @@ private:
         plane(2)[0] &= ~Word{1};                                   // 11 is prime
     }
 
-    // Fused pass over one plane: every group member is OR'd into a step of W words with one
-    // load and one store of each word. first[j] is member j's first bit in this plane. The
-    // last step runs past nw into the padding, where the extra words get the members' own
-    // patterns, which is harmless.
+    // Fused pass over one plane for N members: each step of W words is loaded and stored once
+    // while every member's pattern is OR'd in. first[j] is member j's first bit in this plane.
+    // The last step runs past nw into the padding, where the extra words get the members' own
+    // patterns, which is harmless. N is a template parameter, so each member's phase and period
+    // are fixed-size locals that the compiler keeps in registers.
+    template <int N>
     static void apply_group(Word* __restrict w, std::size_t nw, const Group& g,
                             const std::size_t* first) {
         // Every member starts at the earliest member's first word, so no member needs a
         // lead-in. A member then also marks its multiples below p * p, which are composite,
         // and p itself, which dense_primes clears again.
-        const int n = g.n;
         std::size_t start = nw;
-        for (int j = 0; j < n; j++) start = std::min(start, first[j] / 64);
-        std::int64_t r[G];                       // phase of each member at word k
-        for (int j = 0; j < G; j++) {
-            if (j < n) {
-                const std::int64_t r0 = g.tab[j][first[j] % 64] -
-                                        std::int64_t(first[j] / 64 - start) % g.period[j];
-                r[j] = r0 < 0 ? r0 + g.period[j] : r0;
-            } else {
-                r[j] = 0;
-            }
+        for (int j = 0; j < N; j++) start = std::min(start, first[j] / 64);
+        std::size_t r[N], period[N];             // phase in each member's row, and its wrap
+        for (int j = 0; j < N; j++) {
+            period[j] = std::size_t(g.period[j]);
+            const std::size_t back = (first[j] / 64 - start) % period[j];
+            const std::size_t t = std::size_t(g.tab[j][first[j] % 64]);
+            r[j] = t >= back ? t - back : t + period[j] - back;
         }
         for (std::size_t k = start; k < nw; k += W) {
             Block v = load(w + k);
-            for (int j = 0; j < G; j++) {
+            for (int j = 0; j < N; j++) {
                 v |= load(g.rows[j] + r[j]);
-                const std::int64_t next = r[j] + W;
-                r[j] = next >= g.period[j] ? next - g.period[j] : next;
+                r[j] += W;
+                if (r[j] >= period[j]) r[j] -= period[j];
             }
             store(w + k, v);
         }
+    }
+
+    // apply_group with the member count as a compile-time constant.
+    template <int... N>
+    static void apply_n(int n, Word* w, std::size_t nw, const Group& g, const std::size_t* first,
+                        std::integer_sequence<int, N...>) {
+        ((n == N + 1 ? apply_group<N + 1>(w, nw, g, first) : void()), ...);
+    }
+    static void apply(Word* w, std::size_t nw, const Group& g, const std::size_t* first) {
+        apply_n(g.n, w, nw, g, first, std::make_integer_sequence<int, G>{});
     }
 
     // One pattern into a plane from bit b on, for a prime that runs alone; the first word is
@@ -259,7 +264,7 @@ private:
                 apply_one(plane(pl), nw_, g.rows[0], g.period[0], g.tab[0][first[0] % 64],
                           first[0]);
             } else {
-                apply_group(plane(pl), nw_, g, first);
+                apply(plane(pl), nw_, g, first);
             }
         }
         if (n == 1) return;
@@ -269,29 +274,36 @@ private:
         }
     }
 
-    // A large prime sets at most one bit per word. All eight planes advance in one loop,
-    // giving eight independent read-modify-write streams.
-    void sparse_prime(std::size_t p) {
-        Word* __restrict base = bits_.get();
-        std::size_t i[8];                              // bit index within the whole buffer
-        std::size_t hi = 0;
-        for (int pl = 0; pl < 8; pl++) {
-            const std::size_t b = start_bit(unsigned(p), Res[pl], unsigned(p));
-            hi = std::max(hi, b);
-            i[pl] = b + pl * pw_ * 64;
+    // A large prime sets at most one bit per word. S planes advance together in one loop,
+    // giving S independent read-modify-write streams. Four streams keep every index in a
+    // register; with eight, GCC spilled them and the sparse phase ran about 40% slower.
+    template <int S>
+    static void sparse_streams(Word* __restrict base, std::size_t p, const std::size_t* first,
+                               const std::size_t* end) {
+        std::size_t i[S];
+        std::size_t rounds = ~std::size_t{0};  // rounds in which all S streams are inside
+        for (int s = 0; s < S; s++) {
+            i[s] = first[s];
+            rounds = std::min(rounds, first[s] < end[s] ? (end[s] - 1 - first[s]) / p + 1 : 0);
         }
-        // Rounds in which all eight streams are still inside their plane.
-        const std::size_t rounds = hi < mbits_ ? (mbits_ - 1 - hi) / p + 1 : 0;
-        for (const std::size_t end = i[0] + rounds * p; i[0] < end;) {
-            for (int pl = 0; pl < 8; pl++) {
-                base[i[pl] / 64] |= Word{1} << (i[pl] % 64);
-                i[pl] += p;
+        for (const std::size_t stop = i[0] + rounds * p; i[0] < stop;) {
+            for (int s = 0; s < S; s++) {
+                base[i[s] / 64] |= Word{1} << (i[s] % 64);
+                i[s] += p;
             }
         }
+        for (int s = 0; s < S; s++)
+            for (std::size_t x = i[s]; x < end[s]; x += p) base[x / 64] |= Word{1} << (x % 64);
+    }
+
+    void sparse_prime(std::size_t p) {
+        std::size_t first[8], end[8];        // bit indices within the whole buffer
         for (int pl = 0; pl < 8; pl++) {
-            const std::size_t end = pl * pw_ * 64 + mbits_;
-            for (std::size_t x = i[pl]; x < end; x += p) base[x / 64] |= Word{1} << (x % 64);
+            first[pl] = start_bit(unsigned(p), Res[pl], unsigned(p)) + pl * pw_ * 64;
+            end[pl] = pl * pw_ * 64 + mbits_;
         }
+        sparse_streams<4>(bits_.get(), p, first, end);
+        sparse_streams<4>(bits_.get(), p, first + 4, end + 4);
     }
 
     std::uint64_t size_;

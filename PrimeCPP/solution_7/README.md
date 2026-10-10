@@ -42,7 +42,9 @@ once per group: six primes when the target has AVX-512, eight otherwise. Every m
 group starts at the first word any member touches, so no member needs a lead-in of its own.
 Members then also mark their multiples below `p²`, which are composite, and `p` itself, which
 is cleared again afterwards. The last block of a plane runs on into padding at the end of the
-plane instead of being masked.
+plane instead of being masked. The fused loop is a template over the number of members, picked
+by a fold over `std::integer_sequence`, so each member's phase and period are fixed-size locals
+that GCC keeps in registers.
 
 ### Wheel tile
 
@@ -52,8 +54,10 @@ is final.
 
 ### Large primes
 
-Primes of 256 and above set at most one bit per word. They use scalar strided bit-setting,
-with all eight planes advanced in one loop to keep eight independent memory streams busy.
+Primes of 256 and above set at most one bit per word. They use scalar strided bit-setting, with
+four planes advanced in one loop, so four independent memory streams are in flight, and then
+the other four. The ISPC entry runs all eight planes in one loop; in C++, GCC spilled the eight
+indices to the stack, and that phase took 40% more cycles than with four.
 
 ### Faithfulness
 
@@ -96,7 +100,7 @@ from there to 400,000, to compare against a reference sieve.
 Intel Xeon at 2.1GHz with AVX-512, 4 vCPUs, Ubuntu 24.04, GCC 13.3, native build:
 
 ```
-cauldnz-cpp-wheel;88770;5.000036;1;algorithm=wheel,faithful=yes,bits=1
-cauldnz-cpp-wheel;273702;5.000161;4;algorithm=wheel,faithful=yes,bits=1
-cauldnz-cpp-wheel;174482;5.000090;2;algorithm=wheel,faithful=yes,bits=1
+cauldnz-cpp-wheel;100071;5.000059;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-cpp-wheel;426821;5.000169;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-cpp-wheel;208063;5.000175;2;algorithm=wheel,faithful=yes,bits=1
 ```
