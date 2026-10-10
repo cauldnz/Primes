@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T03:45:21Z",
+  "updated_utc": "2026-10-10T03:46:19Z",
   "run": {
     "id": "ap-20261010T0140Z",
     "state": "running",
@@ -739,9 +739,17 @@
       "id": "p4-arm-init3",
       "entry": "base",
       "hypothesis": "NEON factor-3 pass initialises the buffer (store-only), dropping the separate 62.5 KB zeroing, as hc-026 does on x86",
-      "verdict": "running",
+      "verdict": "revert",
       "where": "Cobalt 100",
-      "note": "8120512 by agent, vs kept 37e19c7; verified x86 emit-asm identical (3 targets), x86 PRIMES_TEST exit 0; agent ran NEON PRIMES_TEST and a 70,933-size bit sweep under qemu"
+      "note": "Cobalt 100, 6 rounds vs 37e19c7: +0.5% at 1T (95% CI +0.1% to +0.9%), +0.5% at 2T/4T; cannot reach the 2% target-specific bar"
+    },
+    {
+      "id": "p6-scaling-64",
+      "entry": "base",
+      "hypothesis": "lead over Rust holds or grows at 64 threads on Zen 5",
+      "verdict": "running",
+      "where": "Zen 5 D64as_v7",
+      "note": "cand hc/champion 37e19c7, champ a1433d9 (x86-identical, so an A/A), ctrl Rust; 4 rounds"
     }
   ],
   "azure_queue": 0,
@@ -751,22 +759,6 @@
     "Zen 5 at one thread: about +3% to pass Swift's official 122.9k"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T01:48:59Z",
-      "level": "info",
-      "text": "diag-base-phases (base) running: Phase profile of our base against mike-barber Rust, same node (diagnostic builds)",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T01:49:10Z",
-      "level": "info",
-      "text": "Dry run check 1 passed: submitted jobs appear in jobs.tsv, and tick.sh copied their partial output while they run (01:48 UTC)."
-    },
-    {
-      "utc": "2026-10-10T01:49:10Z",
-      "level": "info",
-      "text": "Dry run check 3, first part: hc-pool.sh tally added node-minutes; spend moved to NZ$0.07. Confirming on the page next tick."
-    },
     {
       "utc": "2026-10-10T01:49:10Z",
       "level": "info",
@@ -1115,6 +1107,27 @@
       "utc": "2026-10-10T03:35:52Z",
       "level": "info",
       "text": "p5-sse4x8 revert. Zen 3. Zen 3, 6 rounds: sse4-i32x8 runs at 8% of sse4-i32x4 (4.0k vs 49.2k at 1T, -92%); the double-pumped SSE4 target scalarises the 64-bit lane code, as NEON once did. The local build showed it too (10k at 2T) and should have stopped the submit",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T03:46:19Z",
+      "level": "decision",
+      "text": "p4-arm-init3: REVERT; arm work stops here for this run and the arm pool is down. Why: +0.5% with an upper bound of +0.9%, below the 2% bar for a NEON-only change. Remaining arm gap to Rust is about 1.3-1.9%. Passed over: a NEON dense tune for P >= 67 (agent's count put the gain there at under 1%).",
+      "id": "p4-arm-init3",
+      "what": "REVERT; arm work stops here for this run and the arm pool is down",
+      "why": "+0.5% with an upper bound of +0.9%, below the 2% bar for a NEON-only change. Remaining arm gap to Rust is about 1.3-1.9%",
+      "instead": "a NEON dense tune for P >= 67 (agent's count put the gain there at under 1%)"
+    },
+    {
+      "utc": "2026-10-10T03:46:19Z",
+      "level": "info",
+      "text": "p4-arm-init3 revert. Cobalt 100. Cobalt 100, 6 rounds vs 37e19c7: +0.5% at 1T (95% CI +0.1% to +0.9%), +0.5% at 2T/4T; cannot reach the 2% target-specific bar",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T03:46:19Z",
+      "level": "info",
+      "text": "p6-scaling-64 (base) running: lead over Rust holds or grows at 64 threads on Zen 5",
       "auto": true
     }
   ],
