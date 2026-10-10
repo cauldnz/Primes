@@ -57,7 +57,12 @@ work, so the run has two streams going at once. Two agents at most.
      one design. Plain C++20, GCC from the distribution, `-O3 -march=native` like the existing C++
      entries. No intrinsics unless the existing C++ entries use them.
    - **Rust wheel** next (stable Rust, `-C target-cpu=native` like mike-barber's), then **Rust
-     base**.
+     base** as a comparator (Chris, 16:41: whether it goes upstream is undecided). For the Rust
+     base, the deliverable is the delta against mike-barber's `PrimeRust/solution_1`: a short
+     side-by-side of what our port does differently (dense resets, sparse loop, buffer set-up,
+     threading) with the compiled code of each, and the measured gain of each difference where
+     it can be isolated. That tells Chris whether it is a new solution or an improvement to
+     offer mike-barber.
    - Measure every port in the same rounds as the ISPC and Zig versions of the same design, on
      Zen 5 and Zen 3: a table of ISPC, Zig, Rust and C++ for each design, at 1T and all threads.
    - A port that fails its self-test or its rules check is not measured. Keep each on its own
