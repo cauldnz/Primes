@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T11:19:14Z",
+  "updated_utc": "2026-10-10T11:22:58Z",
   "run": {
     "id": "ap-20261010T0715Z",
     "state": "running",
@@ -922,6 +922,14 @@
       "verdict": "revert",
       "where": "Zen 5 D32as_v7",
       "note": "D32as_v7, 4 rounds: -2.6% at 1T, -5.6% at 8T, -5.9% at 16T, -7.4% +-0.5% at 32T. The extra load-port work costs more than the misses it hides, worst under SMT"
+    },
+    {
+      "id": "final6",
+      "entry": "both",
+      "hypothesis": "final scoreboard: champion with the thread-count fix (8fd7f1f) vs the rivals, base and wheel",
+      "verdict": "queued",
+      "where": "Zen 5 D32as_v7, Zen 4 D16as_v5, Zen 3 D16a_v4",
+      "note": "6 rounds each; Cobalt 100, Intel and the 96-vCPU curves come from this run`s earlier tasks"
     }
   ],
   "azure_queue": 0,
@@ -931,22 +939,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T08:39:39Z",
-      "level": "info",
-      "text": "mt-phases done. Zen 5 D96as_v7. D96as_v7 (48c x 2 SMT), TSC cycles per pass (2.6 GHz), medians of 3 rounds. 1T: dense 36.7k, sparse 61.2k, scan 4.2k, 25.4k passes/s. 24T: 42.2k / 70.4k / 4.9k (+15% each), 529k/s. 48T: 53.2k / 88.8k / 6.0k (+45% each), 838k/s. 96T: 93.9k / 194.9k / 8.1k, 834k/s. From 48 to 96 threads dense per pass x1.77 (core throughput +13%), sparse x2.19 (core throughput -9%)",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T08:41:28Z",
-      "level": "decision",
-      "text": "idea21-prefetch: start an agent on IDEAS 21 (sparse prefetch), aimed at the SMT line. Why: the phase profile names the sparse phase as the one losing throughput when two threads share a core; prefetch is a hint, allowed under the base rules. Passed over: IDEAS 10 (blocking): grey, not built. Expect: a 1T loss of 1-2% and a gain of 2-5% at 96 threads.",
-      "id": "idea21-prefetch",
-      "what": "start an agent on IDEAS 21 (sparse prefetch), aimed at the SMT line",
-      "why": "the phase profile names the sparse phase as the one losing throughput when two threads share a core; prefetch is a hint, allowed under the base rules",
-      "instead": "IDEAS 10 (blocking): grey, not built",
-      "expect": "a 1T loss of 1-2% and a gain of 2-5% at 96 threads"
-    },
     {
       "utc": "2026-10-10T08:41:28Z",
       "level": "decision",
@@ -1298,6 +1290,21 @@
       "utc": "2026-10-10T11:19:14Z",
       "level": "info",
       "text": "wheel-group32 Chris to decide. Zen 5 D96as_v7; Zen 4 recheck. Zen 4 (D16as_v5, EPYC 9V74), 6 rounds: -0.0% +-1.6% at 1T, +0.2% at 4T, -0.1% at 8T, +0.2% +-0.4% at 16T. Zen 5: +4.4% (1T) to +2.5% (32T), 24/24 rounds; first Zen 5 run +3.7% to +4.0%. AVX-512-only change: under the written target-specific rule (>= 2% on every machine whose code changes) Zen 4 fails it, with no regression",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T11:22:58Z",
+      "level": "decision",
+      "text": "final6: queue the final scoreboard behind the current tasks on Zen 3, Zen 4 and Zen 5. Why: they finish before the 12:30 cutoff and the 13:15 shutdown; arm, Intel and the 96-vCPU numbers are already measured this run. Passed over: re-measuring arm and Intel.",
+      "id": "final6",
+      "what": "queue the final scoreboard behind the current tasks on Zen 3, Zen 4 and Zen 5",
+      "why": "they finish before the 12:30 cutoff and the 13:15 shutdown; arm, Intel and the 96-vCPU numbers are already measured this run",
+      "instead": "re-measuring arm and Intel"
+    },
+    {
+      "utc": "2026-10-10T11:22:58Z",
+      "level": "info",
+      "text": "final6 (both) queued: final scoreboard: champion with the thread-count fix (8fd7f1f) vs the rivals, base and wheel",
       "auto": true
     }
   ],
