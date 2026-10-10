@@ -15,6 +15,62 @@ use crate::{unrolled::FlagStorageUnrolledHybrid, unrolled_extreme::FlagStorageEx
 mod unrolled;
 mod unrolled_extreme;
 
+/// DIAGNOSTIC BUILD (hc/diag-rust-phases): never merge. Per-phase cycle counters.
+pub mod profile {
+    use crate::primes::{FlagStorage, PrimeSieve};
+
+    #[cfg(target_arch = "x86_64")]
+    #[inline(always)]
+    pub fn cycles() -> u64 {
+        unsafe { core::arch::x86_64::_rdtsc() }
+    }
+
+    #[cfg(target_arch = "aarch64")]
+    #[inline(always)]
+    pub fn cycles() -> u64 {
+        let v: u64;
+        unsafe { core::arch::asm!("mrs {}, cntvct_el0", out(reg) v, options(nomem, nostack)) };
+        v
+    }
+
+    #[cfg(not(any(target_arch = "x86_64", target_arch = "aarch64")))]
+    #[inline(always)]
+    pub fn cycles() -> u64 {
+        0
+    }
+
+    /// Run `passes` single-threaded passes and print per-phase cycles per pass to stdout.
+    pub fn profile_phases<T: FlagStorage>(label: &str, limit: usize, passes: u64, dense_cutoff: usize) {
+        let (mut setup, mut dense, mut sparse, mut scan, mut destroy, mut run) =
+            (0u64, 0u64, 0u64, 0u64, 0u64, 0u64);
+        for _ in 0..passes {
+            let t0 = cycles();
+            let mut sieve: PrimeSieve<T> = PrimeSieve::new(limit);
+            let t1 = cycles();
+            let (r, d, s) = sieve.run_sieve_profiled(dense_cutoff);
+            let t2 = cycles();
+            drop(std::hint::black_box(sieve));
+            let t3 = cycles();
+            setup += t1.wrapping_sub(t0);
+            destroy += t3.wrapping_sub(t2);
+            run += r;
+            dense += d;
+            sparse += s;
+            scan += r - d - s;
+        }
+        for (name, v) in [
+            ("setup", setup),
+            ("dense", dense),
+            ("sparse", sparse),
+            ("scan", scan),
+            ("destroy", destroy),
+            ("run_total", run),
+        ] {
+            println!("mike-barber_{};profile;{};{}", label, name, v / passes);
+        }
+    }
+}
+
 pub mod primes {
     use std::{collections::HashMap, time::Duration, usize};
 
@@ -643,6 +699,40 @@ pub mod primes {
                 factor += 2;
             }
         }
+
+        /// DIAGNOSTIC: run_sieve with cycle timers around each reset_flags call.
+        /// Returns (total, dense, sparse) cycles; dense is skip <= dense_cutoff.
+        #[inline(never)]
+        pub fn run_sieve_profiled(&mut self, dense_cutoff: usize) -> (u64, u64, u64) {
+            let r0 = crate::profile::cycles();
+            let mut dense = 0u64;
+            let mut sparse = 0u64;
+            let mut factor = 3;
+            let q = (self.sieve_size as f32).sqrt() as usize;
+
+            loop {
+                factor = (factor / 2..self.sieve_size / 2)
+                    .find(|n| self.flags.get(*n))
+                    .unwrap()
+                    * 2
+                    + 1;
+                if factor > q {
+                    break;
+                }
+                let skip = factor;
+                let c0 = crate::profile::cycles();
+                self.flags.reset_flags(skip);
+                let c1 = crate::profile::cycles();
+                if skip <= dense_cutoff {
+                    dense += c1.wrapping_sub(c0);
+                } else {
+                    sparse += c1.wrapping_sub(c0);
+                }
+
+                factor += 2;
+            }
+            (crate::profile::cycles().wrapping_sub(r0), dense, sparse)
+        }
     }
 
     /// print results to console stderr for good feedback
@@ -805,6 +895,11 @@ fn main() {
     ]
     .iter()
     .all(|b| !*b);
+
+    // DIAGNOSTIC: per-phase profile before the normal benchmark
+    if opt.bits_extreme {
+        profile::profile_phases::<FlagStorageExtremeHybrid>("bit-extreme-hybrid", limit, 20_000, 129);
+    }
 
     for threads in thread_options {
         print_header(threads, limit, run_duration);
