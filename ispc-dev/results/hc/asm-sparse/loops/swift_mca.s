@@ -1,0 +1,26 @@
+.Lloop:
+  orb    $0x80,(%rbx,%rax,1)
+  orb    $0x1,(%r8,%rax,1)
+  orb    $0x2,(%rdi,%rax,1)
+  orb    $0x4,(%r15,%rax,1)
+  orb    $0x8,(%rsi,%rax,1)
+  orb    $0x10,(%r12,%rax,1)
+  orb    $0x20,(%r9,%rax,1)
+  orb    $0x40,0x0(%r13,%rax,1)
+  mov    -0xd0(%rbp),%r11
+  orb    $0x80,(%r11,%rax,1)
+  mov    -0xc8(%rbp),%r11
+  orb    $0x1,(%r11,%rax,1)
+  mov    -0xc0(%rbp),%r11
+  orb    $0x2,(%r11,%rax,1)
+  mov    -0xb8(%rbp),%r11
+  orb    $0x4,(%r11,%rax,1)
+  mov    -0xb0(%rbp),%r11
+  orb    $0x8,(%r11,%rax,1)
+  mov    -0xa0(%rbp),%r11
+  orb    $0x10,(%r11,%rax,1)
+  orb    $0x20,(%rcx,%rax,1)
+  orb    $0x40,(%r10,%rax,1)
+  add    %rdx,%rax
+  cmp    -0xa8(%rbp),%rax
+  jl .Lloop
