@@ -74,14 +74,11 @@ static void sieve_create(uniform Sieve * uniform s, uniform int64 size) {
     s->nwords = (s->nbits + 63) >> 6;
     uniform int64 bytes = (((uniform int64)s->nwords * 8 + 63) / 64) * 64;
     s->bits = (uniform uint64 * uniform)aligned_alloc(64, bytes);
-#if defined(ISPC_TARGET_NEON)
-    foreach (k = 0 ... s->nwords) s->bits[k] = 0;
-#else
     // Only word 0 is cleared here, so the scan can read the bit for 3. The first factor the
     // scan finds is always 3, and its dense pass writes every word instead of reading it
-    // (clear_dense_vec with INIT), so the rest of the sieve is initialised there.
+    // (clear_dense_vec or clear_dense_neon with INIT), so the rest of the sieve is initialised
+    // there.
     s->bits[0] = 0;
-#endif
 }
 
 static void sieve_destroy(uniform Sieve * uniform s) {
@@ -154,9 +151,11 @@ static inline void clear_dense_vec(uniform uint64 * uniform w, uniform int nword
 // factors take one period a run, as Rust does: about P / 2 mask registers, which fit up to about
 // P = 63, plus a scalar tail of one to three words. Either way the loop is q-register loads, ORs
 // and stores with 16-byte-aligned offsets from the pointer, which pair into ldp/stp: four
-// words in four instructions, where the scalar routine takes eight.
+// words in four instructions, where the scalar routine takes eight. INIT (factor 3 only, the
+// first factor) stores the pattern without loading, as clear_dense_vec does; it needs P < 16,
+// where a run is all whole vectors and the scalar loop below writes nothing.
 static inline void clear_dense_neon(uniform uint64 * uniform w, uniform int nwords,
-                                    const uniform int P) {
+                                    const uniform int P, const uniform bool INIT) {
     const uniform int U = (P < 16) ? programCount : 1;             // periods per run
     const uniform int B = U * P;                                   // words per run
     const uniform int NV = B / programCount;                       // whole vectors per run
@@ -167,7 +166,7 @@ static inline void clear_dense_neon(uniform uint64 * uniform w, uniform int nwor
         #pragma unroll
         for (uniform int v = 0; v < NV; v++) {
             const int k = v * programCount + programIndex;          // word of the run
-            uint64 x = q[k];
+            uint64 x = INIT ? 0 : q[k];                              // INIT: first factor, no load
             const uniform int n0 = (64 * programCount * v - P / 2) / P;
             #pragma unroll
             for (uniform int i = 0; i < 64 * programCount / P + 2; i++) {
@@ -183,6 +182,7 @@ static inline void clear_dense_neon(uniform uint64 * uniform w, uniform int nwor
                 q[t >> 6] |= ((uniform uint64)1) << (t & 63);       // one composite
         }
     }
+    if (INIT) for (uniform int k = (uniform int)(q - w); k < nwords; k++) w[k] = 0;  // after the runs
     clear_dense_from(w, nwords, P, (uniform int)(q - w));          // the rest, then P itself
 }
 #endif
@@ -234,7 +234,7 @@ static void clear_sparse(uniform Sieve * uniform s, uniform int p) {
 }
 
 #if defined(ISPC_TARGET_NEON)
-#define D(P) case P: clear_dense_neon(s->bits, s->nwords, P); break;
+#define D(P) case P: clear_dense_neon(s->bits, s->nwords, P, P == 3); break;
 #else
 #define D(P) case P: if (P < VEC_LIMIT) clear_dense_vec(s->bits, s->nwords, P, P == 3); \
                      else clear_dense(s->bits, s->nwords, P); break;
