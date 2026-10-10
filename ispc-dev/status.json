@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T11:02:44Z",
+  "updated_utc": "2026-10-10T11:03:50Z",
   "run": {
     "id": "ap-20261010T0715Z",
     "state": "running",
@@ -847,9 +847,9 @@
       "id": "intel-avx2",
       "entry": "both",
       "hypothesis": "Intel stand-in for the i7-9750H, every entry built AVX2-only: ours base and wheel vs Rust, davepl, C5, Zig",
-      "verdict": "queued",
+      "verdict": "measured",
       "where": "one Intel size (phase B)",
-      "note": "hc/diag-intel-avx2 5aa86a9 by agent: slot-only diff; all components built and run natively here with the image flags, objdump shows no AVX-512 in any binary; the image itself is unbuilt (no Docker here). About 3 min per round of the cand image"
+      "note": "Xeon Platinum 8370C (8c x 2), all AVX2-only, 4 rounds. Base 1T / 8T / 16T: ours 57.4k / 455k / 378k; Zig base 57.7k / 456k / 374k; Rust 55.7k / 444k / 372k; davepl 40.5k / - / 337k. Wheel: ours 108.5k / 862k / 798k; Zig wheel 119.3k / 952k / 875k; C5 extend 81.4k, epar 649k (8T) / 604k (16T). Our native (AVX-512) base build 57.5k: AVX-512 is worth nothing to the base here. SMT costs every entry on this Xeon"
     },
     {
       "id": "mt-phases",
@@ -879,9 +879,9 @@
       "id": "idea12-tile13",
       "entry": "wheel",
       "hypothesis": "Fold 13 into the 7x11 tile copy (IDEAS 12): one store-only pass per plane, one fewer sweep",
-      "verdict": "more rounds (Zen 3, arm)",
+      "verdict": "more rounds",
       "where": "Zen 5 D32as_v7 now, Zen 3 on the fleet",
-      "note": "second Zen 5 run (D32as_v7, 6 rounds): +0.3% +-2.4% at 1T, +1.0% at 8T, +1.1% at 16T, +1.2% +-4.0% at 32T (first run +2.5% at 1T). Zen 3 and arm running"
+      "note": "Zen 3 (6 rounds, 6/6 everywhere): +1.3% +-0.8% at 1T, +1.9% +-0.2% at 16T. Cobalt 100: +2.9% at 1T, +3.0% at 4T (6/6, tight). Zen 5 two runs: +2.5% +-1.5%, +0.3% +-2.4% at 1T. Third Zen 5 run (8 rounds) and Zen 4 queued"
     },
     {
       "id": "asm-wheel",
@@ -931,34 +931,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T08:32:29Z",
-      "level": "info",
-      "text": "wheel-group32-g8 (wheel) running: G=8 on AVX-512 with the 32-word loop (6 group passes instead of 8)",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T08:38:01Z",
-      "level": "info",
-      "text": "Fetched leaderboard sessions 9746 (EPYC), 9747 (Threadripper), 9748 (Celeron), 9749 (i7), 9750 (Pi 4) as raw JSON into results/leaderboard-2026-10-10/ for the workshop (Chris, 08:35)"
-    },
-    {
-      "utc": "2026-10-10T08:39:39Z",
-      "level": "decision",
-      "text": "mt-phases: Chris (2): at 96 threads it is the sparse phase that stops gaining. Up to 48 threads (one per core) every phase slows by the same factor (+15% at 24, +45% at 48); from 48 to 96 (SMT) dense still gains 13% per core but sparse loses 9%, so the second hardware thread buys nothing. Why: uniform slowdown across phases up to 48 threads points at something shared (clock or uncore), not one phase; the SMT split matches two 62.5 KB sieves overflowing a 48 KB L1D in the store-bound sparse loop. The loaded one-thread test (3) separates clock from the rest; the repeat on a fresh node (1) checks the numbers. Expect: if the loaded test shows the one-thread clock dropping about 30% with 47 busy cores, the 48-thread slowdown is frequency.",
-      "id": "mt-phases",
-      "what": "Chris (2): at 96 threads it is the sparse phase that stops gaining. Up to 48 threads (one per core) every phase slows by the same factor (+15% at 24, +45% at 48); from 48 to 96 (SMT) dense still gains 13% per core but sparse loses 9%, so the second hardware thread buys nothing",
-      "why": "uniform slowdown across phases up to 48 threads points at something shared (clock or uncore), not one phase; the SMT split matches two 62.5 KB sieves overflowing a 48 KB L1D in the store-bound sparse loop. The loaded one-thread test (3) separates clock from the rest; the repeat on a fresh node (1) checks the numbers",
-      "expect": "if the loaded test shows the one-thread clock dropping about 30% with 47 busy cores, the 48-thread slowdown is frequency"
-    },
-    {
-      "utc": "2026-10-10T08:39:39Z",
-      "level": "decision",
-      "text": "idea2-pin: revert pinning; the full-occupancy behaviour is not placement. Why: flat at 48 and 96 threads on the 48-core node and on the 16-core node; worse at 24 threads, where packing loses to spreading.",
-      "id": "idea2-pin",
-      "what": "revert pinning; the full-occupancy behaviour is not placement",
-      "why": "flat at 48 and 96 threads on the 48-core node and on the 16-core node; worse at 24 threads, where packing loses to spreading"
-    },
     {
       "utc": "2026-10-10T08:39:39Z",
       "level": "decision",
@@ -1294,6 +1266,35 @@
       "utc": "2026-10-10T10:47:57Z",
       "level": "info",
       "text": "idea1-affinity keep (merge pending Chris). Zen 5 96 vCPU. arm gate Cobalt 100, 4 rounds: base -0.2% +-0.3%, wheel 0.0% +-0.1%. With the quiet 96-vCPU run (0.0% to +0.9%), level everywhere. Fast-forward of hc/champion 37e19c7 -> 8fd7f1f blocked by the session permission check; waits for Chris",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T11:03:50Z",
+      "level": "decision",
+      "text": "intel-avx2: Intel stand-in result: base leads Rust by 3% at 1T and 2-3% at all/half threads, level with Zig; the Zig wheel leads our wheel by 10% on Intel; SMT hurts every entry, so the half-thread line is the one that counts. Why: same entries, same node, AVX2-only as the i7 runs them.",
+      "id": "intel-avx2",
+      "what": "Intel stand-in result: base leads Rust by 3% at 1T and 2-3% at all/half threads, level with Zig; the Zig wheel leads our wheel by 10% on Intel; SMT hurts every entry, so the half-thread line is the one that counts",
+      "why": "same entries, same node, AVX2-only as the i7 runs them"
+    },
+    {
+      "utc": "2026-10-10T11:03:50Z",
+      "level": "decision",
+      "text": "idea12-tile13: more rounds: a third Zen 5 run (8 rounds) and the Zen 4 recheck; Zen 3 and arm are already positive in every round. Why: Zen 3's one-thread interval (+0.5% lower bound) and Zen 5's two disagreeing runs straddle the +1% bar. Expect: Zen 5 settles near +1.5%.",
+      "id": "idea12-tile13",
+      "what": "more rounds: a third Zen 5 run (8 rounds) and the Zen 4 recheck; Zen 3 and arm are already positive in every round",
+      "why": "Zen 3's one-thread interval (+0.5% lower bound) and Zen 5's two disagreeing runs straddle the +1% bar",
+      "expect": "Zen 5 settles near +1.5%"
+    },
+    {
+      "utc": "2026-10-10T11:03:50Z",
+      "level": "info",
+      "text": "intel-avx2 measured. one Intel size (phase B). Xeon Platinum 8370C (8c x 2), all AVX2-only, 4 rounds. Base 1T / 8T / 16T: ours 57.4k / 455k / 378k; Zig base 57.7k / 456k / 374k; Rust 55.7k / 444k / 372k; davepl 40.5k / - / 337k. Wheel: ours 108.5k / 862k / 798k; Zig wheel 119.3k / 952k / 875k; C5 extend 81.4k, epar 649k (8T) / 604k (16T). Our native (AVX-512) base build 57.5k: AVX-512 is worth nothing to the base here. SMT costs every entry on this Xeon",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T11:03:50Z",
+      "level": "info",
+      "text": "idea12-tile13 more rounds. Zen 5 D32as_v7 now, Zen 3 on the fleet. Zen 3 (6 rounds, 6/6 everywhere): +1.3% +-0.8% at 1T, +1.9% +-0.2% at 16T. Cobalt 100: +2.9% at 1T, +3.0% at 4T (6/6, tight). Zen 5 two runs: +2.5% +-1.5%, +0.3% +-2.4% at 1T. Third Zen 5 run (8 rounds) and Zen 4 queued",
       "auto": true
     }
   ],

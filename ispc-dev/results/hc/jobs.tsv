@@ -54,3 +54,5 @@ id	pool	size	kind	outdir	submitted	state
 10272931152	hc-standard-d16a-v4	Standard_D16a_v4	base	ispc-dev/results/hc/port-rust-base-z3	2026-10-10T10:28:20Z	open
 10282619071	hc-standard-d16a-v4	Standard_D16a_v4	wheel	ispc-dev/results/hc/port-cpp-wheel-z3	2026-10-10T10:29:19Z	open
 10292624190	hc-standard-d16a-v4	Standard_D16a_v4	wheel	ispc-dev/results/hc/port-rust-wheel-z3	2026-10-10T10:30:16Z	open
+11032521886	hc-standard-d32as-v7	Standard_D32as_v7	wheel	ispc-dev/results/hc/idea12-tile13-z5c	2026-10-10T11:03:34Z	open
+11034114975	hc-standard-d16as-v5	Standard_D16as_v5	wheel	ispc-dev/results/hc/idea12-tile13-z4	2026-10-10T11:03:50Z	open
