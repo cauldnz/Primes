@@ -27,6 +27,13 @@
 // stepping 2 x factor, and carries its next position on to the following block. Each
 // composite is still cleared by its own single-bit OR; only the nesting of the loops changes.
 //
+// Sweep direction alternates by factor: the first factor (3) sweeps the sieve from the low end
+// up, the next from the high end down, and so on. A descending sweep visits the same
+// composites as an ascending one, each with its own single-bit OR and stepping 2 x factor,
+// from the last multiple below the sieve end down to the chunk holding factor squared. The
+// end of one sweep is the start of the next, so that part of the sieve is still in L1. The
+// sparse factors go on alternating inside each block: one sweeps the block up, the next down.
+//
 // The whole program - entry point, timing loop, threads, sieve and output - is ISPC. The only
 // external calls are to the C library (clock, allocation, pthreads).
 
@@ -127,6 +134,37 @@ static inline void clear_dense(uniform uint64 * uniform w, uniform int nwords, c
     clear_dense_from(w, nwords, P, ((P * P / 2) / 64 / P) * P);
 }
 
+// P itself is prime: undo the OR the dense routines give it when P*P falls in chunk 0.
+static inline void restore_factor(uniform uint64 * uniform w, uniform int nwords, const uniform int P) {
+    const uniform int f = P / 2;
+    if ((f >> 6) < nwords) w[f >> 6] &= ~(((uniform uint64)1) << (f & 63));
+}
+
+// Descending form of clear_dense_from, without the restore: the same composites in words
+// c0..nwords-1, visited top down. The partial last chunk goes first, then the whole chunks
+// from the highest down to the one starting at c0.
+static inline void clear_dense_down_to(uniform uint64 * uniform w, uniform int nwords,
+                                       const uniform int P, uniform int c0) {
+    uniform int c = c0 + (nwords - c0) / P * P;                    // start of the partial chunk
+    for (uniform int j = 63; j >= 0; j--) {
+        const uniform int t = P / 2 + j * P;
+        if (c + (t >> 6) < nwords) w[c + (t >> 6)] |= ((uniform uint64)1) << (t & 63);
+    }
+    while (c > c0) {
+        c -= P;
+        #pragma unroll
+        for (uniform int j = 63; j >= 0; j--) {
+            const uniform int t = P / 2 + j * P;
+            w[c + (t >> 6)] |= ((uniform uint64)1) << (t & 63);    // one composite
+        }
+    }
+}
+
+static inline void clear_dense_down(uniform uint64 * uniform w, uniform int nwords, const uniform int P) {
+    clear_dense_down_to(w, nwords, P, ((P * P / 2) / 64 / P) * P);
+    restore_factor(w, nwords, P);
+}
+
 // Vector dense clearing for small factors. A block of programCount chunks (programCount * P
 // words, a whole number of vectors) is cleared one vector of consecutive words at a time: each
 // composite in the block gets its own single-bit OR, applied in the lane that holds its word.
@@ -152,6 +190,33 @@ static inline void clear_dense_vec(uniform uint64 * uniform w, uniform int nword
     }
     if (INIT) for (uniform int k = c; k < nwords; k++) w[k] = 0;   // words after the last block
     clear_dense_from(w, nwords, P, c);
+}
+
+// Descending form of clear_dense_vec (never the INIT pass): the scalar words after the last
+// whole block go first, then the blocks from the highest down, each one vector at a time from
+// its top vector down.
+static inline void clear_dense_vec_down(uniform uint64 * uniform w, uniform int nwords,
+                                        const uniform int P) {
+    const uniform int B = programCount * P;                        // words per block
+    const uniform int c0 = ((P * P / 2) / 64 / P) * P;
+    uniform int c = c0 + (nwords - c0) / B * B;                    // end of the last whole block
+    clear_dense_down_to(w, nwords, P, c);
+    while (c > c0) {
+        c -= B;
+        #pragma unroll
+        for (uniform int kb = B - programCount; kb >= 0; kb -= programCount) {
+            const int k = kb + programIndex;                        // word of the block
+            uint64 x = w[c + k];
+            const uniform int n0 = (64 * kb - P / 2) / P;          // first composite near these words
+            #pragma unroll
+            for (uniform int i = 0; i < 64 * programCount / P + 2; i++) {
+                const uniform int t = P / 2 + (n0 + i) * P;
+                x |= ((t >> 6) == k) ? ((uniform uint64)1) << (t & 63) : 0;   // one composite
+            }
+            w[c + k] = x;
+        }
+    }
+    restore_factor(w, nwords, P);
 }
 
 #if defined(ISPC_TARGET_NEON)
@@ -192,6 +257,42 @@ static inline void clear_dense_neon(uniform uint64 * uniform w, uniform int nwor
         }
     }
     clear_dense_from(w, nwords, P, (uniform int)(q - w));          // the rest, then P itself
+}
+
+// Descending form of clear_dense_neon: the words after the last whole run go first, top down;
+// then the runs from the highest down, each with its scalar words first and then its vectors
+// from the top one down.
+static inline void clear_dense_neon_down(uniform uint64 * uniform w, uniform int nwords,
+                                         const uniform int P) {
+    const uniform int U = (P < 16) ? programCount : 1;             // periods per run
+    const uniform int B = U * P;                                   // words per run
+    const uniform int NV = B / programCount;                       // whole vectors per run
+    const uniform int c = ((P * P / 2) / 64 / P) * P;
+    uniform int n = (nwords - c) / B;
+    clear_dense_down_to(w, nwords, P, c + n * B);                  // the rest, top down
+    uniform uint64 * uniform q = w + c + n * B;
+    for (; n > 0; n--) {
+        q -= B;
+        #pragma unroll
+        for (uniform int j = 64 * U - 1; j >= 0; j--) {             // words after the vectors
+            const uniform int t = P / 2 + j * P;
+            if ((t >> 6) >= NV * programCount)
+                q[t >> 6] |= ((uniform uint64)1) << (t & 63);       // one composite
+        }
+        #pragma unroll
+        for (uniform int v = NV - 1; v >= 0; v--) {
+            const int k = v * programCount + programIndex;          // word of the run
+            uint64 x = q[k];
+            const uniform int n0 = (64 * programCount * v - P / 2) / P;
+            #pragma unroll
+            for (uniform int i = 0; i < 64 * programCount / P + 2; i++) {
+                const uniform int t = P / 2 + (n0 + i) * P;
+                x |= ((t >> 6) == k) ? ((uniform uint64)1) << (t & 63) : 0;   // one composite
+            }
+            q[k] = x;
+        }
+    }
+    restore_factor(w, nwords, P);
 }
 #endif
 
@@ -259,31 +360,76 @@ static inline void clear_sparse_e(uniform uint8 * uniform bytes, uniform Sparse 
     f->j = 0;
 }
 
-// Clear sparse factor f's multiples up to byte end_off of the sieve, from where it stopped.
+// Descending form of clear_sparse_e: the same multiples of f, those from where f stopped up to
+// end_off, visited top down. f's state moves on to the first multiple at or above end_off
+// first; then the chunk holding end_off goes, its multiples below end_off from the highest
+// down, then the whole chunks from the highest down, then the chunk where f stopped, down to
+// the multiple it stopped at.
+static inline void clear_sparse_e_down(uniform uint8 * uniform bytes, uniform Sparse * uniform f,
+                                       uniform int end_off, const uniform int E) {
+    const uniform int p = f->p;
+    uniform int o0 = (p / 2) >> 3,           o1 = (p / 2 + p) >> 3;
+    uniform int o2 = (p / 2 + 2 * p) >> 3,   o3 = (p / 2 + 3 * p) >> 3;
+    uniform int o4 = (p / 2 + 4 * p) >> 3,   o5 = (p / 2 + 5 * p) >> 3;
+    uniform int o6 = (p / 2 + 6 * p) >> 3,   o7 = (p / 2 + 7 * p) >> 3;
+    const uniform uint8 m0 = 1 << ((E / 2) & 7),         m1 = 1 << ((E / 2 + E) & 7);
+    const uniform uint8 m2 = 1 << ((E / 2 + 2 * E) & 7), m3 = 1 << ((E / 2 + 3 * E) & 7);
+    const uniform uint8 m4 = 1 << ((E / 2 + 4 * E) & 7), m5 = 1 << ((E / 2 + 5 * E) & 7);
+    const uniform uint8 m6 = 1 << ((E / 2 + 6 * E) & 7), m7 = 1 << ((E / 2 + 7 * E) & 7);
+    if (f->c >= end_off) return;                                    // nothing below end_off
+    uniform int o[8] = {o0, o1, o2, o3, o4, o5, o6, o7};
+    uniform uint8 m[8] = {m0, m1, m2, m3, m4, m5, m6, m7};
+    uniform uint8 * uniform first = bytes + f->c;
+    const uniform int j0 = f->j;
+    uniform uint8 * uniform q = first + (end_off - f->c) / p * p;   // q <= end < q + p
+    uniform uint8 * uniform end = bytes + end_off;
+    uniform int jn = (q == first) ? j0 : 0;                         // first multiple at or above end
+    while (jn < 8 && q + o[jn] < end) jn++;
+    if (jn == 8) { f->c = (uniform int)(q - bytes) + p; f->j = 0; }
+    else         { f->c = (uniform int)(q - bytes);     f->j = jn; }
+    const uniform int lo = (q == first) ? j0 : 0;
+    for (uniform int j = jn - 1; j >= lo; j--) q[o[j]] |= m[j];    // one composite each
+    if (q == first) return;
+    q -= p;
+    while (q > first) {                                             // one composite each
+        q[o7] |= m7; q[o6] |= m6; q[o5] |= m5; q[o4] |= m4;
+        q[o3] |= m3; q[o2] |= m2; q[o1] |= m1; q[o0] |= m0;
+        q -= p;
+    }
+    for (uniform int j = 7; j >= j0; j--) q[o[j]] |= m[j];         // where f stopped
+}
+
+#define SPARSE(E) case E: if (down) clear_sparse_e_down(b, f, end_off, E); \
+                          else clear_sparse_e(b, f, end_off, E); break;
+
+// Clear sparse factor f's multiples up to byte end_off of the sieve, from where it stopped,
+// from the low end up or from the high end down.
 static void clear_sparse(uniform Sieve * uniform s, uniform Sparse * uniform f,
-                         uniform int end_off) {
+                         uniform int end_off, uniform bool down) {
     uniform uint8 * uniform b = (uniform uint8 * uniform)s->bits;
     switch (f->p & 15) {
-        case 1:  clear_sparse_e(b, f, end_off, 1);  break;
-        case 3:  clear_sparse_e(b, f, end_off, 3);  break;
-        case 5:  clear_sparse_e(b, f, end_off, 5);  break;
-        case 7:  clear_sparse_e(b, f, end_off, 7);  break;
-        case 9:  clear_sparse_e(b, f, end_off, 9);  break;
-        case 11: clear_sparse_e(b, f, end_off, 11); break;
-        case 13: clear_sparse_e(b, f, end_off, 13); break;
-        default: clear_sparse_e(b, f, end_off, 15); break;
+        SPARSE(1) SPARSE(3) SPARSE(5) SPARSE(7) SPARSE(9) SPARSE(11) SPARSE(13)
+        default: if (down) clear_sparse_e_down(b, f, end_off, 15);
+                 else clear_sparse_e(b, f, end_off, 15); break;
     }
 }
 
 #if defined(ISPC_TARGET_NEON)
-#define D(P) case P: clear_dense_neon(s->bits, s->nwords, P); break;
+#define D(P) case P: if (down) clear_dense_neon_down(s->bits, s->nwords, P); \
+                     else clear_dense_neon(s->bits, s->nwords, P); break;
 #else
-#define D(P) case P: if (P < VEC_LIMIT) clear_dense_vec(s->bits, s->nwords, P, P == 3); \
+// Factor 3 never goes down (see run_sieve), so its descending form isn't built: its ascending
+// pass is the one that initialises the sieve.
+#define D(P) case P: if (P < VEC_LIMIT) { \
+                         if (down && P != 3) clear_dense_vec_down(s->bits, s->nwords, P); \
+                         else clear_dense_vec(s->bits, s->nwords, P, P == 3); \
+                     } else if (down) clear_dense_down(s->bits, s->nwords, P); \
                      else clear_dense(s->bits, s->nwords, P); break;
 #endif
 
-// Clear all odd multiples of a dense factor p (p < DENSE_LIMIT).
-static void clear_dense_factor(uniform Sieve * uniform s, uniform int p) {
+// Clear all odd multiples of a dense factor p (p < DENSE_LIMIT), from the low end up or from
+// the high end down.
+static void clear_dense_factor(uniform Sieve * uniform s, uniform int p, uniform bool down) {
     // clear_dense_factor isn't inlined, so ISPC would compile it for an unknown execution mask
     // and mask every vector load and store in the dense code. Callers run with all lanes on.
     unmasked {
@@ -323,17 +469,25 @@ static void run_sieve(uniform Sieve * uniform s) {
     while ((uniform int64)(q + 1) * (q + 1) <= s->size) q++;
     while ((uniform int64)q * q > s->size) q--;
     uniform int factor = 3;
+    // Direction alternates by factor. The first factor, 3, always sweeps up: on x86 its pass
+    // writes every word of the sieve (sieve_create clears only word 0), so it has to come
+    // before any other factor reads a word, whatever the direction of the ones after it.
+    uniform bool down = false;
     while (factor <= q) {
         uniform int i = factor >> 1;
         while (i < s->nbits && is_composite_index(s, i)) i++;     // next prime
         factor = 2 * i + 1;
         if (factor > q || factor >= DENSE_LIMIT) break;
-        clear_dense_factor(s, factor);
+        clear_dense_factor(s, factor, down);
+        down = !down;
         factor += 2;
     }
     if (factor > q) return;                                         // no sparse factors
 
-    // First block: the outer loop goes on, each sparse factor clearing up to first_end.
+    // First block: the outer loop goes on, each sparse factor clearing up to first_end. The
+    // sparse factors carry on the alternation: in every block, factor k of the list sweeps
+    // down if (k & 1) != down0.
+    const uniform bool down0 = down;
     const uniform int nbytes = s->nwords * 8;
     uniform int first_end = max(block_bytes, (q >> 1) / 8 + 1);    // holds bits 0..q/2
     first_end = min(first_end, nbytes);
@@ -341,7 +495,7 @@ static void run_sieve(uniform Sieve * uniform s) {
     uniform int nf = 0;
     while (factor <= q) {                                           // factor is the next prime
         sparse_init(&fs[nf], factor);
-        clear_sparse(s, &fs[nf], first_end);
+        clear_sparse(s, &fs[nf], first_end, ((nf & 1) != 0) != down0);
         nf++;
         uniform int i = (factor + 2) >> 1;
         while (i < s->nbits && is_composite_index(s, i)) i++;     // next prime
@@ -352,7 +506,7 @@ static void run_sieve(uniform Sieve * uniform s) {
     for (uniform int start = first_end; start < nbytes; start += block_bytes) {
         const uniform int end = min(start + block_bytes, nbytes);
         for (uniform int k = 0; k < nf; k++)
-            clear_sparse(s, &fs[k], end);
+            clear_sparse(s, &fs[k], end, ((k & 1) != 0) != down0);
     }
 }
 
