@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T08:39:39Z",
+  "updated_utc": "2026-10-10T08:41:28Z",
   "run": {
     "id": "ap-20261010T0715Z",
     "state": "running",
@@ -906,6 +906,22 @@
       "verdict": "running",
       "where": "Zen 5 D96as_v7",
       "note": "vs wheel-group32; local PRIMES_TEST and sweep pass; mca 0.0785 vs 0.084 cycles per word per member"
+    },
+    {
+      "id": "idea20-arenas",
+      "entry": "base",
+      "hypothesis": "mallopt(M_ARENA_MAX, nthreads) changes full-occupancy speed (IDEAS 20)",
+      "verdict": "queued",
+      "where": "Zen 5 D32as_v7",
+      "note": "probe; local PRIMES_TEST passes; flat means stop"
+    },
+    {
+      "id": "idea21-prefetch",
+      "entry": "base",
+      "hypothesis": "Software prefetch ahead in the sparse loop recovers the 9% the sparse phase loses under SMT (IDEAS 21)",
+      "verdict": "agent",
+      "where": "local, then Zen 5 at threads = vCPUs",
+      "note": "agent brief: prefetch k chunks ahead in clear_sparse, choose k and threshold, count per-composite instructions"
     }
   ],
   "azure_queue": 0,
@@ -915,38 +931,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T07:31:00Z",
-      "level": "decision",
-      "text": "port-rust-base: start an agent on the Rust base comparator (hc/port-rust-base, PrimeRust/solution_9) with the side-by-side against mike-barber's entry. Why: RUN-PLAN priority 2: the deliverable is the delta against PrimeRust/solution_1 (dense, sparse, set-up, threading, compiled loops, isolated gains) and the route: new solution or improvements to offer.",
-      "id": "port-rust-base",
-      "what": "start an agent on the Rust base comparator (hc/port-rust-base, PrimeRust/solution_9) with the side-by-side against mike-barber's entry",
-      "why": "RUN-PLAN priority 2: the deliverable is the delta against PrimeRust/solution_1 (dense, sparse, set-up, threading, compiled loops, isolated gains) and the route: new solution or improvements to offer"
-    },
-    {
-      "utc": "2026-10-10T07:31:00Z",
-      "level": "info",
-      "text": "port-rust-wheel (wheel) queued: Our wheel design as idiomatic Rust (PrimeRust/solution_8) runs within a few percent of the ISPC wheel",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T07:34:09Z",
-      "level": "decision",
-      "text": "port-cpp-base: queue the C++ base port for phase B. Why: verified locally and 5-12% ahead of the ISPC base at 1T on this Xeon; same badges as davepl's solution_5, so the route (new solution vs improvement) is Chris's call, noted for the report. Expect: within +-5% of the ISPC base on Zen.",
-      "id": "port-cpp-base",
-      "what": "queue the C++ base port for phase B",
-      "why": "verified locally and 5-12% ahead of the ISPC base at 1T on this Xeon; same badges as davepl's solution_5, so the route (new solution vs improvement) is Chris's call, noted for the report",
-      "expect": "within +-5% of the ISPC base on Zen"
-    },
-    {
-      "utc": "2026-10-10T07:34:09Z",
-      "level": "decision",
-      "text": "port-cpp-wheel: hold the C++ wheel back from Azure and resume its agent to tune the fused loop (template over member count, 32-word steps as in the Rust port). Why: it passes the 2d gate (18% slower, under 30%) but a measurement now would only confirm a known gap; the agent saw the cause in the disassembly. Passed over: measuring as is.",
-      "id": "port-cpp-wheel",
-      "what": "hold the C++ wheel back from Azure and resume its agent to tune the fused loop (template over member count, 32-word steps as in the Rust port)",
-      "why": "it passes the 2d gate (18% slower, under 30%) but a measurement now would only confirm a known gap; the agent saw the cause in the disassembly",
-      "instead": "measuring as is"
-    },
     {
       "utc": "2026-10-10T07:34:09Z",
       "level": "info",
@@ -1283,6 +1267,37 @@
       "utc": "2026-10-10T08:39:39Z",
       "level": "info",
       "text": "mt-phases done. Zen 5 D96as_v7. D96as_v7 (48c x 2 SMT), TSC cycles per pass (2.6 GHz), medians of 3 rounds. 1T: dense 36.7k, sparse 61.2k, scan 4.2k, 25.4k passes/s. 24T: 42.2k / 70.4k / 4.9k (+15% each), 529k/s. 48T: 53.2k / 88.8k / 6.0k (+45% each), 838k/s. 96T: 93.9k / 194.9k / 8.1k, 834k/s. From 48 to 96 threads dense per pass x1.77 (core throughput +13%), sparse x2.19 (core throughput -9%)",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T08:41:28Z",
+      "level": "decision",
+      "text": "idea21-prefetch: start an agent on IDEAS 21 (sparse prefetch), aimed at the SMT line. Why: the phase profile names the sparse phase as the one losing throughput when two threads share a core; prefetch is a hint, allowed under the base rules. Passed over: IDEAS 10 (blocking): grey, not built. Expect: a 1T loss of 1-2% and a gain of 2-5% at 96 threads.",
+      "id": "idea21-prefetch",
+      "what": "start an agent on IDEAS 21 (sparse prefetch), aimed at the SMT line",
+      "why": "the phase profile names the sparse phase as the one losing throughput when two threads share a core; prefetch is a hint, allowed under the base rules",
+      "instead": "IDEAS 10 (blocking): grey, not built",
+      "expect": "a 1T loss of 1-2% and a gain of 2-5% at 96 threads"
+    },
+    {
+      "utc": "2026-10-10T08:41:28Z",
+      "level": "decision",
+      "text": "idea20-arenas: queue the arena probe at threads = vCPUs. Why: cheap, and the reviews asked for it; setup and destroy grow 5-15x per pass at 96 threads in the profile (still under 1% of the pass). Expect: flat.",
+      "id": "idea20-arenas",
+      "what": "queue the arena probe at threads = vCPUs",
+      "why": "cheap, and the reviews asked for it; setup and destroy grow 5-15x per pass at 96 threads in the profile (still under 1% of the pass)",
+      "expect": "flat"
+    },
+    {
+      "utc": "2026-10-10T08:41:28Z",
+      "level": "info",
+      "text": "idea20-arenas (base) queued: mallopt(M_ARENA_MAX, nthreads) changes full-occupancy speed (IDEAS 20)",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T08:41:28Z",
+      "level": "info",
+      "text": "idea21-prefetch (base) agent: Software prefetch ahead in the sparse loop recovers the 9% the sparse phase loses under SMT (IDEAS 21)",
       "auto": true
     }
   ],
