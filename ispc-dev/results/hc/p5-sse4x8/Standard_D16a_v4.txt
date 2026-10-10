@@ -165,3 +165,7 @@ cauldnz-ispc-base;195610;5.000083;4;algorithm=base,faithful=yes,bits=1
 davepl_array_optimized;36749;5.00031;1;algorithm=base,faithful=yes,bits=1
 davepl_array_optimized;306973;5.00055;16;algorithm=base,faithful=yes,bits=1
 == round 6 ctrl
+mike-barber_bit-extreme-hybrid;52440;5.0000901222;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;210378;5.0001888275;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;420772;5.0001945496;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;411509;5.0004959106;16;algorithm=base,faithful=yes,bits=1

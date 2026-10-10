@@ -11,5 +11,5 @@ id	pool	size	kind	outdir	submitted	state
 023920833	hc-standard-d16as-v7	Standard_D16as_v7	base	ispc-dev/results/hc/diag-swift-phases	2026-10-10T02:39:27Z	done
 024234481	hc-standard-d16as-v7	Standard_D16as_v7	base	ispc-dev/results/hc/asm-sparse	2026-10-10T02:42:42Z	done
 02595822321	hc-standard-d4ps-v6	Standard_D4ps_v6	base	ispc-dev/results/hc/p4-arm-dense	2026-10-10T03:00:07Z	done
-03040521357	hc-standard-d16a-v4	Standard_D16a_v4	base	ispc-dev/results/hc/p5-sse4x8	2026-10-10T03:04:14Z	open
+03040521357	hc-standard-d16a-v4	Standard_D16a_v4	base	ispc-dev/results/hc/p5-sse4x8	2026-10-10T03:04:14Z	done
 03283723174	hc-standard-d4ps-v6	Standard_D4ps_v6	base	ispc-dev/results/hc/p4-arm-init3	2026-10-10T03:28:46Z	open
