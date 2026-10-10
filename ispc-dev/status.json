@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T01:40:20Z",
+  "updated_utc": "2026-10-10T01:43:11Z",
   "run": {
     "id": "ap-20261010T0140Z",
     "state": "running",
@@ -8,9 +8,11 @@
     "mode_reason": "Chris kicked off a 4-hour base-first run (RUN-PLAN.md) in this session; Azure login works.",
     "started_utc": "2026-10-10T01:40:00Z",
     "time_box_hours": 4,
-    "spend_nzd": 0,
+    "spend_nzd": 0.0,
     "spend_cap_nzd": 30,
-    "ends_utc": "2026-10-10T05:40:00Z"
+    "ends_utc": "2026-10-10T05:40:00Z",
+    "background_runs": 2,
+    "last_tick_utc": "2026-10-10T01:43:11Z"
   },
   "current": null,
   "scoreboard": [
@@ -673,16 +675,6 @@
   ],
   "events": [
     {
-      "utc": "2026-10-09T08:05:13Z",
-      "level": "info",
-      "text": "hc-006 KEPT and merged: wheel --addressing=64, Zen 3 +3.5% 16T, Zen 5 +4.0% 1T."
-    },
-    {
-      "utc": "2026-10-09T08:13:34Z",
-      "level": "info",
-      "text": "hc-007 to Chris: AVX2-only unmasked stores +4% to +5% on Zen 3 and Zen 4, Zen 5 code identical."
-    },
-    {
       "utc": "2026-10-09T08:13:34Z",
       "level": "info",
       "text": "hc-008 rejected (tile memcpy flat on Zen 5). hc-010 re-profile launched."
@@ -925,6 +917,21 @@
       "utc": "2026-10-10T01:40:20Z",
       "level": "info",
       "text": "Run ap-20261010T0140Z started: base first, per RUN-PLAN.md. Ticks every 5-15 minutes; the first two are the dry run."
+    },
+    {
+      "utc": "2026-10-10T01:42:33Z",
+      "level": "decision",
+      "text": "diag-base-phases: start a background agent to build phase-profile diagnostics for our base and Rust's. Why: RUN-PLAN priority 2: every later base hypothesis must name its phase and share; the profiles run as one rust-kind task (Rust diag as candidate, ISPC diag as control) so both share a node. Passed over: starting with a Zen 5 single-thread experiment (no profile yet). Expect: two pushed branches, hc/diag-base-phases and hc/diag-rust-phases, self-tests passing, within 30 minutes.",
+      "id": "diag-base-phases",
+      "what": "start a background agent to build phase-profile diagnostics for our base and Rust's",
+      "why": "RUN-PLAN priority 2: every later base hypothesis must name its phase and share; the profiles run as one rust-kind task (Rust diag as candidate, ISPC diag as control) so both share a node",
+      "instead": "starting with a Zen 5 single-thread experiment (no profile yet)",
+      "expect": "two pushed branches, hc/diag-base-phases and hc/diag-rust-phases, self-tests passing, within 30 minutes"
+    },
+    {
+      "utc": "2026-10-10T01:42:33Z",
+      "level": "info",
+      "text": "Dry run 1a: two base jobs submitted with hc-pool.sh submit; both appear in results/hc/jobs.tsv as open."
     }
   ],
   "research": {
