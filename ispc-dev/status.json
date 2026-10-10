@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T21:33:54Z",
+  "updated_utc": "2026-10-10T21:35:29Z",
   "run": {
     "id": "ap-20261010T2040Z",
     "state": "running",
@@ -954,6 +954,14 @@
       "verdict": "running",
       "where": "Zen 3 D16a_v4 (block sweep); Zen 5 after the F1 profile",
       "note": "Zen 3 (D16a_v4, 8c x 2), 32 KB blocks, 6 rounds vs clean champion: +12.1% +-0.7% at 1T, +12.3% at 4T, +12.4% +-0.4% at 8T (one per core), +0.1% +-0.3% at 16T (SMT). vs Rust: +19.7% at 1T, +5.2% at 16T. 24 and 16 KB running"
+    },
+    {
+      "id": "f5-fold",
+      "entry": "base",
+      "hypothesis": "--addressing=64 plus a per-lane x16 dense fold (avx512skx-x16): dense instructions per word halve on AVX-512",
+      "verdict": "running",
+      "where": "Zen 5 D32as_v7, Zen 4 D16as_v5",
+      "note": "9e3a4e2 on 9a976cf (addr64 only). Verified PRIMES_TEST both; agent: buffer identical on sse4, avx2, avx512 x8/x16 and NEON; avx2/sse4 loops unchanged; dense insns/word 0.77 -> 0.27 (avx512, P=31). Local Cascade Lake -7.8% (512-bit clock drop; not predictive for Zen)"
     }
   ],
   "azure_queue": 0,
@@ -963,22 +971,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T10:09:37Z",
-      "level": "decision",
-      "text": "a-scale-repeat: Chris (1): the repeat on a second, quieter node agrees with the first: our base gains about 3% from 48 to 96 threads where Rust gains about 21%, so the lead over Rust narrows from about 30% at one thread per core to about 11% at all threads. The 96-vCPU conclusions stand. Why: same shape on both nodes; the second node's A/A spread is 0.7% against 7%, so its numbers are the ones to quote.",
-      "id": "a-scale-repeat",
-      "what": "Chris (1): the repeat on a second, quieter node agrees with the first: our base gains about 3% from 48 to 96 threads where Rust gains about 21%, so the lead over Rust narrows from about 30% at one thread per core to about 11% at all threads. The 96-vCPU conclusions stand",
-      "why": "same shape on both nodes; the second node's A/A spread is 0.7% against 7%, so its numbers are the ones to quote"
-    },
-    {
-      "utc": "2026-10-10T10:09:37Z",
-      "level": "decision",
-      "text": "idea21-prefetch: revert: prefetch makes the sparse phase worse under SMT, not better. Why: -7.4% at 32 threads with a tight interval; the sparse loop is limited by load and store ports as much as by misses.",
-      "id": "idea21-prefetch",
-      "what": "revert: prefetch makes the sparse phase worse under SMT, not better",
-      "why": "-7.4% at 32 threads with a tight interval; the sparse loop is limited by load and store ports as much as by misses"
-    },
     {
       "utc": "2026-10-10T10:09:37Z",
       "level": "info",
@@ -1326,6 +1318,22 @@
       "id": "f2-block",
       "what": "F2 block sweep on Zen 5 (D16as_v7, 8c x 2): 32, 16 and 24 KB, 6 rounds each, after the F1 profile",
       "why": "Zen 5 has a 48 KB L1D, so the best block size may differ from Zen 3's; one thread per core is the 8T line, SMT the 16T line"
+    },
+    {
+      "utc": "2026-10-10T21:35:29Z",
+      "level": "decision",
+      "text": "f5-fold: measure the F5 fold on Zen 5 and Zen 4 (the AVX-512 machines whose code changes); the addr64 flag alone waits. Why: the fold halves dense instructions per word on AVX-512; the local loss is on an Intel part that downclocks for zmm, which Zen does not. Passed over: measuring addr64 alone first (flat locally). Expect: +0-5% at 1T on Zen 5.",
+      "id": "f5-fold",
+      "what": "measure the F5 fold on Zen 5 and Zen 4 (the AVX-512 machines whose code changes); the addr64 flag alone waits",
+      "why": "the fold halves dense instructions per word on AVX-512; the local loss is on an Intel part that downclocks for zmm, which Zen does not",
+      "instead": "measuring addr64 alone first (flat locally)",
+      "expect": "+0-5% at 1T on Zen 5"
+    },
+    {
+      "utc": "2026-10-10T21:35:29Z",
+      "level": "info",
+      "text": "f5-fold (base) running: --addressing=64 plus a per-lane x16 dense fold (avx512skx-x16): dense instructions per word halve on AVX-512",
+      "auto": true
     }
   ],
   "research": {
