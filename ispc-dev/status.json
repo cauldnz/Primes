@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T02:36:10Z",
+  "updated_utc": "2026-10-10T02:38:27Z",
   "run": {
     "id": "ap-20261010T0140Z",
     "state": "running",
@@ -708,6 +708,14 @@
       "verdict": "running",
       "where": "Zen 5",
       "note": "Chris asked. Agent writes the Swift diagnostic build."
+    },
+    {
+      "id": "asm-sparse",
+      "entry": "base",
+      "hypothesis": "Compiled sparse loops of Swift, Rust and our base on one Zen 5 node",
+      "verdict": "running",
+      "where": "Zen 5",
+      "note": "Chris asked. Agent builds the disassembly image."
     }
   ],
   "azure_queue": 0,
@@ -717,16 +725,6 @@
     "Zen 5 at one thread: about +3% to pass Swift's official 122.9k"
   ],
   "events": [
-    {
-      "utc": "2026-10-09T12:46:01Z",
-      "level": "info",
-      "text": "Zen 4 (AVX-512) pool created for the final scoreboard. r-04/r-05 rejected; hc-026 +0.7-1.1%."
-    },
-    {
-      "utc": "2026-10-09T13:05:34Z",
-      "level": "info",
-      "text": "Zig wheel on Cobalt 100: +12% over the ISPC wheel. Zig base builds and runs on arm64 (-7% vs ISPC base)."
-    },
     {
       "utc": "2026-10-09T13:14:08Z",
       "level": "info",
@@ -1019,6 +1017,21 @@
       "utc": "2026-10-10T02:36:10Z",
       "level": "info",
       "text": "diag-swift-phases (base) running: Phase profile of Swift (yellowcub_fahlman_striped_UInt8) against our base on Zen 5, same node",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T02:38:27Z",
+      "level": "decision",
+      "text": "asm-sparse: build Swift, Rust and our base in one diagnostic image on a Zen 5 node and dump their disassembly; analyse the sparse loops here. Why: Chris asked for a compiled-code comparison of the sparse loop on the same node. The harness builds only the PrimeISPC/solution_2 slot, so a diagnostic branch puts a three-language Dockerfile there (upstream flags each) whose entrypoint prints the sieve functions' disassembly prefixed asm;. Local loop analysis and llvm-mca (LLVM 18, znver4 as the closest model to Zen 5) as a screen. Expect: per-language instructions, loads and stores per bit cleared, and how the stride and unrolling compile.",
+      "id": "asm-sparse",
+      "what": "build Swift, Rust and our base in one diagnostic image on a Zen 5 node and dump their disassembly; analyse the sparse loops here",
+      "why": "Chris asked for a compiled-code comparison of the sparse loop on the same node. The harness builds only the PrimeISPC/solution_2 slot, so a diagnostic branch puts a three-language Dockerfile there (upstream flags each) whose entrypoint prints the sieve functions' disassembly prefixed asm;. Local loop analysis and llvm-mca (LLVM 18, znver4 as the closest model to Zen 5) as a screen.",
+      "expect": "per-language instructions, loads and stores per bit cleared, and how the stride and unrolling compile"
+    },
+    {
+      "utc": "2026-10-10T02:38:37Z",
+      "level": "info",
+      "text": "asm-sparse (base) running: Compiled sparse loops of Swift, Rust and our base on one Zen 5 node",
       "auto": true
     }
   ],
