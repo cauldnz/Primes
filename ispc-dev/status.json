@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T22:11:16Z",
+  "updated_utc": "2026-10-10T22:16:16Z",
   "run": {
     "id": "ap-20261010T2040Z",
     "state": "running",
@@ -11,8 +11,8 @@
     "spend_nzd": 2.26,
     "spend_cap_nzd": 30,
     "ends_utc": "2026-10-11T00:40:00Z",
-    "background_runs": 7,
-    "last_tick_utc": "2026-10-10T22:03:34Z",
+    "background_runs": 10,
+    "last_tick_utc": "2026-10-10T22:16:16Z",
     "wakeup": "trig_0183HcytVV3Buk38aUkXkhJ5"
   },
   "current": null,
@@ -948,6 +948,14 @@
       "verdict": "running",
       "where": "Zen 5 D32as_v7 (16c x 2)",
       "note": "f3d0e2d by agent (pushed by me); verified PRIMES_TEST and the 5,396-size sweep (bad 0); agent also avx2, sse4, avx512 and NEON sweeps. Variant hc/wheel-f1-dense: sparse primes always ascend"
+    },
+    {
+      "id": "f1-on-f2",
+      "entry": "base (grey)",
+      "hypothesis": "F1 alternation on top of F2 blocking (dense alternates; sparse alternates inside each block): little expected once sparse is blocked",
+      "verdict": "running",
+      "where": "Zen 5 D16as_v7 vs hc/f2-block-16, 6 rounds",
+      "note": "3731ced (agent); verified here: PRIMES_TEST 0 at 16 KB and 1 KB; agent: bit-identical to champion-grey for 20,983 sizes at 16 KB and 37 B blocks on avx512/avx2/sse4/NEON. Local 1T -4.6% vs f2-block-16 (noisy)"
     }
   ],
   "azure_queue": 0,
@@ -957,15 +965,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T11:19:14Z",
-      "level": "decision",
-      "text": "wheel-group32: not a mechanical keep: +4.4% on Zen 5 but 0.0% on Zen 4, which runs the same AVX-512 code; left for Chris with the numbers. Why: the target-specific rule asks for >= 2% on every machine whose code changes; it neither regresses anywhere nor reaches 2% on Zen 4 (Genoa splits 512-bit ops, so the 32-word step buys less). The official Threadripper is Zen 5, the official EPYC runner is AVX2-only. Passed over: a Zen-5-only dispatch (not expressible with ISPC targets).",
-      "id": "wheel-group32",
-      "what": "not a mechanical keep: +4.4% on Zen 5 but 0.0% on Zen 4, which runs the same AVX-512 code; left for Chris with the numbers",
-      "why": "the target-specific rule asks for >= 2% on every machine whose code changes; it neither regresses anywhere nor reaches 2% on Zen 4 (Genoa splits 512-bit ops, so the 32-word step buys less). The official Threadripper is Zen 5, the official EPYC runner is AVX2-only",
-      "instead": "a Zen-5-only dispatch (not expressible with ISPC targets)"
-    },
     {
       "utc": "2026-10-10T11:19:14Z",
       "level": "info",
@@ -1321,6 +1320,12 @@
       "id": "run",
       "what": "standing rule from Chris: port every ISPC keep (clean or grey) to our Zig, Rust and C++ entries of the same design and measure it there; first port this run: F2 (16 KB blocks) to the Zig base, as a grey branch",
       "why": "Chris, 08:10 NZT; F2 is the largest gain so far and the Zig base is level with the ISPC base"
+    },
+    {
+      "utc": "2026-10-10T22:16:16Z",
+      "level": "info",
+      "text": "f1-on-f2 (base (grey)) running: F1 alternation on top of F2 blocking (dense alternates; sparse alternates inside each block): little expected once sparse is blocked",
+      "auto": true
     }
   ],
   "research": {
