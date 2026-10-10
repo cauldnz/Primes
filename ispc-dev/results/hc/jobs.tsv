@@ -31,7 +31,7 @@ id	pool	size	kind	outdir	submitted	state
 08190930477	hc-standard-d32as-v7	Standard_D32as_v7	base	ispc-dev/results/hc/idea6-i64-32	2026-10-10T08:19:17Z	done
 081923204	hc-standard-d32as-v7	Standard_D32as_v7	wheel	ispc-dev/results/hc/port-rust-wheel-z5	2026-10-10T08:20:14Z	done
 0820214766	hc-standard-d32as-v7	Standard_D32as_v7	base	ispc-dev/results/hc/port-cpp-base-z5	2026-10-10T08:21:11Z	done
-0821172592	hc-standard-d32as-v7	Standard_D32as_v7	wheel	ispc-dev/results/hc/port-cpp-wheel-z5	2026-10-10T08:22:08Z	open
+0821172592	hc-standard-d32as-v7	Standard_D32as_v7	wheel	ispc-dev/results/hc/port-cpp-wheel-z5	2026-10-10T08:22:08Z	done
 08221412693	hc-standard-d32as-v7	Standard_D32as_v7	base	ispc-dev/results/hc/port-rust-base-z5	2026-10-10T08:23:05Z	open
 08235014763	hc-standard-d96as-v7	Standard_D96as_v7	base	ispc-dev/results/hc/asm-wheel	2026-10-10T08:23:59Z	done
 08240529810	hc-standard-d32as-v7	Standard_D32as_v7	wheel	ispc-dev/results/hc/idea12-tile13-z5	2026-10-10T08:24:13Z	open
