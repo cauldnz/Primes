@@ -18,90 +18,90 @@
     {
       "machine": "Zen 3 (EPYC 7763)",
       "entry": "wheel",
-      "ours_1t": 103500,
-      "ours_mt": 850400,
+      "ours_1t": 110100,
+      "ours_mt": 938900,
       "rival": "rogiervandam C",
-      "rival_1t": 66800,
-      "rival_mt": 534400,
+      "rival_1t": 65200,
+      "rival_mt": 534100,
       "threads": 16,
-      "source": "final2 run, hc/champion 5170556, D16a_v4, median of 5; start 83.1k / 703k"
+      "source": "final4 (wheel, hc/champion 059b8f3) / final3 (base, 4c7dc69), six rounds, same-round medians; as in PR-DESCRIPTION.md"
     },
     {
       "machine": "Zen 4 (EPYC 9V74, AVX-512)",
       "entry": "wheel",
-      "ours_1t": 115100,
-      "ours_mt": 952900,
+      "ours_1t": 120900,
+      "ours_mt": 1013000,
       "rival": "rogiervandam C",
       "rival_1t": 97000,
       "rival_mt": 769900,
       "threads": 16,
-      "source": "final2 run, hc/champion 5170556, D16as_v6, median of 5; start 99.6k / 839k"
+      "source": "final4 (wheel, hc/champion 059b8f3) / final3 (base, 4c7dc69), six rounds, same-round medians; as in PR-DESCRIPTION.md"
     },
     {
       "machine": "Zen 5 (EPYC 9V45)",
       "entry": "wheel",
-      "ours_1t": 191000,
-      "ours_mt": 1470000,
+      "ours_1t": 207600,
+      "ours_mt": 1565000,
       "rival": "rogiervandam C",
-      "rival_1t": 139200,
-      "rival_mt": 1160000,
+      "rival_1t": 139100,
+      "rival_mt": 1182100,
       "threads": 16,
-      "source": "final2 run, hc/champion 5170556, D16as_v7, median of 5; start 150.4k / 1.24M"
+      "source": "final4 (wheel, hc/champion 059b8f3) / final3 (base, 4c7dc69), six rounds, same-round medians; as in PR-DESCRIPTION.md"
     },
     {
       "machine": "Zen 3 (EPYC 7763)",
       "entry": "base",
-      "ours_1t": 58100,
-      "ours_mt": 428000,
+      "ours_1t": 56000,
+      "ours_mt": 431800,
       "rival": "mike-barber Rust",
-      "rival_1t": 55100,
-      "rival_mt": 411900,
+      "rival_1t": 52500,
+      "rival_mt": 411500,
       "threads": 16,
-      "source": "final2 run, hc/champion 5170556, D16a_v4, median of 5; start 47.0k / 343k; davepl 38.4k / 307k"
+      "source": "final4 (wheel, hc/champion 059b8f3) / final3 (base, 4c7dc69), six rounds, same-round medians; as in PR-DESCRIPTION.md"
     },
     {
       "machine": "Cobalt 100 (arm64)",
       "entry": "wheel",
-      "ours_1t": 94400,
-      "ours_mt": 377100,
+      "ours_1t": 98500,
+      "ours_mt": 393200,
       "rival": "mike-barber Rust (base; no C5 on arm64)",
       "rival_1t": 42900,
       "rival_mt": 171300,
       "threads": 4,
-      "source": "final2 run, hc/champion 5170556, D4ps_v6, median of 5; start 63.3k / 253k"
+      "source": "final4 (wheel, hc/champion 059b8f3) / final3 (base, 4c7dc69), six rounds, same-round medians; as in PR-DESCRIPTION.md"
     },
     {
       "machine": "Zen 4 (EPYC 9V74, AVX-512)",
       "entry": "base",
-      "ours_1t": 81400,
-      "ours_mt": 649800,
+      "ours_1t": 82900,
+      "ours_mt": 656000,
       "rival": "mike-barber Rust",
-      "rival_1t": 76600,
-      "rival_mt": 607800,
+      "rival_1t": 76500,
+      "rival_mt": 608300,
       "threads": 16,
-      "source": "final2 run, hc/champion 5170556, D16as_v6, median of 5; start 63.8k / 497k; davepl 60.6k / 484k"
+      "source": "final4 (wheel, hc/champion 059b8f3) / final3 (base, 4c7dc69), six rounds, same-round medians; as in PR-DESCRIPTION.md"
     },
     {
       "machine": "Zen 5 (EPYC 9V45)",
       "entry": "base",
-      "ours_1t": 122700,
-      "ours_mt": 996000,
+      "ours_1t": 128100,
+      "ours_mt": 1018700,
       "rival": "mike-barber Rust",
-      "rival_1t": 126400,
-      "rival_mt": 876000,
+      "rival_1t": 125600,
+      "rival_mt": 880000,
       "threads": 16,
-      "source": "final2 run, hc/champion 5170556, D16as_v7, median of 5; start 87.3k / 688k; davepl 92.3k / 712k"
+      "source": "final4 (wheel, hc/champion 059b8f3) / final3 (base, 4c7dc69), six rounds, same-round medians; as in PR-DESCRIPTION.md"
     },
     {
       "machine": "Cobalt 100 (arm64)",
       "entry": "base",
       "ours_1t": 41100,
-      "ours_mt": 164000,
+      "ours_mt": 163800,
       "rival": "mike-barber Rust",
       "rival_1t": 42900,
       "rival_mt": 171300,
       "threads": 4,
-      "source": "final2 run, hc/champion, D4ps_v6, median of 5; level with the start; davepl 32.2k / 129k"
+      "source": "final4 (wheel, hc/champion 059b8f3) / final3 (base, 4c7dc69), six rounds, same-round medians; as in PR-DESCRIPTION.md"
     }
   ],
   "experiments": [
