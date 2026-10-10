@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T02:48:08Z",
+  "updated_utc": "2026-10-10T03:00:15Z",
   "run": {
     "id": "ap-20261010T0140Z",
     "state": "running",
@@ -716,6 +716,14 @@
       "verdict": "running",
       "where": "Zen 5",
       "note": "Chris asked. Agent builds the disassembly image."
+    },
+    {
+      "id": "p4-arm-dense",
+      "entry": "base",
+      "hypothesis": "NEON-only dense resetter after Rust (q-register masks, one period per run from P>=17): dense phase ~36.5k -> ~30k ns on Cobalt 100",
+      "verdict": "running",
+      "where": "Cobalt 100",
+      "note": "37e19c7 by agent; verified x86 objects byte-identical to champion, x86 PRIMES_TEST exit 0; agent ran NEON PRIMES_TEST under qemu"
     }
   ],
   "azure_queue": 0,
@@ -725,16 +733,6 @@
     "Zen 5 at one thread: about +3% to pass Swift's official 122.9k"
   ],
   "events": [
-    {
-      "utc": "2026-10-09T13:49:31Z",
-      "level": "info",
-      "text": "Run ap-20261009T1349Z: experiments from the GPT-6 and Grok reviews until the Azure secret expires."
-    },
-    {
-      "utc": "2026-10-09T16:03:37Z",
-      "level": "info",
-      "text": "Zen 5 Spot nodes preempted at 16:00 UTC; hc-035's 10-round confirmation kept 9 rounds. Zen 5, Zen 3 and arm pools taken down; Zen 4 runs hc-035."
-    },
     {
       "utc": "2026-10-09T16:23:35Z",
       "level": "info",
@@ -1046,6 +1044,22 @@
       "why": "the 4% arm gap sits mostly in the dense phase, not where it is on x86 (sparse); a NEON-specific dense change is the lever for priority 4",
       "instead": "acting on arm now: priority 3 (Zen 5 1T) still waits on the Swift profile and asm side-by-side, and an arm-only dense change must not regress x86",
       "expect": "a dense-phase change on arm worth 3-5% if it matches Rust's dense; confidence low because the Rust-side shares are scaled"
+    },
+    {
+      "utc": "2026-10-10T03:00:15Z",
+      "level": "decision",
+      "text": "p4-arm-dense: A/B on Cobalt 100, 6 rounds, champion vs 37e19c7. Why: the arm profile puts the 4% gap in dense; the candidate halves dense instructions per word on NEON (static count 489k -> 290k per pass). Passed over: a NEON pass-3 buffer init (hc-026 style), kept as the follow-up. Expect: +3-8% at 1T on arm; x86 objects are byte-identical, so the Zen 3/Zen 5 legs and the D16as_v5 recheck are satisfied by identity, not by timing.",
+      "id": "p4-arm-dense",
+      "what": "A/B on Cobalt 100, 6 rounds, champion vs 37e19c7",
+      "why": "the arm profile puts the 4% gap in dense; the candidate halves dense instructions per word on NEON (static count 489k -> 290k per pass)",
+      "instead": "a NEON pass-3 buffer init (hc-026 style), kept as the follow-up",
+      "expect": "+3-8% at 1T on arm; x86 objects are byte-identical, so the Zen 3/Zen 5 legs and the D16as_v5 recheck are satisfied by identity, not by timing"
+    },
+    {
+      "utc": "2026-10-10T03:00:15Z",
+      "level": "info",
+      "text": "p4-arm-dense (base) running: NEON-only dense resetter after Rust (q-register masks, one period per run from P>=17): dense phase ~36.5k -> ~30k ns on Cobalt 100",
+      "auto": true
     }
   ],
   "research": {

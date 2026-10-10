@@ -10,3 +10,4 @@ id	pool	size	kind	outdir	submitted	state
 02300120863	hc-standard-d32as-v7	Standard_D32as_v7	base	ispc-dev/results/hc/p6-scaling-32	2026-10-10T02:30:09Z	open
 023920833	hc-standard-d16as-v7	Standard_D16as_v7	base	ispc-dev/results/hc/diag-swift-phases	2026-10-10T02:39:27Z	open
 024234481	hc-standard-d16as-v7	Standard_D16as_v7	base	ispc-dev/results/hc/asm-sparse	2026-10-10T02:42:42Z	open
+02595822321	hc-standard-d4ps-v6	Standard_D4ps_v6	base	ispc-dev/results/hc/p4-arm-dense	2026-10-10T03:00:07Z	open
