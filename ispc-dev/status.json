@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T01:49:10Z",
+  "updated_utc": "2026-10-10T01:54:57Z",
   "run": {
     "id": "ap-20261010T0140Z",
     "state": "running",
@@ -12,7 +12,7 @@
     "spend_cap_nzd": 30,
     "ends_utc": "2026-10-10T05:40:00Z",
     "background_runs": 4,
-    "last_tick_utc": "2026-10-10T01:48:59Z",
+    "last_tick_utc": "2026-10-10T01:54:57Z",
     "wakeup": "trig_01NRqjjEuEtiPG2pGh38vhAP"
   },
   "current": {
