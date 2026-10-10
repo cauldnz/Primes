@@ -188,3 +188,12 @@ factor sweeps a sieve larger than L1. Our compiled sparse loop is Rust's, instru
 instruction; the remaining 1–3% is the machine. The all-threads race is decided by what each
 entry leaves for a sibling hardware thread." That is a claim a reviewer can check from
 `results/hc/asm-sparse/README.md` and `results/hc/mt-phases-96/`.
+
+## Standing rule (Chris, 2026-10-11 08:10 NZT): port ISPC wins to Zig and Rust
+
+Every change kept on `hc/champion` or `hc/champion-grey` is ported to our other entries of the
+same design and measured there: Zig (`PrimeZig/solution_4`, base and wheel), Rust
+(`PrimeRust/solution_8` wheel, `solution_9` base) and C++ (`PrimeCPP/solution_6`/`7`). A grey
+change goes onto a grey branch of that entry only, with its own `RULES.md`. Queue, in order:
+F2 (16 KB blocks) and F1 to the Zig base; `wheel-group32` (32-word AVX-512 group step) to the
+Zig, Rust and C++ wheels; the thread-count fix to every port that lacks it.

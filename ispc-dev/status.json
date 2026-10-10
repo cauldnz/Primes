@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T22:05:13Z",
+  "updated_utc": "2026-10-10T22:11:16Z",
   "run": {
     "id": "ap-20261010T2040Z",
     "state": "running",
@@ -958,14 +958,6 @@
   ],
   "events": [
     {
-      "utc": "2026-10-10T11:04:18Z",
-      "level": "decision",
-      "text": "run: took the Intel and Cobalt 100 pools down: their work is done (Intel image measured, arm gates for the thread-count fix and IDEAS 12 passed). Why: AUTOPILOT 2d: no idle floors.",
-      "id": "run",
-      "what": "took the Intel and Cobalt 100 pools down: their work is done (Intel image measured, arm gates for the thread-count fix and IDEAS 12 passed)",
-      "why": "AUTOPILOT 2d: no idle floors"
-    },
-    {
       "utc": "2026-10-10T11:19:14Z",
       "level": "decision",
       "text": "wheel-group32: not a mechanical keep: +4.4% on Zen 5 but 0.0% on Zen 4, which runs the same AVX-512 code; left for Chris with the numbers. Why: the target-specific rule asks for >= 2% on every machine whose code changes; it neither regresses anywhere nor reaches 2% on Zen 4 (Genoa splits 512-bit ops, so the 32-word step buys less). The official Threadripper is Zen 5, the official EPYC runner is AVX2-only. Passed over: a Zen-5-only dispatch (not expressible with ISPC targets).",
@@ -1321,6 +1313,14 @@
       "id": "idea12-v2",
       "what": "8 rounds of IDEAS 12 (v2, on the new champion) on the free Zen 3 node",
       "why": "its Zen 3 1T interval straddled +1% last run; keeps the node busy while the grey gates run elsewhere"
+    },
+    {
+      "utc": "2026-10-10T22:11:16Z",
+      "level": "decision",
+      "text": "run: standing rule from Chris: port every ISPC keep (clean or grey) to our Zig, Rust and C++ entries of the same design and measure it there; first port this run: F2 (16 KB blocks) to the Zig base, as a grey branch. Why: Chris, 08:10 NZT; F2 is the largest gain so far and the Zig base is level with the ISPC base.",
+      "id": "run",
+      "what": "standing rule from Chris: port every ISPC keep (clean or grey) to our Zig, Rust and C++ entries of the same design and measure it there; first port this run: F2 (16 KB blocks) to the Zig base, as a grey branch",
+      "why": "Chris, 08:10 NZT; F2 is the largest gain so far and the Zig base is level with the ISPC base"
     }
   ],
   "research": {
