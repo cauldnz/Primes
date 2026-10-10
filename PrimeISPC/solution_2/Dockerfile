@@ -14,6 +14,7 @@ RUN if [ "$(uname -m)" = x86_64 ]; then set -- -Xswiftc -target-cpu -Xswiftc has
 
 FROM swift:6.3.3-slim
 WORKDIR /opt/app
+WORKDIR /opt/app
 COPY --from=build /opt/app/.build/release/PrimeSieveSwift ./PrimeSwift_1bitStriped_u8/.build/release/PrimeSieveSwift
 COPY run.sh ./run.sh
 
