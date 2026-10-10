@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T10:09:37Z",
+  "updated_utc": "2026-10-10T10:09:59Z",
   "run": {
     "id": "ap-20261010T0715Z",
     "state": "running",
@@ -933,24 +933,6 @@
   "events": [
     {
       "utc": "2026-10-10T08:24:13Z",
-      "level": "decision",
-      "text": "asm-wheel: run the wheel disassembly image on the 96-vCPU node (Zen 5) before writing any Zig-gap candidate. Why: the preview names three likely causes on AVX-512 (step width, spilled row pointers, masked loads) and none on AVX2; the node run settles which loop Zig's native build actually takes on Zen 5. Expect: if Zig takes the 512-bit path on Zen 5, the first candidate is the 32-word step in apply_group with rows off one base register.",
-      "id": "asm-wheel",
-      "what": "run the wheel disassembly image on the 96-vCPU node (Zen 5) before writing any Zig-gap candidate",
-      "why": "the preview names three likely causes on AVX-512 (step width, spilled row pointers, masked loads) and none on AVX2; the node run settles which loop Zig's native build actually takes on Zen 5",
-      "expect": "if Zig takes the 512-bit path on Zen 5, the first candidate is the 32-word step in apply_group with rows off one base register"
-    },
-    {
-      "utc": "2026-10-10T08:24:13Z",
-      "level": "decision",
-      "text": "idea12-tile13: queue IDEAS 12 on the Zen 5 32-vCPU node, 6 rounds; Zen 3 when the fleet is up. Why: verified locally (self-test, sweep); its saving is a 33 KB sweep per pass. Expect: +1-3% at 1T.",
-      "id": "idea12-tile13",
-      "what": "queue IDEAS 12 on the Zen 5 32-vCPU node, 6 rounds; Zen 3 when the fleet is up",
-      "why": "verified locally (self-test, sweep); its saving is a 33 KB sweep per pass",
-      "expect": "+1-3% at 1T"
-    },
-    {
-      "utc": "2026-10-10T08:24:13Z",
       "level": "info",
       "text": "idea12-tile13 (wheel) queued: Fold 13 into the 7x11 tile copy (IDEAS 12): one store-only pass per plane, one fewer sweep",
       "auto": true
@@ -1300,6 +1282,23 @@
       "level": "info",
       "text": "idea21-prefetch revert. Zen 5 D32as_v7. D32as_v7, 4 rounds: -2.6% at 1T, -5.6% at 8T, -5.9% at 16T, -7.4% +-0.5% at 32T. The extra load-port work costs more than the misses it hides, worst under SMT",
       "auto": true
+    },
+    {
+      "utc": "2026-10-10T10:09:58Z",
+      "level": "decision",
+      "text": "intel-avx2: use Standard_D16s_v5 (Ice Lake Xeon) as the one Intel size, from the fleet start. Why: available in Batch here; Ice Lake is closer in age and core design to the i7-9750H (Skylake-derived) than v6 (Emerald Rapids); every entry runs AVX2-only in the image anyway. Passed over: D16s_v6.",
+      "id": "intel-avx2",
+      "what": "use Standard_D16s_v5 (Ice Lake Xeon) as the one Intel size, from the fleet start",
+      "why": "available in Batch here; Ice Lake is closer in age and core design to the i7-9750H (Skylake-derived) than v6 (Emerald Rapids); every entry runs AVX2-only in the image anyway",
+      "instead": "D16s_v6"
+    },
+    {
+      "utc": "2026-10-10T10:09:59Z",
+      "level": "decision",
+      "text": "run: fleet at about 10:25, when the wheel repeat ends and the 96-vCPU pool comes down: Zen 3 D16a_v4 (IDEAS 12, four port measurements), Zen 4 D16as_v5 (wheel-group32 recheck), Cobalt 100 D4ps_v6 (arm gate for the thread-count fix and IDEAS 12), Intel D16s_v5 (AVX2-only image), plus the existing 32-vCPU Zen 5 node: 84 vCPUs. Why: everything left is measurement or a gate for a pending keep; the final scoreboard follows the merges.",
+      "id": "run",
+      "what": "fleet at about 10:25, when the wheel repeat ends and the 96-vCPU pool comes down: Zen 3 D16a_v4 (IDEAS 12, four port measurements), Zen 4 D16as_v5 (wheel-group32 recheck), Cobalt 100 D4ps_v6 (arm gate for the thread-count fix and IDEAS 12), Intel D16s_v5 (AVX2-only image), plus the existing 32-vCPU Zen 5 node: 84 vCPUs",
+      "why": "everything left is measurement or a gate for a pending keep; the final scoreboard follows the merges"
     }
   ],
   "research": {
