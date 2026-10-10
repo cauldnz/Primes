@@ -12,7 +12,7 @@
 # Usage (needs SUB, az logged in; run from anywhere in the repo):
 #   hc-pool.sh up <size> [maxnodes=2] [minutes=240]     create the pool (idempotent)
 #   hc-pool.sh run <size> <kind> <cand-ref> <champ-ref> <outdir> [rounds=5]
-#        kind: wheel | base | rust | zig. Submits one task and follows it until it completes,
+#        kind: wheel | base | rust | zig | board. Submits one task and follows it until it completes,
 #        copying its stdout to <outdir>/<size>.txt as it grows.
 #   hc-pool.sh down <size>                              delete the pool and its job
 #   hc-pool.sh status                                   list pools, nodes and tasks
@@ -71,6 +71,11 @@ for d in cand champ ctx; do
   [ -d "$STAGE/$d" ] || continue
   echo "build $d"; docker build -q -t "$d-$ID" "$STAGE/$d" >/dev/null || { echo "!!! build $d failed"; exit 3; }
 done
+if [ -f "$STAGE/builds" ]; then   # board kind: upstream entries, built from the start task checkout
+  while read -r img dir; do
+    echo "build $img ($dir)"; ( cd /root/Primes && docker build -q -t "$img" "$dir" >/dev/null ) || echo "!!! build $img failed"
+  done < "$STAGE/builds"
+fi
 cleanup() { docker rmi -f "cand-$ID" "champ-$ID" "ctx-$ID" >/dev/null 2>&1 || true; }
 trap cleanup EXIT
 if [ -n "$SELFTEST" ]; then
@@ -181,6 +186,19 @@ cmd_run() {
            printf '%s\n' "cand|cand-@ID||^cauldnz-zig-$E;" "champ|champ-@ID||^cauldnz-zig-$E;" \
              "champ2|champ-@ID||^cauldnz-zig-$E;" 'ctrl|ctx-@ID||;' > "$S/spec"
            [ "$E" = base ] && printf '%s\n' 'ctrl2|davepl|dummy -l 1000000 -t 1|^davepl' 'ctrl2|davepl|dummy -l 1000000|^davepl' >> "$S/spec" ;;
+    board) # leaderboard check: our two entries (cand = base at CAND, champ = wheel at CHAMP) and
+           # the top faithful entries, each run with its image's default command, as the official
+           # benchmark does. Summarise with tools/board.py, not analyze.py.
+           ctx_from "$CAND" PrimeISPC/solution_2 "$S/cand"; ctx_from "$CHAMP" PrimeISPC/solution_1 "$S/champ"
+           printf '%s\n' 'b-swift PrimeSwift/solution_1' 'b-chapel PrimeChapel/solution_1' 'b-nim PrimeNim/solution_3' \
+             'b-haskell PrimeHaskell/solution_2' 'b-julia PrimeJulia/solution_4' 'b-d PrimeD/solution_3' 'b-v PrimeV/solution_2' > "$S/builds"
+           printf '%s\n' 'cand|cand-@ID||;' 'champ|champ-@ID||;' \
+             'rust|rust||^mike-barber_bit-(extreme|unrolled)-hybrid;' 'davepl|davepl||^davepl' \
+             'dsp|--entrypoint ./sieve_5760of30030_only_write_read_bits dsp||^danielspaangberg' \
+             'swift|b-swift||^yellowcub_fahlman_striped_UInt8;' 'chapel|b-chapel||^GordonBGood' 'nim|b-nim||^GordonBGood' \
+             'haskell|b-haskell||^GordonBGood' 'julia|b-julia||^GordonBGood' 'd|b-d||^serg-gini_bit-(extreme|unrolled)-hybrid;' \
+             'v|b-v||^GordonBGood' > "$S/spec"
+           [ -n "$X86" ] && echo 'c5|c5||^rogiervandam_extend;' >> "$S/spec" ;;
     *) echo "unknown kind $KIND" >&2; exit 2 ;;
   esac
   if [ "$KIND" != zig ] && diff -rq "$S/cand" "$S/champ" >/dev/null; then echo "!!! candidate equals champion"; exit 1; fi
@@ -200,7 +218,7 @@ json.dump({"id": tid,
            "environmentSettings": [{"name": "KIND", "value": kind}, {"name": "ROUNDS", "value": rounds},
                                    {"name": "ID", "value": tid}, {"name": "SELFTEST", "value": selftest}],
            "userIdentity": {"autoUser": {"scope": "pool", "elevationLevel": "admin"}},
-           "constraints": {"maxWallClockTime": "PT50M", "maxTaskRetryCount": 0}},
+           "constraints": {"maxWallClockTime": "PT120M" if kind == "board" else "PT50M", "maxTaskRetryCount": 0}},
           open(f"{d}/task.json", "w"))
 PY
   az batch task create --job-id "$P" --json-file "$D/task.json" -o none
@@ -219,7 +237,7 @@ PY
       fi
     fi
     [ "$STATE" = completed ] && break
-    [ $(( $(date +%s) - T0 )) -gt 4200 ] && { echo "!!! gave up after 70 minutes"; break; }
+    [ $(( $(date +%s) - T0 )) -gt $([ "$KIND" = board ] && echo 7800 || echo 4200) ] && { echo "!!! watcher gave up"; break; }
     sleep 30
   done
   az batch task show --job-id "$P" --task-id "$ID" \
