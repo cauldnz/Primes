@@ -183,10 +183,91 @@ static inline uniform int apply_range(uniform uint64 * uniform w, const uniform 
     return r;
 }
 
+// Fused pass over one plane, sweeping downwards from the top: the same words, vectors and
+// patterns as the upward sweep in apply_group, visited in reverse order. A pass that follows an
+// upward one starts on the words that are still in L1. start is the earliest member's first
+// word and r0[j] member j's phase there.
+static void apply_group_down(uniform uint64 * uniform w, uniform int nw,
+                             const uniform Group * uniform g, uniform int start,
+                             const uniform int64 * uniform r0) {
+#if TAIL_OVERRUN
+    unmasked {
+#endif
+    uniform int64 r[G], L[G];
+    // The upward sweep's vectors sit at start + i*programCount; the last one may be partial.
+    uniform int64 nv = (nw - start + programCount - 1) / programCount;   // vectors, partial included
+    uniform int64 k = start + (nv - 1) * programCount;                  // the top vector
+    for (uniform int j = 0; j < G; j++) {
+        L[j] = g->L[j];
+        r[j] = (r0[j] + (k - start)) % L[j];
+    }
+    if (nv > 0 && k + programCount > nw) {         // the partial vector at the top
+        if (TAIL_OVERRUN || k + programIndex < nw) {
+            uint64 v = w[k + programIndex];
+            for (uniform int j = 0; j < G; j++) v |= g->buf[j][r[j] + programIndex];
+            w[k + programIndex] = v;
+        }
+        nv--;
+        k -= programCount;
+        for (uniform int j = 0; j < G; j++) {
+            uniform int64 t = r[j] - programCount;
+            r[j] = (t < 0) ? t + L[j] : t;
+        }
+    }
+#if defined(ISPC_TARGET_AVX512SKX)
+    // One single vector when the full ones are odd in number, then two per iteration.
+    unmasked {
+        if (nv & 1) {
+            uint64 v = w[k + programIndex];
+            for (uniform int j = 0; j < G; j++) {
+                v |= g->buf[j][r[j] + programIndex];
+                uniform int64 t = r[j] - programCount;
+                r[j] = (t < 0) ? t + L[j] : t;
+            }
+            w[k + programIndex] = v;
+            k -= programCount;
+            nv--;
+        }
+        // k is now the upper vector of a pair; step to the pair's base.
+        k -= programCount;
+        for (uniform int j = 0; j < G; j++) {
+            uniform int64 t = r[j] - programCount;
+            r[j] = (t < 0) ? t + L[j] : t;
+        }
+        for (; k >= start; k -= STEP) {
+            uint64 v0 = w[k + programIndex];
+            uint64 v1 = w[k + programCount + programIndex];
+            for (uniform int j = 0; j < G; j++) {
+                v0 |= g->buf[j][r[j] + programIndex];
+                v1 |= g->buf[j][r[j] + programCount + programIndex];
+                uniform int64 t = r[j] - STEP;
+                r[j] = (t < 0) ? t + L[j] : t;
+            }
+            w[k + programIndex] = v0;
+            w[k + programCount + programIndex] = v1;
+        }
+    }
+#else
+    for (; k >= start; k -= programCount) {
+        uint64 v = w[k + programIndex];
+        for (uniform int j = 0; j < G; j++) {
+            v |= g->buf[j][r[j] + programIndex];
+            uniform int64 t = r[j] - programCount;
+            r[j] = (t < 0) ? t + L[j] : t;
+        }
+        w[k + programIndex] = v;
+    }
+#endif
+#if TAIL_OVERRUN
+    }
+#endif
+}
+
 // Fused pass over one plane: every group member is OR'd in with a single load and store of
-// each sieve word. b[j] is member j's first bit in this plane.
+// each sieve word. b[j] is member j's first bit in this plane. down sweeps from the top.
 static void apply_group(uniform uint64 * uniform w, uniform int nw,
-                        const uniform Group * uniform g, const uniform int * uniform b) {
+                        const uniform Group * uniform g, const uniform int * uniform b,
+                        uniform bool down) {
     // Every member starts at the earliest member's first word, so no member needs a lead-in.
     // A member then also marks its multiples below p*p, which are composite, and p itself,
     // which dense_primes clears again.
@@ -207,6 +288,7 @@ static void apply_group(uniform uint64 * uniform w, uniform int nw,
             r[j] = (r0 < 0) ? r0 + L[j] : r0;
         } else r[j] = 0;
     }
+    if (down) { apply_group_down(w, nw, g, start, r); return; }
     uniform int64 k = start;
 #if defined(ISPC_TARGET_AVX512SKX)
     // Two vectors per iteration and one phase update per member. The callers run with every
@@ -245,19 +327,22 @@ static void apply_group(uniform uint64 * uniform w, uniform int nw,
 #endif
 }
 
-// Apply a group of primes, from p*p on, to all 8 planes.
+// Apply a group of primes, from p*p on, to all 8 planes. With down set, the planes go from 7
+// to 0 and each is swept from the top, so the pass begins where an upward one ended. A lone
+// prime (apply_range) still sweeps each plane upwards.
 static void dense_primes(uniform Sieve * uniform s, const uniform int * uniform primes,
-                         uniform int n) {
+                         uniform int n, uniform bool down) {
     build_group(s->grp, primes, n);
     uniform int b[G];
-    for (uniform int pl = 0; pl < 8; pl++) {
+    for (uniform int i = 0; i < 8; i++) {
+        uniform int pl = down ? 7 - i : i;
         for (uniform int j = 0; j < n; j++) b[j] = start_bit(primes[j], RES[pl], primes[j]);
         if (n == 1) {      // a lone prime (13): skip the fused loop and its G-1 empty patterns
             apply_range(s->bits + pl * s->pw, s->grp->pp[0], s->grp->L[0],
                         s->grp->tab[0][b[0] & 63], b[0], s->nw);
             continue;
         }
-        apply_group(s->bits + pl * s->pw, s->nw, s->grp, b);
+        apply_group(s->bits + pl * s->pw, s->nw, s->grp, b, down);
     }
     if (n == 1) return;
     for (uniform int j = 0; j < n; j++) {          // apply_group marked each member itself
@@ -269,10 +354,33 @@ static void dense_primes(uniform Sieve * uniform s, const uniform int * uniform 
 
 // Large primes: at most one bit per word. All 8 planes advance in one loop, giving 8
 // independent read-modify-write streams per iteration.
-static void sparse_prime(uniform Sieve * uniform s, uniform int p) {
+// With down set, each plane's stream runs from its last multiple to its first.
+static void sparse_prime(uniform Sieve * uniform s, uniform int p, uniform bool down) {
     uniform int nbits = s->mbits, pw = s->pw;
     uniform uint64 * uniform base = s->bits;
     uniform int64 i[8];                            // 64-bit, so no sign extension per OR
+    if (down) {
+        uniform int64 lo[8];                       // each stream's first bit
+        uniform int rounds = nbits;                // marks every stream still has
+        for (uniform int pl = 0; pl < 8; pl++) {
+            uniform int sb = start_bit(p, RES[pl], p);
+            uniform int cnt = (sb < nbits) ? (nbits - 1 - sb) / p + 1 : 0;
+            rounds = min(rounds, cnt);
+            lo[pl] = sb + (uniform int64)pl * pw * 64;
+            i[pl] = lo[pl] + (uniform int64)(cnt - 1) * p;   // last multiple below nbits
+        }
+        const uniform int64 lim = i[0] - (uniform int64)rounds * p;
+        while (i[0] > lim) {
+            for (uniform int pl = 0; pl < 8; pl++) {
+                base[i[pl] >> 6] |= ((uniform uint64)1) << (i[pl] & 63);
+                i[pl] -= p;
+            }
+        }
+        for (uniform int pl = 0; pl < 8; pl++)
+            for (uniform int64 x = i[pl]; x >= lo[pl]; x -= p)
+                base[x >> 6] |= ((uniform uint64)1) << (x & 63);
+        return;
+    }
     uniform int hi = 0;
     for (uniform int pl = 0; pl < 8; pl++) {
         uniform int sb = start_bit(p, RES[pl], p);
@@ -315,7 +423,7 @@ static void run_sieve(uniform Sieve * uniform s) {
         uniform int tb[2];
         tb[0] = start_bit(7, RES[pl], 1);
         tb[1] = start_bit(11, RES[pl], 1);
-        apply_group(w, t, s->grp, tb);
+        apply_group(w, t, s->grp, tb, false);
         for (uniform int base = t; base < nw; base += t) {
             uniform int n = min(t, nw - base);
             foreach (k = 0 ... n) w[base + k] = w[k];
@@ -327,7 +435,7 @@ static void run_sieve(uniform Sieve * uniform s) {
 
     // Phase 2: 13 on its own. Afterwards every bit below 17*17 is final.
     uniform int thirteen[1] = {13};
-    dense_primes(s, thirteen, 1);
+    dense_primes(s, thirteen, 1, false);
 
     // Phase 3: the remaining primes up to sqrt(size), small ones as fused pattern groups and
     // large ones as strided bit sets. A candidate is only read once every prime up to its
@@ -336,20 +444,24 @@ static void run_sieve(uniform Sieve * uniform s) {
     while ((uniform int64)(q + 1) * (q + 1) <= s->size) q++;
     while ((uniform int64)q * q > s->size) q--;
     uniform int dm = s->dense_max;
+    // Each group pass and each sparse prime sweeps the other way from the one before, so it
+    // starts on the words the last one left in L1. Phase 2 swept upwards.
+    uniform bool down = true;
     uniform int grp[G];
     uniform int n = 0;
     for (uniform int c = 17; c <= q; c += 2) {
         if (PLANE[c % 30] < 0) continue;
-        if (n > 0 && (c >= dm || c >= grp[0] * grp[0])) { dense_primes(s, grp, n); n = 0; }
+        if (n > 0 && (c >= dm || c >= grp[0] * grp[0])) { dense_primes(s, grp, n, down); down = !down; n = 0; }
         if (is_composite(s, c)) continue;
         if (c < dm) {
             grp[n++] = c;
-            if (n == G) { dense_primes(s, grp, n); n = 0; }
+            if (n == G) { dense_primes(s, grp, n, down); down = !down; n = 0; }
         } else {
-            sparse_prime(s, c);
+            sparse_prime(s, c, down);
+            down = !down;
         }
     }
-    if (n > 0) dense_primes(s, grp, n);
+    if (n > 0) dense_primes(s, grp, n, down);
 }
 
 // Number of primes up to and including size: unmarked bits for numbers <= size, plus 2, 3, 5.
