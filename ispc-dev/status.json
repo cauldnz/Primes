@@ -1,19 +1,21 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-09T23:56:09Z",
+  "updated_utc": "2026-10-10T00:02:07Z",
   "run": {
-    "id": "ap-20261009T2033Z",
-    "state": "stopped",
+    "id": "board-20261010",
+    "state": "running",
     "mode": "azure",
-    "mode_reason": "Chris re-armed a 4-hour run (RUN-PLAN.md) with a fresh 10-hour secret.",
-    "started_utc": "2026-10-09T20:33:00Z",
-    "time_box_hours": 4,
-    "spend_nzd": 3.37,
-    "spend_cap_nzd": 30,
-    "background_runs": "0\n0",
-    "ended_utc": "2026-10-10T00:00:00Z"
+    "mode_reason": "Side stream at Chris's request: does our Zen 5 / Zen 3 ranking of the leaderboard's top 10 match the official one?",
+    "started_utc": "2026-10-10T00:02:00Z",
+    "time_box_hours": 2.5,
+    "spend_nzd": 0,
+    "spend_cap_nzd": 10
   },
-  "current": null,
+  "current": {
+    "id": "board-2026-10-10",
+    "phase": "evaluate",
+    "detail": "building the top-10 images on one Zen 5 and one Zen 3 node"
+  },
   "scoreboard": [
     {
       "machine": "Zen 3 (EPYC 7763)",
@@ -656,6 +658,14 @@
       "note": "The cost was all in start_bit (hc-045).",
       "delta_1t": 0.5,
       "delta_mt": 0.0
+    },
+    {
+      "id": "board-2026-10-10",
+      "entry": "both",
+      "hypothesis": "Leaderboard check: top faithful 1-bit base entries plus ours and the rivals, default commands, on Zen 5 and Zen 3",
+      "verdict": "running",
+      "where": "Zen 5 (Threadripper stand-in), Zen 3 (AVX2 EPYC stand-in)",
+      "note": "Builds upstream images on the node; 3 rounds."
     }
   ],
   "azure_queue": 0,
@@ -665,16 +675,6 @@
     "Find the Zig wheel edge and port it to ISPC"
   ],
   "events": [
-    {
-      "utc": "2026-10-09T06:56:32Z",
-      "level": "info",
-      "text": "D16a_v4 gives a real Zen 3 (EPYC 7763); D16as_v5 gave Zen 4 twice today."
-    },
-    {
-      "utc": "2026-10-09T07:01:22Z",
-      "level": "info",
-      "text": "hc-003 KEPT and merged: base sparse pointer walk, Zen 5 +12.3% 1T."
-    },
     {
       "utc": "2026-10-09T07:01:22Z",
       "level": "info",
@@ -914,6 +914,16 @@
       "utc": "2026-10-09T23:56:02Z",
       "level": "info",
       "text": "Run ap-20261009T2033Z stopped: hc-045 kept (+9-10% wheel at 1T); final scoreboard; hc/ispc-landing 77a197b ready for Chris; spend NZ$3.37; all pools deleted."
+    },
+    {
+      "utc": "2026-10-10T00:02:07Z",
+      "level": "info",
+      "text": "board-2026-10-10 running: Leaderboard check: top faithful 1-bit base entries plus ours and the rivals, default commands, on Zen 5 and Zen 3"
+    },
+    {
+      "utc": "2026-10-10T00:02:07Z",
+      "level": "info",
+      "text": "board-2026-10-10 (evaluate): building the top-10 images on one Zen 5 and one Zen 3 node"
     }
   ],
   "research": {
