@@ -1,0 +1,119 @@
+Iterations:        1000
+Instructions:      12000
+Total Cycles:      5341
+Total uOps:        12000
+
+Dispatch Width:    6
+uOps Per Cycle:    2.25
+IPC:               2.25
+Block RThroughput: 5.3
+
+
+Cycles with backend pressure increase [ 99.19% ]
+Throughput Bottlenecks: 
+  Resource Pressure       [ 99.19% ]
+  - Zn4AGU0  [ 99.18% ]
+  - Zn4AGU1  [ 99.18% ]
+  - Zn4AGU2  [ 99.18% ]
+  - Zn4ALU0  [ 12.34% ]
+  - Zn4ALU1  [ 12.34% ]
+  - Zn4ALU2  [ 12.34% ]
+  - Zn4ALU3  [ 12.34% ]
+  - Zn4LSU  [ 99.18% ]
+  - Zn4Store  [ 49.60% ]
+  Data Dependencies:      [ 25.07% ]
+  - Register Dependencies [ 25.07% ]
+  - Memory Dependencies   [ 0.00% ]
+
+Critical sequence based on the simulation:
+
+              Instruction                                 Dependency Information
+ +----< 5.    orb	$2, (%rax,%r11)
+ |
+ |    < loop carried > 
+ |
+ +----> 0.    orb	$16, (%rax,%rsi)                  ## RESOURCE interference:  Zn4LSU [ probability: 66% ]
+ +----> 1.    orb	$32, (%rax,%r14)                  ## RESOURCE interference:  Zn4LSU [ probability: 66% ]
+ +----> 2.    orb	$64, (%rax,%rcx)                  ## RESOURCE interference:  Zn4LSU [ probability: 66% ]
+ +----> 3.    orb	$128, (%rax,%r15)                 ## RESOURCE interference:  Zn4LSU [ probability: 66% ]
+ +----> 4.    orb	$1, (%rax,%rbp)                   ## RESOURCE interference:  Zn4LSU [ probability: 66% ]
+ +----> 5.    orb	$2, (%rax,%r11)                   ## RESOURCE interference:  Zn4LSU [ probability: 66% ]
+ +----> 6.    orb	$4, (%rax,%r13)                   ## RESOURCE interference:  Zn4LSU [ probability: 66% ]
+ +----> 7.    orb	$8, (%rax,%r10)                   ## RESOURCE interference:  Zn4LSU [ probability: 66% ]
+ |      8.    addq	%r8, %rax
+ |      9.    subq	%r8, %rbx
+ |      10.   cmpq	%r8, %rbx
+ |      11.   jae	.Lloop
+ |
+ |    < loop carried > 
+ |
+ +----> 0.    orb	$16, (%rax,%rsi)                  ## RESOURCE interference:  Zn4LSU [ probability: 66% ]
+
+
+Instruction Info:
+[1]: #uOps
+[2]: Latency
+[3]: RThroughput
+[4]: MayLoad
+[5]: MayStore
+[6]: HasSideEffects (U)
+
+[1]    [2]    [3]    [4]    [5]    [6]    Instructions:
+ 1      6     0.67    *      *            orb	$16, (%rax,%rsi)
+ 1      6     0.67    *      *            orb	$32, (%rax,%r14)
+ 1      6     0.67    *      *            orb	$64, (%rax,%rcx)
+ 1      6     0.67    *      *            orb	$128, (%rax,%r15)
+ 1      6     0.67    *      *            orb	$1, (%rax,%rbp)
+ 1      6     0.67    *      *            orb	$2, (%rax,%r11)
+ 1      6     0.67    *      *            orb	$4, (%rax,%r13)
+ 1      6     0.67    *      *            orb	$8, (%rax,%r10)
+ 1      1     0.25                        addq	%r8, %rax
+ 1      1     0.25                        subq	%r8, %rbx
+ 1      1     0.25                        cmpq	%r8, %rbx
+ 1      1     0.50                        jae	.Lloop
+
+
+Resources:
+[0]   - Zn4AGU0
+[1]   - Zn4AGU1
+[2]   - Zn4AGU2
+[3]   - Zn4ALU0
+[4]   - Zn4ALU1
+[5]   - Zn4ALU2
+[6]   - Zn4ALU3
+[7]   - Zn4BRU1
+[8]   - Zn4FP0
+[9]   - Zn4FP1
+[10]  - Zn4FP2
+[11]  - Zn4FP3
+[12.0] - Zn4FP45
+[12.1] - Zn4FP45
+[13]  - Zn4FPSt
+[14.0] - Zn4LSU
+[14.1] - Zn4LSU
+[14.2] - Zn4LSU
+[15.0] - Zn4Load
+[15.1] - Zn4Load
+[15.2] - Zn4Load
+[16.0] - Zn4Store
+[16.1] - Zn4Store
+
+
+Resource pressure per iteration:
+[0]    [1]    [2]    [3]    [4]    [5]    [6]    [7]    [8]    [9]    [10]   [11]   [12.0] [12.1] [13]   [14.0] [14.1] [14.2] [15.0] [15.1] [15.2] [16.0] [16.1] 
+5.33   5.33   5.33   2.75   2.75   2.75   2.75   1.00    -      -      -      -      -      -      -     5.33   5.33   5.33   2.67   2.67   2.67   4.00   4.00   
+
+Resource pressure by instruction:
+[0]    [1]    [2]    [3]    [4]    [5]    [6]    [7]    [8]    [9]    [10]   [11]   [12.0] [12.1] [13]   [14.0] [14.1] [14.2] [15.0] [15.1] [15.2] [16.0] [16.1] Instructions:
+0.67   0.67   0.67   0.25   0.25   0.25   0.25    -      -      -      -      -      -      -      -     0.67   0.67   0.67   0.33   0.33   0.33    -     1.00   orb	$16, (%rax,%rsi)
+0.67   0.67   0.67   0.25   0.25   0.26   0.25    -      -      -      -      -      -      -      -     0.67   0.67   0.67   0.33   0.33   0.33   1.00    -     orb	$32, (%rax,%r14)
+0.67   0.67   0.67   0.25   0.26   0.25   0.25    -      -      -      -      -      -      -      -     0.67   0.67   0.67   0.33   0.33   0.33    -     1.00   orb	$64, (%rax,%rcx)
+0.67   0.67   0.67   0.25   0.25   0.25   0.25    -      -      -      -      -      -      -      -     0.67   0.67   0.67   0.33   0.33   0.33   1.00    -     orb	$128, (%rax,%r15)
+0.67   0.67   0.67   0.25   0.25   0.25   0.26    -      -      -      -      -      -      -      -     0.67   0.67   0.67   0.33   0.33   0.33    -     1.00   orb	$1, (%rax,%rbp)
+0.67   0.67   0.67   0.25   0.25   0.26   0.25    -      -      -      -      -      -      -      -     0.67   0.67   0.67   0.33   0.33   0.33   1.00    -     orb	$2, (%rax,%r11)
+0.67   0.67   0.67   0.25   0.26   0.25   0.25    -      -      -      -      -      -      -      -     0.67   0.67   0.67   0.33   0.33   0.33    -     1.00   orb	$4, (%rax,%r13)
+0.67   0.67   0.67   0.25   0.25   0.25   0.25    -      -      -      -      -      -      -      -     0.67   0.67   0.67   0.33   0.33   0.33   1.00    -     orb	$8, (%rax,%r10)
+ -      -      -     0.25   0.25   0.25   0.25    -      -      -      -      -      -      -      -      -      -      -      -      -      -      -      -     addq	%r8, %rax
+ -      -      -     0.25   0.25   0.25   0.25    -      -      -      -      -      -      -      -      -      -      -      -      -      -      -      -     subq	%r8, %rbx
+ -      -      -     0.25   0.25   0.25   0.25    -      -      -      -      -      -      -      -      -      -      -      -      -      -      -      -     cmpq	%r8, %rbx
+ -      -      -      -      -      -      -     1.00    -      -      -      -      -      -      -      -      -      -      -      -      -      -      -     jae	.Lloop

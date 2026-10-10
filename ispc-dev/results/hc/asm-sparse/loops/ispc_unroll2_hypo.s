@@ -1,0 +1,21 @@
+.Lloop:
+  orb    $0x1,(%rsi,%r14,1)
+  orb    $0x2,(%rsi,%r12,1)
+  orb    $0x4,(%rsi,%r15,1)
+  orb    $0x8,(%rsi,%rdx,1)
+  orb    $0x10,(%rsi,%rbx,1)
+  orb    $0x20,(%rsi,%rbp,1)
+  orb    $0x40,(%rsi,%r8,1)
+  orb    $0x80,(%rsi,%r10,1)
+  orb    $0x1,(%rcx,%r14,1)
+  orb    $0x2,(%rcx,%r12,1)
+  orb    $0x4,(%rcx,%r15,1)
+  orb    $0x8,(%rcx,%rdx,1)
+  orb    $0x10,(%rcx,%rbx,1)
+  orb    $0x20,(%rcx,%rbp,1)
+  orb    $0x40,(%rcx,%r8,1)
+  orb    $0x80,(%rcx,%r10,1)
+  lea    (%rcx,%r13,1),%rsi
+  lea    (%rsi,%r13,1),%rcx
+  cmp    %rax,%rcx
+  jle .Lloop
