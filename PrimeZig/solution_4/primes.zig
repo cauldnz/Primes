@@ -105,8 +105,61 @@ fn denseReset(comptime P: usize, w: []u64) void {
         const t = P / 2 + j * P;
         if (c + (t >> 6) < len) ptr[c + (t >> 6)] |= @as(u64, 1) << (t & 63);
     }
-    const f = P / 2; // P itself
-    if ((f >> 6) < len) ptr[f >> 6] &= ~(@as(u64, 1) << (f & 63));
+    restoreFactor(P, w);
+}
+
+// P itself is prime: undo the OR the dense resetters give it when P*P falls in the first period.
+inline fn restoreFactor(comptime P: usize, w: []u64) void {
+    const f = P / 2;
+    if ((f >> 6) < w.len) w.ptr[f >> 6] &= ~(@as(u64, 1) << (f & 63));
+}
+
+// Descending form of denseReset: the same composites, visited from the top of the sieve down.
+// The partial last period goes first, then the whole periods left over after the last block,
+// then the blocks from the highest down, each from its top vector down, and P itself last.
+fn denseResetDown(comptime P: usize, w: []u64) void {
+    @setEvalBranchQuota(100_000);
+    const len = w.len;
+    const ptr = w.ptr;
+    const c0: usize = ((P * P / 2) / 64 / P) * P;
+    if (c0 >= len) return restoreFactor(P, w);
+    const n = (len - c0) / P; // whole periods
+    const cb = c0 + n / VB * VB * P; // end of the last whole block
+    var c: usize = c0 + n * P; // start of the partial last period
+
+    comptime var jj: usize = 64;
+    inline while (jj > 0) : (jj -= 1) {
+        const t = P / 2 + (jj - 1) * P;
+        if (c + (t >> 6) < len) ptr[c + (t >> 6)] |= @as(u64, 1) << (t & 63);
+    }
+    while (c > cb) {
+        c -= P;
+        comptime var kk: usize = P;
+        inline while (kk > 0) : (kk -= 1) {
+            const k = kk - 1;
+            var x = ptr[c + k];
+            comptime var j = firstMultiple(P, 64 * k);
+            inline while (P / 2 + j * P < 64 * (k + 1)) : (j += 1) {
+                x |= @as(u64, 1) << ((P / 2 + j * P) & 63); // one composite
+            }
+            ptr[c + k] = x;
+        }
+    }
+    while (c > c0) {
+        c -= VB * P;
+        comptime var vv: usize = P;
+        inline while (vv > 0) : (vv -= 1) {
+            const vi = vv - 1;
+            const lo = 64 * VB * vi;
+            var x = loadV(VB, ptr + c + VB * vi);
+            comptime var j = firstMultiple(P, lo);
+            inline while (P / 2 + j * P < lo + 64 * VB) : (j += 1) {
+                x |= comptime laneBit(P / 2 + j * P - lo); // one composite
+            }
+            storeV(VB, ptr + c + VB * vi, x);
+        }
+    }
+    restoreFactor(P, w);
 }
 
 // Sparse resetter over bytes for an odd factor p >= 128. In each run of p bytes the 8 odd
@@ -146,6 +199,40 @@ fn sparseReset(comptime E: usize, bytes: []u8, p: usize) void {
     }
 }
 
+// Descending form of sparseReset: the partial last run first, its composites from the highest
+// down, then the whole runs from the highest down to the one holding p*p.
+fn sparseResetDown(comptime E: usize, bytes: []u8, p: usize) void {
+    const h = p / 2;
+    const o = [8]usize{ h >> 3, (h + p) >> 3, (h + 2 * p) >> 3, (h + 3 * p) >> 3, (h + 4 * p) >> 3, (h + 5 * p) >> 3, (h + 6 * p) >> 3, (h + 7 * p) >> 3 };
+    const m = comptime blk: {
+        var a: [8]u8 = undefined;
+        for (0..8) |j| a[j] = @as(u8, 1) << @intCast((E / 2 + j * E) & 7);
+        break :blk a;
+    };
+    const first = ((p * p / 2) / 8 / p) * p;
+    if (first >= bytes.len) return;
+    const runs = (bytes.len - first) / p;
+    var q: [*]u8 = bytes.ptr + first + runs * p; // the partial last run
+    const left = bytes.len - first - runs * p;
+    comptime var jj: usize = 8;
+    inline while (jj > 0) : (jj -= 1) {
+        if (o[jj - 1] < left) q[o[jj - 1]] |= m[jj - 1];
+    }
+    // A pointer loop with wrapping steps, as in sparseReset, so LLVM keeps it rolled.
+    const low = @intFromPtr(bytes.ptr) + first; // the lowest run
+    while (@intFromPtr(q) > low) {
+        q = @ptrFromInt(@intFromPtr(q) -% p);
+        q[o[7]] |= m[7];
+        q[o[6]] |= m[6];
+        q[o[5]] |= m[5];
+        q[o[4]] |= m[4];
+        q[o[3]] |= m[3];
+        q[o[2]] |= m[2];
+        q[o[1]] |= m[1];
+        q[o[0]] |= m[0];
+    }
+}
+
 const BaseSieve = struct {
     alloc: Allocator,
     size: u64, // find primes up to and including this number
@@ -169,13 +256,15 @@ const BaseSieve = struct {
         return (self.words[i >> 6] >> @intCast(i & 63)) & 1 != 0;
     }
 
-    fn clearFactor(self: *BaseSieve, p: usize) void {
+    // Clear all odd multiples of p, from the low end up or from the high end down.
+    fn clearFactor(self: *BaseSieve, p: usize, down: bool) void {
         if (p < DENSE_LIMIT) {
             // Every odd factor below 128 has its own resetter, composite factors included,
             // so nothing is assumed about which numbers are prime.
             switch (p) {
                 inline 3...DENSE_LIMIT - 1 => |P| {
-                    if (P % 2 == 1) denseReset(P, self.words) else unreachable;
+                    if (P % 2 == 0) unreachable;
+                    if (down) denseResetDown(P, self.words) else denseReset(P, self.words);
                 },
                 else => unreachable,
             }
@@ -185,22 +274,28 @@ const BaseSieve = struct {
         // bit k is bit 8b+k of the sieve.
         const bytes = std.mem.sliceAsBytes(self.words);
         switch (p & 15) {
-            inline 1, 3, 5, 7, 9, 11, 13, 15 => |E| sparseReset(E, bytes, p),
+            inline 1, 3, 5, 7, 9, 11, 13, 15 => |E| if (down) sparseResetDown(E, bytes, p) else sparseReset(E, bytes, p),
             else => unreachable,
         }
     }
 
     // The base algorithm: find the next prime by checking odd numbers from 3, clear its odd
     // multiples, repeat up to the square root of the size.
+    // The sweep direction alternates by factor: 3 goes up, the next factor down, and so on. A
+    // descending sweep clears the same composites, one single-bit OR each, stepping 2 x factor
+    // from the last multiple below the sieve end down to factor squared. Each sweep starts
+    // where the last one ended, so that end of the sieve is still in cache.
     fn run(self: *BaseSieve) void {
         const q = isqrt(self.size);
         var factor: usize = 3;
+        var down = false;
         while (factor <= q) {
             var i = factor >> 1;
             while (i < self.nbits and self.isComposite(i)) i += 1;
             factor = 2 * i + 1;
             if (factor > q) break;
-            self.clearFactor(factor);
+            self.clearFactor(factor, down);
+            down = !down;
             factor += 2;
         }
     }
