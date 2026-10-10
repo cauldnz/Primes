@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T08:24:51Z",
+  "updated_utc": "2026-10-10T08:31:28Z",
   "run": {
     "id": "ap-20261010T0715Z",
     "state": "running",
@@ -890,6 +890,14 @@
       "verdict": "running",
       "where": "Zen 5 D96as_v7",
       "note": "77aee8f by agent (image unbuilt locally). Local llvm-mca preview (znver4): Zig AVX-512 group loop 0.079 vs ISPC 0.136 cycles per word per member: 32-word steps, row addressing off one register (ISPC avx512 reloads 6 row pointers from the stack), unmasked loads, G=8. AVX2 loops equal on throughput"
+    },
+    {
+      "id": "wheel-group32",
+      "entry": "wheel",
+      "hypothesis": "avx512 fused group loop in Zig form: 32-word steps, unmasked, rows off one base register (target-specific)",
+      "verdict": "running",
+      "where": "Zen 5 D96as_v7; Zen 4 recheck",
+      "note": "5a68114 by agent; verified: avx2 and sse4 emit-asm identical to base, PRIMES_TEST exit 0, sweep 0 bad; local pinned 3 rounds +10% to +14% (agent 5 rounds +17%). mca znver4 0.136 -> 0.084 cycles per word per member, equal to Zig N=6"
     }
   ],
   "azure_queue": 0,
@@ -899,25 +907,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T07:18:03Z",
-      "level": "decision",
-      "text": "a-scale: Phase A on D96as_v7 (96 vCPUs), not the planned D128as_v7. Why: Batch in this region lists no 128-vCPU Zen 5 size: D96as_v7 is the largest (pool create for D128as_v7 failed: invalid vmSize). RUN-PLAN's report already asks for curves to 96 threads. The other 32 vCPUs of quota stay free for a Rust fall-off probe. Passed over: Zen 4 D96as_v6 (not the headline machine). Expect: our full-occupancy lead over Rust holds at 96 threads.",
-      "id": "a-scale",
-      "what": "Phase A on D96as_v7 (96 vCPUs), not the planned D128as_v7",
-      "why": "Batch in this region lists no 128-vCPU Zen 5 size: D96as_v7 is the largest (pool create for D128as_v7 failed: invalid vmSize). RUN-PLAN's report already asks for curves to 96 threads. The other 32 vCPUs of quota stay free for a Rust fall-off probe",
-      "instead": "Zen 4 D96as_v6 (not the headline machine)",
-      "expect": "our full-occupancy lead over Rust holds at 96 threads"
-    },
-    {
-      "utc": "2026-10-10T07:18:03Z",
-      "level": "decision",
-      "text": "idea1-affinity: fix the thread count first and ride it on the phase-A tasks as the candidate. Why: RUN-PLAN asks for idea 1 before phase A; a correctness fix with no expected speed change, so the A/A-style comparison on the 96-vCPU node doubles as its regression check. Expect: within 0.5% of the champion at every thread count.",
-      "id": "idea1-affinity",
-      "what": "fix the thread count first and ride it on the phase-A tasks as the candidate",
-      "why": "RUN-PLAN asks for idea 1 before phase A; a correctness fix with no expected speed change, so the A/A-style comparison on the 96-vCPU node doubles as its regression check",
-      "expect": "within 0.5% of the champion at every thread count"
-    },
     {
       "utc": "2026-10-10T07:18:03Z",
       "level": "decision",
@@ -1277,6 +1266,22 @@
       "why": "the preview's three AVX-512 causes, ready to submit as soon as the Zen 5 dump confirms Zig's native build takes the 512-bit path",
       "instead": "IDEAS 22-23 (wheel sparse pointer-and-mask, generated masks): the preview puts the sparse loop at a wash",
       "expect": "+2-4% at 1T on Zen 5, nothing on Zen 3"
+    },
+    {
+      "utc": "2026-10-10T08:31:28Z",
+      "level": "decision",
+      "text": "wheel-group32: submit on the 96-vCPU Zen 5 node, 6 rounds; Zen 4 (D16as_v5) recheck when the fleet is up; Zen 3 needs no run (AVX2 code identical). Why: local win in every round and a loop that now matches Zig's in the compiled code; target-specific rule: >= 2% on the AVX-512 machines. Passed over: waiting for the asm-wheel node dump first (the local build already shows the mechanism). Expect: +3-6% at 1T on Zen 5.",
+      "id": "wheel-group32",
+      "what": "submit on the 96-vCPU Zen 5 node, 6 rounds; Zen 4 (D16as_v5) recheck when the fleet is up; Zen 3 needs no run (AVX2 code identical)",
+      "why": "local win in every round and a loop that now matches Zig's in the compiled code; target-specific rule: >= 2% on the AVX-512 machines",
+      "instead": "waiting for the asm-wheel node dump first (the local build already shows the mechanism)",
+      "expect": "+3-6% at 1T on Zen 5"
+    },
+    {
+      "utc": "2026-10-10T08:31:28Z",
+      "level": "info",
+      "text": "wheel-group32 (wheel) running: avx512 fused group loop in Zig form: 32-word steps, unmasked, rows off one base register (target-specific)",
+      "auto": true
     }
   ],
   "research": {
