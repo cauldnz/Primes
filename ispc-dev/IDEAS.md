@@ -101,7 +101,7 @@ hc-014), shared pass counters (we have none).
 **Not allowed or grey; don't build:** interleaving two factors in the sparse loop (grey: the
 rules clear one factor's multiples at a time) [Gemini]; a thread-local bump arena that hands the
 same pages back every pass (state across passes) [Gemini]; huge pages beyond the sieve's own
-size [Grok]; segmentation (item 10).
+size [Grok]; segmentation (item 10: unblocked by Chris on 2026-10-11 as F2, on `hc/champion-grey` only; see RUN-PLAN.md).
 
 ## Fable ideation pass (workshop, 2026-10-10 19:10)
 
@@ -136,8 +136,8 @@ don't drop by at least 10% with the direction alternated, the L1 story is wrong.
 `PrimeC/solution_5/src/sieve_base.c` (`shakeSieve`, PR #995) is tagged `algorithm=base,
 faithful=yes` and sieves 32 KB blocks with every factor per block; GordonBGood says the
 maintainers refused segmentation. One of those is the precedent. If blocking is allowed, the
-sieve becomes L1-resident for every phase: **+30% or more at 1T, more under SMT.** Not built
-without Chris's OK (IDEAS 10). Chris: ask upstream about F1 and F2 in one issue, F1 first (it
+sieve becomes L1-resident for every phase: **+30% or more at 1T, more under SMT.** Chris (2026-10-11): build F1 and F2 anyway, on
+`hc/champion-grey`, and remove them if the maintainers say no (RUN-PLAN.md). Chris: ask upstream about F1 and F2 in one issue, F1 first (it
 keeps the outer loop and the stepping; F2 changes the loop nesting).
 
 ### F3. Wheel sparse loop: it is dispatch-bound, so count micro-ops, not stores
