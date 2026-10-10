@@ -35,6 +35,7 @@ extern "C" uniform int pthread_create(uniform int64 * uniform tid, void * unifor
                                       void * uniform fn, void * uniform arg);
 extern "C" uniform int pthread_join(uniform int64 tid, void * uniform * uniform ret);
 extern "C" uniform int get_nprocs();
+extern "C" uniform int mallopt(uniform int param, uniform int value);   // PROBE
 extern "C" uniform int sched_getaffinity(uniform int pid, uniform int64 size,
                                         uniform uint64 * uniform mask);
 extern "C" int8 * uniform getenv(const uniform int8 * uniform name);
@@ -376,6 +377,7 @@ export uniform int main() {
     if (env_int(n_test, 0) != 0) self_test();
 
     uniform int nthreads = clamp(hardware_threads(), 1, 1024);
+    mallopt(-8, nthreads);      // PROBE (IDEAS 20): M_ARENA_MAX = one glibc arena per thread
     uniform Job jobs[1024];
     uniform int64 tids[1024];
 
