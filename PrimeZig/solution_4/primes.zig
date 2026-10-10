@@ -5,7 +5,8 @@
 //  * cauldnz-zig-base: the base algorithm, one bit per odd number. Every composite is cleared
 //    by its own single-bit OR in the source. Factors below 128 use dense resetters generated at
 //    compile time, one per odd factor; larger factors use a byte resetter whose masks are
-//    compile-time constants chosen by p mod 16.
+//    compile-time constants chosen by p mod 16 and clear the sieve 16KB block by block
+//    (see RULES.md).
 //  * cauldnz-zig-wheel: a mod-30 wheel with 8 bit-planes, a 7*11 pattern tile, fused word
 //    patterns for primes below 256 and strided bit sets above. It ports the structure of the
 //    author's ISPC wheel entry (PrimeISPC/solution_1) to Zig vectors.
@@ -109,11 +110,26 @@ fn denseReset(comptime P: usize, w: []u64) void {
     if ((f >> 6) < len) ptr[f >> 6] &= ~(@as(u64, 1) << (f & 63));
 }
 
-// Sparse resetter over bytes for an odd factor p >= 128. In each run of p bytes the 8 odd
-// multiples sit at bit offsets p/2 + j*p (j = 0..7). Their bit-in-byte positions depend only on
-// E = p mod 16, so the masks are compile-time constants; the byte offsets are computed per
-// factor. A pointer walks the runs, one single-bit OR per composite.
-fn sparseReset(comptime E: usize, bytes: []u8, p: usize) void {
+// Sparse resetter over bytes for an odd factor p >= 128, one block of the sieve at a time. In
+// each run of p bytes the 8 odd multiples sit at bit offsets p/2 + j*p (j = 0..7), at byte
+// offsets o_j < p in ascending order. Their bit-in-byte positions depend only on E = p mod 16,
+// so the masks are compile-time constants; the byte offsets are computed per factor. A
+// factor's state is the run it has reached and the first of that run's 8 multiples it has not
+// cleared yet, so the next block carries on where this one stopped.
+const Sparse = struct {
+    p: usize, // the factor
+    c: usize, // byte offset of the current run, a multiple of p
+    j: usize, // next multiple in that run, 0..7
+
+    fn init(p: usize) Sparse {
+        // Start at the run holding p*p; the smaller multiples in it are composite too.
+        return .{ .p = p, .c = ((p * p / 2) / 8 / p) * p, .j = 0 };
+    }
+};
+
+// Clear f's multiples in the bytes below end_off, from where f stopped.
+fn sparseReset(comptime E: usize, bytes: [*]u8, f: *Sparse, end_off: usize) void {
+    const p = f.p;
     const h = p / 2;
     const o = [8]usize{ h >> 3, (h + p) >> 3, (h + 2 * p) >> 3, (h + 3 * p) >> 3, (h + 4 * p) >> 3, (h + 5 * p) >> 3, (h + 6 * p) >> 3, (h + 7 * p) >> 3 };
     const m = comptime blk: {
@@ -121,14 +137,25 @@ fn sparseReset(comptime E: usize, bytes: []u8, p: usize) void {
         for (0..8) |j| a[j] = @as(u8, 1) << @intCast((E / 2 + j * E) & 7);
         break :blk a;
     };
-    const first = ((p * p / 2) / 8 / p) * p;
-    if (first >= bytes.len) return;
-    var q: [*]u8 = bytes.ptr + first;
-    // Loop on the pointer, not a run count. With a count LLVM unrolled the loop 8 times and
-    // gave each of the 8 offsets its own pointer, adding 8 increments per run (16 instructions
-    // per 8 ORs instead of 11). Wrapping adds keep the trip count opaque, so it stays rolled.
-    const last = @intFromPtr(bytes.ptr) + bytes.len - p; // last address a whole run starts at
-    while (@intFromPtr(q) <= last) {
+    const end = @intFromPtr(bytes) + end_off;
+    var q: [*]u8 = bytes + f.c;
+    // Head: the rest of a run that the previous block's edge cut short.
+    if (f.j != 0) {
+        var j = f.j;
+        while (j < 8) : (j += 1) {
+            if (@intFromPtr(q) + o[j] >= end) {
+                f.j = j;
+                return;
+            }
+            q[o[j]] |= m[j]; // one composite
+        }
+        q += p;
+    }
+    // Whole runs inside the block. Loop on the pointer, not a run count. With a count LLVM
+    // unrolled the loop 8 times and gave each of the 8 offsets its own pointer, adding 8
+    // increments per run (16 instructions per 8 ORs instead of 11). Wrapping adds keep the
+    // trip count opaque, so it stays rolled.
+    while (@intFromPtr(q) + p <= end) {
         q[o[0]] |= m[0];
         q[o[1]] |= m[1];
         q[o[2]] |= m[2];
@@ -139,12 +166,24 @@ fn sparseReset(comptime E: usize, bytes: []u8, p: usize) void {
         q[o[7]] |= m[7];
         q = @ptrFromInt(@intFromPtr(q) +% p);
     }
-    const left = bytes.len - (@intFromPtr(q) - @intFromPtr(bytes.ptr)); // partial last run
+    // Tail: the part of the next run below end. Record where it stopped.
+    f.c = @intFromPtr(q) - @intFromPtr(bytes);
     inline for (0..8) |j| {
-        if (o[j] >= left) return;
+        if (@intFromPtr(q) + o[j] >= end) {
+            f.j = j;
+            return;
+        }
         q[o[j]] |= m[j];
     }
+    f.c += p; // the whole run fitted
+    f.j = 0;
 }
+
+// Sparse block size in bytes. 16KB leaves room in a 32KB or 48KB L1 cache for the factor list.
+const BLOCK_BYTES: usize = 16 * 1024;
+// The block size the sieve uses: BLOCK_BYTES unless PRIMES_BLOCK_KB says otherwise. main()
+// sets it once, before any sieve runs.
+var block_bytes: usize = BLOCK_BYTES;
 
 const BaseSieve = struct {
     alloc: Allocator,
@@ -169,29 +208,43 @@ const BaseSieve = struct {
         return (self.words[i >> 6] >> @intCast(i & 63)) & 1 != 0;
     }
 
-    fn clearFactor(self: *BaseSieve, p: usize) void {
-        if (p < DENSE_LIMIT) {
-            // Every odd factor below 128 has its own resetter, composite factors included,
-            // so nothing is assumed about which numbers are prime.
-            switch (p) {
-                inline 3...DENSE_LIMIT - 1 => |P| {
-                    if (P % 2 == 1) denseReset(P, self.words) else unreachable;
-                },
-                else => unreachable,
-            }
-            return;
+    fn clearDense(self: *BaseSieve, p: usize) void {
+        // Every odd factor below 128 has its own resetter, composite factors included, so
+        // nothing is assumed about which numbers are prime.
+        switch (p) {
+            inline 3...DENSE_LIMIT - 1 => |P| {
+                if (P % 2 == 1) denseReset(P, self.words) else unreachable;
+            },
+            else => unreachable,
         }
-        // The byte view of the words. Both supported targets are little-endian, so byte b
-        // bit k is bit 8b+k of the sieve.
-        const bytes = std.mem.sliceAsBytes(self.words);
-        switch (p & 15) {
-            inline 1, 3, 5, 7, 9, 11, 13, 15 => |E| sparseReset(E, bytes, p),
+    }
+
+    // Clear sparse factor f's multiples below byte end_off, from where it stopped. The byte
+    // view of the words: both supported targets are little-endian, so byte b bit k is bit
+    // 8b+k of the sieve.
+    fn clearSparse(self: *BaseSieve, f: *Sparse, end_off: usize) void {
+        const bytes: [*]u8 = @ptrCast(self.words.ptr);
+        switch (f.p & 15) {
+            inline 1, 3, 5, 7, 9, 11, 13, 15 => |E| sparseReset(E, bytes, f, end_off),
             else => unreachable,
         }
     }
 
     // The base algorithm: find the next prime by checking odd numbers from 3, clear its odd
-    // multiples, repeat up to the square root of the size.
+    // multiples, repeat up to the square root of the size. Factors below 128 clear the whole
+    // sieve one after another. Larger factors clear it block by block, as rogiervandam's base
+    // entry (PrimeC/solution_5, shakeSieve) does: for each block, every such factor clears its
+    // multiples inside the block, stepping 2 x factor, and carries its next position on to the
+    // following block. Each composite is still cleared by its own single-bit OR.
+    //
+    // The sparse factors are the ones the unblocked loop finds, collected as the outer loop
+    // runs over the first block. The scan for the next prime reads bits up to index q/2
+    // (factor q) and stops there or at the first prime before it; any bit it reads past q/2
+    // only ends the loop. The first block is made at least q/2 bits long, and each factor
+    // found clears its multiples in the first block before the scan moves on. So when the
+    // scan reaches a candidate, every smaller factor has already cleared every bit the scan
+    // can act on, as in the unblocked loop: it sees the same bits and finds the same factors.
+    // The later blocks hold no candidates, so the list is complete before they start.
     fn run(self: *BaseSieve) void {
         const q = isqrt(self.size);
         var factor: usize = 3;
@@ -199,9 +252,33 @@ const BaseSieve = struct {
             var i = factor >> 1;
             while (i < self.nbits and self.isComposite(i)) i += 1;
             factor = 2 * i + 1;
-            if (factor > q) break;
-            self.clearFactor(factor);
+            if (factor > q or factor >= DENSE_LIMIT) break;
+            self.clearDense(factor);
             factor += 2;
+        }
+        if (factor > q) return; // no sparse factors
+
+        // First block: the outer loop goes on, each sparse factor clearing up to first_end.
+        const nbytes = self.words.len * 8;
+        const first_end = @min(@max(block_bytes, (q >> 1) / 8 + 1), nbytes); // bits 0..q/2
+        // At most one factor per odd number from 129 to q.
+        const fs = self.alloc.alloc(Sparse, q / 2) catch fatal("out of memory");
+        defer self.alloc.free(fs);
+        var nf: usize = 0;
+        while (factor <= q) { // factor is the next prime
+            fs[nf] = Sparse.init(factor);
+            self.clearSparse(&fs[nf], first_end);
+            nf += 1;
+            var i = (factor + 2) >> 1;
+            while (i < self.nbits and self.isComposite(i)) i += 1;
+            factor = 2 * i + 1;
+        }
+
+        // Later blocks: every sparse factor in turn, carrying on from where it stopped.
+        var start = first_end;
+        while (start < nbytes) : (start += block_bytes) {
+            const end = @min(start + block_bytes, nbytes);
+            for (fs[0..nf]) |*f| self.clearSparse(f, end);
         }
     }
 
@@ -548,6 +625,11 @@ fn selfTest(comptime S: type, comptime name: []const u8, sizes: []const u64, exp
 }
 
 pub fn main() !void {
+    if (std.posix.getenv("PRIMES_BLOCK_KB")) |v| {
+        const kb = std.fmt.parseInt(usize, v, 10) catch fatal("PRIMES_BLOCK_KB is not a number");
+        block_bytes = @max(kb, 1) * 1024;
+    }
+
     if (std.posix.getenv("PRIMES_TEST")) |v| {
         if (!std.mem.eql(u8, v, "0") and v.len > 0) {
             const pow10 = [_]u64{ 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000 };
