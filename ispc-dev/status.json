@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T01:55:22Z",
+  "updated_utc": "2026-10-10T01:55:32Z",
   "run": {
     "id": "ap-20261010T0140Z",
     "state": "running",
@@ -13,7 +13,7 @@
     "ends_utc": "2026-10-10T05:40:00Z",
     "background_runs": 4,
     "last_tick_utc": "2026-10-10T01:54:57Z",
-    "wakeup": "trig_01SqJzPRytwiSkXEZEc5Km3k"
+    "wakeup": "trig_01LjZ74cXMdhidz9y3jFbbmU"
   },
   "current": {
     "id": "diag-base-phases",
