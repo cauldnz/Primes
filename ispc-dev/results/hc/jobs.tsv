@@ -81,3 +81,4 @@ id	pool	size	kind	outdir	submitted	state
 2148327426	hc-standard-d4ps-v6	Standard_D4ps_v6	base	ispc-dev/results/hc/f1-alternate-arm	2026-10-10T21:48:41Z	open
 214847347	hc-standard-d4ps-v6	Standard_D4ps_v6	base	ispc-dev/results/hc/f2-block-16-arm	2026-10-10T21:49:40Z	open
 2204221356	hc-standard-d32as-v7	Standard_D32as_v7	base	ispc-dev/results/hc/f5-addr64-z5	2026-10-10T22:04:32Z	open
+22045418581	hc-standard-d16a-v4	Standard_D16a_v4	wheel	ispc-dev/results/hc/idea12-v2-z3	2026-10-10T22:05:03Z	open
