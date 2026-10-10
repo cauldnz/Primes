@@ -37,16 +37,34 @@ SSE4-only Celeron and a Raspberry Pi 4. We have measured two of those five kinds
    | `PrimeCPP/solution_5` | davepl_array_optimized | all-threads line only |
    | `PrimeAssembly/solution_4` | (best faithful base line) | top ten on several runners |
 
-   How: build each from its own Dockerfile on upstream `drag-race` (pin the commit), one Batch
-   task per machine that runs all ten plus our base, interleaved, five counted rounds, 1T and
-   all threads. Zen 5 (`D16as_v7`) stands in for the Threadripper and Zen 3 (`D16a_v4`) for the
-   EPYC VM; Cobalt 100 for the Pi 4 where an entry builds on arm64. Output: a table of each
-   entry's passes in our harness against the official number, the rank in each, and the ratio.
-   A rank correlation that holds, and ratios within about 10% between neighbours, means the
-   harness is fit to judge. Where it isn't, say which entries move and why (thread count, SMT,
-   CPU model, compiler flags) before any experiment. Expect the build step to be the slow part:
-   cache the built images on the node and build once per pool. If an entry doesn't build in
-   20 minutes, drop it and say so.
+   How: build each from its own Dockerfile on upstream `drag-race` (pin the commit). Zen 5
+   (`D16as_v7`) stands in for the Threadripper and Zen 3 (`D16a_v4`) for the EPYC VM; Cobalt 100
+   for the Pi 4 where an entry builds on arm64 (Swift is AVX2-only: skip it there). Five counted
+   rounds plus a warm-up, interleaved, 1T and all threads; skip the half and quarter thread
+   counts here. Output: a table of each entry's passes in our harness against the official
+   number, the rank in each, and the ratio. A rank correlation that holds, and ratios within
+   about 10% between neighbours, means the harness is fit to judge. Where it isn't, say which
+   entries move and why (thread count, SMT, CPU model, compiler flags) before any experiment.
+
+   **Keep the overhead down** (Chris, 10:46). Pool start-up, node boot, image builds and idle
+   nodes are paid for but measure nothing. Rules for the sweep:
+   - **No separate pools.** The sweep is the first task on the run's own pools, one node per
+     machine type, so its boot and start task are shared with the rest of the run. The nodes
+     stay up for priority 1; nothing scales down between the sweep and the profiling.
+   - **One task per machine.** One task builds and runs every entry on its node, so each machine
+     boots once. Don't fan the entries out across nodes: the sweep needs about 15 minutes of
+     measuring per machine, less than a second boot and build would cost.
+   - **Build in parallel, once per node.** Pull the base images and build the entries four at a
+     time (`xargs -P 4`). The start task already builds Rust and davepl's C++; reuse those
+     images. If an entry doesn't build in 20 minutes, drop it and say so.
+   - **Don't share images across CPU types.** Several entries compile for the build machine's CPU
+     (`-march=native` and similar), as the official runners do. An image built on Zen 3 and run
+     on Zen 5 would lose AVX-512 and understate the entry. Build on each machine type.
+   - **Stream results as they come**, one entry and round at a time, so a pre-empted node's
+     rounds can be salvaged rather than rerun.
+   - **Account for it.** Report node-minutes for the sweep split into boot and start task,
+     builds, measuring and idle, from the task log and the cost log. Aim for measuring to be at
+     least 60% of the sweep's node-minutes. Spend for the sweep should be well under NZ$2.
 
 1. **Profile the base on every machine first** (harness backlog item 1, still open for base):
    phases for ours and Rust on one node each, Zen 3, Zen 5 and Cobalt 100. Every later
