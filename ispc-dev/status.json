@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T01:54:57Z",
+  "updated_utc": "2026-10-10T01:55:22Z",
   "run": {
     "id": "ap-20261010T0140Z",
     "state": "running",
@@ -8,12 +8,12 @@
     "mode_reason": "Chris kicked off a 4-hour base-first run (RUN-PLAN.md) in this session; Azure login works.",
     "started_utc": "2026-10-10T01:40:00Z",
     "time_box_hours": 4,
-    "spend_nzd": 0.07,
+    "spend_nzd": 0.15,
     "spend_cap_nzd": 30,
     "ends_utc": "2026-10-10T05:40:00Z",
     "background_runs": 4,
     "last_tick_utc": "2026-10-10T01:54:57Z",
-    "wakeup": "trig_01NRqjjEuEtiPG2pGh38vhAP"
+    "wakeup": "trig_01SqJzPRytwiSkXEZEc5Km3k"
   },
   "current": {
     "id": "diag-base-phases",
@@ -688,21 +688,6 @@
   ],
   "events": [
     {
-      "utc": "2026-10-09T09:12:23Z",
-      "level": "info",
-      "text": "hc-015 KEPT and merged: wheel sparse loop without the spill, +5% to +7% on Zen 3 and Zen 5 at 1T and 16T."
-    },
-    {
-      "utc": "2026-10-09T09:26:09Z",
-      "level": "info",
-      "text": "hc-016 KEPT and merged: wheel without lead-ins, +5% Zen 3, +2.6% Zen 5."
-    },
-    {
-      "utc": "2026-10-09T09:30:07Z",
-      "level": "info",
-      "text": "hc-017 rejected (dense 160 slower). hc-019 measures the target-specific pair on the current champion."
-    },
-    {
       "utc": "2026-10-09T09:49:06Z",
       "level": "info",
       "text": "Experiments frozen except hc-018/019 finishing. Final scoreboard runs starting (both entries; Zen 3, Zen 4 AVX-512, Zen 5, Cobalt 100)."
@@ -951,6 +936,21 @@
       "level": "info",
       "text": "diag-base-phases: evaluate. profiles queued on Zen 5 and D16as_v5; stand-in jobs in round 1",
       "auto": true
+    },
+    {
+      "utc": "2026-10-10T01:55:22Z",
+      "level": "info",
+      "text": "Dry run check 4 passed: the send_later wake-up fired at 01:54 and this tick carried on from git and Batch alone."
+    },
+    {
+      "utc": "2026-10-10T01:55:22Z",
+      "level": "info",
+      "text": "Dry run check 3 passed: tally's node-minutes reach the page (NZ$0.07, now NZ$0.15). One tally call hit a transient connection reset; a retry worked."
+    },
+    {
+      "utc": "2026-10-10T01:55:22Z",
+      "level": "info",
+      "text": "Tick 2: stand-in jobs in round 3 of 6; profiles starting. Next tick 02:05 UTC. Check 2 (final output from blob storage) waits for the first job to end."
     }
   ],
   "research": {
