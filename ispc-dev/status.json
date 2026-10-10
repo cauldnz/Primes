@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T07:49:45Z",
+  "updated_utc": "2026-10-10T07:53:35Z",
   "run": {
     "id": "ap-20261010T0715Z",
     "state": "running",
@@ -769,15 +769,15 @@
       "hypothesis": "Phase A scaling curve on the largest Zen 5 node: ours, Rust, davepl, Zig base; ours, C5, dsp, Zig wheel; 1 to 96 threads",
       "verdict": "running",
       "where": "Zen 5 D96as_v7",
-      "note": "base task done (4 rounds, D96as_v7, noisy: A/A spread up to 7.4% at 1T). Ours / Rust / davepl: 1T 120.6k / 125.4k / 86.1k; 48T 4.18M / 3.24M (Rust 48) ; 96T 4.24M / 3.83M / 3.19M. Ours +29% over Rust at 48 threads but only +11% at 96: ours gains 1% from 48 to 96 threads, Rust 18%. Wheel and Zig tasks still running"
+      "note": "wheel task done (D96as_v7 = 48 cores x 2 SMT): ours 1T 191k, 24T 4.51M, 48T 7.76M, 96T 7.27M (SMT costs 6%); C5 epar 48T 4.37M, 96T 5.16M (+18% from SMT); dsp epar 96T 2.27M. Ours leads C5 by 41% at 96T and 78% at 48T. Base on this node: SMT adds 1.4% (vs 8% on the 32-vCPU node). Zig tasks still running"
     },
     {
       "id": "rust-falloff",
       "entry": "base",
       "hypothesis": "Why Rust falls off at threads = vCPUs: ours (taskset, sized from the affinity mask) vs Rust -t K pinned and unpinned, K = N/2, N-2, N-1, N on a 32-vCPU Zen 5",
-      "verdict": "running",
+      "verdict": "done",
       "where": "Zen 5 D32as_v7",
-      "note": "diag branch hc/diag-rust-falloff (never merged), 3 rounds; also prints lscpu threads per core"
+      "note": "D32as_v7 is 16 cores x 2 SMT (lscpu). Unpinned 16 threads (one per core): ours 1.64M, Rust 1.60M (+3%). 32 threads (SMT): ours 1.77M (+8% from SMT), Rust 1.55M (-3%): the full-occupancy lead is ours gaining from SMT while Rust does not. Rust pinned to 32 CPUs 1.51M vs unpinned 1.55M, and 30 or 31 threads no better: not scheduling or the main thread. Azure numbers SMT siblings adjacently (taskset 0-15 at 16 threads: ours 0.99M, i.e. 8 cores)"
     },
     {
       "id": "port-rust-wheel",
@@ -843,38 +843,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T03:05:55Z",
-      "level": "info",
-      "text": "p5-sse4x8 (base) running: sse4-i32x8 beats sse4-i32x4 for the SSE4-only Celeron path",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T03:10:01Z",
-      "level": "decision",
-      "text": "asm-sparse: No change to our sparse inner loop; park priority 3 (Zen 5 1T vs Swift) for this run. Why: compiled loops verified against the dump: one byte RMW per composite in all three entries, which is the floor under the base rules for p >= 113; ours equals Rust's instruction for instruction and beats Swift's (spill reloads). A 2x-unrolled variant screened no better (0.71 vs 0.67 cyc/bit). Any remaining sparse gain is in the memory system, which needs perf counters, not a code change. Passed over: cache-blocking the sparse primes (changes the outer loop shape; rules risk) and an AVX-512 scatter-OR (likely slow on Zen). Expect: next run: one perf-counter task (stores per cycle, L1D misses in the sparse phase) to tell the store limit from L2 waits.",
-      "id": "asm-sparse",
-      "what": "No change to our sparse inner loop; park priority 3 (Zen 5 1T vs Swift) for this run",
-      "why": "compiled loops verified against the dump: one byte RMW per composite in all three entries, which is the floor under the base rules for p >= 113; ours equals Rust's instruction for instruction and beats Swift's (spill reloads). A 2x-unrolled variant screened no better (0.71 vs 0.67 cyc/bit). Any remaining sparse gain is in the memory system, which needs perf counters, not a code change",
-      "instead": "cache-blocking the sparse primes (changes the outer loop shape; rules risk) and an AVX-512 scatter-OR (likely slow on Zen)",
-      "expect": "next run: one perf-counter task (stores per cycle, L1D misses in the sparse phase) to tell the store limit from L2 waits"
-    },
-    {
-      "utc": "2026-10-10T03:10:05Z",
-      "level": "info",
-      "text": "asm-sparse done. Zen 5. results/hc/asm-sparse/README.md: ours and Rust compile to the same 12-insn loop (8 orb RMW per 8 bits, 1 store per bit); Swift 25 insns per 16 bits with 6 spilled pointer reloads (1.44 loads/bit). llvm-mca znver4 screen: 0.67 / 0.67 / 0.81 cycles per bit; Swift 1.17x ours per composite measured",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T03:20:13Z",
-      "level": "decision",
-      "text": "p4-arm-dense: KEEP; merge into hc/champion (fast-forward to 37e19c7) waits for Chris because the push was blocked by the session's permission check. Why: target-specific rule (HILL-CLIMB): the lower bound +2.2% clears the 2% bar on the only machine whose code changes, and --emit-asm for all three x86 targets is identical to the champion's; this Cobalt 100 A/B is the arm64 gate. Chris's D16as_v5 recheck is met by identity: the x86 code is byte-identical, so a timing run there would measure only noise. Passed over: a D16as_v5 timing task (re-creating that pool for a run that cannot differ). Expect: Rust's lead on Cobalt 100 falls from 4.3% to about 1.9%; follow-up: NEON pass-3 buffer init (hc-026 style).",
-      "id": "p4-arm-dense",
-      "what": "KEEP; merge into hc/champion (fast-forward to 37e19c7) waits for Chris because the push was blocked by the session's permission check",
-      "why": "target-specific rule (HILL-CLIMB): the lower bound +2.2% clears the 2% bar on the only machine whose code changes, and --emit-asm for all three x86 targets is identical to the champion's; this Cobalt 100 A/B is the arm64 gate. Chris's D16as_v5 recheck is met by identity: the x86 code is byte-identical, so a timing run there would measure only noise",
-      "instead": "a D16as_v5 timing task (re-creating that pool for a run that cannot differ)",
-      "expect": "Rust's lead on Cobalt 100 falls from 4.3% to about 1.9%; follow-up: NEON pass-3 buffer init (hc-026 style)"
-    },
     {
       "utc": "2026-10-10T03:20:54Z",
       "level": "info",
@@ -1216,6 +1184,39 @@
       "utc": "2026-10-10T07:47:21Z",
       "level": "info",
       "text": "port-cpp-wheel queued. local. c7c3255 after tuning: sparse primes were the gap (GCC spilled the eight-plane stream indices); four planes at a time fixed it. Verified: PRIMES_TEST=1 exit 0, 5,396-size sweep 0 bad (sweep_check.py), 1T pinned locally 108k/97k vs ISPC 107k/109k (level, not the +10% the agent saw). Measured via hc/meas-cpp-wheel",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T07:53:35Z",
+      "level": "decision",
+      "text": "rust-falloff: Rust does not fall off; it gains nothing from SMT, and we gain 8% from it on the 32-vCPU node: that is the full-occupancy lead. Why: the probe ruled out scheduling (pinned equal to unpinned) and the main thread (N-1 no better); lscpu shows 2 threads per core, so threads = vCPUs is the SMT line. In README terms: our sieve leaves enough of each core idle that a second hardware thread fills it; Rust's does not. Expect: next: per-phase profile at 16 vs 32 threads to name which phase gains from SMT.",
+      "id": "rust-falloff",
+      "what": "Rust does not fall off; it gains nothing from SMT, and we gain 8% from it on the 32-vCPU node: that is the full-occupancy lead",
+      "why": "the probe ruled out scheduling (pinned equal to unpinned) and the main thread (N-1 no better); lscpu shows 2 threads per core, so threads = vCPUs is the SMT line. In README terms: our sieve leaves enough of each core idle that a second hardware thread fills it; Rust's does not",
+      "expect": "next: per-phase profile at 16 vs 32 threads to name which phase gains from SMT"
+    },
+    {
+      "utc": "2026-10-10T07:53:35Z",
+      "level": "decision",
+      "text": "idea2-pin: cancelled the first pin task (never ran) and re-queued a topology-aware version on both SMT nodes. Why: Azure numbers SMT siblings adjacently, so packing threads onto the first CPUs put the half-thread line two to a core; the fix reads thread_siblings_list and orders each core's first hardware thread first. Expect: pinned at least level with unpinned at all three lines.",
+      "id": "idea2-pin",
+      "what": "cancelled the first pin task (never ran) and re-queued a topology-aware version on both SMT nodes",
+      "why": "Azure numbers SMT siblings adjacently, so packing threads onto the first CPUs put the half-thread line two to a core; the fix reads thread_siblings_list and orders each core's first hardware thread first",
+      "expect": "pinned at least level with unpinned at all three lines"
+    },
+    {
+      "utc": "2026-10-10T07:53:35Z",
+      "level": "decision",
+      "text": "a-scale: the wheel loses 6% to SMT at 96 threads on the 48-core node (base gains 1.4%); our half-thread line, one thread per core, carries the wheel on SMT machines. Why: C5 gains 18% from SMT; working-set or code footprint per core (IDEAS 5-6) is the obvious suspect, worst for the wheel's planes and patterns. Expect: test IDEAS 6 (avx2-i64x4, smaller code) at threads = vCPUs.",
+      "id": "a-scale",
+      "what": "the wheel loses 6% to SMT at 96 threads on the 48-core node (base gains 1.4%); our half-thread line, one thread per core, carries the wheel on SMT machines",
+      "why": "C5 gains 18% from SMT; working-set or code footprint per core (IDEAS 5-6) is the obvious suspect, worst for the wheel's planes and patterns",
+      "expect": "test IDEAS 6 (avx2-i64x4, smaller code) at threads = vCPUs"
+    },
+    {
+      "utc": "2026-10-10T07:53:35Z",
+      "level": "info",
+      "text": "rust-falloff done. Zen 5 D32as_v7. D32as_v7 is 16 cores x 2 SMT (lscpu). Unpinned 16 threads (one per core): ours 1.64M, Rust 1.60M (+3%). 32 threads (SMT): ours 1.77M (+8% from SMT), Rust 1.55M (-3%): the full-occupancy lead is ours gaining from SMT while Rust does not. Rust pinned to 32 CPUs 1.51M vs unpinned 1.55M, and 30 or 31 threads no better: not scheduling or the main thread. Azure numbers SMT siblings adjacently (taskset 0-15 at 16 threads: ours 0.99M, i.e. 8 cores)",
       "auto": true
     }
   ],
