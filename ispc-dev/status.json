@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T02:38:27Z",
+  "updated_utc": "2026-10-10T02:39:27Z",
   "run": {
     "id": "ap-20261010T0140Z",
     "state": "running",
@@ -726,11 +726,6 @@
   ],
   "events": [
     {
-      "utc": "2026-10-09T13:14:08Z",
-      "level": "info",
-      "text": "Final wheel: +24.6% Zen 3, +15.5% Zen 4, +27.2% Zen 5, +49.2% Cobalt 100 at 1T against the start of the run. Leads C5 by 55%, 19% and 37% at 1T."
-    },
-    {
       "utc": "2026-10-09T13:27:36Z",
       "level": "info",
       "text": "Zig base z-04 kept: +15.5% Zen 3, +9.1% Zen 5 at 1T. Zig base now within 1.5-3% of the ISPC base."
@@ -1033,6 +1028,15 @@
       "level": "info",
       "text": "asm-sparse (base) running: Compiled sparse loops of Swift, Rust and our base on one Zen 5 node",
       "auto": true
+    },
+    {
+      "utc": "2026-10-10T02:39:27Z",
+      "level": "decision",
+      "text": "diag-swift-phases: accept the Swift diagnostic and run it on Zen 5 against our ISPC diagnostic, one round. Why: The commit touches only the PrimeISPC/solution_2 slot and keeps upstream's Swift flags (haswell target, -O, WMO). It times dense and sparse as blocks (factors below and above 112), so scan reads near zero and the candidate bit-tests fall into dense and sparse; compare dense+sparse+scan totals with ours. Expect: Swift's dense and sparse against ours, ns per pass.",
+      "id": "diag-swift-phases",
+      "what": "accept the Swift diagnostic and run it on Zen 5 against our ISPC diagnostic, one round",
+      "why": "The commit touches only the PrimeISPC/solution_2 slot and keeps upstream's Swift flags (haswell target, -O, WMO). It times dense and sparse as blocks (factors below and above 112), so scan reads near zero and the candidate bit-tests fall into dense and sparse; compare dense+sparse+scan totals with ours.",
+      "expect": "Swift's dense and sparse against ours, ns per pass"
     }
   ],
   "research": {
