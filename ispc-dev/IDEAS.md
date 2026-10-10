@@ -102,3 +102,89 @@ hc-014), shared pass counters (we have none).
 rules clear one factor's multiples at a time) [Gemini]; a thread-local bump arena that hands the
 same pages back every pass (state across passes) [Gemini]; huge pages beyond the sieve's own
 size [Grok]; segmentation (item 10).
+
+## Fable ideation pass (workshop, 2026-10-10 19:10)
+
+Grounded in: the 96-vCPU phase profile (1/24/48/96 threads), the sparse-loop assembly
+side-by-side, the champion base compiled here (`avx512skx-x8`), the wheel's compiled sparse
+loop, the rules text, and an LRU simulation. Tag these [Fable] in the ledger.
+
+**The diagnosis that the ideas hang off.** The 62.5 KB sieve doesn't fit Zen 5's 48 KB L1D, and
+every phase sweeps it top to bottom. Under LRU a monotone sweep of a working set larger than the
+cache hits 0% (simulated: 0% for 977 lines through 768 line slots). So every dense sweep (31 per
+pass) and every sparse line touch (about 100k per pass, 0.8 per composite) is an L2 fill plus a
+writeback. Sparse at 1T: about 0.65 core cycles per composite against a 0.5 store-port floor;
+the rest is L2 traffic. Under SMT the two sieves share one L2 port, so sparse gains nothing
+(measured −9%); dense has slack and gains (+13%). Rust is identical, instruction for
+instruction. The base entry at 1T is at the L2 wall, not the store wall, and so is everyone.
+
+### F1. Alternate the sweep direction per factor (base: rules question; wheel: do it)
+Sweep factor k upward and factor k+1 downward (both the dense chunk loop and the sparse chunk
+loop; each stream just runs from its last chunk to its first). The tail of one sweep is the
+head of the next, so it is still in L1. LRU simulation, 31 sweeps of 977 lines through a
+768-line L1: hit rate 0% monotone, **76% alternating**. Expect sparse to fall from about 61k
+towards the store floor (about 45k TSC cycles) and dense to fall too: **+10% to +20% at 1T on
+Zen 5**, more under SMT where L2 is shared. Rules: the base text says "clears all non-primes
+individually, increasing the number with 2 × factor on each cycle". A downward sweep steps by
+2 × factor but decreasing. Grey. **Build and measure it as a probe on `hc/boustrophedon`, then
+Chris asks the maintainers with the number in hand.** For the wheel there is no rules question:
+planes are 33 KB (fits L1 at 1T, not under SMT), so alternate per group pass and per sparse
+prime; expect about 0 at 1T and +3% to +6% at 96 threads. Falsify: if sparse cycles at 1T
+don't drop by at least 10% with the direction alternated, the L1 story is wrong.
+
+### F2. Blocking (rogiervandam's merged base entry): the other rules question
+`PrimeC/solution_5/src/sieve_base.c` (`shakeSieve`, PR #995) is tagged `algorithm=base,
+faithful=yes` and sieves 32 KB blocks with every factor per block; GordonBGood says the
+maintainers refused segmentation. One of those is the precedent. If blocking is allowed, the
+sieve becomes L1-resident for every phase: **+30% or more at 1T, more under SMT.** Not built
+without Chris's OK (IDEAS 10). Chris: ask upstream about F1 and F2 in one issue, F1 first (it
+keeps the outer loop and the stepping; F2 changes the loop nesting).
+
+### F3. Wheel sparse loop: it is dispatch-bound, so count micro-ops, not stores
+Compiled (`avx512skx-x16`, `--addressing=64`): per mark `sar` + `shlx` + `or mem` (RMW, about
+3 µops) + `add`, about 51 µops per 8 marks, 6.4 cycles at 8-wide dispatch = 0.8 cycles/mark;
+measured about 0.74 core cycles/mark. Zig's 0.60 means about 4.8 µops/mark. The asm-wheel dump
+should show where Zig saves: an `or` that isn't RMW-form, a cheaper word index, or fewer loop
+µops. Note `shlx` already masks the count (no `and $63`). A scatter/gather form (8 marks per
+instruction) is 40+ µops on Zen and not worth it. Expect the dump to name the µop; then one
+change. This also explains why the wheel loses 6% to SMT: dispatch-bound code gains nothing
+from a sibling.
+
+### F4. `PRIMES_DENSE_MAX` sweep for the wheel: 384, 512, 640 (runtime env var; no build)
+hc-035 and hc-045 changed the costs on both sides of the breakeven. Group pass cost per prime
+is about 150 cycles plus the pattern build; sparse costs about 197k/p. Expect flat to +2%.
+
+### F5. Base dense: `--addressing=64` (one flag) and the x16 fold
+The compiled dense loop spends 2 of 8 instructions per vector on `leal`/`movslq` (32-bit index
+sign-extension). hc-006 judged the flag on the sparse loop, not dense. Expect 0 to +2% at 1T.
+Separately, the `avx512skx-x8` target emits two 256-bit ops per 8-word vector; a target that
+folds the masks into 512-bit ops would halve dense store issue. `avx512skx-x16` failed to fold
+(ledger note after hc-002), probably compile-time blow-up over 16 lanes, not a hard limit: an
+agent task. Expect 0 to +8% at 1T on AVX-512 machines only; dense gains 13% from SMT so it has
+slack. Rules: yes (same per-composite source ORs).
+
+### F6. AVX-512 off at 96 threads on the 96-vCPU node (power, not instructions)
+At 32 threads AVX-512 off cost 2%. On a near-whole socket the all-core clock is power-limited,
+and 512-bit ops draw more: the AVX2-only build may run a higher all-core clock for every phase.
+The Threadripper is bare metal and power-limited; the EPYC runner is AVX2 anyway. Expect −2% to
++4% at 96 threads; if positive, the submission could pick the AVX2 path at all threads and
+AVX-512 at 1T (two dispatch sets; honest tags either way). Cheap: the build exists.
+
+### F7. Next-prime scan, branchless (4% of the pass, about 168 mispredicts)
+hc-009 lost 1.4%, which is odd for a `tzcnt` scan over 8 words. Worth one careful retry only
+after F1–F6; ceiling +3%.
+
+### What not to do (from this pass)
+- Interleave two factors' sweeps (grey; same L2 traffic anyway).
+- Software prefetch of all 8 lines per chunk: 8 extra AGU ops per chunk makes the loop
+  AGU-bound (16 → 24 ops per 8 composites). If IDEAS 21 is built, prefetch at most 2 lines per
+  chunk and only for p < 512, where chunk lines are shared by several ORs.
+- Scatter/gather for the wheel's sparse marks.
+- Striped layouts: Swift's is plain packed bits; its Threadripper number is machine-specific.
+
+### For the PR and the write-up
+"At one thread the leading base entries are all bound by L2 traffic that the rules fix: every
+factor sweeps a sieve larger than L1. Our compiled sparse loop is Rust's, instruction for
+instruction; the remaining 1–3% is the machine. The all-threads race is decided by what each
+entry leaves for a sibling hardware thread." That is a claim a reviewer can check from
+`results/hc/asm-sparse/README.md` and `results/hc/mt-phases-96/`.
