@@ -116,3 +116,181 @@ cauldnz-ispc-base;375028;5.000558;16;algorithm=base,faithful=yes,bits=1
 cauldnz-ispc-base;456528;5.000160;8;algorithm=base,faithful=yes,bits=1
 cauldnz-ispc-base;229131;5.000120;4;algorithm=base,faithful=yes,bits=1
 == round 1 champ2
+cauldnz-ispc-base;57601;5.000064;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;380345;5.000316;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;457501;5.000268;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;228696;5.000126;4;algorithm=base,faithful=yes,bits=1
+== round 1 ctrl2
+davepl_array_optimized;39454;5.00023;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;327526;5.00038;16;algorithm=base,faithful=yes,bits=1
+== round 2 champ2
+cauldnz-ispc-base;57427;5.000052;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;380502;5.000311;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;458474;5.000138;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;229617;5.000068;4;algorithm=base,faithful=yes,bits=1
+== round 2 champ
+cauldnz-ispc-base;57452;5.000048;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;381402;5.000349;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;460411;5.000174;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;229790;5.000100;4;algorithm=base,faithful=yes,bits=1
+== round 2 ctrl
+mike-barber_bit-extreme-hybrid;55639;5.0000653267;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;222324;5.0001778603;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;444954;5.0002479553;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;374010;5.0004329681;16;algorithm=base,faithful=yes,bits=1
+== round 2 cand
+diag;lscpu;Model name;Intel(R) Xeon(R) Platinum 8370C CPU @ 2.80GHz
+diag;lscpu;CPU(s);16
+diag;lscpu;Thread(s) per core;2
+diag;lscpu;Core(s) per socket;8
+diag;lscpu;Socket(s);1
+diag;flags;avx2;yes
+diag;flags;avx512f;yes
+diag;build;all entries built for skylake / avx2 only
+cauldnz-ispc-base;57283;5.000037;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;377299;5.000291;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;454862;5.000161;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;227544;5.000150;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc;108476;5.000007;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;798848;5.000221;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;859858;5.000137;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;430816;5.000118;4;algorithm=wheel,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;55743;5.0000367165;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;221476;5.0002322197;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;442906;5.0002284050;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;368737;5.0004062653;16;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;40437;5.0002;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;336549;5.00038;16;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;57686;5.000054;1;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;368155;5.000911;16;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;448060;5.000423;8;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;222679;5.000395;4;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-wheel;119176;5.000036;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;871626;5.000704;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;952491;5.000359;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;476214;5.000277;4;algorithm=wheel,faithful=yes,bits=1
+rogiervandam_extend_epar;602383;5.000042;16;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;648719;5.000031;8;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;324147;5.000019;4;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;162037;5.000007;2;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend;81490;5.000005;1;algorithm=other,faithful=yes,bits=1
+rogiervandam_base;20033;5.000081;1;algorithm=base,faithful=yes,bits=1
+rogiervandam_classic64bit;7681;5.000307;1;algorithm=base,faithful=yes,bits=1
+rogiervandam_classic8bit;8793;5.000065;1;algorithm=base,faithful=yes,bits=1
+== round 2 ctrl2
+davepl_array_optimized;39483;5.00025;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;324971;5.00051;16;algorithm=base,faithful=yes,bits=1
+== round 3 cand
+diag;lscpu;Model name;Intel(R) Xeon(R) Platinum 8370C CPU @ 2.80GHz
+diag;lscpu;CPU(s);16
+diag;lscpu;Thread(s) per core;2
+diag;lscpu;Core(s) per socket;8
+diag;lscpu;Socket(s);1
+diag;flags;avx2;yes
+diag;flags;avx512f;yes
+diag;build;all entries built for skylake / avx2 only
+cauldnz-ispc-base;57354;5.000037;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;373942;5.000324;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;453989;5.000164;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;226847;5.000125;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc;108082;5.000013;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;796851;5.000221;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;863368;5.000163;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;430518;5.000090;4;algorithm=wheel,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;55734;5.0000782013;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;221692;5.0001082420;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;443859;5.0002532005;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;372598;5.0004882812;16;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;40485;5.00047;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;336476;5.00038;16;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;57689;5.000086;1;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;374788;5.000855;16;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;456076;5.000395;8;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;226986;5.000334;4;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-wheel;119424;5.000056;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;878055;5.000732;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;953127;5.000379;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;476325;5.000231;4;algorithm=wheel,faithful=yes,bits=1
+rogiervandam_extend_epar;617865;5.000062;16;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;649959;5.000031;8;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;324407;5.000019;4;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;161903;5.000001;2;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend;81450;5.000051;1;algorithm=other,faithful=yes,bits=1
+rogiervandam_base;20039;5.000115;1;algorithm=base,faithful=yes,bits=1
+rogiervandam_classic64bit;7677;5.000546;1;algorithm=base,faithful=yes,bits=1
+rogiervandam_classic8bit;8795;5.000484;1;algorithm=base,faithful=yes,bits=1
+== round 3 ctrl2
+davepl_array_optimized;39382;5.00022;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;328998;5.00093;16;algorithm=base,faithful=yes,bits=1
+== round 3 ctrl
+mike-barber_bit-extreme-hybrid;55703;5.0000314713;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;220113;5.0000996590;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;443795;5.0002169609;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;372418;5.0004954338;16;algorithm=base,faithful=yes,bits=1
+== round 3 champ2
+cauldnz-ispc-base;57477;5.000057;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;379844;5.000336;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;455542;5.000172;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;229541;5.000092;4;algorithm=base,faithful=yes,bits=1
+== round 3 champ
+cauldnz-ispc-base;57496;5.000056;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;380271;5.000290;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;459272;5.000115;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;228820;5.000161;4;algorithm=base,faithful=yes,bits=1
+== round 4 champ2
+cauldnz-ispc-base;57578;5.000018;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;380640;5.000309;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;459458;5.000129;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;229417;5.000168;4;algorithm=base,faithful=yes,bits=1
+== round 4 champ
+cauldnz-ispc-base;57464;5.000036;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;377852;5.000348;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;457977;5.000119;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;228662;5.000078;4;algorithm=base,faithful=yes,bits=1
+== round 4 ctrl2
+davepl_array_optimized;39674;5.00016;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;326487;5.00083;16;algorithm=base,faithful=yes,bits=1
+== round 4 ctrl
+mike-barber_bit-extreme-hybrid;55669;5.0000691414;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;221521;5.0001697540;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;443269;5.0002050400;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;373952;5.0004057884;16;algorithm=base,faithful=yes,bits=1
+== round 4 cand
+diag;lscpu;Model name;Intel(R) Xeon(R) Platinum 8370C CPU @ 2.80GHz
+diag;lscpu;CPU(s);16
+diag;lscpu;Thread(s) per core;2
+diag;lscpu;Core(s) per socket;8
+diag;lscpu;Socket(s);1
+diag;flags;avx2;yes
+diag;flags;avx512f;yes
+diag;build;all entries built for skylake / avx2 only
+cauldnz-ispc-base;57440;5.000076;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;378747;5.000304;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;458015;5.000121;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;229065;5.000127;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc;108575;5.000020;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;801502;5.000227;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;864080;5.000135;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;432817;5.000108;4;algorithm=wheel,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;55664;5.0000014305;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;222084;5.0001649857;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;443456;5.0002756119;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;372768;5.0004124641;16;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;40461;5.00025;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;336600;5.00135;16;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;57687;5.000032;1;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;375357;5.000949;16;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;455564;5.000721;8;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-base;228280;5.000410;4;algorithm=base,faithful=yes,bits=1
+cauldnz-zig-wheel;118851;5.000056;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;871571;5.000694;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;948332;5.000335;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;476201;5.000248;4;algorithm=wheel,faithful=yes,bits=1
+rogiervandam_extend_epar;603751;5.000063;16;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;649953;5.000026;8;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;324727;5.000013;4;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;161985;5.000044;2;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend;81401;5.000011;1;algorithm=other,faithful=yes,bits=1
+rogiervandam_base;20045;5.000034;1;algorithm=base,faithful=yes,bits=1
+rogiervandam_classic64bit;7677;5.000622;1;algorithm=base,faithful=yes,bits=1
+rogiervandam_classic8bit;8764;5.000148;1;algorithm=base,faithful=yes,bits=1
