@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T23:46:36Z",
+  "updated_utc": "2026-10-10T23:47:23Z",
   "run": {
     "id": "ap-20261010T2040Z",
     "state": "running",
@@ -13,7 +13,7 @@
     "ends_utc": "2026-10-11T00:40:00Z",
     "background_runs": 5,
     "last_tick_utc": "2026-10-10T23:46:36Z",
-    "wakeup": "2026-10-10T23:45:00Z trig_01ANaet9wWDQBNTyEGbmfpAf"
+    "wakeup": "2026-10-11T00:08:00Z trig_012txAD9P45CVorzaFHa24ZP"
   },
   "current": null,
   "scoreboard": [
@@ -1022,7 +1022,7 @@
       "id": "f6-no512",
       "entry": "wheel and base",
       "hypothesis": "IDEAS F6: AVX-512 target off may hold a higher all-core clock at 96T; expect -2% to +4% at 96T",
-      "verdict": "running",
+      "verdict": "cancelled (no time on the 96-vCPU node)",
       "where": "Zen 5 D96as_v7 vs champion, 4 rounds each kind",
       "note": "hc/f6-no512 d6feacb: build.sh only (both entries), self-tests 0; probe, not for merge as is"
     },
@@ -1030,9 +1030,9 @@
       "id": "zig-f1",
       "entry": "Zig base (port, grey)",
       "hypothesis": "F1 ported to the Zig base",
-      "verdict": "running",
+      "verdict": "KEEP (grey, hc/zig-champion-grey)",
       "where": "Zen 5 D16as_v7, Zen 3 vs hc/zig-submission, 6 rounds",
-      "note": "72e5b42 (agent): PRIMES_TEST ok; base buffer and wheel planes identical for 20,986 sizes, native and baseline builds; local 1T +32% (Intel, indicative)"
+      "note": "Zen 5 +11.7% 1T, +9.2% 16T; Zen 3 +8.7% 1T, +4.3% 16T (6/6)"
     }
   ],
   "azure_queue": 0,
@@ -1042,40 +1042,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T21:16:38Z",
-      "level": "decision",
-      "text": "run: agents on wheel F1 (priority 3) and the F5 fold (priority 4) while F1's profile and F2's sweep run. Why: two agent slots free; both are in-rules and branch off hc/champion.",
-      "id": "run",
-      "what": "agents on wheel F1 (priority 3) and the F5 fold (priority 4) while F1's profile and F2's sweep run",
-      "why": "two agent slots free; both are in-rules and branch off hc/champion"
-    },
-    {
-      "utc": "2026-10-10T21:17:53Z",
-      "level": "decision",
-      "text": "f2-block: 32 KB blocks: +12% on Zen 3 at 1-8 threads but nothing at 16 (SMT); wait for the 24 and 16 KB variants before choosing the block size. Why: Zen 3's L1D is 32 KB per core, shared by two SMT threads: two 32 KB blocks cannot both stay resident; a smaller block should keep the gain under SMT. Expect: 16 KB keeps +8-12% at 16T.",
-      "id": "f2-block",
-      "what": "32 KB blocks: +12% on Zen 3 at 1-8 threads but nothing at 16 (SMT); wait for the 24 and 16 KB variants before choosing the block size",
-      "why": "Zen 3's L1D is 32 KB per core, shared by two SMT threads: two 32 KB blocks cannot both stay resident; a smaller block should keep the gain under SMT",
-      "expect": "16 KB keeps +8-12% at 16T"
-    },
-    {
-      "utc": "2026-10-10T21:17:53Z",
-      "level": "decision",
-      "text": "run: the page's spend is inflated by about NZ.4: the first tally charged two pools 261 node-minutes each (time since the previous run's last tally); correct in the report, backlog item 28. Why: the pools were created at 20:43 and 20:54.",
-      "id": "run",
-      "what": "the page's spend is inflated by about NZ.4: the first tally charged two pools 261 node-minutes each (time since the previous run's last tally); correct in the report, backlog item 28",
-      "why": "the pools were created at 20:43 and 20:54"
-    },
-    {
-      "utc": "2026-10-10T21:30:35Z",
-      "level": "decision",
-      "text": "f1-alternate: F1 passes the falsification test (sparse -18% at 1T on Zen 5, bar -10%); evaluate it against the clean champion on Zen 5 and Zen 3 at 1T, one per core and all threads. Why: RUN-PLAN priority 1; the L1 story holds: the sparse phase gains, dense does not (each dense factor touches the whole sieve in short periods anyway). Expect: +8-12% at 1T on Zen 5.",
-      "id": "f1-alternate",
-      "what": "F1 passes the falsification test (sparse -18% at 1T on Zen 5, bar -10%); evaluate it against the clean champion on Zen 5 and Zen 3 at 1T, one per core and all threads",
-      "why": "RUN-PLAN priority 1; the L1 story holds: the sparse phase gains, dense does not (each dense factor touches the whole sieve in short periods anyway)",
-      "expect": "+8-12% at 1T on Zen 5"
-    },
     {
       "utc": "2026-10-10T21:30:35Z",
       "level": "decision",
@@ -1398,6 +1364,33 @@
       "level": "warn",
       "auto": true,
       "text": "zig-idea12 changed with no reasoning recorded (st.py decide)."
+    },
+    {
+      "utc": "2026-10-10T23:47:15Z",
+      "level": "decision",
+      "text": "zig-f1: KEEP (grey): new lineage hc/zig-champion-grey = 72e5b42 (Zig base with F1), grey work for the Zig entry stays there. Why: vs hc/zig-submission: Zen 5 +11.7% +-1.7 1T, +13.3% 8T, +9.2% +-0.9 16T; Zen 3 +8.7% +-0.3 1T, +8.1% 8T, +4.3% +-0.1 16T (6/6 everywhere). Same size as ISPC F1; Zig base 1T on Zen 5 now 132.9k vs ISPC clean base 126.3k in the same rounds.",
+      "id": "zig-f1",
+      "what": "KEEP (grey): new lineage hc/zig-champion-grey = 72e5b42 (Zig base with F1), grey work for the Zig entry stays there",
+      "why": "vs hc/zig-submission: Zen 5 +11.7% +-1.7 1T, +13.3% 8T, +9.2% +-0.9 16T; Zen 3 +8.7% +-0.3 1T, +8.1% 8T, +4.3% +-0.1 16T (6/6 everywhere). Same size as ISPC F1; Zig base 1T on Zen 5 now 132.9k vs ISPC clean base 126.3k in the same rounds"
+    },
+    {
+      "utc": "2026-10-10T23:47:15Z",
+      "level": "decision",
+      "text": "f6-no512: cancelled unmeasured: the 96-vCPU node came up 25 min late (low-priority core quota) and F1/F2 at 48/96T take the remaining time. Why: .",
+      "id": "f6-no512",
+      "what": "cancelled unmeasured: the 96-vCPU node came up 25 min late (low-priority core quota) and F1/F2 at 48/96T take the remaining time"
+    },
+    {
+      "utc": "2026-10-10T23:47:23Z",
+      "level": "info",
+      "text": "f6-no512 cancelled (no time on the 96-vCPU node). Zen 5 D96as_v7 vs champion, 4 rounds each kind. hc/f6-no512 d6feacb: build.sh only (both entries), self-tests 0; probe, not for merge as is",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T23:47:23Z",
+      "level": "info",
+      "text": "zig-f1 KEEP (grey, hc/zig-champion-grey). Zen 5 D16as_v7, Zen 3 vs hc/zig-submission, 6 rounds. Zen 5 +11.7% 1T, +9.2% 16T; Zen 3 +8.7% 1T, +4.3% 16T (6/6)",
+      "auto": true
     }
   ],
   "research": {
