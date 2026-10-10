@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T08:55:32Z",
+  "updated_utc": "2026-10-10T08:58:19Z",
   "run": {
     "id": "ap-20261010T0715Z",
     "state": "running",
@@ -13,7 +13,7 @@
     "ends_utc": "2026-10-10T13:15:00Z",
     "background_runs": 6,
     "last_tick_utc": "2026-10-10T08:55:32Z",
-    "wakeup": "trig_01Mbva4dku8M7BLhnmJUaHhs"
+    "wakeup": "none"
   },
   "current": null,
   "scoreboard": [
@@ -783,17 +783,17 @@
       "id": "port-rust-wheel",
       "entry": "wheel",
       "hypothesis": "Our wheel design as idiomatic Rust (PrimeRust/solution_8) runs within a few percent of the ISPC wheel",
-      "verdict": "queued",
+      "verdict": "measured (Zen 5)",
       "where": "Zen 5, Zen 3 (phase B)",
-      "note": "hc/port-rust-wheel 72932c7 by agent; verified: only new files, cargo build, PRIMES_TEST (powers of ten + 5,396-size sweep) exit 0, tags right; local 1T 109k vs ISPC ~110k. hadolint clean per agent; image unbuilt here (no Docker). Measured via hc/meas-rust-wheel (port in the solution_1 slot)"
+      "note": "D32as_v7, 4 rounds: Rust wheel port vs ISPC wheel -13.8% at 1T (161k vs 188k), -15.5% at 32T (2.32M vs 2.73M); vs C5 +30% at 1T, +12% at 32T; 2.5x danielspaangberg. Self-test 9 ok in the image"
     },
     {
       "id": "port-cpp-base",
       "entry": "base",
       "hypothesis": "Our base design as C++20 (PrimeCPP/solution_6) matches the ISPC base",
-      "verdict": "queued",
+      "verdict": "measured (Zen 5)",
       "where": "Zen 5, Zen 3 (phase B)",
-      "note": "hc/port-cpp-base 3045246 by agent; verified: new files only, g++ -O3 -march=native builds, PRIMES_TEST 13 sizes exit 0, tags right; local 1T 52.0k vs ISPC ~47k. Measured via hc/meas-cpp-base (solution_2 slot)"
+      "note": "D32as_v7, 4 rounds: C++ base port vs ISPC base -4.0% at 1T, +1.6% at 16T, -7.5% at 32T; vs Rust +5.5% at 1T, +4.4% at 16T, +5.3% at 32T; vs davepl +40% at 1T, +29% at 32T"
     },
     {
       "id": "port-cpp-wheel",
@@ -863,9 +863,9 @@
       "id": "loaded-1t",
       "entry": "base",
       "hypothesis": "How much of the drop at scale is clock speed: one pinned sieve thread (ours, Rust) with busy work on cpu0 SMT sibling, 16 other cores, all 47 other cores, all 95 other vCPUs; spin loop and Rust sieve as loads",
-      "verdict": "running",
+      "verdict": "partial",
       "where": "Zen 5 D96as_v7",
-      "note": "hc/diag-loaded-1t (never merged), 3 rounds; Chris 08:12"
+      "note": "spin-loop load valid, sieve load invalid (my script passed -d to Rust; its duration flag is -s, so the load never ran; rerun queued). One thread pinned to cpu0, D96as_v7 (48c x 2): ours / Rust idle 127.4k / 125.0k; sibling spinning 89.4k / 86.0k (-30%); 16 other cores spinning 110.0k / 105.6k (-14%); 47 other cores 96.7k / 92.7k (-24%); all 95 other vCPUs 65.5k / 62.1k (-49%)"
     },
     {
       "id": "a-scale-repeat",
@@ -887,9 +887,9 @@
       "id": "asm-wheel",
       "entry": "wheel",
       "hypothesis": "Compiled-code side-by-side of the ISPC and Zig wheels on one Zen 5 node",
-      "verdict": "running",
+      "verdict": "done",
       "where": "Zen 5 D96as_v7",
-      "note": "77aee8f by agent (image unbuilt locally). Local llvm-mca preview (znver4): Zig AVX-512 group loop 0.079 vs ISPC 0.136 cycles per word per member: 32-word steps, row addressing off one register (ISPC avx512 reloads 6 row pointers from the stack), unmasked loads, G=8. AVX2 loops equal on throughput"
+      "note": "node dump: ISPC runs avx512skx; Zig native build on Zen 5 uses 256-bit vectors only (0 zmm, 1,684 ymm), identical to the stripped submission. The AVX-512 explanation in the local preview does not hold on Zen 5. README updated"
     },
     {
       "id": "wheel-group32",
@@ -919,9 +919,9 @@
       "id": "idea21-prefetch",
       "entry": "base",
       "hypothesis": "Software prefetch ahead in the sparse loop recovers the 9% the sparse phase loses under SMT (IDEAS 21)",
-      "verdict": "agent",
-      "where": "local, then Zen 5 at threads = vCPUs",
-      "note": "agent brief: prefetch k chunks ahead in clear_sparse, choose k and threshold, count per-composite instructions"
+      "verdict": "running",
+      "where": "Zen 5 D32as_v7",
+      "note": "07b268b by agent: 8 prefetchw per chunk 4 chunks ahead, all sparse p; verified PRIMES_TEST, local 1T -4.6%, all threads -8.6% (VM without SMT). Measures at 32 threads = 16c x 2 SMT"
     }
   ],
   "azure_queue": 0,
@@ -931,68 +931,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T07:34:09Z",
-      "level": "info",
-      "text": "port-cpp-base (base) queued: Our base design as C++20 (PrimeCPP/solution_6) matches the ISPC base",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T07:34:09Z",
-      "level": "info",
-      "text": "port-cpp-wheel (wheel) tuning: Our wheel design as C++20 (PrimeCPP/solution_7)",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T07:37:48Z",
-      "level": "decision",
-      "text": "a-scale: Our base stops scaling at half the 96 vCPUs (4.18M at 48 threads, 4.24M at 96) while Rust keeps gaining; the full-occupancy question now has two sides. Why: on 16-64 vCPU nodes the lead at threads = vCPUs was +14%; on 96 it is +11%, because ours plateaus. Whether the 96 vCPUs are 48 cores with SMT decides the reading: the fall-off probe prints lscpu. Expect: if SMT: ours is SMT-unfriendly (code footprint, IDEAS 5-6) and Rust gains from SMT; next test IDEAS 6 (avx2-i64x4, smaller clear_factor) at 96 threads.",
-      "id": "a-scale",
-      "what": "Our base stops scaling at half the 96 vCPUs (4.18M at 48 threads, 4.24M at 96) while Rust keeps gaining; the full-occupancy question now has two sides",
-      "why": "on 16-64 vCPU nodes the lead at threads = vCPUs was +14%; on 96 it is +11%, because ours plateaus. Whether the 96 vCPUs are 48 cores with SMT decides the reading: the fall-off probe prints lscpu",
-      "expect": "if SMT: ours is SMT-unfriendly (code footprint, IDEAS 5-6) and Rust gains from SMT; next test IDEAS 6 (avx2-i64x4, smaller clear_factor) at 96 threads"
-    },
-    {
-      "utc": "2026-10-10T07:37:48Z",
-      "level": "info",
-      "text": "idea1-affinity more rounds. Zen 5 96 vCPU. 96-vCPU node: -2.6% +-8.4% at 1T, -2.6% +-4.5% at 96T vs champion, inside an A/A spread of up to 7.4%; inconclusive. Re-measure on the D16 fleet (Zen 5, Zen 3), 6 rounds",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T07:46:13Z",
-      "level": "decision",
-      "text": "run: work the merged IDEAS queue in its new order: pinning on the 96-vCPU node, then the stop flag and AVX-512 off at threads = vCPUs on the 32-vCPU node; items marked not allowed or grey are not built. Why: Chris, 07:40: the order at the top of the new IDEAS section replaces the old order; all three branch from the thread-count fix so each compares against it. Passed over: IDEAS 6 (avx2-i64x4) until the SMT reading is in.",
-      "id": "run",
-      "what": "work the merged IDEAS queue in its new order: pinning on the 96-vCPU node, then the stop flag and AVX-512 off at threads = vCPUs on the 32-vCPU node; items marked not allowed or grey are not built",
-      "why": "Chris, 07:40: the order at the top of the new IDEAS section replaces the old order; all three branch from the thread-count fix so each compares against it",
-      "instead": "IDEAS 6 (avx2-i64x4) until the SMT reading is in"
-    },
-    {
-      "utc": "2026-10-10T07:46:14Z",
-      "level": "decision",
-      "text": "port-rust-base: queue the Rust base port for phase B via hc/meas-rust-base; route: improvements offered to mike-barber, per the agent's side-by-side, pending Azure numbers and Chris's rules call on the const mask table. Why: same characteristics as PrimeRust/solution_1 in the same language; CONTRIBUTING.md sends such work to the existing solution first.",
-      "id": "port-rust-base",
-      "what": "queue the Rust base port for phase B via hc/meas-rust-base; route: improvements offered to mike-barber, per the agent's side-by-side, pending Azure numbers and Chris's rules call on the const mask table",
-      "why": "same characteristics as PrimeRust/solution_1 in the same language; CONTRIBUTING.md sends such work to the existing solution first"
-    },
-    {
-      "utc": "2026-10-10T07:46:14Z",
-      "level": "info",
-      "text": "port-rust-base (base) queued: Our base design in Rust (PrimeRust/solution_9) against mike-barber solution_1: the delta and its route",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T07:46:14Z",
-      "level": "info",
-      "text": "idea2-pin (base) running: Pinning thread t to the t-th allowed CPU (IDEAS 2) closes or widens the full-occupancy gap",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T07:46:14Z",
-      "level": "info",
-      "text": "idea4-stopflag (base) running: One clock reader and a stop flag (IDEAS 4) at threads = vCPUs",
-      "auto": true
-    },
     {
       "utc": "2026-10-10T07:46:14Z",
       "level": "info",
@@ -1298,6 +1236,70 @@
       "utc": "2026-10-10T08:41:28Z",
       "level": "info",
       "text": "idea21-prefetch (base) agent: Software prefetch ahead in the sparse loop recovers the 9% the sparse phase loses under SMT (IDEAS 21)",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T08:58:19Z",
+      "level": "decision",
+      "text": "loaded-1t: Chris (3): with every other core spinning, one thread loses 24% from clock alone; the 48-thread profile showed each thread 31% slower, so about three quarters of the per-thread drop at one thread per core is frequency, not our code. Rust drops by the same proportion. Why: spin on 16 cores -14%, on 47 cores -24%; a spinning SMT sibling costs 30% and everything busy 49%. The sieve-load half was invalid (wrong Rust flag) and is rerunning: a sieve may draw more power than a spin loop. Expect: the sieve load drops one-thread speed at least as much as the spin load.",
+      "id": "loaded-1t",
+      "what": "Chris (3): with every other core spinning, one thread loses 24% from clock alone; the 48-thread profile showed each thread 31% slower, so about three quarters of the per-thread drop at one thread per core is frequency, not our code. Rust drops by the same proportion",
+      "why": "spin on 16 cores -14%, on 47 cores -24%; a spinning SMT sibling costs 30% and everything busy 49%. The sieve-load half was invalid (wrong Rust flag) and is rerunning: a sieve may draw more power than a spin loop",
+      "expect": "the sieve load drops one-thread speed at least as much as the spin load"
+    },
+    {
+      "utc": "2026-10-10T08:58:19Z",
+      "level": "decision",
+      "text": "asm-wheel: the Zig wheel's Zen 5 lead is not from 512-bit loops: on the node Zig compiles to 256-bit vectors only. Next comparison: our AVX2 build against Zig on Zen 5. Why: the node dump shows no zmm in Zig's code; wheel-group32 (our AVX-512 loop in Zig's 32-word form) is still worth its result, but it is not Zig's mechanism. Expect: if our avx2 build is level with Zig on Zen 5, the gap is the AVX-512 path itself.",
+      "id": "asm-wheel",
+      "what": "the Zig wheel's Zen 5 lead is not from 512-bit loops: on the node Zig compiles to 256-bit vectors only. Next comparison: our AVX2 build against Zig on Zen 5",
+      "why": "the node dump shows no zmm in Zig's code; wheel-group32 (our AVX-512 loop in Zig's 32-word form) is still worth its result, but it is not Zig's mechanism",
+      "expect": "if our avx2 build is level with Zig on Zen 5, the gap is the AVX-512 path itself"
+    },
+    {
+      "utc": "2026-10-10T08:58:19Z",
+      "level": "decision",
+      "text": "port-rust-wheel: the Rust wheel port trails the ISPC wheel by 14-16% on Zen 5 but leads C5 by 12-30%: route stands as a new solution (Rust's only wheel is 8-bit); tuning it is a follow-up, not this run. Why: LLVM's 256-bit loops vs ISPC's AVX-512 path likely explain much of it; the C++ port's sparse fix (four planes at a time) is the first thing to try.",
+      "id": "port-rust-wheel",
+      "what": "the Rust wheel port trails the ISPC wheel by 14-16% on Zen 5 but leads C5 by 12-30%: route stands as a new solution (Rust's only wheel is 8-bit); tuning it is a follow-up, not this run",
+      "why": "LLVM's 256-bit loops vs ISPC's AVX-512 path likely explain much of it; the C++ port's sparse fix (four planes at a time) is the first thing to try"
+    },
+    {
+      "utc": "2026-10-10T08:58:19Z",
+      "level": "decision",
+      "text": "port-cpp-base: the C++ base port beats Rust (+4-5%) and davepl (+29-40%) on Zen 5 but trails the ISPC base (-4% 1T, -7.5% at 32T SMT); route for Chris: same characteristics as davepl's solution_5. Why: the gap at 32T matches GCC's code losing more to SMT than ours.",
+      "id": "port-cpp-base",
+      "what": "the C++ base port beats Rust (+4-5%) and davepl (+29-40%) on Zen 5 but trails the ISPC base (-4% 1T, -7.5% at 32T SMT); route for Chris: same characteristics as davepl's solution_5",
+      "why": "the gap at 32T matches GCC's code losing more to SMT than ours"
+    },
+    {
+      "utc": "2026-10-10T08:58:19Z",
+      "level": "info",
+      "text": "port-rust-wheel measured (Zen 5). Zen 5, Zen 3 (phase B). D32as_v7, 4 rounds: Rust wheel port vs ISPC wheel -13.8% at 1T (161k vs 188k), -15.5% at 32T (2.32M vs 2.73M); vs C5 +30% at 1T, +12% at 32T; 2.5x danielspaangberg. Self-test 9 ok in the image",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T08:58:19Z",
+      "level": "info",
+      "text": "port-cpp-base measured (Zen 5). Zen 5, Zen 3 (phase B). D32as_v7, 4 rounds: C++ base port vs ISPC base -4.0% at 1T, +1.6% at 16T, -7.5% at 32T; vs Rust +5.5% at 1T, +4.4% at 16T, +5.3% at 32T; vs davepl +40% at 1T, +29% at 32T",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T08:58:19Z",
+      "level": "info",
+      "text": "loaded-1t partial. Zen 5 D96as_v7. spin-loop load valid, sieve load invalid (my script passed -d to Rust; its duration flag is -s, so the load never ran; rerun queued). One thread pinned to cpu0, D96as_v7 (48c x 2): ours / Rust idle 127.4k / 125.0k; sibling spinning 89.4k / 86.0k (-30%); 16 other cores spinning 110.0k / 105.6k (-14%); 47 other cores 96.7k / 92.7k (-24%); all 95 other vCPUs 65.5k / 62.1k (-49%)",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T08:58:19Z",
+      "level": "info",
+      "text": "asm-wheel done. Zen 5 D96as_v7. node dump: ISPC runs avx512skx; Zig native build on Zen 5 uses 256-bit vectors only (0 zmm, 1,684 ymm), identical to the stripped submission. The AVX-512 explanation in the local preview does not hold on Zen 5. README updated",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-10T08:58:19Z",
+      "level": "info",
+      "text": "idea21-prefetch running. Zen 5 D32as_v7. 07b268b by agent: 8 prefetchw per chunk 4 chunks ahead, all sparse p; verified PRIMES_TEST, local 1T -4.6%, all threads -8.6% (VM without SMT). Measures at 32 threads = 16c x 2 SMT",
       "auto": true
     }
   ],
