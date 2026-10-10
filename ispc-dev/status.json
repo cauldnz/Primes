@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T21:30:35Z",
+  "updated_utc": "2026-10-10T21:33:54Z",
   "run": {
     "id": "ap-20261010T2040Z",
     "state": "running",
@@ -13,7 +13,7 @@
     "ends_utc": "2026-10-11T00:40:00Z",
     "background_runs": 3,
     "last_tick_utc": "2026-10-10T21:29:28Z",
-    "wakeup": "trig_01G3DcEZsqPajjgEvjThfvBp"
+    "wakeup": "trig_01TdeJhUrnQfxFzxmBR89c8c"
   },
   "current": null,
   "scoreboard": [
@@ -964,12 +964,6 @@
   ],
   "events": [
     {
-      "utc": "2026-10-10T09:52:46Z",
-      "level": "info",
-      "text": "a-scale-repeat running. Zen 5 D96as_v7, fresh node. pool deleted and recreated (first node tvmps_35e6..); base and wheel, same refs as the first run (idea1 vs champion), 4 rounds",
-      "auto": true
-    },
-    {
       "utc": "2026-10-10T10:09:37Z",
       "level": "decision",
       "text": "a-scale-repeat: Chris (1): the repeat on a second, quieter node agrees with the first: our base gains about 3% from 48 to 96 threads where Rust gains about 21%, so the lead over Rust narrows from about 30% at one thread per core to about 11% at all threads. The 96-vCPU conclusions stand. Why: same shape on both nodes; the second node's A/A spread is 0.7% against 7%, so its numbers are the ones to quote.",
@@ -1324,6 +1318,14 @@
       "level": "info",
       "text": "f1-alternate falsification passed; evaluating. Zen 5 D16as_v7. Zen 5 (D16as_v7) phase profile, TSC cycles per pass, champion vs F1: sparse 61.2k -> 50.1k (-18%), dense 36.2k -> 35.8k (-1%), scan 4.0k -> 4.1k, run_total 101.4k -> 90.0k (-11%). Bar was sparse -10%. Full evaluation queued on Zen 5 (D32as_v7) and Zen 3, 6 rounds vs clean champion",
       "auto": true
+    },
+    {
+      "utc": "2026-10-10T21:33:54Z",
+      "level": "decision",
+      "text": "f2-block: F2 block sweep on Zen 5 (D16as_v7, 8c x 2): 32, 16 and 24 KB, 6 rounds each, after the F1 profile. Why: Zen 5 has a 48 KB L1D, so the best block size may differ from Zen 3's; one thread per core is the 8T line, SMT the 16T line.",
+      "id": "f2-block",
+      "what": "F2 block sweep on Zen 5 (D16as_v7, 8c x 2): 32, 16 and 24 KB, 6 rounds each, after the F1 profile",
+      "why": "Zen 5 has a 48 KB L1D, so the best block size may differ from Zen 3's; one thread per core is the 8T line, SMT the 16T line"
     }
   ],
   "research": {
