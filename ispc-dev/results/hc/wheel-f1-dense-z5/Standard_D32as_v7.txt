@@ -1,0 +1,26 @@
+Architecture:                            x86_64
+CPU(s):                                  32
+Model name:                              AMD EPYC 9V45 96-Core Processor
+BIOS Model name:                         AMD EPYC 9V45 96-Core Processor                 None CPU @ 2.6GHz
+AVX-512: yes
+kind=wheel rounds=6 id=21364016349
+build cand
+build champ
+self-test cand: 8 ok, 0 bad, exit=0
+self-test champ: 8 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-ispc;216226;5.000020;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;3208079;5.000525;32;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;3192472;5.000191;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1717317;5.000129;8;algorithm=wheel,faithful=yes,bits=1
+== round warmup champ
+cauldnz-ispc;218236;5.000007;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;3221738;5.000458;32;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;3182499;5.000222;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1728781;5.000133;8;algorithm=wheel,faithful=yes,bits=1
+== round warmup champ2
+cauldnz-ispc;215691;5.000008;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;3221196;5.000436;32;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;3193070;5.000191;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1727018;5.000140;8;algorithm=wheel,faithful=yes,bits=1
+== round warmup ctrl
