@@ -1,17 +1,16 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-10T01:09:06Z",
+  "updated_utc": "2026-10-10T01:40:20Z",
   "run": {
-    "id": "board-20261010",
-    "state": "stopped",
+    "id": "ap-20261010T0140Z",
+    "state": "running",
     "mode": "azure",
-    "mode_reason": "Side stream at Chris's request: does our Zen 5 / Zen 3 ranking of the leaderboard's top 10 match the official one?",
-    "started_utc": "2026-10-10T00:02:00Z",
-    "time_box_hours": 2.5,
-    "spend_nzd": 0.62,
-    "spend_cap_nzd": 10,
-    "wakeup": null,
-    "background_runs": "0\n0"
+    "mode_reason": "Chris kicked off a 4-hour base-first run (RUN-PLAN.md) in this session; Azure login works.",
+    "started_utc": "2026-10-10T01:40:00Z",
+    "time_box_hours": 4,
+    "spend_nzd": 0,
+    "spend_cap_nzd": 30,
+    "ends_utc": "2026-10-10T05:40:00Z"
   },
   "current": null,
   "scoreboard": [
@@ -674,16 +673,6 @@
   ],
   "events": [
     {
-      "utc": "2026-10-09T07:46:49Z",
-      "level": "info",
-      "text": "hc-006 inconclusive: Zen 5 +4.0% clean, Zen 3 node noisy (control moved 36k-59k). Rerun as hc-006b."
-    },
-    {
-      "utc": "2026-10-09T07:46:49Z",
-      "level": "info",
-      "text": "Harness: candidates now rebased on the current champion and BASE pinned to a commit."
-    },
-    {
       "utc": "2026-10-09T08:05:13Z",
       "level": "info",
       "text": "hc-006 KEPT and merged: wheel --addressing=64, Zen 3 +3.5% 16T, Zen 5 +4.0% 1T."
@@ -922,6 +911,20 @@
       "utc": "2026-10-10T01:09:06Z",
       "level": "info",
       "text": "Leaderboard check done: same ten entries on our Zen 5 and Zen 3 as on the official runners; only Swift moves far. See results/leaderboard-check-2026-10-10.md."
+    },
+    {
+      "utc": "2026-10-10T01:40:20Z",
+      "level": "decision",
+      "text": "run: Run ends 05:40 UTC; every pool's deadline is 05:40. Why: The secret was issued about 20:20 UTC on 9 October with a 10-hour life, so it should last to about 06:15; a 4-hour box from 01:40 ends 35 minutes before that. The principal can't read its own expiry, so this is an estimate. Expect: Final scoreboard from 04:55, shutdown by 05:40.",
+      "id": "run",
+      "what": "Run ends 05:40 UTC; every pool's deadline is 05:40",
+      "why": "The secret was issued about 20:20 UTC on 9 October with a 10-hour life, so it should last to about 06:15; a 4-hour box from 01:40 ends 35 minutes before that. The principal can't read its own expiry, so this is an estimate.",
+      "expect": "Final scoreboard from 04:55, shutdown by 05:40"
+    },
+    {
+      "utc": "2026-10-10T01:40:20Z",
+      "level": "info",
+      "text": "Run ap-20261010T0140Z started: base first, per RUN-PLAN.md. Ticks every 5-15 minutes; the first two are the dry run."
     }
   ],
   "research": {
