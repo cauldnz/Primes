@@ -19,7 +19,8 @@
 //    constant masks: the effect LLVM's SLP vectoriser has on the Rust entry's dense resetter.
 //  * Sparse (larger factors): the same idea over bytes. 8 multiples repeat every p bytes,
 //    each with a fixed bit position; their byte offsets are computed per factor and the 8
-//    masks are compile-time constants selected by p mod 16.
+//    masks are compile-time constants selected by p mod 16. The loop prefetches each byte a
+//    few chunks before it ORs it.
 //
 // The whole program - entry point, timing loop, threads, sieve and output - is ISPC. The only
 // external calls are to the C library (clock, allocation, pthreads).
@@ -58,6 +59,7 @@ static inline uniform double now() {
 
 #define DENSE_LIMIT 128      // factors below this use the dense routine
 #define VEC_LIMIT 119        // ...and the vector form below this (larger ones exceed LLVM's unroll limit)
+#define SPARSE_AHEAD 4       // the sparse loop prefetches this many chunks ahead
 
 // ---------------------------------------------------------------------------------------
 // The sieve "class": a struct holding all of a sieve's state, plus the functions below that
@@ -206,7 +208,16 @@ static inline void clear_sparse_e(uniform uint8 * uniform bytes, uniform int nby
     // Indexing with a 32-bit chunk offset cost a sign extension and an add per composite.
     uniform uint8 * uniform q = bytes + ((p * p / 2) / 8 / p) * p;
     uniform uint8 * uniform end = bytes + nbytes;
+    // Each OR is a load and a store. With two threads per core, two 62.5KB sieves share a
+    // 48KB L1 (Zen 5), so the line is often gone. The prefetches ask for the bytes
+    // SPARSE_AHEAD chunks on, so the line is back by the time the OR reaches it. They are hints only: they write nothing, and past the end they are
+    // dropped without a fault. The AVX-512 target emits prefetchw, the others prefetcht0.
+    const uniform int ahead = SPARSE_AHEAD * p;
     for (; q + p <= end; q += p) {                                  // one composite each
+        prefetchw_l1(q + ahead + o0); prefetchw_l1(q + ahead + o1);
+        prefetchw_l1(q + ahead + o2); prefetchw_l1(q + ahead + o3);
+        prefetchw_l1(q + ahead + o4); prefetchw_l1(q + ahead + o5);
+        prefetchw_l1(q + ahead + o6); prefetchw_l1(q + ahead + o7);
         q[o0] |= m0; q[o1] |= m1; q[o2] |= m2; q[o3] |= m3;
         q[o4] |= m4; q[o5] |= m5; q[o6] |= m6; q[o7] |= m7;
     }
