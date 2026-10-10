@@ -8,8 +8,9 @@ Each log is one machine. Rounds are "== round <n> <label>" followed by result li
 A/A noise floor), ctrl (C5 or mike-barber Rust) and, from hc-pool.sh runs, ctrl2 (davepl C++).
 The warm-up round is ignored.
 
-Per machine and thread count it prints medians and ranges, the same-round ratio cand/champ, the
-A/A spread champ2/champ, cand/ctrl and cand/ctrl2. Then it gives a verdict:
+Per machine and thread count it prints medians and ranges, the same-round ratio cand/champ (median
+and range, then mean, 95% confidence interval and SD of the per-round ratios), the A/A spread
+champ2/champ, cand/ctrl and cand/ctrl2. The interval is reported, not yet used in the verdict. Then it gives a verdict:
   KEEP    median gain >= 2% at 1T or all-threads on every machine; on at least one machine the
           candidate beat the champion in every round on that metric; nothing regresses > 1%.
   RERUN   no regression > 1% and the best gain is between 0% and 2% (rerun with 10 rounds).
@@ -39,6 +40,21 @@ def parse(path):
             if rnd and rnd != "warmup" and len(parts) == 5 and parts[1].isdigit():
                 rounds[rnd][label][int(parts[3])] = int(parts[1])
     return machine, rounds
+
+
+# two-sided 95% t critical values by degrees of freedom (n - 1)
+T95 = {1: 12.71, 2: 4.30, 3: 3.18, 4: 2.78, 5: 2.57, 6: 2.45, 7: 2.36, 8: 2.31, 9: 2.26,
+       10: 2.23, 11: 2.20, 12: 2.18, 13: 2.16, 14: 2.14, 15: 2.13, 19: 2.09, 24: 2.06, 29: 2.05}
+
+
+def ci95(xs):
+    """Mean, SD and 95% confidence half-width of the paired per-round ratios."""
+    n = len(xs)
+    if n < 2:
+        return (xs[0] if xs else 1.0), 0.0, float("nan")
+    m, sd = statistics.mean(xs), statistics.stdev(xs)
+    t = T95.get(n - 1) or T95[max(k for k in T95 if k <= n - 1)]
+    return m, sd, t * sd / n ** 0.5
 
 
 def pct(x):
@@ -81,8 +97,8 @@ def main(paths):
     worst = 1.0
     for res in results:
         print(f"\n### {res['machine']}  ({res['rounds']} scored rounds, {res['file']})\n")
-        print("| threads | cand | champ | champ2 | ctrl | ctrl2 | cand/champ median (range) | rounds won | A/A spread | cand/ctrl | cand/ctrl2 |")
-        print("|---|---|---|---|---|---|---|---|---|")
+        print("| threads | cand | champ | champ2 | ctrl | ctrl2 | cand/champ median (range) | mean ± 95% CI (SD) | rounds won | A/A spread | cand/ctrl | cand/ctrl2 |")
+        print("|---|---|---|---|---|---|---|---|---|---|---|---|")
         tmax = max(res["metrics"]) if res["metrics"] else 1
         best = None
         for t, (series, ratios) in sorted(res["metrics"].items()):
@@ -92,12 +108,14 @@ def main(paths):
                 continue
             gain = statistics.median(cc)
             won = sum(1 for x in cc if x > 1)
+            mu, sd, hw = ci95(cc)
+            ci_txt = f"{pct(mu)} ± {hw * 100:.1f}% ({sd * 100:.1f}%)" if hw == hw else "n/a"
             aa = ratios["aa"]
             aa_txt = f"{min(aa) - 1:+.1%} to {max(aa) - 1:+.1%}" if aa else "n/a"
             ctrl = pct(statistics.median(ratios["cand/ctrl"])) if ratios["cand/ctrl"] else "n/a"
             ctrl2 = pct(statistics.median(ratios["cand/ctrl2"])) if ratios["cand/ctrl2"] else "n/a"
             print(f"| {t} | " + " | ".join(kfmt(med[l]) if l in med else "-" for l in ("cand", "champ", "champ2", "ctrl", "ctrl2"))
-                  + f" | {pct(gain)} ({pct(min(cc))} to {pct(max(cc))}) | {won}/{len(cc)} | {aa_txt} | {ctrl} | {ctrl2} |")
+                  + f" | {pct(gain)} ({pct(min(cc))} to {pct(max(cc))}) | {ci_txt} | {won}/{len(cc)} | {aa_txt} | {ctrl} | {ctrl2} |")
             worst = min(worst, gain)
             if t in (1, tmax):
                 cand = (gain, won == len(cc))
