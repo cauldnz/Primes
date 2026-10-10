@@ -1,17 +1,15 @@
-FROM ubuntu:24.04 AS build
+# Debian rather than Alpine: musl's malloc is slow for a sieve allocated on every pass.
+FROM rust:1.85-slim-bookworm AS build
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends ispc gcc libc6-dev \
-    && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
+COPY Cargo.toml Cargo.lock ./
+COPY .cargo .cargo
+COPY src src
+RUN cargo build --release
 
-WORKDIR /opt/app
-ARG ISPC_TARGETS
-COPY primes.ispc build.sh ./
-RUN sh build.sh
+FROM debian:bookworm-slim
 
-FROM ubuntu:24.04
+WORKDIR /app
+COPY --from=build /app/target/release/primes-wheel primes-wheel
 
-WORKDIR /opt/app
-COPY --from=build /opt/app/primes .
-
-ENTRYPOINT [ "./primes" ]
+ENTRYPOINT [ "./primes-wheel" ]
