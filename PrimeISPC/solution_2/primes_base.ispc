@@ -1,3 +1,4 @@
+// DIAGNOSTIC BUILD (hc/diag-base-phases): never merge.
 // Prime sieve drag race - ISPC (Intel(r) Implicit SPMD Program Compiler) solution by cauldnz.
 // Base algorithm, faithful, 1 bit per odd number.
 //
@@ -303,6 +304,60 @@ static void self_test() {
     exit(bad);
 }
 
+// ---------------------------------------------------------------------------------------
+// DIAGNOSTIC: per-phase cycle profile (TSC via ISPC clock()). Separate copy of run_sieve so
+// the benchmark loop is unchanged.
+// ---------------------------------------------------------------------------------------
+static uniform int64 prof_setup = 0, prof_dense = 0, prof_sparse = 0, prof_scan = 0;
+static uniform int64 prof_destroy = 0, prof_run = 0;
+
+static void run_sieve_prof(uniform Sieve * uniform s) {
+    uniform int64 r0 = clock();
+    uniform int q = (uniform int)sqrt((uniform double)s->size);
+    while ((uniform int64)(q + 1) * (q + 1) <= s->size) q++;
+    while ((uniform int64)q * q > s->size) q--;
+    uniform int factor = 3;
+    uniform int64 dense = 0, sparse = 0;
+    while (factor <= q) {
+        uniform int i = factor >> 1;
+        while (i < s->nbits && is_composite_index(s, i)) i++;     // next prime
+        factor = 2 * i + 1;
+        if (factor > q) break;
+        uniform int64 c0 = clock();
+        clear_factor(s, factor);       // on x86 factor 3 also initialises the sieve (dense)
+        uniform int64 c1 = clock();
+        if (factor < DENSE_LIMIT) dense += c1 - c0; else sparse += c1 - c0;
+        factor += 2;
+    }
+    uniform int64 total = clock() - r0;
+    prof_run += total;
+    prof_dense += dense;
+    prof_sparse += sparse;
+    prof_scan += total - dense - sparse;
+}
+
+static void profile_phases() {
+    const uniform int64 N = 20000;
+    for (uniform int64 k = 0; k < N; k++) {
+        uniform Sieve s;
+        uniform int64 t0 = clock();
+        sieve_create(&s, SIEVE_SIZE);
+        uniform int64 t1 = clock();
+        run_sieve_prof(&s);
+        uniform int64 t2 = clock();
+        sieve_destroy(&s);
+        uniform int64 t3 = clock();
+        prof_setup += t1 - t0;
+        prof_destroy += t3 - t2;
+    }
+    print("cauldnz-ispc-base;profile;setup;%\n", prof_setup / N);
+    print("cauldnz-ispc-base;profile;dense;%\n", prof_dense / N);
+    print("cauldnz-ispc-base;profile;sparse;%\n", prof_sparse / N);
+    print("cauldnz-ispc-base;profile;scan;%\n", prof_scan / N);
+    print("cauldnz-ispc-base;profile;destroy;%\n", prof_destroy / N);
+    print("cauldnz-ispc-base;profile;run_total;%\n", prof_run / N);
+}
+
 static void run_threads(uniform Job * uniform jobs, uniform int64 * uniform tids, uniform int n) {
     uniform double start = now();
     for (uniform int t = 0; t < n; t++) {
@@ -322,6 +377,7 @@ static void run_threads(uniform Job * uniform jobs, uniform int64 * uniform tids
 export uniform int main() {
     uniform int8 n_test[12] = {80,82,73,77,69,83,95,84,69,83,84,0};    // PRIMES_TEST
     if (env_int(n_test, 0) != 0) self_test();
+    unmasked { profile_phases(); }                                  // DIAGNOSTIC
 
     uniform int nthreads = clamp(get_nprocs(), 1, 1024);
     uniform Job jobs[1024];
