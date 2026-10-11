@@ -2,11 +2,114 @@ Autopilot lock: ap-20261011T0645Z 2026-10-11T06:45Z
 # Status from the Claude Code session
 
 
-
-
-
-**Last updated:** 2026-10-11 14:45 AEST. Living file; earlier versions are in
+**Last updated:** 2026-10-11 22:00 AEST. Living file; earlier versions are in
 `git log -p ispc-dev/STATUS.md`. Replies go in `ispc-dev/NEXT-STEPS.md`.
+
+## Morning report: run ap-20261011T0645Z (16:45 to 22:45 AEST, 11 October)
+
+Six-hour run from RUN-PLAN.md, continuing the previous conversation (no clear). Keep rule: the
+per-thread rule in HILL-CLIMB.md (decide at 1T and 4T on Zen 5 and Zen 3). Spend about NZ$7.6 of
+NZ$25. Every pool deleted at the end. Nothing went to `ispc` or to a PR. The final refs are
+**branches** `hc/ispc-final` (216629d) and `hc/ispc-final-tables` (57e0792): the git proxy
+refuses tag pushes (HTTP 403), so they could not be made tags from this container.
+
+### Size cliff (stream 1 step 1): what the cache costs at the official size
+
+Throughput per number (passes × n / 5 s ÷ n·ln ln n), 1T, relative to n = 250,000. Full tables
+and the written predictions: `results/hc/size-cliff/README.md`.
+
+| n | wheel KB | Zen 3 wheel | base KB | Zen 3 base | Zen 5 base | Cobalt base |
+|---|---|---|---|---|---|---|
+| 500,000 | 16 | 1.232 | 31 | 0.877 | see README | see README |
+| 770,000 | 25 | 1.298 | 47 | 0.698 | 0.905 | |
+| 850,000 | 28 | 1.302 | 52 | 0.667 | 0.813 | |
+| 1,000,000 | 33 | 1.298 | 61 | 0.631 | 0.705 | (inside 64 KB) |
+| 1,100,000 | 36 | 1.268 | 67 | 0.609 | | −6.6% from 1.0M |
+| 1,300,000 | 42 | 1.188 | 79 | 0.582 | | |
+
+- **No wheel cliff at 1M on Zen 3**: one plateau from 700k to 1.05M, so the 33 KB wheel just over
+  a 32 KB L1 costs nothing measurable. Stream 1 step 2 (plane order, plane halves, scratch trim)
+  was therefore not built, and plane halves never needed Chris's go-ahead.
+- **The base pays for L1 on Zen 5**: fitting in 48 KB is worth 22-28% at 1M. Under the base
+  rules only blocking (F2, grey) reaches it. This is the clean number for the upstream question.
+- Calibration: 4 of 6 predictions held; the Zen 3 wheel drop (predicted 10-20%) was wrong and the
+  Zen 5 base step was larger than predicted.
+
+### Phase 0
+
+| Item | Result |
+|---|---|
+| Verdict line (analyze.py) | per-thread rule implemented; back-test in `results/hc/rule-backtest/` (re-decided C++ IDEAS 12 → revert) |
+| 4-thread line | KEEP: both entries (and solution_3) always also report exactly 4 threads |
+| solution_3 (tables wheel, permitted) | KEEP: +16.8% Zen 5, +19.1% Zen 3 at 1T over solution_1 |
+| fold-1pc on AVX-512 | ungated: Zen 4 −3%, Intel −7%. Gated on Zen 5 (Chris): Zen 5 +6.8% ± 0.5 1T / +6.8% ± 0.1 4T, Zen 4 +0.1%, Intel 0.0%: KEEP, `hc/champion` 216629d |
+| Build outputs off hc/champion | done (3ad0427, .gitignore in both entries; solution_3 too in 57e0792) |
+
+### Stream 1 (ISPC) keeps and rejects by kind
+
+- Kept: novel 2 (4T line, fold Zen 5 gate), permitted 1 (solution_3).
+- Rejected: novel 2 (base code size, generic dense loop: Cobalt −11%, Zen 5 −10.5%); permitted 1
+  (solution_3 compact tables: −2.4% Zen 5, −0.6% Zen 3).
+- Measured, never merged (grey): F1 on the current base, Zen 5 +13.9%, Zen 3 +10.0%.
+
+### Final per-thread scoreboard (passes / s / thread, median of 6 rounds, 16-vCPU nodes; Cobalt 4 vCPU)
+
+Wheels (C5 = rogiervandam `extend`, dsp = danielspaangberg 5760of30030; on Cobalt C5 does not
+build, so the Rust column is mike-barber's `bit-extreme-hybrid`):
+
+| Chip | tables wheel 1T / 4T | wheel 1T / 4T | C5 1T / 4T | dsp 1T |
+|---|---|---|---|---|
+| Zen 5 (9V45) | 54,931 / 52,299 | 46,718 / 46,541 | 27,664 / 25,445 | 14,009 |
+| Zen 3 (7763) | 27,878 / 27,192 | 23,758 / 23,143 | 13,440 / 13,083 | 7,872 |
+| Zen 4 (9V74, AVX-512) | 30,435 / 30,299 | 26,274 / 26,124 | 19,410 / 19,417 | 8,994 |
+| Cobalt 100 (N2) | 23,054 / 23,017 | 20,264 / 20,237 | Rust 8,586 / 8,565 | 8,497 |
+
+Tables wheel over solution_1, 1T / 4T: Zen 5 +17.1% / +12.6%, Zen 3 +17.4% / +17.7%, Zen 4
++15.9% / +15.7%, Cobalt +13.8% / +13.7% (all 6/6).
+
+Base (Rust = mike-barber `bit-extreme-hybrid`, davepl = PrimeCPP/solution_5 at 1T):
+
+| Chip | base now 1T / 4T | base at run start (3ad0427) | Rust 1T / 4T | davepl 1T | now vs Rust 1T |
+|---|---|---|---|---|---|
+| Zen 5 | 27,811 / 25,903 | 27,792 / 25,907 | 25,231 / 23,535 | 18,444 | +10.2% |
+| Zen 3 | 11,210 / 11,186 | 11,179 / 11,197 | 10,502 / 10,516 | 7,352 | +6.7% |
+| Zen 4 | 16,585 / 16,565 | 16,161 / 16,162 | 15,327 / 15,323 | 12,133 | +8.2% |
+| Cobalt | 8,439 / 8,408 | 8,419 / 8,407 | 8,582 / 8,568 | 6,440 | −1.7% |
+
+Zen 4's +2.7% over the run start is the Zen 5 gate taking back what the ungated 16-lane path cost.
+
+### Ports (1T, passes / s / thread, 6 rounds; ISPC = our entry of the same design in the same rounds)
+
+| Port | Zen 5: port / ISPC / rival | change this run (Zen 5, Zen 3) | Zen 3: port / ISPC / rival |
+|---|---|---|---|
+| C++ wheel (bf7619a) | 40,520 / 47,133 / C5 27,859 | none kept (IDEAS 12 reverted −1.4%, −0.9%) | 24,358 / 22,674 / C5 13,055 |
+| C++ base (558a949) | 27,829 / 27,796 / davepl 18,410 | +5.4%, +0.0% (Zen 5 wide path) | 10,355 / 11,219 / davepl 7,326 |
+| Rust wheel (a8d9f07) | 44,324 / 47,096 / C5 27,855 | +23.6%, +10.0% | 23,421 / 24,648 / C5 14,166 |
+| Rust base (b6b35f0) | 24,721 / 27,827 / Rust 25,198 | (vs AVX-512 on: +9.8%) | 9,671 / 11,212 / Rust 10,507 (2 rounds) |
+| Zig base (8ba3386) | 25,295 / 27,769 | +1.2%, +1.4% | 11,189 / 11,180 |
+| Zig wheel (8ba3386) | 44,037 / 46,563 / C5 27,775 | +1.2%, +3.1% | 24,954 / 23,962 / C5 13,361 |
+| Zig wheel tables (138e074, permitted) | 253.9k/5 s = 50,780 (r9-zig-tables-group) | +15.9% then +1.5% | 28,420 |
+
+Gaps to ISPC at 1T on Zen 5: C++ wheel −14%, Rust wheel −6% (was −24% at the start of the run),
+Zig wheel −5%, C++ base 0%, Zig base −9%, Rust base −11%. On Zen 3 the C++ and Zig wheels are
+ahead of the ISPC wheel (+7%, +4%).
+
+Decided port experiments: C++ 4 (1 kept, plus the Zen 5 gate check and the IDEAS 12 re-decision), Rust 5 (3 kept, plus the profile), Zig 6 (4 kept).
+Fixed shares held: every language had three or more.
+
+### Tokens per experiment (this run)
+
+722 model calls, 139.6M tokens: main session 244 calls / 100.2M, background agents 478 calls /
+39.4M. 25 decided experiments plus two scoreboards: about 5.6M tokens per experiment (4.0M main,
+1.6M agents). Run 8 cleared the conversation first; this run did not, so the main session's
+cache reads per call stayed high (about 0.4M per call).
+
+### Not done
+
+- Plane halves and the other step 2 wheel candidates: not built, because there is no Zen 3 cliff.
+- Zig evex512: unchanged results; whether the Zen 5 branch fired inside the image build is
+  unverified (backlog).
+- Tags: `hc/ispc-final*` are branches (403 on tag push).
 
 ## Hourly review, run ap-20261011T0645Z (19:45 AEST, 3 h in)
 

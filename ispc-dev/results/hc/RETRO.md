@@ -1,5 +1,26 @@
 # Run retrospectives (newest first)
 
+## ap-20261011T0645Z (2026-10-11, 16:45 to 22:45 AEST)
+
+- Calibration: size cliff 4 of 6 predictions held (Zen 3 wheel drop wrong, Zen 5 base step low).
+  Experiments: in range for fold Zen 5 gate (+5-8%; +6.8%), C++ base wide (+6.1%), Rust wheel
+  group (+5-10% predicted, +13-17%: above), Zig wheel group (+2-5%; +1.8/+2.7%), Zig tables+group
+  (+1-3%; +1.6/+5.1%); misses: Zig base wide (+2-6%; −8.9%), Zig evex512 (+3-8%; 0), C++ wheel
+  r9 (+1-4%; +7.7% Zen 5 but −2.8% Zen 3), compact tables (0 to +2%; −2.4%), Rust base dense.
+- Kept: hc/champion 216629d (4T line, fold gated on Zen 5); solution_3 (tables wheel) as
+  hc/ispc-final-tables 57e0792; Rust wheel a8d9f07 (pattern + group: +23.6% Zen 5 at 1T over the
+  run start); C++ base 558a949 (Zen 5 wide path); Zig 8ba3386 (base + wheel group) and the Zig
+  tables line 138e074.
+- Lost: two port submits refused (candidate equals champion) and redone against parents; tag
+  pushes refused (403), final refs made as branches; one worktree path clash (no harm).
+- Protocol: per-thread rule throughout; every candidate screened on AMD; fixed port shares held;
+  three-hour review written on time after Chris asked about the logs (the 3h review was about to
+  be late); pools taken down as their work finished. The final scoreboard was started at 10:33Z
+  rather than 12:15Z, as soon as no ISPC experiment was open: it finished with time to spare.
+- Next time: verify build-flag experiments inside the image (print the chosen flags); have
+  hc-pool.sh accept a reference run with cand = champ for scoreboards; clear the conversation
+  before a long run (cache reads per call stayed about 0.4M).
+
 ## ap-20261011T0100Z (2026-10-11, 11:00 to 15:00 AEST)
 
 - Calibration: 6 of 19 predictions in range. Hits: F4 slope (sign known after 384, 128/192 as
