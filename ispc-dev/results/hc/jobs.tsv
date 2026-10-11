@@ -269,12 +269,12 @@ id	pool	size	kind	outdir	submitted	state
 2100294570	hc-standard-d16as-v7	Standard_D16as_v7	ocaml	ispc-dev/results/hc/ox-007-sparse	2026-10-11T21:00:41Z	done
 21004715481	hc-standard-d16a-v4	Standard_D16a_v4	ocaml	ispc-dev/results/hc/ox-007-sparse	2026-10-11T21:00:58Z	done
 21010626271	hc-standard-d4ps-v6	Standard_D4ps_v6	ocaml	ispc-dev/results/hc/ox-007-sparse	2026-10-11T21:01:16Z	done
-21035018488	hc-standard-d16as-v7	Standard_D16as_v7	ocaml	ispc-dev/results/hc/ox-008-x86-untagged	2026-10-11T21:04:01Z	open
-21040921301	hc-standard-d16a-v4	Standard_D16a_v4	ocaml	ispc-dev/results/hc/ox-008-x86-untagged	2026-10-11T21:04:20Z	open
+21035018488	hc-standard-d16as-v7	Standard_D16as_v7	ocaml	ispc-dev/results/hc/ox-008-x86-untagged	2026-10-11T21:04:01Z	done
+21040921301	hc-standard-d16a-v4	Standard_D16a_v4	ocaml	ispc-dev/results/hc/ox-008-x86-untagged	2026-10-11T21:04:20Z	done
 2104267467	hc-standard-d4ps-v6	Standard_D4ps_v6	ocaml	ispc-dev/results/hc/ox-008-x86-untagged	2026-10-11T21:04:37Z	done
-21162622894	hc-standard-d16as-v7	Standard_D16as_v7	ocaml	ispc-dev/results/hc/ox-009-x86-constmask	2026-10-11T21:16:36Z	open
-2116429124	hc-standard-d16a-v4	Standard_D16a_v4	ocaml	ispc-dev/results/hc/ox-009-x86-constmask	2026-10-11T21:16:54Z	open
-2120023678	hc-standard-d4ps-v6	Standard_D4ps_v6	ocaml	ispc-dev/results/hc/ox-010-scalar-two-runs	2026-10-11T21:20:13Z	open
+21162622894	hc-standard-d16as-v7	Standard_D16as_v7	ocaml	ispc-dev/results/hc/ox-009-x86-constmask	2026-10-11T21:16:36Z	done
+2116429124	hc-standard-d16a-v4	Standard_D16a_v4	ocaml	ispc-dev/results/hc/ox-009-x86-constmask	2026-10-11T21:16:54Z	done
+2120023678	hc-standard-d4ps-v6	Standard_D4ps_v6	ocaml	ispc-dev/results/hc/ox-010-scalar-two-runs	2026-10-11T21:20:13Z	done
 21272216498	hc-standard-d16as-v7	Standard_D16as_v7	ocaml	ispc-dev/results/hc/ox-011-x86-two-runs	2026-10-11T21:27:32Z	open
 2127387773	hc-standard-d16a-v4	Standard_D16a_v4	ocaml	ispc-dev/results/hc/ox-011-x86-two-runs	2026-10-11T21:27:48Z	open
 21283325833	hc-standard-d16as-v7	Standard_D16as_v7	ocaml	ispc-dev/results/hc/ox-standalone-check	2026-10-11T21:28:43Z	open
