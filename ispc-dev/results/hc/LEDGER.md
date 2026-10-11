@@ -286,3 +286,7 @@ faster, diff the ports' arithmetic types before their loop shapes.
 both machines, every round. The prediction (flat to +2%) was wrong in sign and size: after
 hc-035 and hc-045 the grouped dense pass costs far more per extra prime than the sparse pass it
 replaces. 192 and 128 queued to find the optimum's other side.
+| p-cpp-wheel-idea12 | 2026-10-11 | cpp-wheel | IDEAS 12 ported to the C++ wheel (borrowed from our ISPC wheel) | +2% to +6% 1T | Zen 3: 105.2k / 885.3k, +0.4% ± 1.2 / +1.4% ± 1.0 | Zen 5: 181.5k / 1.36M, +6.2% ± 0.5 / −0.3% ± 0.2 | MORE ROUNDS (Zen 3) | `hc/port-cpp-wheel-idea12` |
+| p-rust-wheel-idea12 | 2026-10-11 | rust-wheel | IDEAS 12 ported to the Rust wheel | 0 to +3% 1T | Zen 3: 96.2k / 803.2k, −0.2% ± 2.1 / +0.7% ± 0.6 (8T −1.6%) | Zen 5: 178.3k / 1.30M, −0.5% ± 0.7 / −0.9% ± 0.7 | REVERT | `hc/port-rust-wheel-idea12` |
+| s3-crishoj | 2026-10-11 | rival | crishoj 210-wheel (PR 1094) beside our wheels | within 10% of ours | Zen 3: crishoj 87.8k / 645.7k; ISPC wheel 111.7k / 947.7k; Zig wheel 119.2k / 925.7k | Zen 5: crishoj 191.7k / 1.45M; ISPC 222.2k / 1.63M; Zig 217.2k / 1.61M | measurement | `upstream pull/1094` |
+| s5-profile | 2026-10-11 | wheel | TSC phase split, Zen 5 | start + pattern 5-15% | | 68k cycles/pass: start offsets 15.3%, pattern 8.2%, group 33.1%, tile 3.2%, sparse 35.0%, scan 5.2% | measurement | `hc/diag-wheel-phases-2` |

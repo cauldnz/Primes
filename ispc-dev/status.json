@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T02:01:36Z",
+  "updated_utc": "2026-10-11T02:03:21Z",
   "run": {
     "id": "ap-20261011T0100Z",
     "state": "running",
@@ -1099,22 +1099,22 @@
       "entry": "wheel",
       "tier": "extra-faithful",
       "kind": "tuning",
-      "verdict": "running",
+      "verdict": "confirmed",
       "hypothesis": "Measurement: crishoj 210-wheel (upstream PR 1094, Zig 0.17) beside our Zig wheel (cand=champ), our ISPC wheel (ctrl) and the C wheel (ctrl2), 1T and all threads",
       "prediction": "PR claims 2.2x the existing Zig wheel; locally it was not faster than ours, so expect within 10% of our ISPC wheel",
       "plain": "If we run the newest outside wheel entry beside ours on the same machines, then we learn whether it is a faster rival, because its author claims more than twice the speed of the old Zig wheel.",
-      "note": "stream 3, a measurement, not an experiment; 5 rounds"
+      "note": "Measurement (5 rounds). crishoj 210-wheel against our ISPC wheel: Zen 5 191.7k vs 222.2k at 1T (-14%), 1.45M vs 1.63M at 16T (-11%); Zen 3 87.8k vs 111.7k at 1T (-21%), 645.7k vs 947.7k at 16T (-32%). Our Zig wheel against our ISPC wheel: Zen 5 -2.2% 1T, -1.1% 16T; Zen 3 +6.7% 1T, -2.3% 16T. crishoj beats the C wheel by 2-3x at 1T but trails both our wheels; the PR's 2.2x claim is against the old Zig wheel"
     },
     {
       "id": "s5-wheel-profile",
       "entry": "wheel",
       "tier": "extra-faithful",
       "kind": "tuning",
-      "verdict": "running",
+      "verdict": "confirmed",
       "hypothesis": "Measurement: TSC split of a wheel pass (start offsets, pattern build, group passes, tile, sparse marks, scan)",
       "prediction": "start offsets + pattern build 5% to 15% of a pass (RUN-PLAN stream 5)",
       "plain": "If we time each step of one sieve pass, then we know which step is worth speeding up, because a step that takes a tenth of the time cannot give more than a tenth back.",
-      "note": "hc/diag-wheel-phases-2 f3b6d1d; local Xeon: start offsets 12.3%, pattern build 7.2% (19.5% together), group 34%, sparse 39%; timers cost 3-4%. Zen 5, 3 rounds queued"
+      "note": "Zen 5 (4 runs, ~68k cycles/pass): start offsets 15.3% (sparse 11.3, dense 3.5, tile 0.5), pattern build 8.2%, group passes 33.1%, tile 3.2%, sparse marks 35.0%, scan+setup 5.2%. Start offsets + pattern build = 23.5%, above the predicted 5-15% and over the 5% bar for stream 5 step 2"
     },
     {
       "id": "s6-wheel-210",
@@ -1137,18 +1137,22 @@
       "hypothesis": "ISPC wheel IDEAS 12 (fold 13 into the 7x11 tile copy) ported to the C++ wheel",
       "prediction": "+2% to +6% at 1T (local +6%)",
       "plain": "If the C++ wheel writes 13's pattern in the same pass as the 7 and 11 tile, then it gets faster, because one sweep over the sieve disappears, as it did in our ISPC wheel.",
-      "note": "hc/port-cpp-wheel-idea12 fdf7ad8 vs hc/port-cpp-wheel; borrowed from our ISPC wheel (3fc54d1); 6 rounds Zen 5 + Zen 3"
+      "note": "MORE ROUNDS: Zen 5 clears at 1T; Zen 3 straddles +1% at 16T. 12 more Zen 3 rounds in p-cpp-wheel-idea12-z3b",
+      "zen5": "+6.2% ± 0.5 1T (6/6), -0.3% ± 0.2 16T",
+      "zen3": "+0.4% ± 1.2 1T, +1.4% ± 1.0 16T (6/6)"
     },
     {
       "id": "p-rust-wheel-idea12",
       "entry": "rust-wheel",
       "tier": "extra-faithful",
       "kind": "borrowed",
-      "verdict": "running",
+      "verdict": "rejected",
       "hypothesis": "IDEAS 12 ported to the Rust wheel",
       "prediction": "0 to +3% at 1T (local +1%)",
       "plain": "If the Rust wheel writes 13's pattern in the same pass as the 7 and 11 tile, then it gets a little faster, because one sweep over the sieve disappears.",
-      "note": "hc/port-rust-wheel-idea12 25ebdaa; borrowed from our ISPC wheel (3fc54d1). wheel-group32 skipped: the Rust wheel already does 32 words per step; 6 rounds Zen 5 + Zen 3"
+      "note": "REVERT: flat to negative everywhere; the Rust wheel's 32-word fill already gets what folding 13 saved in ISPC and C++",
+      "zen5": "-0.5% ± 0.7 1T, -0.9% ± 0.7 16T",
+      "zen3": "-0.2% ± 2.1 1T, +0.7% ± 0.6 16T; -1.6% at 8T"
     },
     {
       "id": "p-cpp-wheel-group32",
@@ -1260,7 +1264,8 @@
       "hypothesis": "Zig wheel: build each group pattern word in a register and store once",
       "prediction": "+3% (local -5% to -9%)",
       "plain": "If the Zig wheel builds each pattern word in a register before storing it, then pattern building gets cheaper, because it skips a clearing pass and many small memory updates.",
-      "note": "hc/zig-wheel-direct-pattern 82a21fa; local 3 pairs -5% to -9%; Zen 5 screen per Chris's rule, 3 rounds"
+      "note": "hc/zig-wheel-direct-pattern 82a21fa; local 3 pairs -5% to -9%; Zen 5 screen per Chris's rule, 3 rounds",
+      "note_local": "agent p-zig-wheel: Zig local split start 7.7%, pattern 8.5%, group 38.6%, tile 2.4%, sparse 38.2%, scan 4.7%; DENSE_MAX 256 and G 6-16 already best locally"
     },
     {
       "id": "s5-zig-wheel-profile",
@@ -1338,6 +1343,28 @@
       "prediction": "-1% to +1%",
       "plain": "If the base's dense loop walks a pointer instead of an index, then it may save an instruction per store on Zen 5, because it was never measured there.",
       "note": "history audit row 8; Zen 5 3-round screen"
+    },
+    {
+      "id": "s5-starts-ef",
+      "entry": "wheel",
+      "tier": "extra-faithful",
+      "kind": "novel",
+      "verdict": "running",
+      "hypothesis": "Cheaper sparse start offsets computed at run time (one division per prime and a residue walk, or the 8 planes vectorised)",
+      "prediction": "+3% to +8% at 1T (start offsets are 15.3% on Zen 5)",
+      "plain": "If the wheel finds where each large prime starts in all eight planes with one division instead of eight, then a pass gets faster, because that step takes about a seventh of the time now.",
+      "note": "agent building hc/s5-starts-ef from hc/champion"
+    },
+    {
+      "id": "s5-tables",
+      "entry": "wheel",
+      "tier": "permitted",
+      "kind": "permitted",
+      "verdict": "running",
+      "hypothesis": "Build-time tables of start offsets (and group patterns if cheap) for primes below 10,000, run-time fallback beyond",
+      "prediction": "+5% to +15% at 1T against hc/champion-tables",
+      "plain": "If the wheel looks up where each prime starts instead of working it out every pass, then a pass gets faster, because that work is about a quarter of the time, and the contest rules allow precalculated wheel tables.",
+      "note": "agent building hc/s5-tables on hc/champion-tables (branched at 1551635)"
     }
   ],
   "azure_queue": 0,
@@ -1347,29 +1374,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T23:03:24Z",
-      "level": "decision",
-      "text": "f5-addr64: no keep. Why: Zen 5 D32: +0.2% 1T, +0.9% +-0.3 32T; below the 1% bar and not worth 14 more rounds with 1.6 h left.",
-      "id": "f5-addr64",
-      "what": "no keep",
-      "why": "Zen 5 D32: +0.2% 1T, +0.9% +-0.3 32T; below the 1% bar and not worth 14 more rounds with 1.6 h left"
-    },
-    {
-      "utc": "2026-10-10T23:03:58Z",
-      "level": "decision",
-      "text": "f2-x86: REVERT (F2 does not stack on F1). Why: vs champion-grey (F1 in): Zen 5 -2.9% +-0.3 at 1T, -3.0% at 8T, +10.1% at 16T (SMT); Zen 3 +1.2% 1T, +12.7% 16T; Zen 4 -0.4% 1T, +4.7% 16T. Both changes cut the sparse phase's cache misses, so once F1 is in, blocking only pays when SMT siblings share L1. For the upstream issue F1 and F2 are alternatives, each measured alone against the clean champion. Passed over: F2 only when threads exceed cores: thread-count-dependent sieving, not tried.",
-      "id": "f2-x86",
-      "what": "REVERT (F2 does not stack on F1)",
-      "why": "vs champion-grey (F1 in): Zen 5 -2.9% +-0.3 at 1T, -3.0% at 8T, +10.1% at 16T (SMT); Zen 3 +1.2% 1T, +12.7% 16T; Zen 4 -0.4% 1T, +4.7% 16T. Both changes cut the sparse phase's cache misses, so once F1 is in, blocking only pays when SMT siblings share L1. For the upstream issue F1 and F2 are alternatives, each measured alone against the clean champion",
-      "instead": "F2 only when threads exceed cores: thread-count-dependent sieving, not tried"
-    },
-    {
-      "utc": "2026-10-10T23:08:09Z",
-      "level": "info",
-      "text": "f2-x86 revert: Zen 5 -2.9% at 1-8T, +10.1% at 16T vs champion-grey. Zen 5 D16as_v7, Zen 3, Zen 4 vs champion-grey, 6 rounds. vs champion-grey (F1 in): Zen 3 +1.2% +-0.3 1T, +1.5% 8T, +12.7% +-0.1 16T (6/6); Zen 4 -0.4% +-2.0 1T, +0.1% 8T, +4.7% 16T. With F1 in, blocking adds little until SMT siblings share L1. Zen 5 running",
-      "auto": true
-    },
     {
       "utc": "2026-10-10T23:08:09Z",
       "level": "info",
@@ -1705,6 +1709,33 @@
       "utc": "2026-10-11T01:59:51Z",
       "level": "info",
       "text": "History audit: 7 rechecks queued (zig-idea12 Zen 3, ISPC 1.28/Ubuntu 26.04, wheel scratch 256, base addr64 Zen 3, base hc-018, hc-023). Zig wheel profile and direct-pattern idea on Zen 5. Note for Chris: hc/champion tracks build outputs (primes, *.o) since the IDEAS 12 merge."
+    },
+    {
+      "utc": "2026-10-11T02:02:28Z",
+      "level": "decision",
+      "text": "s5-wheel-profile: stream 5 step 2 goes ahead: start offsets + pattern build are 23.5% of a Zen 5 wheel pass. Why: the bar was 5%; at 23.5% precomputed tables (permitted lineage) could buy up to ~20%, and an extra-faithful speed-up of the sparse start computation (11.3% alone) is worth trying first on hc/champion. Expect: tables: +5% to +15% on hc/champion-tables.",
+      "id": "s5-wheel-profile",
+      "what": "stream 5 step 2 goes ahead: start offsets + pattern build are 23.5% of a Zen 5 wheel pass",
+      "why": "the bar was 5%; at 23.5% precomputed tables (permitted lineage) could buy up to ~20%, and an extra-faithful speed-up of the sparse start computation (11.3% alone) is worth trying first on hc/champion",
+      "expect": "tables: +5% to +15% on hc/champion-tables"
+    },
+    {
+      "utc": "2026-10-11T02:02:28Z",
+      "level": "decision",
+      "text": "p-cpp-wheel-idea12: 12 more Zen 3 rounds. Why: Zen 5 clears (+6.2% ± 0.5 at 1T), Zen 3 straddles +1% at 16T (+1.4% ± 1.0); HILL-CLIMB says add rounds to 20. Expect: Zen 3 16T settles near +1.4%: keep.",
+      "id": "p-cpp-wheel-idea12",
+      "what": "12 more Zen 3 rounds",
+      "why": "Zen 5 clears (+6.2% ± 0.5 at 1T), Zen 3 straddles +1% at 16T (+1.4% ± 1.0); HILL-CLIMB says add rounds to 20",
+      "expect": "Zen 3 16T settles near +1.4%: keep"
+    },
+    {
+      "utc": "2026-10-11T02:03:21Z",
+      "level": "decision",
+      "text": "run: start agents s5-starts-ef (extra-faithful, on hc/champion) and s5-tables (permitted, on the new hc/champion-tables). Why: the Zen 5 profile puts the two target phases at 23.5%; RUN-PLAN wants both what an extra-faithful speed-up is worth and what tables add, on separate lineages. Passed over: byte sparse kernel (history audit row 6) until a slot frees.",
+      "id": "run",
+      "what": "start agents s5-starts-ef (extra-faithful, on hc/champion) and s5-tables (permitted, on the new hc/champion-tables)",
+      "why": "the Zen 5 profile puts the two target phases at 23.5%; RUN-PLAN wants both what an extra-faithful speed-up is worth and what tables add, on separate lineages",
+      "instead": "byte sparse kernel (history audit row 6) until a slot frees"
     }
   ],
   "research": {
