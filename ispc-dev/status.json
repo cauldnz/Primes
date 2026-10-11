@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T21:12:48Z",
+  "updated_utc": "2026-10-11T21:17:01Z",
   "run": {
     "id": "ap-20261011T1929Z",
     "state": "running",
@@ -2051,6 +2051,17 @@
       "verdict": "rejected",
       "commit": "3d1e663",
       "note": "local gate: 1T about -8%; Bigarray reloads its data pointer every access; byte view needs Obj.magic; RSS flat at 16 MB (side benefit)"
+    },
+    {
+      "id": "ox-009",
+      "entry": "oxcaml",
+      "title": "Constant-mask sparse in the x86 kernel",
+      "tier": "extra-faithful",
+      "kind": "novel",
+      "plain": "If the x86 sparse loop takes each chunk marks in bit order, then its masks become constants and fewer values spill out of registers, because only the eight offsets stay live.",
+      "prediction": "+5% to +10% over ox-008 at 1T on Zen",
+      "verdict": "running",
+      "commit": "4f1ba99"
     }
   ],
   "azure_queue": 0,
@@ -2060,17 +2071,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T20:06:44Z",
-      "level": "info",
-      "text": "ox-000 arm64: switch built in 604 s on Cobalt 100 (4 vCPU), image 775 s, uploaded. Both architectures cached; phase 0 step 1 done 25 min in."
-    },
-    {
-      "utc": "2026-10-11T20:06:44Z",
-      "level": "info",
-      "text": "ox-000 confirmed.. switch build 347 s on Zen 5 (16 vCPU), 604 s on Cobalt 100 (4 vCPU); whole image 561 s and 775 s; 1.2 GB zstd each, in bench storage",
-      "auto": true
-    },
     {
       "utc": "2026-10-11T20:06:59Z",
       "level": "info",
@@ -2419,6 +2419,21 @@
       "utc": "2026-10-11T21:12:39Z",
       "level": "info",
       "text": "ocaml-005 rejected.. limit 64: Zen 3 -3.1%; limit 96: Zen 5 +1.9%, Zen 3 +0.4% +-1.0; dense limit stays 128",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T21:17:01Z",
+      "level": "decision",
+      "text": "ox-009: submit 4f1ba99 vs a4e63af (ox-008) on Zen 5 and Zen 3; no Cobalt run. Why: rebuilt here, PRIMES_TEST=1 exits 0; diff is amd64/sparse.ml only, which arm64 never compiles (byte-identical arm binary, target-specific rule); 4.9 vs 5.4 instructions per composite, locally +10.7% in 3 of 3 rounds. Measured against ox-008 so each change gets its own verdict. Expect: +5% to +10%.",
+      "id": "ox-009",
+      "what": "submit 4f1ba99 vs a4e63af (ox-008) on Zen 5 and Zen 3; no Cobalt run",
+      "why": "rebuilt here, PRIMES_TEST=1 exits 0; diff is amd64/sparse.ml only, which arm64 never compiles (byte-identical arm binary, target-specific rule); 4.9 vs 5.4 instructions per composite, locally +10.7% in 3 of 3 rounds. Measured against ox-008 so each change gets its own verdict",
+      "expect": "+5% to +10%"
+    },
+    {
+      "utc": "2026-10-11T21:17:01Z",
+      "level": "info",
+      "text": "ox-009 (oxcaml) running: ",
       "auto": true
     }
   ],
