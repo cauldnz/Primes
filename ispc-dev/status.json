@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T10:31:18Z",
+  "updated_utc": "2026-10-11T10:37:33Z",
   "run": {
     "id": "ap-20261011T0645Z",
     "state": "running",
@@ -1820,6 +1820,15 @@
       "hypothesis": "Zig on Zen 5: build with -mcpu=native+evex512 (Zig 0.13 has no znver5, so native emits no zmm)",
       "plain": "If the Zig build is told Zen 5 may use 512-bit instructions, the base and wheel get the wider operations ISPC and C++ already gain from there.",
       "note": "hc/zig-zen5-evex512 66c0cce on hc/zig-champion-r9 8ba3386: build.sh gate (AuthenticAMD, family 26, avx512f, ZIG_CPU unset); off Zen 5 the build is byte-identical (target-specific rule: Zen 5 only). Local evex512 build self-test 0 wrong. Base and wheel, Zen 5 6 rounds each"
+    },
+    {
+      "id": "r9-final",
+      "entry": "scoreboard",
+      "tier": "extra-faithful",
+      "kind": "scoreboard",
+      "verdict": "running",
+      "hypothesis": "final per-thread scoreboard: three ISPC entries at 1T and 4T on Zen 5, Zen 3, Zen 4 (AVX-512) and Cobalt, with rogiervandam C5, danielspaangberg C wheel and mike-barber Rust",
+      "note": "hc/champion-tables-r9 57e0792 = hc/champion 216629d + solution_3 (4a42d98) + solution_3 .gitignore; built and self-tested locally. Wheel kind: solution_3 (cand) vs solution_1 (champ), ctrl c5 (Rust on Cobalt), ctrl2 dsp. Base kind: 57e0792 vs run start 3ad0427, ctrl Rust. 6 rounds, four chips"
     }
   ],
   "azure_queue": 0,
@@ -1829,20 +1838,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T07:57:29Z",
-      "level": "decision",
-      "text": "p0-solution3: keep: fast-forward hc/champion-tables to hc/solution3 (4a42d98). Why: +16.8% / +19.1% at 1T on Zen 5 / Zen 3 against the run-time wheel, every round; phase 0 item 2 done.",
-      "id": "p0-solution3",
-      "what": "keep: fast-forward hc/champion-tables to hc/solution3 (4a42d98)",
-      "why": "+16.8% / +19.1% at 1T on Zen 5 / Zen 3 against the run-time wheel, every round; phase 0 item 2 done"
-    },
-    {
-      "utc": "2026-10-11T07:57:29Z",
-      "level": "info",
-      "text": "size-cliff confirmed.. No wheel cliff on Zen 3 at 1M (plateau 700k-1.05M; -2% by 1.1M): stream 1 step 2 candidates not built (plan condition unmet; plane halves moot). Wheel Zen 5 flat to 1.1M. Base Zen 5: 0.905 (770k) -> 0.813 (850k) -> 0.705 (1M): L1 worth 22-28% at the official size, reachable only by blocking (F2, grey). Base Zen 3 smooth (-16% over 500k-700k). Cobalt base -6.6% crossing 64 KB at 1.05M. 4 of 6 predictions held. results/hc/size-cliff/README.md",
-      "auto": true
-    },
     {
       "utc": "2026-10-11T07:57:29Z",
       "level": "info",
@@ -2179,6 +2174,22 @@
       "utc": "2026-10-11T10:31:18Z",
       "level": "info",
       "text": "r9-zig-tables-group KEEP.. hc/zig-tables-group 138e074: 13 from PAT via patternGroup(7,11,13), tile in a stack scratch, one tile|13 write per plane; self-test native and baseline. Local 1T +2% vs 0886ddf (noise). Zen 5 + Zen 3 6 rounds vs 0886ddf",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T10:37:33Z",
+      "level": "decision",
+      "text": "r9-final: start the final ISPC scoreboard now (10:33Z) instead of at 12:15Z. Why: no ISPC experiment is open, so the entries are final; Zen 3 and Zen 4/Cobalt capacity is idle, and starting early leaves time for more rounds if any row is noisy. Passed over: waiting for the last 45 minutes. Expect: the ports row follows once Zig evex512 is decided.",
+      "id": "r9-final",
+      "what": "start the final ISPC scoreboard now (10:33Z) instead of at 12:15Z",
+      "why": "no ISPC experiment is open, so the entries are final; Zen 3 and Zen 4/Cobalt capacity is idle, and starting early leaves time for more rounds if any row is noisy",
+      "instead": "waiting for the last 45 minutes",
+      "expect": "the ports row follows once Zig evex512 is decided"
+    },
+    {
+      "utc": "2026-10-11T10:37:33Z",
+      "level": "info",
+      "text": "r9-final (scoreboard) running: final per-thread scoreboard: three ISPC entries at 1T and 4T on Zen 5, Zen 3, Zen 4 (AVX-512) and Cobalt, with rogiervandam C5, danielspaangberg C wheel and mike-barber Rust",
       "auto": true
     }
   ],
