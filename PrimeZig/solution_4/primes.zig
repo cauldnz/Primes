@@ -81,7 +81,8 @@ fn denseReset(comptime P: usize, w: []u64) void {
     while (c + VB * P <= len) : (c += VB * P) {
         inline for (0..P) |vi| {
             const lo = 64 * VB * vi; // first bit of this vector within the block
-            var x = loadV(VB, ptr + c + VB * vi);
+            // 3 is always the first factor, so its pass writes each word without reading it.
+            var x = if (P == 3) @as(Words(VB), @splat(0)) else loadV(VB, ptr + c + VB * vi);
             comptime var j = firstMultiple(P, lo);
             inline while (P / 2 + j * P < lo + 64 * VB) : (j += 1) {
                 x |= comptime laneBit(P / 2 + j * P - lo); // one composite
@@ -89,6 +90,7 @@ fn denseReset(comptime P: usize, w: []u64) void {
             storeV(VB, ptr + c + VB * vi, x);
         }
     }
+    if (P == 3) @memset(w[c..], 0); // words after the last block
     // Whole periods left over, a word at a time.
     while (c + P <= len) : (c += P) {
         inline for (0..P) |k| {
@@ -157,7 +159,10 @@ const BaseSieve = struct {
         // Cache-line aligned: the arena's own header left the words 16 bytes past a line, so
         // half the 32-byte and every 64-byte dense vector access split a cache line.
         const words = try alloc.alignedAlloc(u64, 64, (nbits + 63) / 64);
-        @memset(words, 0);
+        // Only word 0 is cleared here, so the scan can read the bit for 3. Whenever the sieve
+        // reaches 9, the scan's first factor is 3, and its dense pass writes every word (see
+        // denseReset), so that pass initialises the rest. Below 9 there is only word 0.
+        if (words.len > 0) words[0] = 0;
         return .{ .alloc = alloc, .size = size, .nbits = nbits, .words = words };
     }
 
