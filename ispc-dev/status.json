@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T21:51:28Z",
+  "updated_utc": "2026-10-11T21:51:53Z",
   "run": {
     "id": "ap-20261011T1929Z",
     "state": "running",
@@ -13,7 +13,7 @@
     "ends_utc": "2026-10-12T01:29:00Z",
     "background_runs": 2,
     "last_tick_utc": "2026-10-11T21:50:22Z",
-    "wakeup": "trig_01HCrakpWG2po7CLJJrjESWd"
+    "wakeup": "trig_013ja8cHb2bY1RP88q9kxWAd"
   },
   "current": {
     "id": "ocaml-004",
@@ -2135,16 +2135,6 @@
   ],
   "events": [
     {
-      "utc": "2026-10-11T20:53:18Z",
-      "level": "decision",
-      "text": "ox-007: background agent: other sparse loop forms (strided one-mark loop unrolled, half-chunks, 64-bit strided) on cbcd24d, measured against ox-004. Why: sparse is now 50% of an OxCaml pass; ox-004 attacks it with untagged ints, but the spills come from 20 live values, which a loop with fewer live values avoids by design. Passed over: Cobalt arm64 investigation. Expect: a form at or below 1.5 cycles per mark locally, +10% to +20% at 1T.",
-      "id": "ox-007",
-      "what": "background agent: other sparse loop forms (strided one-mark loop unrolled, half-chunks, 64-bit strided) on cbcd24d, measured against ox-004",
-      "why": "sparse is now 50% of an OxCaml pass; ox-004 attacks it with untagged ints, but the spills come from 20 live values, which a loop with fewer live values avoids by design",
-      "instead": "Cobalt arm64 investigation",
-      "expect": "a form at or below 1.5 cycles per mark locally, +10% to +20% at 1T"
-    },
-    {
       "utc": "2026-10-11T20:58:44Z",
       "level": "decision",
       "text": "ocaml-004: KEEP; hc/ocaml-champion fast-forwarded to 0aaa340. Why: analyze.py KEEP: 4T lower bounds +3.0% Zen 5 and +5.8% Zen 3, no loss anywhere, Cobalt +23%.",
@@ -2489,6 +2479,15 @@
       "level": "info",
       "text": "ox-014 (oxcaml) running: ",
       "auto": true
+    },
+    {
+      "utc": "2026-10-11T21:51:53Z",
+      "level": "decision",
+      "text": "ox-015: background agent: two chunks per sparse loop iteration in the x86 kernel. Why: sparse is 52% of a Zen 3 pass at 1.56 cycles per mark; 5 of the 39 instructions per chunk are loop overhead and poll, which a second chunk per iteration halves while sharing the eight offset registers. Expect: +2% to +6% at 1T.",
+      "id": "ox-015",
+      "what": "background agent: two chunks per sparse loop iteration in the x86 kernel",
+      "why": "sparse is 52% of a Zen 3 pass at 1.56 cycles per mark; 5 of the 39 instructions per chunk are loop overhead and poll, which a second chunk per iteration halves while sharing the eight offset registers",
+      "expect": "+2% to +6% at 1T"
     }
   ],
   "research": {
