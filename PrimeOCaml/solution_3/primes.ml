@@ -10,9 +10,11 @@
    - Dense (factor below 128): the odd multiples of p repeat with a period of p 64-bit words.
      For each factor the sieve builds the word pattern of four periods (4p words) in its own
      scratch buffer, setting each of their 256 multiples with its own single-bit OR, then ORs
-     the pattern into the sieve. The copy loops live in module Dense, picked by build.sh: on
-     x86-64 (amd64/dense.ml) they use OxCaml's 256-bit vector type and do one AVX load, OR and
-     store per 32 bytes; elsewhere (scalar/dense.ml) they do four 64-bit words per step.
+     the pattern into the sieve. The pattern build and the copy loops live in module Dense,
+     picked by build.sh: on x86-64 (amd64/dense.ml) the copy loops use OxCaml's 256-bit vector
+     type and do one AVX load, OR and store per 32 bytes, and the pattern build zeroes with
+     256-bit stores and does its ORs with untagged offsets; elsewhere (scalar/dense.ml) the
+     copy loops do four 64-bit words per step.
    - Sparse (larger factors): eight multiples repeat every p bytes, each at a fixed bit. The
      byte offsets and masks are computed per factor; each composite is one OR of a single-bit
      mask. This loop lives in module Sparse, also picked by build.sh: on x86-64
@@ -58,17 +60,10 @@ let create size =
 let[@inline always] is_composite s i =
   (Char.code (Bytes.unsafe_get s.bits (i lsr 3)) lsr (i land 7)) land 1 <> 0
 
-(* The word pattern of one run of four periods (4p words) for odd factor p: word t lsr 6 of
-   the run gets bit t land 63 for each multiple p(2j + 1), at bit t = p/2 + jp, j = 0..255.
-   One single-bit OR per composite. *)
-let build_pattern s p =
-  let pat = s.pattern in
-  Bytes.fill pat 0 (p * 32) '\000';
-  for j = 0 to 255 do
-    let t = (p lsr 1) + (j * p) in
-    let a = (t lsr 6) * 8 in
-    set64 pat a (Int64.logor (get64 pat a) (Int64.shift_left 1L (t land 63)))
-  done
+(* The word pattern of one run of four periods (4p words) for odd factor p, built in the
+   scratch buffer by Dense.build_pattern: word t lsr 6 of the run gets bit t land 63 for each
+   multiple p(2j + 1), at bit t = p/2 + jp, j = 0..255. One single-bit OR per composite. *)
+let[@inline always] build_pattern s p = Dense.build_pattern s.pattern p
 
 (* Dense clearing for odd p < dense_limit. Periods of p words start at word multiples of p;
    clearing starts at the period holding p². The smaller multiples in that period are

@@ -9,6 +9,17 @@ external set64 : Bytes.t -> int -> int64 -> unit = "%caml_bytes_set64u"
 
 let kind = "scalar"
 
+(* The word pattern of one run of four periods (32p bytes) for odd factor p, in [pat]: word
+   t lsr 6 of the run gets bit t land 63 for each multiple p(2j + 1), at bit t = p/2 + jp,
+   j = 0..255. One single-bit OR per composite. *)
+let build_pattern pat p =
+  Bytes.fill pat 0 (p * 32) '\000';
+  for j = 0 to 255 do
+    let t = (p lsr 1) + (j * p) in
+    let a = (t lsr 6) * 8 in
+    set64 pat a (Int64.logor (get64 pat a) (Int64.shift_left 1L (t land 63)))
+  done
+
 (* Stores the pattern without reading the sieve: the first factor's pass, which initialises
    the buffer. *)
 let[@inline] store_runs b pat base runs rb =
