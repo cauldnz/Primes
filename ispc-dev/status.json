@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T07:16:56Z",
+  "updated_utc": "2026-10-11T07:21:21Z",
   "run": {
     "id": "ap-20261011T0645Z",
     "state": "running",
@@ -1651,7 +1651,7 @@
       "verdict": "running",
       "hypothesis": "Zig base: compiled dense/sparse paths against the ISPC base, then one change on the biggest difference",
       "plain": "If the Zig base gets the part of the ISPC base that differs most, then it closes some of its 10% gap, because the two do the same work otherwise.",
-      "note": "agent building hc/zig-base-r9"
+      "note": "hc/zig-base-r9 a90b985: init clears only word 0 and the P=3 pass stores without loading (ISPC INIT), replacing a full memset + load. Agent: Zig dense path already vectorised and leaner per word than ISPC x8/x16; sparse 13 vs 12 instr per 8 (a pointer rewrite did not change LLVM output); locally Zig and ISPC bases level (47.6k vs 48.0k). Self-test 26/26 incl. dirty-memory check; local +1.3% (noise). Zen 5 + Zen 3 6 rounds"
     },
     {
       "id": "s1-base-codesize",
@@ -1671,12 +1671,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T03:27:46Z",
-      "level": "info",
-      "text": "b1-sparse-last rejected.. flat on Cobalt, a loss on Zen 5: the x86 compile of the new test is worse. The Cobalt 2% stays unexplained by the sparse loop; dense (ours +3.8% slower there) is the remaining lead",
-      "auto": true
-    },
     {
       "utc": "2026-10-11T03:27:46Z",
       "level": "info",
@@ -2003,6 +1997,15 @@
       "level": "info",
       "text": "s1-base-codesize (base) running: Measure the hot dense/sparse code bytes per target (incl. the x16 copy and NEON); if the dense switch is large, a generic loop for factors 65-127",
       "auto": true
+    },
+    {
+      "utc": "2026-10-11T07:21:21Z",
+      "level": "decision",
+      "text": "r9-zig-base: submit on Zen 5 and Zen 3. Why: Chris's AMD-screen rule; the Zen 5 gap (139k vs 124k) does not show locally, so only Zen can say. Expect: 0 to +2%.",
+      "id": "r9-zig-base",
+      "what": "submit on Zen 5 and Zen 3",
+      "why": "Chris's AMD-screen rule; the Zen 5 gap (139k vs 124k) does not show locally, so only Zen can say",
+      "expect": "0 to +2%"
     }
   ],
   "research": {
