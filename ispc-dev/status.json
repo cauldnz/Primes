@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T06:55:15Z",
+  "updated_utc": "2026-10-11T06:56:32Z",
   "run": {
     "id": "ap-20261011T0645Z",
     "state": "running",
@@ -1587,6 +1587,17 @@
       "verdict": "running",
       "hypothesis": "More rounds for the C++ wheel IDEAS 12 on clang under the per-thread rule",
       "note": "backtest: kept on 16T last run, straddles at 1T/4T; 10 rounds Zen 5 + Zen 3"
+    },
+    {
+      "id": "p0-solution3",
+      "entry": "wheel-tables",
+      "tier": "permitted",
+      "kind": "permitted",
+      "verdict": "running",
+      "hypothesis": "Third entry PrimeISPC/solution_3 (tables wheel, label cauldnz-ispc-wheel-tables, README words from drafts/solution-3-notes.md, 4T line) against solution_1 at 330b3d4",
+      "prediction": "+15% to +20% at 1T (tables +23% minus the start-offset keep solution_1 now has)",
+      "plain": "If the tables wheel ships as its own entry, then it sits beside the run-time wheel about a fifth faster, because it reads what the other works out each pass.",
+      "note": "hc/solution3 4a42d98 (agent b5ca2bd + 4T line): self-test, Dockerfile build by hand, 5,396-size sweep bad 0, solution_1 self-test; Zen 5 + Zen 3 6 rounds"
     }
   ],
   "azure_queue": 0,
@@ -1596,18 +1607,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T02:50:14Z",
-      "level": "info",
-      "text": "f4-dense-low rejected.. 256 is the optimum on both sides: F4 closed",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T02:50:14Z",
-      "level": "info",
-      "text": "p-zig-wheel-direct-pattern rejected.. Zen 5 screen confirms the local loss",
-      "auto": true
-    },
     {
       "utc": "2026-10-11T02:50:14Z",
       "level": "warn",
@@ -1924,6 +1923,20 @@
       "utc": "2026-10-11T06:55:15Z",
       "level": "info",
       "text": "p-cpp-wheel-clang-idea12-r9 (cpp-wheel) running: More rounds for the C++ wheel IDEAS 12 on clang under the per-thread rule",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T06:56:32Z",
+      "level": "decision",
+      "text": "p0-solution3: accept the agent's solution_3 and add the 4T line; measure against solution_1 at the champion. Why: checks passed (self-test, Docker stage by hand, sweep 0 bad); README words placed verbatim; solution_1 label kept as cauldnz-ispc (a label change for solution_1 is Chris's call).",
+      "id": "p0-solution3",
+      "what": "accept the agent's solution_3 and add the 4T line; measure against solution_1 at the champion",
+      "why": "checks passed (self-test, Docker stage by hand, sweep 0 bad); README words placed verbatim; solution_1 label kept as cauldnz-ispc (a label change for solution_1 is Chris's call)"
+    },
+    {
+      "utc": "2026-10-11T06:56:32Z",
+      "level": "info",
+      "text": "p0-solution3 (wheel-tables) running: Third entry PrimeISPC/solution_3 (tables wheel, label cauldnz-ispc-wheel-tables, README words from drafts/solution-3-notes.md, 4T line) against solution_1 at 330b3d4",
       "auto": true
     }
   ],

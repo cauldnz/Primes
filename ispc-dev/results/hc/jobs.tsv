@@ -186,3 +186,5 @@ id	pool	size	kind	outdir	submitted	state
 06530716301	hc-standard-d16as-v7	Standard_D16as_v7	wheel	ispc-dev/results/hc/p0-line-4t-wheel	2026-10-11T06:53:16Z	open
 06532422872	hc-standard-d16as-v7	Standard_D16as_v7	base	ispc-dev/results/hc/p0-line-4t-base	2026-10-11T06:54:16Z	open
 0654223850	hc-standard-d16as-v7	Standard_D16as_v7	base	ispc-dev/results/hc/p0-line-4t-6cpu	2026-10-11T06:55:15Z	open
+06560520487	hc-standard-d16as-v7	Standard_D16as_v7	wheel	ispc-dev/results/hc/p0-solution3	2026-10-11T06:56:15Z	open
+0656211109	hc-standard-d16a-v4	Standard_D16a_v4	wheel	ispc-dev/results/hc/p0-solution3	2026-10-11T06:56:32Z	open
