@@ -22,6 +22,39 @@
   },
   "scoreboard": [
     {
+      "machine": "Zen 5 (EPYC 9V45, D16as_v7)",
+      "entry": "oxcaml base",
+      "ours_1t": 48600,
+      "ours_mt": 178200,
+      "rival": "mike-barber Rust",
+      "rival_1t": 126300,
+      "rival_mt": 471600,
+      "threads": 4,
+      "source": "run 10 ox-003 (5 rounds, same-round medians); rival = mike-barber Rust; 4T in ours_mt; plain OCaml 31.6k, ISPC base 139k, gkpotter 1.6k"
+    },
+    {
+      "machine": "Zen 3 (EPYC 7763, D16a_v4)",
+      "entry": "oxcaml base",
+      "ours_1t": 25100,
+      "ours_mt": 95000,
+      "rival": "mike-barber Rust",
+      "rival_1t": 55100,
+      "rival_mt": 213800,
+      "threads": 4,
+      "source": "run 10 ox-003 (5 rounds, same-round medians); rival = mike-barber Rust; 4T in ours_mt; plain OCaml 16.4k, ISPC base 58.4k, gkpotter 0.8k"
+    },
+    {
+      "machine": "Cobalt 100 (D4ps_v6)",
+      "entry": "oxcaml base",
+      "ours_1t": 7300,
+      "ours_mt": 27000,
+      "rival": "mike-barber Rust",
+      "rival_1t": 42900,
+      "rival_mt": 171300,
+      "threads": 4,
+      "source": "run 10 ox-003 (5 rounds, same-round medians); rival = mike-barber Rust; 4T in ours_mt; plain OCaml 2.8k, ISPC base 42.2k"
+    },
+    {
       "machine": "Zen 5 (EPYC 9V45, D32as_v7)",
       "entry": "base",
       "ours_1t": 122400,
