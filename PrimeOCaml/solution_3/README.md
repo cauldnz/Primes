@@ -74,7 +74,7 @@ Each change below was kept under a paired-run rule at one and four threads on AM
 | Pattern build with 256-bit zeroing and untagged ORs | +3.3% | +7.4% | +0.0% |
 | 32-bit stores in the scalar dense copy and pattern build | same binary | same binary | +61.4% |
 
-The first row is against the plain OCaml entry of the time, built with the upstream compiler. The final figures are in Results.
+The first row is against the plain OCaml entry of the time, built with the upstream compiler. The last row changed only Arm code, so Cobalt alone decided it. The final figures are in Results.
 
 ### Faithfulness
 
