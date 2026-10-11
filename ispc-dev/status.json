@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T21:24:25Z",
+  "updated_utc": "2026-10-11T21:25:03Z",
   "run": {
     "id": "ap-20261011T1929Z",
     "state": "running",
@@ -2015,8 +2015,9 @@
       "source": "plain line ocaml-004",
       "plain": "If each loaded pattern vector is ORed into two runs of the sieve, then the dense copy does fewer loads, because one load serves two stores.",
       "prediction": "+3% to +8% at 1T on Zen 5 and Zen 3",
-      "verdict": "running",
-      "commit": "2ef6a1d"
+      "verdict": "kept",
+      "commit": "2ef6a1d",
+      "note": "Zen 3 +3.1% 1T / +3.3% 4T, Zen 5 +7.5% 4T (noisy node); on cbcd24d, combined with ox-008 as ox-011"
     },
     {
       "id": "ox-007",
@@ -2026,8 +2027,9 @@
       "kind": "novel",
       "plain": "If the eight marks in each chunk are taken in bit order, then every mask is a constant and only the eight offsets need registers, because an odd prime puts its eight multiples on eight different bits of a byte.",
       "prediction": "x86 +8% to +20% at 1T; Cobalt may lose as ox-004 did (same word OR)",
-      "verdict": "running",
-      "commit": "0245d04"
+      "verdict": "rejected",
+      "commit": "0245d04",
+      "note": "x86 +28% to +33% but Cobalt -27.6%; carried into the x86 kernel as ox-009"
     },
     {
       "id": "ox-008",
@@ -2037,8 +2039,9 @@
       "kind": "novel",
       "plain": "If only x86 gets the unboxed-integer loops and Arm keeps the old ones, then x86 keeps its gain and Arm loses nothing, because the Arm loss came from code it no longer compiles.",
       "prediction": "Zen 5 +15% to +25%, Zen 3 +12% to +18% at 1T; Cobalt within 1%",
-      "verdict": "running",
-      "commit": "a4e63af"
+      "verdict": "kept",
+      "commit": "a4e63af",
+      "note": "Zen 5 +26.6% 1T, Zen 3 +17.4%, Cobalt flat; champion a4e63af"
     },
     {
       "id": "ocaml-006",
@@ -2083,56 +2086,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T20:07:31Z",
-      "level": "warn",
-      "text": "Toolchain caveat for the upstream question: OxCaml turns on AVX2/BMI2/FMA by default when its build machine has them, so an image built on one CPU can emit code another CPU can't run (the SSE4 Celeron). A submission that builds the switch in its own Dockerfile builds on the runner, which avoids it; a hosted image would need -fno-avx or per-CPU builds."
-    },
-    {
-      "utc": "2026-10-11T20:07:31Z",
-      "level": "info",
-      "text": "ox-001 (oxcaml) confirmed: ",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T20:08:03Z",
-      "level": "decision",
-      "text": "ocaml-003: background agent: phase profile and hot-loop assembly of the plain OCaml base (hc/ocaml-003-profile). Why: AUTOPILOT section 3: the first experiment on a new entry is a measurement; the plain port runs 4.4x slower than the ISPC base on Zen 5 where the Rust port of the same design ran within 15%, so the gap is in how OCaml compiles it. Passed over: a GC or dense-limit change without a profile. Expect: the sparse phase and tag shifts dominate.",
-      "id": "ocaml-003",
-      "what": "background agent: phase profile and hot-loop assembly of the plain OCaml base (hc/ocaml-003-profile)",
-      "why": "AUTOPILOT section 3: the first experiment on a new entry is a measurement; the plain port runs 4.4x slower than the ISPC base on Zen 5 where the Rust port of the same design ran within 15%, so the gap is in how OCaml compiles it",
-      "instead": "a GC or dense-limit change without a profile",
-      "expect": "the sparse phase and tag shifts dominate"
-    },
-    {
-      "utc": "2026-10-11T20:12:55Z",
-      "level": "decision",
-      "text": "ox-002: submit ox-002 (solution_3 fe63db5 vs solution_4 0b8d98c) and ox-003 (cbcd24d vs fe63db5) on Zen 5, Zen 3 and Cobalt, 5 rounds. Why: both rebuilt here with the local OxCaml switch, PRIMES_TEST=1 exits 0; ox-003 diff read: SIMD only in the pattern copy, pattern built with one OR per composite, scalar fallback on arm64. Cobalt gives the gate and the arm64 compiler gap. Expect: ox-002 within 10% of plain; ox-003 +10% to +30% at 1T on x86.",
-      "id": "ox-002",
-      "what": "submit ox-002 (solution_3 fe63db5 vs solution_4 0b8d98c) and ox-003 (cbcd24d vs fe63db5) on Zen 5, Zen 3 and Cobalt, 5 rounds",
-      "why": "both rebuilt here with the local OxCaml switch, PRIMES_TEST=1 exits 0; ox-003 diff read: SIMD only in the pattern copy, pattern built with one OR per composite, scalar fallback on arm64. Cobalt gives the gate and the arm64 compiler gap",
-      "expect": "ox-002 within 10% of plain; ox-003 +10% to +30% at 1T on x86"
-    },
-    {
-      "utc": "2026-10-11T20:13:38Z",
-      "level": "info",
-      "text": "ox-002 (oxcaml) running: ",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T20:13:38Z",
-      "level": "info",
-      "text": "ox-003 (oxcaml) running: ",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T20:16:15Z",
-      "level": "decision",
-      "text": "ocaml-003: accept the profile; it sets the targets: dense OR loop 54% and sparse 36% at 1T. Why: the agent's ranking rests on measured phase shares and a 17% local dense-loop gain for the two-run step; its sparse attempts (split loop, 64-bit ORs) lost, so sparse is parked until a new idea.",
-      "id": "ocaml-003",
-      "what": "accept the profile; it sets the targets: dense OR loop 54% and sparse 36% at 1T",
-      "why": "the agent's ranking rests on measured phase shares and a 17% local dense-loop gain for the two-run step; its sparse attempts (split loop, 64-bit ORs) lost, so sparse is parked until a new idea"
-    },
     {
       "utc": "2026-10-11T20:16:15Z",
       "level": "info",
@@ -2449,6 +2402,53 @@
       "utc": "2026-10-11T21:20:13Z",
       "level": "info",
       "text": "ox-010 (oxcaml) running: ",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T21:25:03Z",
+      "level": "decision",
+      "text": "ox-008: KEEP; hc/oxcaml-champion fast-forwarded to a4e63af. Why: analyze.py KEEP: lower bounds +25.3% Zen 5 (4T) and +12.1% Zen 3 (1T), Cobalt +0.0%. Over 20%: the x86 kernels are ox-004's code, which gave +22%/+16% on other tasks and nodes, so the gain replicates; diff re-read, one OR per composite, tail keeps byte ORs.",
+      "id": "ox-008",
+      "what": "KEEP; hc/oxcaml-champion fast-forwarded to a4e63af",
+      "why": "analyze.py KEEP: lower bounds +25.3% Zen 5 (4T) and +12.1% Zen 3 (1T), Cobalt +0.0%. Over 20%: the x86 kernels are ox-004's code, which gave +22%/+16% on other tasks and nodes, so the gain replicates; diff re-read, one OR per composite, tail keeps byte ORs"
+    },
+    {
+      "utc": "2026-10-11T21:25:03Z",
+      "level": "decision",
+      "text": "ox-006: KEEP on cbcd24d; combine with ox-008 in a new candidate (ox-011, agent) rather than merging. Why: analyze.py KEEP: 4T lower bounds +4.0% Zen 5 and +2.8% Zen 3; both it and ox-008 rewrite amd64/dense.ml, so the combination is a new build that needs its own measurement against a4e63af.",
+      "id": "ox-006",
+      "what": "KEEP on cbcd24d; combine with ox-008 in a new candidate (ox-011, agent) rather than merging",
+      "why": "analyze.py KEEP: 4T lower bounds +4.0% Zen 5 and +2.8% Zen 3; both it and ox-008 rewrite amd64/dense.ml, so the combination is a new build that needs its own measurement against a4e63af"
+    },
+    {
+      "utc": "2026-10-11T21:25:03Z",
+      "level": "decision",
+      "text": "ox-007: REVERT on the Cobalt gate. Why: x86 +28% Zen 3 and +33% Zen 5 at 1T over cbcd24d, but Cobalt -27.6%; ox-009 measures the same form inside the x86-only kernel.",
+      "id": "ox-007",
+      "what": "REVERT on the Cobalt gate",
+      "why": "x86 +28% Zen 3 and +33% Zen 5 at 1T over cbcd24d, but Cobalt -27.6%; ox-009 measures the same form inside the x86-only kernel"
+    },
+    {
+      "utc": "2026-10-11T21:25:03Z",
+      "level": "info",
+      "text": "OxCaml champion now a4e63af: Zen 5 60.5k at 1T (0.44x ISPC base 136.8k, 0.49x Rust 124.1k), Zen 3 29.8k, Cobalt 7.3k."
+    },
+    {
+      "utc": "2026-10-11T21:25:03Z",
+      "level": "info",
+      "text": "ox-006 kept.. Zen 3 +3.1% 1T / +3.3% 4T, Zen 5 +7.5% 4T (noisy node); on cbcd24d, combined with ox-008 as ox-011",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T21:25:03Z",
+      "level": "info",
+      "text": "ox-007 rejected.. x86 +28% to +33% but Cobalt -27.6%; carried into the x86 kernel as ox-009",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T21:25:03Z",
+      "level": "info",
+      "text": "ox-008 kept.. Zen 5 +26.6% 1T, Zen 3 +17.4%, Cobalt flat; champion a4e63af",
       "auto": true
     }
   ],
