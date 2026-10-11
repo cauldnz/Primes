@@ -99,7 +99,12 @@ struct Sieve {
     uniform int pw;                  // plane stride in words (64-byte aligned)
     uniform int dense_max;           // primes below this are applied as word patterns
     uniform uint64 * uniform bits;   // the 8 bit-planes, pw words apart
+    uniform uint64 * uniform scr;    // the current group's patterns, extended (SCR_WORDS)
 };
+
+// Scratch for one group's patterns: an all-zero row of 2*TAB_EXT words for unused members,
+// then each member's period L (a multiple of p, at least TAB_EXT words) plus TAB_EXT words.
+#define SCR_WORDS (2 * TAB_EXT + G * (MAXPAT + TAB_EXT))
 
 static void sieve_create(uniform Sieve * uniform s, uniform int64 size, uniform int dense_max) {
     s->size = size;
@@ -107,7 +112,9 @@ static void sieve_create(uniform Sieve * uniform s, uniform int64 size, uniform 
     s->nw = (s->mbits + 63) >> 6;
     s->pw = (s->nw + (TAIL_OVERRUN ? programCount - 1 : 0) + 7) & ~7;   // room to overrun nw
     s->dense_max = min(dense_max, MAXPAT);
-    s->bits = (uniform uint64 * uniform)aligned_alloc(64, (uniform int64)8 * s->pw * 8);
+    s->bits = (uniform uint64 * uniform)aligned_alloc(64, (uniform int64)8 * (s->pw * 8 + SCR_WORDS));
+    s->scr = s->bits + s->pw * 8;
+    foreach (k = 0 ... 2 * TAB_EXT) s->scr[k] = 0;
 }
 
 static void sieve_destroy(uniform Sieve * uniform s) {
@@ -154,30 +161,30 @@ static inline uniform int apply_range(uniform uint64 * uniform w, const uniform 
 }
 
 // Fused pass over one plane: every group member is OR'd in with a single load and store of
-// each sieve word. Member j starts at bit b[j], where its pattern (tabled at PAT_OFF[t[j]]) is
-// at phase ph[j]; members j >= n read the all-zero row at the start of PAT.
+// each sieve word. Member j starts at bit b[j], where its pattern (period L[j], at pat + o[j])
+// is at phase ph[j]; members j >= n read the all-zero row at the start of pat.
 static void apply_group(uniform uint64 * uniform w, uniform int nw, uniform int n,
                         const uniform int * uniform b, const uniform int * uniform ph,
-                        const uniform int * uniform t) {
+                        const uniform uint64 * uniform pat, const uniform int * uniform o,
+                        const uniform int * uniform Ls) {
     // Every member starts at the earliest member's first word, so no member needs a lead-in.
     // A member then also marks its multiples below p*p, which are composite, and p itself,
     // which dense_primes clears again.
 #if TAIL_OVERRUN
     unmasked {   // callers run with every lane on; without this each store is masked
 #endif
-    // r[j] indexes PAT directly; it wraps back by L[j] once it reaches E[j], the end of the
+    // r[j] indexes pat directly; it wraps back by L[j] once it reaches E[j], the end of the
     // member's period. Phases and periods are 64-bit, so addressing needs no sign extension.
     uniform int64 r[G], L[G], E[G];
     uniform int start = nw;
     for (uniform int j = 0; j < n; j++) start = min(start, b[j] >> 6);
     for (uniform int j = 0; j < G; j++) {
         if (j < n) {
-            uniform int Lj = PAT_L[t[j]];
+            uniform int Lj = Ls[j];
             uniform int r0 = ph[j] - ((b[j] >> 6) - start) % Lj;   // phase at start
-            uniform int64 o = PAT_OFF[t[j]];
             L[j] = Lj;
-            r[j] = o + ((r0 < 0) ? r0 + Lj : r0);
-            E[j] = o + Lj;
+            r[j] = o[j] + ((r0 < 0) ? r0 + Lj : r0);
+            E[j] = o[j] + Lj;
         } else { r[j] = 0; L[j] = TAB_EXT; E[j] = TAB_EXT; }
     }
     uniform int64 k = start;
@@ -189,8 +196,8 @@ static void apply_group(uniform uint64 * uniform w, uniform int nw, uniform int 
             uint64 v0 = w[k + programIndex];
             uint64 v1 = w[k + programCount + programIndex];
             for (uniform int j = 0; j < G; j++) {
-                v0 |= PAT[r[j] + programIndex];
-                v1 |= PAT[r[j] + programCount + programIndex];
+                v0 |= pat[r[j] + programIndex];
+                v1 |= pat[r[j] + programCount + programIndex];
                 uniform int64 x = r[j] + STEP;
                 r[j] = (x >= E[j]) ? x - L[j] : x;
             }
@@ -202,7 +209,7 @@ static void apply_group(uniform uint64 * uniform w, uniform int nw, uniform int 
     for (; k + programCount <= nw; k += programCount) {
         uint64 v = w[k + programIndex];
         for (uniform int j = 0; j < G; j++) {
-            v |= PAT[r[j] + programIndex];
+            v |= pat[r[j] + programIndex];
             uniform int64 x = r[j] + programCount;
             r[j] = (x >= E[j]) ? x - L[j] : x;
         }
@@ -210,7 +217,7 @@ static void apply_group(uniform uint64 * uniform w, uniform int nw, uniform int 
     }
     if (TAIL_OVERRUN ? k < nw : k + programIndex < nw) {
         uint64 v = w[k + programIndex];
-        for (uniform int j = 0; j < G; j++) v |= PAT[r[j] + programIndex];
+        for (uniform int j = 0; j < G; j++) v |= pat[r[j] + programIndex];
         w[k + programIndex] = v;
     }
 #if TAIL_OVERRUN
@@ -222,17 +229,33 @@ static void apply_group(uniform uint64 * uniform w, uniform int nw, uniform int 
 // primes from 17 on, which is its row in the tables.
 static void dense_primes(uniform Sieve * uniform s, const uniform int * uniform primes,
                          const uniform int * uniform t, uniform int n) {
-    uniform int b[G], ph[G];
+    uniform int b[G], ph[G], o[G], L[G];
+    // Copy each member's tabled period (p words) into the scratch rows, repeated to L + TAB_EXT
+    // words, where L is the first multiple of p with at least TAB_EXT words: the group loop then
+    // reads up to STEP words past any phase without wrapping. The rows are shared by all 8 planes.
+    uniform uint64 * uniform scr = s->scr;
+    uniform int off = 2 * TAB_EXT;
+    for (uniform int j = 0; j < n; j++) {
+        uniform int p = primes[j];
+        uniform int Lj = p;
+        while (Lj < TAB_EXT) Lj += p;
+        const uniform uint64 * uniform src = PAT + PAT_OFF[t[j]];
+        uniform uint64 * uniform dst = scr + off;
+        foreach (k = 0 ... p) dst[k] = src[k];
+        foreach (k = p ... Lj + TAB_EXT) dst[k] = dst[k - p];   // p >= 17 > programCount
+        o[j] = off; L[j] = Lj;
+        off += Lj + TAB_EXT;
+    }
     for (uniform int pl = 0; pl < 8; pl++) {
         for (uniform int j = 0; j < n; j++) {
             b[j] = first_bit(primes[j], t[j], pl);
             ph[j] = PAT_PH[t[j]][pl];
         }
         if (n == 1) {      // a lone prime: skip the fused loop and its G-1 empty patterns
-            apply_range(s->bits + pl * s->pw, PAT + PAT_OFF[t[0]], PAT_L[t[0]], ph[0], b[0], s->nw);
+            apply_range(s->bits + pl * s->pw, scr + o[0], L[0], ph[0], b[0], s->nw);
             continue;
         }
-        apply_group(s->bits + pl * s->pw, s->nw, n, b, ph, t);
+        apply_group(s->bits + pl * s->pw, s->nw, n, b, ph, scr, o, L);
     }
     if (n == 1) return;
     for (uniform int j = 0; j < n; j++) {          // apply_group marked each member itself

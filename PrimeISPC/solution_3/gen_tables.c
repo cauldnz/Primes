@@ -5,8 +5,9 @@
  * used to repeat:
  *   - TAB_SB:   for each prime 17 <= p < LIMIT, its first bit at or after p*p in each of the
  *               8 planes, stored as an offset from p*p/30 (fits 16 bits).
- *   - PAT_*:    for each prime 17 <= p < 1024, the stride-p word pattern shared by all 8 planes
- *               (period L, extended by 32 words) and its phase at the start word in each plane.
+ *   - PAT_*:    for each prime 17 <= p < 1024, one period (p words) of the stride-p word pattern
+ *               shared by all 8 planes, and its phase at the start word in each plane. Each pass
+ *               copies the patterns it uses into scratch rows and extends them there.
  *   - TILE/P13: the 7x11 wheel tile of each plane and 13's pattern with its phase per plane.
  * Primes at or above LIMIT (sizes above LIMIT^2) fall back to the run-time start_bit().
  *
@@ -18,7 +19,7 @@
 #include <string.h>
 
 #define MAXPAT 1024 /* must match primes.ispc */
-#define EXT 32      /* words past each period: the largest STEP of any target */
+#define EXT 32      /* words past each period of TILE and P13: the largest STEP of any target */
 
 static const unsigned RES[8] = {1, 7, 11, 13, 17, 19, 23, 29};
 static const unsigned INV30[30] = {0,1,0,0,0,0,0,13,0,0,0,11,0,7,0,0,0,23,0,19,
@@ -76,15 +77,13 @@ int main(int argc, char **argv) {
     }
     printf("};\n");
 
-    /* Pattern words. Row 0 is an all-zero pattern (period EXT) for unused group members. */
+    /* Pattern words: one period (p words) per prime, back to back. */
     uint64_t *pat = malloc(sizeof(uint64_t) * (2 * MAXPAT + 2 * EXT));
     unsigned tab[64];
-    unsigned off = 2 * EXT, *offs = malloc(sizeof(unsigned) * nd);
-    for (unsigned i = 0; i < nd; i++) { offs[i] = off; off += period(pr[i]) + EXT; }
+    unsigned off = 0, *offs = malloc(sizeof(unsigned) * nd);
+    for (unsigned i = 0; i < nd; i++) { offs[i] = off; off += pr[i]; }
     printf("static const uniform uint32 PAT_OFF[%u] = {", nd);
     for (unsigned i = 0; i < nd; i++) printf("%u,", offs[i]);
-    printf("};\nstatic const uniform uint16 PAT_L[%u] = {", nd);
-    for (unsigned i = 0; i < nd; i++) printf("%u,", period(pr[i]));
     printf("};\nstatic const uniform uint16 PAT_PH[%u][8] = {\n", nd);
     for (unsigned i = 0; i < nd; i++) {
         pattern(pr[i], pat, tab);
@@ -94,9 +93,7 @@ int main(int argc, char **argv) {
         printf("},\n");
     }
     printf("};\nstatic const uniform uint64 PAT[%u] = {\n", off);
-    memset(pat, 0, sizeof(uint64_t) * 2 * EXT);
-    words(pat, 2 * EXT);
-    for (unsigned i = 0; i < nd; i++) { pattern(pr[i], pat, tab); words(pat, period(pr[i]) + EXT); }
+    for (unsigned i = 0; i < nd; i++) { pattern(pr[i], pat, tab); words(pat, pr[i]); }
     printf("};\n");
 
     /* Wheel tile: multiples of 7 or 11 (from 7 and 11 themselves), one 77-word period per plane. */
