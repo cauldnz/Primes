@@ -47,6 +47,9 @@ Chris's decisions of 11 October (`LAUNCH-PLAN.md`, step 0):
    `Standard_D16as_v6` (Zen 4, AVX-512) and `Standard_D16s_v5` (Intel Xeon, native targets).
    1T, 4T and all threads. A loss of 1% or more at 1T or 4T: report, don't fix in this run.
 4. **Clean the champion**: stop tracking build outputs (`primes`, `*.o`) on `hc/champion`.
+5. **The verdict line**: `analyze.py` still prints its VERDICT by the old rule. Change it to the
+   new one (1T or 4T per thread, both Zens, gates) before deciding anything, and backtest it on
+   the last run's keeps and reverts; note any decision that would have gone the other way.
 
 ## Stream 1 (main): size
 
