@@ -1,0 +1,27 @@
+Architecture:                            aarch64
+CPU(s):                                  4
+Model name:                              Neoverse-N2
+BIOS Model name:                         Cobalt 100 None CPU @ 3.4GHz
+AVX-512: no
+kind=ocaml rounds=5 id=2026316915
+build cand
+build champ
+build ctx
+build gk1 (PrimeOCaml/solution_1)
+build gk2 (PrimeOCaml/solution_2)
+self-test cand: 13 ok, 0 bad, exit=0
+self-test champ: 13 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-oxcaml-base;5257;5.000908;1;algorithm=base,faithful=yes,bits=1
+cauldnz-oxcaml-base;20097;5.003466;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ
+cauldnz-oxcaml-base;7293;5.000232;1;algorithm=base,faithful=yes,bits=1
+cauldnz-oxcaml-base;26888;5.000958;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ2
+cauldnz-oxcaml-base;7294;5.000101;1;algorithm=base,faithful=yes,bits=1
+cauldnz-oxcaml-base;26894;5.002574;4;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl
+cauldnz-ispc-base;42004;5.000073;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;168058;5.000117;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;84151;5.000217;2;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl2
