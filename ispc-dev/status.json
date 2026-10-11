@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T20:52:48Z",
+  "updated_utc": "2026-10-11T20:53:18Z",
   "run": {
     "id": "ap-20261011T1929Z",
     "state": "running",
@@ -2026,16 +2026,6 @@
     {
       "utc": "2026-10-11T19:36:29Z",
       "level": "decision",
-      "text": "ox-000: build the 5.2.0+ox toolchain image on Zen 5 (D16as_v7) and Cobalt (D4ps_v6) as oxbuild tasks, saved zstd to the bench storage. Why: RUN-PLAN phase 0 step 1; one build per architecture, then every ocaml task loads the saved image. Passed over: 5.4.0+ox, which the ox repository now also carries (the plan names 5.2.0+ox). Expect: amd64 30-60 min, arm64 60-120 min on 4 vCPUs.",
-      "id": "ox-000",
-      "what": "build the 5.2.0+ox toolchain image on Zen 5 (D16as_v7) and Cobalt (D4ps_v6) as oxbuild tasks, saved zstd to the bench storage",
-      "why": "RUN-PLAN phase 0 step 1; one build per architecture, then every ocaml task loads the saved image",
-      "instead": "5.4.0+ox, which the ox repository now also carries (the plan names 5.2.0+ox)",
-      "expect": "amd64 30-60 min, arm64 60-120 min on 4 vCPUs"
-    },
-    {
-      "utc": "2026-10-11T19:36:29Z",
-      "level": "decision",
       "text": "ox-001: background agent: build the OxCaml switch locally and probe SIMD widths, intrinsics syntax, unboxed ints, locals, domains; notes on hc/ocaml-ox-probe. Why: the plan lists SIMD widths and how unboxed and local code compile as unknowns to settle in phase 0; the OxCaml port needs them. Expect: switch build 40-70 min on 4 vCPUs.",
       "id": "ox-001",
       "what": "background agent: build the OxCaml switch locally and probe SIMD widths, intrinsics syntax, unboxed ints, locals, domains; notes on hc/ocaml-ox-probe",
@@ -2370,6 +2360,16 @@
       "level": "info",
       "text": "ocaml-004: evaluate. ocaml-004 Zen 3, limit sweep, ox-004 running; ox-005/006 agent working",
       "auto": true
+    },
+    {
+      "utc": "2026-10-11T20:53:18Z",
+      "level": "decision",
+      "text": "ox-007: background agent: other sparse loop forms (strided one-mark loop unrolled, half-chunks, 64-bit strided) on cbcd24d, measured against ox-004. Why: sparse is now 50% of an OxCaml pass; ox-004 attacks it with untagged ints, but the spills come from 20 live values, which a loop with fewer live values avoids by design. Passed over: Cobalt arm64 investigation. Expect: a form at or below 1.5 cycles per mark locally, +10% to +20% at 1T.",
+      "id": "ox-007",
+      "what": "background agent: other sparse loop forms (strided one-mark loop unrolled, half-chunks, 64-bit strided) on cbcd24d, measured against ox-004",
+      "why": "sparse is now 50% of an OxCaml pass; ox-004 attacks it with untagged ints, but the spills come from 20 live values, which a loop with fewer live values avoids by design",
+      "instead": "Cobalt arm64 investigation",
+      "expect": "a form at or below 1.5 cycles per mark locally, +10% to +20% at 1T"
     }
   ],
   "research": {
