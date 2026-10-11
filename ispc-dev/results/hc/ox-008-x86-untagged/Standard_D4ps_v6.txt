@@ -1,0 +1,35 @@
+Architecture:                            aarch64
+CPU(s):                                  4
+Model name:                              Neoverse-N2
+BIOS Model name:                         Cobalt 100 None CPU @ 3.4GHz
+AVX-512: no
+kind=ocaml rounds=5 id=2104267467
+build cand
+build champ
+build ctx
+build gk1 (PrimeOCaml/solution_1)
+build gk2 (PrimeOCaml/solution_2)
+self-test cand: 13 ok, 0 bad, exit=0
+self-test champ: 13 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-oxcaml-base;7292;5.000496;1;algorithm=base,faithful=yes,bits=1
+cauldnz-oxcaml-base;27086;5.000898;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ
+cauldnz-oxcaml-base;7293;5.000630;1;algorithm=base,faithful=yes,bits=1
+cauldnz-oxcaml-base;27035;5.003254;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ2
+cauldnz-oxcaml-base;7292;5.000091;1;algorithm=base,faithful=yes,bits=1
+cauldnz-oxcaml-base;26829;5.001158;4;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl
+cauldnz-ispc-base;42028;5.000064;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;168172;5.000126;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;84161;5.000177;2;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl2
+mike-barber_bit-extreme-hybrid;42837;5.0000405312;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;85741;5.0000977516;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;171300;5.0001654625;4;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl3
+gkpotter-faithful;607;5.003660;1;algorithm=base,faithful=yes
+== round warmup gk2
+gkpotter-unfaithful;632;5.004931;1;algorithm=base,faithful=no
+== round 1 ctrl3
