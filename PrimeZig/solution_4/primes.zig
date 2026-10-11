@@ -491,32 +491,47 @@ const WheelSieve = struct {
     fn run(self: *WheelSieve) void {
         const nw = self.nw;
 
-        // Phase 1: the wheel tile. Multiples of 7 and 11 repeat every 77 words in each plane,
-        // so mark one period, starting from 7 and 11 themselves to keep it periodic, and copy
-        // it along the plane. 7 and 11 are then unmarked.
-        const t = @min(77, nw);
-        const tp = [2]u32{ 7, 11 };
-        const tg = patternGroup(&tp);
+        // Phase 1: the wheel tile and 13. Multiples of 7 and 11 repeat every 77 words in each
+        // plane, so mark one period, starting from 7 and 11 themselves to keep it periodic, in
+        // scratch space. Each plane is then written in one pass: tile word OR 13's pattern word,
+        // with no separate read-modify-write pass for 13. 13's pattern starts at the plane's
+        // first word, so it also marks 13 itself and 91 and 143 (already composite). 7, 11 and
+        // 13 are then unmarked. Afterwards every bit below 17*17 is final. 13's pattern and
+        // phase table come from PAT, like every other prime's; only 7 and 11 build the tile.
+        const tp = [3]u32{ 7, 11, 13 };
+        const g = patternGroup(&tp);
+        var scratch: [77 + VW]u64 = undefined; // one plane's 7*11 period, extended by VW words
+        const tile: [*]u64 = &scratch;
+        const p13 = g.buf[2];
+        const L13 = g.L[2];
         for (0..8) |pl| {
             const w = self.plane(pl);
-            @memset(w[0..t], 0);
+            @memset(tile[0..77], 0);
             const tb = [2]usize{ startBit(7, RES[pl], 1), startBit(11, RES[pl], 1) };
-            applyGroup(2, w, t, &tg, &tb);
-            var base: usize = t;
-            while (base < nw) : (base += t) {
-                const n = @min(t, nw - base);
-                @memcpy(w[base .. base + n], w[0..n]);
+            applyGroup(2, tile, 77, &g, &tb);
+            @memcpy(tile[77 .. 77 + VW], tile[0..VW]);
+            const b13 = startBit(13, RES[pl], 13);
+            const back = (b13 >> 6) % L13;
+            const t13: usize = g.tab[2][b13 & 63];
+            var r13 = if (t13 >= back) t13 - back else t13 + L13 - back; // 13's phase at word 0
+            var rt: usize = 0;
+            var k: usize = 0;
+            while (k + VW <= nw) : (k += VW) {
+                storeV(VW, w + k, loadV(VW, tile + rt) | loadV(VW, p13 + r13));
+                rt += VW;
+                if (rt >= 77) rt -= 77;
+                r13 += VW;
+                if (r13 >= L13) r13 -= L13;
             }
+            // The last partial vector runs on into the plane's padding, as in applyGroup.
+            if (k < nw) storeV(VW, w + k, loadV(VW, tile + rt) | loadV(VW, p13 + r13));
         }
         self.plane(0)[0] |= 1; // 1 is not prime
         self.plane(1)[0] &= ~@as(u64, 1); // 7 is prime
         self.plane(2)[0] &= ~@as(u64, 1); // 11 is prime
+        self.plane(3)[0] &= ~@as(u64, 1); // 13 is prime
 
-        // Phase 2: 13 on its own. Afterwards every bit below 17*17 is final.
-        const thirteen = [1]u32{13};
-        self.densePrimes(&thirteen);
-
-        // Phase 3: the remaining primes up to sqrt(size), small ones as fused pattern groups,
+        // Phase 2: the remaining primes up to sqrt(size), small ones as fused pattern groups,
         // large ones as strided bit sets. A candidate is read only once every prime up to its
         // square root has been applied: c < g0*g0 for the smallest prime g0 still pending.
         const q = isqrt(self.size);
