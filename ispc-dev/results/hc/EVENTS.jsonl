@@ -520,3 +520,4 @@
 {"utc": "2026-10-11T01:10:57Z", "level": "info", "text": "f4-dense-640 (wheel) running: F4: raise the wheel's dense/sparse breakeven PRIMES_DENSE_MAX from 256 to 640", "auto": true}
 {"utc": "2026-10-11T01:10:57Z", "level": "info", "text": "s3-crishoj-wheel (wheel) running: Measurement: crishoj 210-wheel (upstream PR 1094, Zig 0.17) beside our Zig wheel (cand=champ), our ISPC wheel (ctrl) and the C wheel (ctrl2), 1T and all threads", "auto": true}
 {"utc": "2026-10-11T01:10:57Z", "level": "info", "text": "f4-dense: evaluate. 6 tasks queued, pools starting (about 8 min start task)", "auto": true}
+{"utc": "2026-10-11T01:11:44Z", "level": "info", "text": "Tick 1 done: 8 tasks queued (F4 sweep, stream 3), 2 agents running; next tick 01:24Z, waiting for pools to boot."}

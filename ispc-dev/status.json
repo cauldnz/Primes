@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T01:11:31Z",
+  "updated_utc": "2026-10-11T01:11:44Z",
   "run": {
     "id": "ap-20261011T0100Z",
     "state": "running",
@@ -13,7 +13,7 @@
     "ends_utc": "2026-10-11T05:00:00Z",
     "background_runs": 8,
     "last_tick_utc": "2026-10-11T01:11:31Z",
-    "wakeup": null
+    "wakeup": "trig_01PsxEwAZN8JiDU7xc7rg5o2"
   },
   "current": {
     "id": "f4-dense",
@@ -1109,15 +1109,6 @@
   "events": [
     {
       "utc": "2026-10-10T22:04:32Z",
-      "level": "decision",
-      "text": "f1-on-f2: start an agent on F1 on top of F2 (dense alternation plus within-block sparse alternation) for the plan's one combined measurement. Why: RUN-PLAN: if both are kept, measure F1 on F2 once; F1 and F2 both clear Zen 3 and Zen 5, gates pending. Expect: little over F2 alone.",
-      "id": "f1-on-f2",
-      "what": "start an agent on F1 on top of F2 (dense alternation plus within-block sparse alternation) for the plan's one combined measurement",
-      "why": "RUN-PLAN: if both are kept, measure F1 on F2 once; F1 and F2 both clear Zen 3 and Zen 5, gates pending",
-      "expect": "little over F2 alone"
-    },
-    {
-      "utc": "2026-10-10T22:04:32Z",
       "level": "info",
       "text": "f1-alternate Zen 3 and Zen 5 clear; Zen 4 and arm pending. Zen 5 D16as_v7. Zen 3, 6 rounds vs clean champion: +10.2% +-0.2% at 1T, +9.8% at 8T (one per core), +5.3% +-0.2% at 16T; vs Rust +17.4 / +17.0 / +10.7",
       "auto": true
@@ -1442,6 +1433,11 @@
       "level": "info",
       "text": "f4-dense: evaluate. 6 tasks queued, pools starting (about 8 min start task)",
       "auto": true
+    },
+    {
+      "utc": "2026-10-11T01:11:44Z",
+      "level": "info",
+      "text": "Tick 1 done: 8 tasks queued (F4 sweep, stream 3), 2 agents running; next tick 01:24Z, waiting for pools to boot."
     }
   ],
   "research": {
