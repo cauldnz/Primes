@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T21:50:22Z",
+  "updated_utc": "2026-10-11T21:51:28Z",
   "run": {
     "id": "ap-20261011T1929Z",
     "state": "running",
@@ -2089,8 +2089,9 @@
       "source": "ox-006 / plain ocaml-004",
       "plain": "If the kept two-run copy is added to the new x86 dense loop, then the two kept gains add up, because they change different parts of the same loop.",
       "prediction": "+2% to +5% over a4e63af at 1T on Zen",
-      "verdict": "running",
-      "commit": "c99a179"
+      "verdict": "kept",
+      "commit": "c99a179",
+      "note": "vs a4e63af: Zen 5 +7.5% 1T, Zen 3 +4.8%; merged with ox-009 as ox-014 for a confirm run"
     },
     {
       "id": "ox-012",
@@ -2113,6 +2114,17 @@
       "verdict": "rejected",
       "commit": "c9c9cf3",
       "note": "local: 32-bit -5.8%, 16-bit -7.0%; the narrower primitives cost 2 extra instructions per composite in OxCaml"
+    },
+    {
+      "id": "ox-014",
+      "entry": "oxcaml",
+      "title": "Combine ox-011 dense with ox-009 sparse",
+      "tier": "extra-faithful",
+      "kind": "tuning",
+      "plain": "If the two kept changes, one to the dense loop and one to the sparse loop, are put together, then their gains should add, because they touch different loops.",
+      "prediction": "+4% to +8% over 4f1ba99 at 1T on Zen",
+      "verdict": "running",
+      "commit": "997f71f"
     }
   ],
   "azure_queue": 0,
@@ -2122,44 +2134,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T20:45:33Z",
-      "level": "decision",
-      "text": "ox-005: background agent: phase profile of the OxCaml champion (ox-005), then two candidates from cbcd24d: 256-bit OR over two runs per step (ox-006a, borrowed from ocaml-004) and a dense limit sweep 64/96/160/192 (ox-006b). Why: the SIMD copy changed the phase shares, so the next target needs a fresh profile; the two-run step is ahead on Zen 5 in the plain line and ports in a few lines. Passed over: an arm64 investigation (Cobalt is a gate, not a decider, and needs Batch access an agent doesn't have). Expect: two-run +3% to +8%; limit 0% to +5%.",
-      "id": "ox-005",
-      "what": "background agent: phase profile of the OxCaml champion (ox-005), then two candidates from cbcd24d: 256-bit OR over two runs per step (ox-006a, borrowed from ocaml-004) and a dense limit sweep 64/96/160/192 (ox-006b)",
-      "why": "the SIMD copy changed the phase shares, so the next target needs a fresh profile; the two-run step is ahead on Zen 5 in the plain line and ports in a few lines",
-      "instead": "an arm64 investigation (Cobalt is a gate, not a decider, and needs Batch access an agent doesn't have)",
-      "expect": "two-run +3% to +8%; limit 0% to +5%"
-    },
-    {
-      "utc": "2026-10-11T20:52:48Z",
-      "level": "decision",
-      "text": "ox-006: submit two-runs (2ef6a1d vs cbcd24d) on Zen 5 and Zen 3; no Cobalt run; park the OxCaml dense limit. Why: rebuilt here, PRIMES_TEST=1 exits 0; diff is amd64/dense.ml only, which arm64 never compiles, so the Cobalt binary is byte-identical (target-specific rule). Limit 96 was +1.3% locally, inside noise, and the diag sweep was flat 96-160; the plain line's 64/96 runs will say whether a limit is worth Zen time. Passed over: limit 96 on Zen. Expect: +3% to +8%.",
-      "id": "ox-006",
-      "what": "submit two-runs (2ef6a1d vs cbcd24d) on Zen 5 and Zen 3; no Cobalt run; park the OxCaml dense limit",
-      "why": "rebuilt here, PRIMES_TEST=1 exits 0; diff is amd64/dense.ml only, which arm64 never compiles, so the Cobalt binary is byte-identical (target-specific rule). Limit 96 was +1.3% locally, inside noise, and the diag sweep was flat 96-160; the plain line's 64/96 runs will say whether a limit is worth Zen time",
-      "instead": "limit 96 on Zen",
-      "expect": "+3% to +8%"
-    },
-    {
-      "utc": "2026-10-11T20:52:48Z",
-      "level": "info",
-      "text": "ox-005 (oxcaml) confirmed: ",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T20:52:48Z",
-      "level": "info",
-      "text": "ox-006 (oxcaml) running: ",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T20:52:48Z",
-      "level": "info",
-      "text": "ocaml-004: evaluate. ocaml-004 Zen 3, limit sweep, ox-004 running; ox-005/006 agent working",
-      "auto": true
-    },
     {
       "utc": "2026-10-11T20:53:18Z",
       "level": "decision",
@@ -2484,6 +2458,36 @@
       "utc": "2026-10-11T21:48:58Z",
       "level": "info",
       "text": "ox-013 (oxcaml) rejected: ",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T21:51:28Z",
+      "level": "decision",
+      "text": "ox-011: KEEP; confirm the combination with ox-009 (ox-014, merge 997f71f) against the champion 4f1ba99 on Zen 5 and Zen 3 before moving the champion. Why: analyze.py KEEP vs a4e63af (lower bounds +6.3% Zen 5, +3.9% Zen 3 at 1T). Both kept changes branch from a4e63af and touch different files (dense.ml vs sparse.ml), so the merge is clean; the protocol combines winners only with a measurement.",
+      "id": "ox-011",
+      "what": "KEEP; confirm the combination with ox-009 (ox-014, merge 997f71f) against the champion 4f1ba99 on Zen 5 and Zen 3 before moving the champion",
+      "why": "analyze.py KEEP vs a4e63af (lower bounds +6.3% Zen 5, +3.9% Zen 3 at 1T). Both kept changes branch from a4e63af and touch different files (dense.ml vs sparse.ml), so the merge is clean; the protocol combines winners only with a measurement"
+    },
+    {
+      "utc": "2026-10-11T21:51:28Z",
+      "level": "info",
+      "text": "Standalone Dockerfile (builds the OxCaml switch inside the solution build): works on Zen 5, image build 458 s, self-test passes. Cobalt still running."
+    },
+    {
+      "utc": "2026-10-11T21:51:28Z",
+      "level": "info",
+      "text": "ox-012 Zen 3 profile of 4f1ba99 (x86 kernels): sparse 85 us (52%, 1.56 cycles/mark), dense copy 55 us (34%), pattern build 14 us (9%), setup and scan under 1%. Cobalt still running."
+    },
+    {
+      "utc": "2026-10-11T21:51:28Z",
+      "level": "info",
+      "text": "ox-011 kept.. vs a4e63af: Zen 5 +7.5% 1T, Zen 3 +4.8%; merged with ox-009 as ox-014 for a confirm run",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T21:51:28Z",
+      "level": "info",
+      "text": "ox-014 (oxcaml) running: ",
       "auto": true
     }
   ],
