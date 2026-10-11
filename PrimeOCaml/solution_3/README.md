@@ -5,7 +5,7 @@
 ![Parallelism](https://img.shields.io/badge/Parallel-yes-green)
 ![Bit count](https://img.shields.io/badge/Bits-1-green)
 
-A sieve of Eratosthenes that follows the base algorithm, built with [OxCaml](https://oxcaml.org), Jane Street's branch of the OCaml compiler with the flambda2 optimiser. The source is the same plain OCaml 5.2 as [PrimeOCaml/solution_4](../solution_4), with no libraries beyond the standard library and `unix` (for the clock); only the label and the opening comment differ. This entry measures what the compiler alone does for that code. It is the design of the author's ISPC base entry ([PrimeISPC/solution_2](../../PrimeISPC/solution_2)) and its Rust port ([PrimeRust/solution_9](../../PrimeRust/solution_9)), written as ordinary OCaml. That design follows mike-barber's Rust entry ([PrimeRust/solution_1](../../PrimeRust/solution_1)) and GordonBGood's Chapel entry ([PrimeChapel/solution_1](../../PrimeChapel/solution_1)).
+A sieve of Eratosthenes that follows the base algorithm, built with [OxCaml](https://oxcaml.org), Jane Street's branch of the OCaml compiler with the flambda2 optimiser. It starts from the plain OCaml 5.2 port in [PrimeOCaml/solution_4](../solution_4) and uses one OxCaml extension where it pays: 256-bit vectors in the dense loop on x86-64. There are no libraries beyond the standard library and `unix` (for the clock). It is the design of the author's ISPC base entry ([PrimeISPC/solution_2](../../PrimeISPC/solution_2)) and its Rust port ([PrimeRust/solution_9](../../PrimeRust/solution_9)). That design follows mike-barber's Rust entry ([PrimeRust/solution_1](../../PrimeRust/solution_1)) and GordonBGood's Chapel entry ([PrimeChapel/solution_1](../../PrimeChapel/solution_1)).
 
 ## Implementation
 
@@ -17,10 +17,24 @@ One bit per odd number: bit `i` stands for `2i + 1`, and a set bit means composi
 
 An outer loop scans the odd numbers from 3 for the next clear bit, then clears that factor's odd multiples, stepping `2 × factor` through the numbers. It stops at the square root of the sieve size. Every composite gets its own single-bit OR.
 
-- **Factors below 128.** The odd multiples of `p` repeat every `p` 64-bit words, 64 multiples to a period. For each factor, the sieve builds the pattern of four periods (`4p` words) in a scratch buffer it owns, setting each of the 256 multiples with its own single-bit OR. That is what the Rust port's compile-time masks hold; OCaml has no const generics, so the pattern is built at run time, once per factor per pass. Clearing then ORs the pattern into the sieve one word at a time, four words per loop step, starting at the period that holds `p²`. The smaller multiples in that period are composite too; only `p` itself is restored afterwards. Every odd factor takes the same path, including 9, 15 and the other composites, so nothing beyond 2 being the only even prime is assumed.
+- **Factors below 128.** The odd multiples of `p` repeat every `p` 64-bit words, 64 multiples to a period. For each factor, the sieve builds the pattern of four periods (`4p` words) in a scratch buffer it owns, setting each of the 256 multiples with its own single-bit OR. That is what the Rust port's compile-time masks hold; OCaml has no const generics, so the pattern is built at run time, once per factor per pass. Clearing then ORs the pattern into the sieve 32 bytes per loop step, starting at the period that holds `p²`. On x86-64 that step is one 256-bit load, `vorps` and store, written with OxCaml's `int64x4` vector type (`amd64/dense.ml`). OxCaml's vector types exist only on x86-64, so on other machines `build.sh` takes `scalar/dense.ml`, which does the step as four 64-bit word ORs. Building the pattern is the same on both: one single-bit OR per multiple. The smaller multiples in that period are composite too; only `p` itself is restored afterwards. Every odd factor takes the same path, including 9, 15 and the other composites, so nothing beyond 2 being the only even prime is assumed.
 - **Factors of 128 and above.** The same idea over bytes: eight multiples repeat every `p` bytes, each at a fixed bit position. Their byte offsets and masks are computed once per factor. A loop walks over the `p`-byte chunks, so each composite is one byte OR.
 
-The inner loops use only `int` arithmetic and the unboxed 64-bit primitives. The generated assembly (`ocamlopt -S`) shows no heap allocation and no boxed `Int64` in them; the only calls are the OCaml 5 safepoint polls on loop back edges. The build uses `-unsafe`, so `Bytes` accesses carry no bounds checks; a test against a plain sieve for every size from 1 to 20,000, and every 997th up to 2,000,000, passed.
+The inner loops use only `int` arithmetic, the unboxed 64-bit primitives and, on x86-64, the vector primitives. The generated assembly (`ocamlopt -S`) shows no heap allocation and no boxed `Int64` in them; the only calls are the OCaml 5 safepoint polls on loop back edges. The build uses `-unsafe`, so `Bytes` accesses carry no bounds checks; a test against a plain sieve for every size from 1 to 20,000, and every 997th up to 2,000,000, passed.
+
+### OxCaml extensions
+
+The vector OR is declared as a compiler builtin (`external vor : int64x4 -> int64x4 -> int64x4 = "caml_vec256_unreachable" "caml_avx_vec256_or" [@@builtin]`), and the loads and stores use the primitives `%caml_bytes_getu256u` and `%caml_bytes_setu256u`. `ocamlopt` emits the instructions inline, but still lists the builtin's C name among the program's symbols, so `amd64/simd_stubs.c` defines it as a function that aborts and is never called. OxCaml enables AVX2 by default when the compiler itself was built on an AVX2 machine.
+
+On a shared 4-vCPU Intel Xeon container, three interleaved 5-second one-thread runs gave:
+
+| build | passes |
+|---|---|
+| plain source, OxCaml `-O3` | 18,980, 17,872, 17,807 |
+| 128-bit vectors (two per step) | 23,180, 22,472, 22,586 |
+| 256-bit vectors (this version) | 25,999, 25,404, 26,100 |
+
+The sparse loop was left alone. Each byte OR there costs about four extra instructions for OCaml's tagged integers, but OxCaml has no byte load or store indexed by an untagged integer, and the untagged `int#` adds a fix-up to every add. flambda2 already keeps the `Int64` values in the scalar loops unboxed, so `int64#` would change nothing there.
 
 ### Faithfulness
 
@@ -58,17 +72,17 @@ sh build.sh
 ./primes
 ```
 
-`build.sh` runs `ocamlopt -O3 -unsafe -I +unix unix.cmxa primes.ml -o primes`, plus two `-alert` flags that silence OxCaml's warnings about `Domain.spawn` (it prefers its own threading library; this program spawns no more domains than `Domain.recommended_domain_count`). `-O2`, `-O3 -inline 200` and `-O3` with `-flambda2-join-points -flambda2-result-types-all-functions` all produce the same object file as `-O3` for this source.
+`build.sh` picks `amd64/` or `scalar/` from `uname -m` and runs `ocamlopt -O3 -unsafe -I +unix -I <dir> unix.cmxa [amd64/simd_stubs.c] <dir>/dense.ml primes.ml -o primes`, plus two `-alert` flags that silence OxCaml's warnings about `Domain.spawn` (it prefers its own threading library; this program spawns no more domains than `Domain.recommended_domain_count`). `-O2`, `-O3 -inline 200` and `-O3` with `-flambda2-join-points -flambda2-result-types-all-functions` all produced the same object file as `-O3` for the plain source.
 
 `PRIMES_TEST=1 ./primes` checks the prime count for every power of ten from 10 to 10⁸ and some edge cases, prints the results and exits non-zero on any mismatch.
 
 ## Output
 
-Intel Xeon, 4 vCPUs, a shared development container with other work running, native build with OxCaml 5.2.0+ox:
+Intel Xeon, 4 vCPUs, a shared development container with other work running, native build with OxCaml 5.2.0+ox and 256-bit vectors:
 
 ```
-cauldnz-oxcaml-base;17028;5.000096;1;algorithm=base,faithful=yes,bits=1
-cauldnz-oxcaml-base;53356;5.000743;4;algorithm=base,faithful=yes,bits=1
+cauldnz-oxcaml-base;25404;5.000146;1;algorithm=base,faithful=yes,bits=1
+cauldnz-oxcaml-base;62022;5.000584;4;algorithm=base,faithful=yes,bits=1
 ```
 
 Self-test:

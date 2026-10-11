@@ -5,13 +5,14 @@
    composite.
 
    This is the design of the author's ISPC base entry (PrimeISPC/solution_2) and its Rust port
-   (PrimeRust/solution_9). The source is plain OCaml 5, the same as PrimeOCaml/solution_4; it is
-   built with the OxCaml compiler (5.2.0+ox, flambda2):
+   (PrimeRust/solution_9), in OCaml built with the OxCaml compiler (5.2.0+ox, flambda2):
 
    - Dense (factor below 128): the odd multiples of p repeat with a period of p 64-bit words.
      For each factor the sieve builds the word pattern of four periods (4p words) in its own
      scratch buffer, setting each of their 256 multiples with its own single-bit OR, then ORs
-     the pattern into the sieve one word at a time, four words per loop step.
+     the pattern into the sieve. The copy loops live in module Dense, picked by build.sh: on
+     x86-64 (amd64/dense.ml) they use OxCaml's 256-bit vector type and do one AVX load, OR and
+     store per 32 bytes; elsewhere (scalar/dense.ml) they do four 64-bit words per step.
    - Sparse (larger factors): eight multiples repeat every p bytes, each at a fixed bit. The
      byte offsets and masks are computed per factor; each composite is one byte OR.
 
@@ -68,8 +69,8 @@ let build_pattern s p =
 
 (* Dense clearing for odd p < dense_limit. Periods of p words start at word multiples of p;
    clearing starts at the period holding p². The smaller multiples in that period are
-   composite too, except p itself, which is restored at the end. The loop walks runs of four
-   periods, four words at a time; the last, partial run takes as many words of the pattern as
+   composite too, except p itself, which is restored at the end. Dense walks the whole runs of
+   four periods (32p bytes each); the last, partial run takes as many words of the pattern as
    fit. With [init] (the first factor, 3) every word is stored without being loaded, which
    initialises the buffer. *)
 let clear_dense s p init =
@@ -78,37 +79,11 @@ let clear_dense s p init =
   let c0 = p * p / 2 / 64 / p * p in
   let runs = (n - c0) / (4 * p) in
   let rb = p * 32 in
-  let base = ref (c0 * 8) in
-  if init then
-    for _ = 1 to runs do
-      let q = !base in
-      let v = ref 0 in
-      while !v < rb do
-        let a = q + !v and v0 = !v in
-        set64 b a (get64 pat v0);
-        set64 b (a + 8) (get64 pat (v0 + 8));
-        set64 b (a + 16) (get64 pat (v0 + 16));
-        set64 b (a + 24) (get64 pat (v0 + 24));
-        v := v0 + 32
-      done;
-      base := q + rb
-    done
-  else
-    for _ = 1 to runs do
-      let q = !base in
-      let v = ref 0 in
-      while !v < rb do
-        let a = q + !v and v0 = !v in
-        set64 b a (Int64.logor (get64 b a) (get64 pat v0));
-        set64 b (a + 8) (Int64.logor (get64 b (a + 8)) (get64 pat (v0 + 8)));
-        set64 b (a + 16) (Int64.logor (get64 b (a + 16)) (get64 pat (v0 + 16)));
-        set64 b (a + 24) (Int64.logor (get64 b (a + 24)) (get64 pat (v0 + 24)));
-        v := v0 + 32
-      done;
-      base := q + rb
-    done;
+  let q =
+    if init then Dense.store_runs b pat (c0 * 8) runs rb
+    else Dense.or_runs b pat (c0 * 8) runs rb
+  in
   (* The partial last run: fewer than 4p words. *)
-  let q = !base in
   let left = (n * 8) - q in
   let v = ref 0 in
   while !v < left do

@@ -16,6 +16,8 @@ ENV OPAM_SWITCH_PREFIX=/opt/opam/5.2.0+ox PATH=/opt/opam/5.2.0+ox/bin:$PATH
 
 WORKDIR /build
 COPY primes.ml build.sh ./
+COPY amd64 amd64
+COPY scalar scalar
 RUN sh build.sh
 
 FROM ubuntu:24.04
