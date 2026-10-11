@@ -1,4 +1,4 @@
-# Run plan: size, then a submission-ready finish (draft, 2026-10-11 16:45, for Chris)
+# Run plan: size, then a submission-ready finish (agreed with Chris, 2026-10-11 16:50)
 
 Read this after `AUTOPILOT.md`. It sets this run's priorities, time box and end-of-run steps.
 Everything else in the brief, the runbook and `HILL-CLIMB.md` still applies, including the
@@ -7,9 +7,9 @@ in the morning report of run ap-20261011T0100Z in `STATUS.md`.
 
 ## Limits
 
-- Time box: 5 hours from the session start (Chris allows 4 to 6). Stop starting experiments at
-  4h15; the final scoreboard and shutdown take the last 45 minutes.
-- Azure: NZ$20 for the run, no new pools past NZ$16, Spot only, 128 Spot vCPUs, at most 6 pools.
+- Time box: 6 hours from the session start. Stop starting experiments at 5h15; the final
+  scoreboard and shutdown take the last 45 minutes.
+- Azure: NZ$25 for the run, no new pools past NZ$20, Spot only, 128 Spot vCPUs, at most 6 pools.
   Every pool's deadline is the run's end; take a pool down as soon as its work is done.
 - Check the CPU model line of every log against the pool's intended chip before counting it
   (`D16as_v5` gave both Zen 3 and Zen 4 last run). A run on the wrong chip doesn't count.
@@ -18,10 +18,9 @@ in the morning report of run ap-20261011T0100Z in `STATUS.md`.
 
 ## The keep rule for this run
 
-If Chris has approved `drafts/next-keep-rule.md`, it replaces "Acceptance rule" in
-`HILL-CLIMB.md` for this run: decide on passes per second per thread at 1T and at 4T on Zen 5
-and Zen 3, with Intel AVX2 and Cobalt as gates, and all-threads recorded, not decided. If not,
-the old rule stands. Say in the first event which rule is in force.
+Chris approved the per-thread rule (11 October, 16:50); it is now "Acceptance rule" in
+`HILL-CLIMB.md`. Decide on passes per second per thread at 1T and at 4T on Zen 5 and Zen 3, with
+Intel AVX2 and Cobalt as gates; all-threads is recorded, not decided. Say so in the first event.
 
 ## State at the start
 
@@ -72,8 +71,9 @@ attacks it.
      each pass starts on planes still in L1. This is wheel F1 restricted to the group passes;
      the earlier wheel F1 was measured on Zen 5 only, where nothing spills. Decide on Zen 3.
    - *Plane halves*: apply each group to planes 0-3, then rebuild nothing and apply it to 4-7;
-     the patterns stay hot and the live planes halve to 16.7 KB. Check the wheel rules on
-     segmentation first; if in doubt, ask Chris before building.
+     the patterns stay hot and the live planes halve to 16.7 KB. This is a form of segmentation:
+     Chris wants to be asked before it is built. Report the case (the cliff, the prediction,
+     the rules text) and work on the other candidates until he answers.
    - *Sparse marks plane by plane*: today each large prime advances all eight planes at once
      (eight streams for parallelism) and so touches all 33 KB. Do one plane at a time, taking
      the parallelism from several primes instead. Working set one plane, 4.2 KB.

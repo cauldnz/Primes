@@ -41,39 +41,24 @@ Claude.ai session reviews the ledger and the backlog; it no longer relays indivi
 
 ## Acceptance rule
 
-From 2026-10-10 (Chris: decide on the confidence interval). Each round gives one paired ratio,
-candidate over champion in the same round. `analyze.py` takes their mean and 95% confidence
-interval per machine and thread count, and decides at 1 thread or all threads, whichever is
-better:
+From 2026-10-11 (Chris: decide on what the leaderboard ranks; draft and reasons in
+`drafts/next-keep-rule.md`). The contest ranks passes per second per thread, and its
+multi-thread leaders are 4-thread lines, so the deciding measure is per-thread speed at 1 thread
+and at 4 threads (one per core on a 16-vCPU node). Each round gives one paired ratio per thread
+count, candidate over champion in the same round; `analyze.py` gives their mean and 95% interval.
 
-- **Keep** when the interval's lower end is at least +1% on both Zen 3 and Zen 5, nothing loses
-  1% or more on the mean (arm64 included, for shared code), and the code stays readable enough
-  to explain in the README.
-- **More rounds** when the interval straddles +1%. Add the rounds `analyze.py` estimates, up to
-  20 in all, on the same nodes if they are still up.
-- **Revert** on a regression of 1% or more anywhere, when the interval can't reach +1%, or at 20
-  rounds without a decision.
+- **Keep** when, on both Zen 5 and Zen 3, the interval's lower end is at least +1% at 1T or at 4T,
+  neither of the two loses 1% or more on the mean, and the code stays readable enough to explain
+  in the README.
+- **Gates**: no loss of 1% or more at 1T or 4T on Intel AVX2 (for x86 code the AVX2 path shares)
+  or on Cobalt 100 (for code the Arm build compiles). A target whose compiled code is
+  byte-identical needs no run (the target-specific rule).
+- **Recorded, not decided**: all-threads and half-threads. A loss there of more than 5% is
+  reported to Chris, not reverted.
+- **More rounds** while an interval straddles +1%, up to 20 in all. **Revert** otherwise.
+- **Machines**: a log whose CPU model isn't the pool's intended chip doesn't count.
 
-Start with six counted rounds. At the per-round spread seen so far (0.1% to 1% SD), six resolve
-a gain of 2% or more, and a 1% gain needs about 15 to 20. If the champion's A/A interval
-excludes zero by more than 0.5%, the node is noisy: mark the result inconclusive and rerun on
-another node.
-
-This replaces the earlier rule (median of 2% on both machines with every round won on one, and
-a ten-round rule for gains of 1% to 2%). Ledger rows before 2026-10-10 11:00 AEST used it.
-
-**Target-specific changes** (agreed with Chris, 2026-10-09). A change that alters the code for
-some instruction sets only (for example `#if defined(ISPC_TARGET_AVX512SKX)`) is kept if it
-gains at least 2% on the machines whose code changes, and the generated assembly for every
-other target is byte-identical to the champion's. Show the identity with an `--emit-asm` diff.
-
-**arm64 gate.** Any change to shared code or to a NEON target gets a Cobalt 100
-(`D4ps_v6`) A/B run before it merges. On 2026-10-09 hc-002 merged without one and made the base
-entry 39% slower on arm64, because ISPC's NEON target scalarised the vector dense code (fixed
-by hc-020).
-
-**SSE4.** For changes that touch SSE4 code paths, check the SSE4 build against the champion
-locally (`ISPC_TARGETS=sse4-...`) before merging; the Celeron runner has nothing newer.
+The previous rule (decide at 1T or all threads, whichever is better) is in git history.
 
 ## Rules gate
 
