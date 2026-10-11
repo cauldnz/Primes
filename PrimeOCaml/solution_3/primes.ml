@@ -7,7 +7,7 @@
    This is the design of the author's ISPC base entry (PrimeISPC/solution_2) and its Rust port
    (PrimeRust/solution_9), in OCaml built with the OxCaml compiler (5.2.0+ox, flambda2):
 
-   - Dense (factor below 128): the odd multiples of p repeat with a period of p 64-bit words.
+   - Dense (factor below 96): the odd multiples of p repeat with a period of p 64-bit words.
      For each factor the sieve builds the word pattern of four periods (4p words) in its own
      scratch buffer, setting each of their 256 multiples with its own single-bit OR, then ORs
      the pattern into the sieve. The copy loops live in module Dense, picked by build.sh: on
@@ -30,7 +30,7 @@ let label = "cauldnz-oxcaml-base"
 let tags = "algorithm=base,faithful=yes,bits=1"
 
 (* Factors below this use the dense resetter, larger ones the sparse one. *)
-let dense_limit = 128
+let dense_limit = 96
 
 (* All of one sieve's state. A new one is created, and its buffers allocated, for every pass. *)
 type sieve = {
