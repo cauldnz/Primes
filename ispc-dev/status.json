@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T02:16:37Z",
+  "updated_utc": "2026-10-11T02:17:46Z",
   "run": {
     "id": "ap-20261011T0100Z",
     "state": "running",
@@ -1159,33 +1159,40 @@
       "entry": "cpp-wheel",
       "tier": "extra-faithful",
       "kind": "borrowed",
-      "verdict": "running",
+      "verdict": "inconclusive",
       "hypothesis": "ISPC wheel-group32 loop shape (two 16-word blocks per iteration, AVX-512) in the C++ wheel",
       "prediction": "-1% to +3% (local neutral)",
       "plain": "If the C++ wheel's grouped pass handles 32 words per loop step on AVX-512, then it gets a little faster, because there is less loop overhead per store, as in our ISPC wheel.",
-      "note": "hc/port-cpp-wheel-group32 f7cf2b8 vs idea12; borrowed from our ISPC wheel (5a68114); 6 rounds Zen 5 + Zen 3"
+      "note": "target-specific (AVX-512 only): Zen 3 runs unchanged code. Zen 5 node noisy; rerun on Zen 5 (and Zen 4) when nodes are free, after the base and Rust work",
+      "zen3": "-0.7% ± 0.5 1T, -0.4% ± 0.7 16T (AVX2: code unchanged there)",
+      "zen5": "+1.2% ± 4.8 1T, +6.3% ± 1.1 16T; A/A -1.5% to +6.9% (noisy node)"
     },
     {
       "id": "p-cpp-base-f1",
       "entry": "cpp-base",
       "tier": "grey",
       "kind": "borrowed",
-      "verdict": "running",
+      "verdict": "kept",
       "hypothesis": "F1 (alternate sweep direction per factor) in the C++ base port, grey lineage",
       "prediction": "+8% to +15% at 1T (ISPC F1 gave +10% to +14%; local +32%, suspicious)",
       "plain": "If the C++ base sweeps each factor in the opposite direction to the last, then it gets faster, because the end of the sieve just touched is still in cache.",
-      "note": "hc/port-cpp-base-grey a8d379f; grey (rules question open); borrowed from our ISPC F1. Local +32% is over the 20% too-good bar if it holds on Zen; 6 rounds Zen 5 + Zen 3"
+      "note": "KEEP on the grey lineage: hc/port-cpp-base-grey (a8d379f) is the C++ base grey champion. vs davepl (ctrl2): Zen 5 +67% 1T; vs our grey ISPC base (ctrl): Zen 5 +5.1% 1T, Zen 3 -8.9%. Local +32% overstated it; Zen 5 +16%",
+      "zen3": "+8.7% ± 0.6 1T, +9.9% ± 0.1 16T (6/6)",
+      "zen5": "+16.4% ± 0.2 1T, +11.0% ± 0.1 16T (6/6)"
     },
     {
       "id": "p-rust-base-f1",
       "entry": "rust-base",
       "tier": "grey",
       "kind": "borrowed",
-      "verdict": "running",
+      "verdict": "kept",
       "hypothesis": "F1 in the Rust base port, grey lineage",
       "prediction": "+8% to +15% at 1T",
       "plain": "If the Rust base sweeps each factor in the opposite direction to the last, then it gets faster, because the end of the sieve just touched is still in cache.",
-      "note": "hc/port-rust-base-grey e46ba0b; grey; borrowed from our ISPC F1; 6 rounds Zen 5 + Zen 3"
+      "note": "KEEP on the grey lineage (hc/port-rust-base-grey e46ba0b), pending the >20% check: 3-round Zen 5 rerun on whichever node is free (p-rust-base-f1-verify) and the rules re-read (each composite one OR, downward routines mirror the upward). vs mike-barber (ctrl2): Zen 3 -0.6% 1T, +1.6% 16T; Zen 5 +8.9% 1T, +2.2% 16T",
+      "zen3": "+8.0% ± 0.6 1T, +6.4% ± 0.3 16T (6/6)",
+      "zen5": "+22.0% ± 0.7 1T, +10.6% ± 0.6 16T (6/6)",
+      "rules_reread": "passed: downward sparse loop does one OR per composite (8 per chunk), dense uses the same compile-time mask tables as the upward path; start period and bounds mirror the upward routine"
     },
     {
       "id": "p-cpp-base-clang",
@@ -1407,20 +1414,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T23:30:07Z",
-      "level": "warn",
-      "auto": true,
-      "text": "zig-idea12 changed with no reasoning recorded (st.py decide)."
-    },
-    {
-      "utc": "2026-10-10T23:47:15Z",
-      "level": "decision",
-      "text": "zig-f1: KEEP (grey): new lineage hc/zig-champion-grey = 72e5b42 (Zig base with F1), grey work for the Zig entry stays there. Why: vs hc/zig-submission: Zen 5 +11.7% +-1.7 1T, +13.3% 8T, +9.2% +-0.9 16T; Zen 3 +8.7% +-0.3 1T, +8.1% 8T, +4.3% +-0.1 16T (6/6 everywhere). Same size as ISPC F1; Zig base 1T on Zen 5 now 132.9k vs ISPC clean base 126.3k in the same rounds.",
-      "id": "zig-f1",
-      "what": "KEEP (grey): new lineage hc/zig-champion-grey = 72e5b42 (Zig base with F1), grey work for the Zig entry stays there",
-      "why": "vs hc/zig-submission: Zen 5 +11.7% +-1.7 1T, +13.3% 8T, +9.2% +-0.9 16T; Zen 3 +8.7% +-0.3 1T, +8.1% 8T, +4.3% +-0.1 16T (6/6 everywhere). Same size as ISPC F1; Zig base 1T on Zen 5 now 132.9k vs ISPC clean base 126.3k in the same rounds"
-    },
     {
       "utc": "2026-10-10T23:47:15Z",
       "level": "decision",
@@ -1782,6 +1775,24 @@
       "id": "b1-cobalt-profile",
       "what": "start agent b1-arm-asm: aarch64 assembly of our base and mike-barber's Rust, hot sparse and dense loops counted side by side, one proposed change",
       "why": "Chris asked for the compiled sparse loop beside the phase profile; doing it in parallel lets one experiment follow before the 3h15 cutoff"
+    },
+    {
+      "utc": "2026-10-11T02:17:29Z",
+      "level": "decision",
+      "text": "p-rust-base-f1: keep both F1 base ports on their grey branches; recheck the Rust one (+22% on Zen 5) on a fresh node. Why: both clear +1% on both Zens with tight intervals and quiet A/A; the Rust gain is over the 20% bar so the brief requires a re-verify and a rules re-read before it counts. Grey: nothing goes near a submission. Expect: Rust recheck within 2% of +22%.",
+      "id": "p-rust-base-f1",
+      "what": "keep both F1 base ports on their grey branches; recheck the Rust one (+22% on Zen 5) on a fresh node",
+      "why": "both clear +1% on both Zens with tight intervals and quiet A/A; the Rust gain is over the 20% bar so the brief requires a re-verify and a rules re-read before it counts. Grey: nothing goes near a submission",
+      "expect": "Rust recheck within 2% of +22%"
+    },
+    {
+      "utc": "2026-10-11T02:17:29Z",
+      "level": "decision",
+      "text": "p-cpp-wheel-group32: inconclusive: rerun on Zen 5 later, behind the base and Rust work. Why: the Zen 5 A/A spread reached +6.9%, so the +6.3% at 16T is not trustworthy; Zen 3 runs unchanged AVX2 code so only AVX-512 machines decide (target-specific rule). Passed over: rerunning now (Chris put the Rust base ahead of the C++ wheel when nodes are short).",
+      "id": "p-cpp-wheel-group32",
+      "what": "inconclusive: rerun on Zen 5 later, behind the base and Rust work",
+      "why": "the Zen 5 A/A spread reached +6.9%, so the +6.3% at 16T is not trustworthy; Zen 3 runs unchanged AVX2 code so only AVX-512 machines decide (target-specific rule)",
+      "instead": "rerunning now (Chris put the Rust base ahead of the C++ wheel when nodes are short)"
     }
   ],
   "research": {

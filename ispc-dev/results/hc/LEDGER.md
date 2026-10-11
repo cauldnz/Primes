@@ -290,3 +290,11 @@ replaces. 192 and 128 queued to find the optimum's other side.
 | p-rust-wheel-idea12 | 2026-10-11 | rust-wheel | IDEAS 12 ported to the Rust wheel | 0 to +3% 1T | Zen 3: 96.2k / 803.2k, −0.2% ± 2.1 / +0.7% ± 0.6 (8T −1.6%) | Zen 5: 178.3k / 1.30M, −0.5% ± 0.7 / −0.9% ± 0.7 | REVERT | `hc/port-rust-wheel-idea12` |
 | s3-crishoj | 2026-10-11 | rival | crishoj 210-wheel (PR 1094) beside our wheels | within 10% of ours | Zen 3: crishoj 87.8k / 645.7k; ISPC wheel 111.7k / 947.7k; Zig wheel 119.2k / 925.7k | Zen 5: crishoj 191.7k / 1.45M; ISPC 222.2k / 1.63M; Zig 217.2k / 1.61M | measurement | `upstream pull/1094` |
 | s5-profile | 2026-10-11 | wheel | TSC phase split, Zen 5 | start + pattern 5-15% | | 68k cycles/pass: start offsets 15.3%, pattern 8.2%, group 33.1%, tile 3.2%, sparse 35.0%, scan 5.2% | measurement | `hc/diag-wheel-phases-2` |
+| p-cpp-base-f1 | 2026-10-11 | cpp-base | F1 in the C++ base port (grey, borrowed from our ISPC F1) | +8% to +15% 1T | Zen 3: 56.2k / 439.0k, +8.7% ± 0.6 / +9.9% ± 0.1, 6/6 | Zen 5: 153.1k / 1.03M, +16.4% ± 0.2 / +11.0% ± 0.1, 6/6 | KEEP (grey lineage only) | `hc/port-cpp-base-grey` |
+| p-rust-base-f1 | 2026-10-11 | rust-base | F1 in the Rust base port (grey) | +8% to +15% 1T | Zen 3: 52.3k / 417.9k, +8.0% ± 0.6 / +6.4% ± 0.3, 6/6 | Zen 5: 137.3k / 890.2k, +22.0% ± 0.7 / +10.6% ± 0.6, 6/6 | KEEP (grey), >20% recheck queued | `hc/port-rust-base-grey` |
+| p-cpp-wheel-group32 | 2026-10-11 | cpp-wheel | wheel-group32 loop shape in the C++ wheel (AVX-512 only) | −1% to +3% | Zen 3 (code unchanged): −0.7% ± 0.5 / −0.4% ± 0.7 | Zen 5: +1.2% ± 4.8 / +6.3% ± 1.1, A/A to +6.9% | INCONCLUSIVE (noisy node) | `hc/port-cpp-wheel-group32` |
+
+**F1 on the base ports.** Both keep on their grey branches. With F1 the Rust base port goes from
+−14% to +9% against mike-barber's entry at 1T on Zen 5 and to −0.6% on Zen 3; the C++ base port
+beats davepl's by 67% on Zen 5. Local runs overstated the C++ gain (+32% local, +16% Zen 5) and
+understated the Rust one (+10-15% local, +22% Zen 5).
