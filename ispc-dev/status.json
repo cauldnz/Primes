@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T01:43:45Z",
+  "updated_utc": "2026-10-11T01:43:57Z",
   "run": {
     "id": "ap-20261011T0100Z",
     "state": "running",
@@ -13,7 +13,7 @@
     "ends_utc": "2026-10-11T05:00:00Z",
     "background_runs": 21,
     "last_tick_utc": "2026-10-11T01:41:54Z",
-    "wakeup": "trig_01PWpPq4oR6SJJcKqaLkycSV"
+    "wakeup": "trig_01Q3xsDMtBtzg5KpdB2UF46a"
   },
   "current": {
     "id": "f4-dense",
