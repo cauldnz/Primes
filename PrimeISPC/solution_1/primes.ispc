@@ -428,8 +428,29 @@ static uniform int count_primes(const uniform Sieve * uniform s) {
 // ---------------------------------------------------------------------------------------
 // Benchmark driver
 // ---------------------------------------------------------------------------------------
-static const uniform int64 SIEVE_SIZE = 1000000;
-static const uniform int EXPECTED = 78498;
+// DIAGNOSTIC BUILD (never merge): the sieve size comes from PRIMES_SIZE (default 1000000)
+// and must be one of the sizes in the table below, which holds the exact prime count pi(n).
+static uniform int64 SIEVE_SIZE = 1000000;
+static uniform int EXPECTED = 78498;
+
+static void select_size() {
+    uniform int8 n_size[12] = {80,82,73,77,69,83,95,83,73,90,69,0};   // PRIMES_SIZE
+    int8 * uniform e = getenv(n_size);
+    if (e == NULL) return;
+    uniform int64 n = atoi(e);
+    uniform int64 sizes[16] = {250000, 400000, 500000, 600000, 700000, 770000, 850000, 920000,
+                               960000, 1000000, 1050000, 1100000, 1300000, 1450000, 1600000,
+                               2000000};
+    uniform int counts[16] = {22044, 33860, 41538, 49098, 56543, 61733, 67617, 72734,
+                              75618, 78498, 82134, 85714, 100021, 110630, 121127, 148933};
+    for (uniform int i = 0; i < 16; i++) {
+        if (sizes[i] == n) { SIEVE_SIZE = n; EXPECTED = counts[i]; return; }
+    }
+    uniform int8 msg[33] = {69,82,82,79,82,58,32,80,82,73,77,69,83,95,83,73,90,69,32,110,111,
+                            116,32,105,110,32,116,97,98,108,101,10,0};  // "ERROR: PRIMES_SIZE not in table\n"
+    write(2, msg, 32);
+    exit(2);
+}
 static const uniform double RUN_SECONDS = 5.0;
 
 struct Job {
@@ -518,6 +539,7 @@ export uniform int main() {
     uniform int8 n_test[12] = {80,82,73,77,69,83,95,84,69,83,84,0};                 // PRIMES_TEST
     uniform int dense_max = env_int(n_dense, 256);
     if (env_int(n_test, 0) != 0) self_test(dense_max);
+    select_size();
 
     uniform int nthreads = clamp(hardware_threads(), 1, 1024);
     uniform Job jobs[1024];
