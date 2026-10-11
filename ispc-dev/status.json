@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T07:57:29Z",
+  "updated_utc": "2026-10-11T07:58:10Z",
   "run": {
     "id": "ap-20261011T0645Z",
     "state": "running",
@@ -1712,20 +1712,6 @@
   ],
   "events": [
     {
-      "utc": "2026-10-11T04:28:11Z",
-      "level": "decision",
-      "text": "p-cpp-wheel-clang-idea12: keep: advance hc/port-cpp-wheel-champion to 547221c; take the Zen 3 pool down. Why: 16T clears +1% on both Zens with every round won; no other work remains for Zen 3.",
-      "id": "p-cpp-wheel-clang-idea12",
-      "what": "keep: advance hc/port-cpp-wheel-champion to 547221c; take the Zen 3 pool down",
-      "why": "16T clears +1% on both Zens with every round won; no other work remains for Zen 3"
-    },
-    {
-      "utc": "2026-10-11T04:28:11Z",
-      "level": "info",
-      "text": "p-cpp-wheel-clang-idea12 kept.. KEEP: hc/port-cpp-wheel-champion = 547221c (alignment fix + clang + IDEAS 12). Against our ISPC reference wheel: Zen 3 +9.3% 1T, +6.3% 16T; Zen 5 -7.9% 1T, +1.7% 16T. Arm not measured for the ports (the port bench runs on x86 only)",
-      "auto": true
-    },
-    {
       "utc": "2026-10-11T04:39:34Z",
       "level": "info",
       "text": "Run ap-20261011T0100Z stopped: all pools deleted, spend NZ.31. Base 330b3d4 beats mike-barber by 10.44% ± 0.11 at 1T on Zen 5 (20/20). Morning report in STATUS.md, retrospective in RETRO.md."
@@ -2050,6 +2036,19 @@
       "level": "info",
       "text": "s1-base-codesize rejected.. REVERT: the generic dense loop fails the Cobalt gate by 11%. Hot dense code is still 3x L1i on x86 (finding stands); per-pass mask buffer + loop overhead cost more than the i-cache saves",
       "auto": true
+    },
+    {
+      "utc": "2026-10-11T07:58:10Z",
+      "level": "decision",
+      "text": "run: phase 0 complete at 1.2 h; start agents r9-rust-wheel-group (Rust wheel group passes, +8.6k on Zen 5) and r9-cpp-wheel (C++ wheel profile, then one change). Why: stream 1 step 2 is off (no Zen 3 wheel cliff), so the agent slots go to the port shares; Zig gets the next slot.",
+      "id": "run",
+      "what": "phase 0 complete at 1.2 h; start agents r9-rust-wheel-group (Rust wheel group passes, +8.6k on Zen 5) and r9-cpp-wheel (C++ wheel profile, then one change)",
+      "why": "stream 1 step 2 is off (no Zen 3 wheel cliff), so the agent slots go to the port shares; Zig gets the next slot"
+    },
+    {
+      "utc": "2026-10-11T07:58:10Z",
+      "level": "info",
+      "text": "Phase 0 done: verdict line, 4T line merged (hc/champion 55be5a9), solution_3 kept (hc/champion-tables 4a42d98), fold-1pc AVX-512 losses reported, build outputs off the champion."
     }
   ],
   "research": {
