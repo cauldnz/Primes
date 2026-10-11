@@ -41,10 +41,16 @@ constexpr int G = 8;
 // A step of W words as one value. GCC's vector extension (also in Clang) splits it into
 // whatever vector registers the target has: two with AVX-512, four with AVX2 or eight with
 // SSE or NEON.
-// aligned(8) and may_alias make it safe to read and write a Block anywhere in a Word array.
-using Block = Word __attribute__((vector_size(W * sizeof(Word)), aligned(8), may_alias));
-inline Block load(const Word* p) { return *reinterpret_cast<const Block*>(p); }
-inline void store(Word* p, Block b) { *reinterpret_cast<Block*>(p) = b; }
+// Blocks are read and written with memcpy, which allows any 8-byte-aligned position in a Word
+// array and compiles to unaligned vector moves. (Clang ignores an aligned(8) on the vector
+// type alias and emits aligned moves, which fault on positions that are not 64-byte aligned.)
+using Block = Word __attribute__((vector_size(W * sizeof(Word))));
+inline Block load(const Word* p) {
+    Block b;
+    std::memcpy(&b, p, sizeof b);
+    return b;
+}
+inline void store(Word* p, Block b) { std::memcpy(p, &b, sizeof b); }
 
 constexpr int DenseMax = 256;         // primes below this are applied as word patterns
 constexpr int RowWords = DenseMax + 2 * W;   // a pattern's period plus one step, rounded up
