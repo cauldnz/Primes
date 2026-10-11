@@ -1,0 +1,46 @@
+Architecture:                            aarch64
+CPU(s):                                  4
+Model name:                              Neoverse-N2
+BIOS Model name:                         Cobalt 100 None CPU @ 3.4GHz
+AVX-512: no
+kind=ocaml rounds=2 id=22213519878
+oxcaml image loaded in 36 s
+build cand
+build cand seconds: 11
+build champ
+build champ seconds: 2
+build ctx
+build ctx seconds: 20
+build gk1 (PrimeOCaml/solution_1)
+build gk2 (PrimeOCaml/solution_2)
+self-test cand: 13 ok, 0 bad, exit=0
+self-test champ: 13 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-oxcaml-diag;setup;1066.7;0.15;0
+cauldnz-oxcaml-diag;dense_pattern;22817.1;3.26;0
+cauldnz-oxcaml-diag;dense_copy;561336.5;80.27;0
+cauldnz-oxcaml-diag;sparse;97146.9;13.89;0
+cauldnz-oxcaml-diag;scan;113.3;0.02;0
+cauldnz-oxcaml-diag;total;699299.7;100.00;0
+cauldnz-oxcaml-base;7296;5.000123;1;algorithm=base,faithful=yes,bits=1
+== round warmup champ
+cauldnz-oxcaml-base;7297;5.000356;1;algorithm=base,faithful=yes,bits=1
+cauldnz-oxcaml-base;26944;5.000758;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ2
+cauldnz-oxcaml-base;7300;5.000467;1;algorithm=base,faithful=yes,bits=1
+cauldnz-oxcaml-base;27113;5.005907;4;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl
+cauldnz-ispc-base;42318;5.000075;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;166683;5.000140;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;84163;5.000109;2;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl2
+mike-barber_bit-extreme-hybrid;42933;5.0000720024;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;85769;5.0002236366;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;171350;5.0001840591;4;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl3
+gkpotter-faithful;623;5.003900;1;algorithm=base,faithful=yes
+== round warmup gk2
+gkpotter-unfaithful;622;5.005244;1;algorithm=base,faithful=no
+== round 1 ctrl3
+gkpotter-faithful;629;5.007368;1;algorithm=base,faithful=yes
+== round 1 ctrl2
