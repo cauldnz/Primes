@@ -216,19 +216,24 @@ private:
         // and p itself, which dense_primes clears again.
         std::size_t start = nw;
         for (int j = 0; j < N; j++) start = std::min(start, first[j] / 64);
-        std::size_t r[N], period[N];             // phase in each member's row, and its wrap
+        // All rows are read off one base: r[j] is member j's position in the whole rows array
+        // (its row offset plus its phase) and wraps at the end of its period, lim[j]. Per-row
+        // pointers spilled out of the registers on x86 and were reloaded on every step.
+        const Word* const base = &g.rows[0][0];
+        std::size_t r[N], lim[N], period[N];
         for (int j = 0; j < N; j++) {
             period[j] = std::size_t(g.period[j]);
             const std::size_t back = (first[j] / 64 - start) % period[j];
             const std::size_t t = std::size_t(g.tab[j][first[j] % 64]);
-            r[j] = t >= back ? t - back : t + period[j] - back;
+            r[j] = j * std::size_t(RowWords) + (t >= back ? t - back : t + period[j] - back);
+            lim[j] = j * std::size_t(RowWords) + period[j];
         }
         for (std::size_t k = start; k < nw; k += W) {
             Block v = load(w + k);
             for (int j = 0; j < N; j++) {
-                v |= load(g.rows[j] + r[j]);
+                v |= load(base + r[j]);
                 r[j] += W;
-                if (r[j] >= period[j]) r[j] -= period[j];
+                if (r[j] >= lim[j]) r[j] -= period[j];
             }
             store(w + k, v);
         }
