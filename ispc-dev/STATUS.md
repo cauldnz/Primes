@@ -1,12 +1,123 @@
 # Status from the Claude Code session
 
-Autopilot lock: ap-20261010T2040Z 2026-10-10T20:40Z
 
 
 
 
-**Last updated:** 2026-10-10 22:30 AEST. Living file; earlier versions are in
+**Last updated:** 2026-10-11 10:30 AEST. Living file; earlier versions are in
 `git log -p ispc-dev/STATUS.md`. Replies go in `ispc-dev/NEXT-STEPS.md`.
+
+## Morning report: run ap-20261010T2040Z (06:40 to about 10:30 AEST, 11 October)
+
+Four-hour run from RUN-PLAN.md. Spend about NZ$2.5 of NZ$30 (the page says NZ$3.9; the first
+tally charged each of two pools 261 node-minutes from the previous run, backlog item 28). Nodes
+were busy about 80% of node time (about 590 task-minutes of about 740 node-minutes, estimated
+from run counts; target 60%, last run 69%). All pools deleted at the end. Nothing went to `ispc`
+or to a PR. No tags changed.
+
+### F1 and F2 for the upstream issue
+
+Each measured alone against the clean champion (`hc/champion`), same node, six rounds, mean
+± 95% interval, rounds won. Rust = mike-barber's base entry in the same rounds.
+
+**F1, alternating sweep direction** (`hc/f1-alternate` 206ef99, now on `hc/champion-grey`):
+
+| Machine | 1T | One per core | All threads | vs Rust (1T / per core / all) |
+|---|---|---|---|---|
+| Zen 5 (D32as_v7, 16c) | +12.7% ± 0.3 | +15.2% ± 0.1 (16T) | +12.6% ± 0.2 (32T) | +15.8% / +18.7% / +30.0% |
+| Zen 3 (D16a_v4, 8c) | +10.2% ± 0.2 | +9.8% ± 0.1 (8T) | +5.3% ± 0.2 (16T) | +17.4% / +17.0% / +10.7% |
+| Zen 5 (D96as_v7, 48c) | +14.3% ± 3.1 | +21.1% ± 5.3 (48T) | +17.1% ± 4.6 (96T) | +17.0% / +64% / +30.2% |
+| Zen 4 (D16as_v5) | +9.3% ± 0.5 | +9.3% ± 0.3 (8T) | +6.4% ± 0.2 (16T) | +18.2% / +18.3% / +14.8% |
+| Cobalt 100 (arm64) | −0.4% ± 0.3 | | −0.3% ± 0.1 (4T) | |
+
+6/6 rounds won on every x86 row. The 96-vCPU node was noisy at 48T (A/A −4% to +3%).
+
+**F2, blocked sparse phase, 16 KB blocks** (`hc/f2-block-16` 23487a8, not merged; see below):
+
+| Machine | 1T | One per core | All threads | vs Rust (1T / per core / all) |
+|---|---|---|---|---|
+| Zen 5 (D16as_v7, 8c) | +9.2% ± 1.0 | +10.3% ± 1.8 (8T) | +21.5% ± 1.3 (16T) | +12.1% / +14.3% / +41.4% |
+| Zen 3 (D16a_v4, 8c) | +9.4% ± 0.4 | +9.4% ± 0.3 (8T) | +17.8% ± 0.5 (16T) | +16.6% / +16.5% / +23.6% |
+| Zen 5 (D96as_v7, 48c) | +7.6% ± 1.1 | +16.4% ± 23 (48T, 5/6) | +26.9% ± 4.6 (96T) | +11.5% / +50% / +43.1% |
+| Zen 4 (D16as_v5) | +10.4% ± 0.8 | +10.4% ± 0.3 (8T) | +10.9% ± 0.1 (16T) | +19.4% / +19.4% / +19.6% |
+| Cobalt 100 (arm64) | −1.9% ± 0.4 | | −2.1% ± 0.0 (4T) | |
+
+Block size: 16 KB beat 24 and 32 KB under SMT on both Zen 3 and Zen 5 (Zen 3 16T: 16 KB
++17.8%, 24 KB +6.7%, 32 KB +0.1%); at 1T the three sizes are within 2%.
+
+**They do not stack.** F2 on top of F1 (`hc/f2-x86`, NEON unchanged) against F1 alone: Zen 5
+−2.9% at 1T and 8T, +10.1% at 16T; Zen 3 +1.2% at 1T, +12.7% at 16T; Zen 4 −0.4% / +4.7%.
+Alternating inside each block as well (`hc/f1-on-f2`) lost 1-2% to F2 alone. Both cut the
+sparse phase's cache misses; with F1 in, blocking pays only when SMT siblings share an L1. So
+the issue should present them as two alternatives. F1 is the better single change at one thread
+per core; F2 is the better one with SMT.
+
+**Phase-profile evidence** (TSC cycles per pass, Zen 5 D16as_v7, 1T, `hc/diag-phases-champ`
+against `hc/diag-phases-f1`): sparse 61.2k → 50.1k (−18%), dense 36.2k → 35.8k (−1%), total
+101.4k → 90.0k (−11%). F1 passed the falsification bar (−10% at 1T) on the phase it targets.
+F2 had no phase profile this run; its SMT gain matches last run's 96-thread profile, where the
+sparse phase stopped scaling because two sieves overflow a 48 KB L1D.
+
+**Plain descriptions, in the rules' words:**
+- F1: The outer loop is unchanged. For every second factor, the inner loop clears the factor's
+  multiples starting from the largest one below the limit and going down to factor², stepping
+  by 2 × factor, instead of "increasing the number with 2 * factor". Each composite is still
+  cleared individually, once per factor, and nothing carries between passes.
+- F2: Factors below 128 run exactly as the rules describe. For each larger factor, the outer
+  loop finds it and clears its multiples in the first block of the sieve; the clearing of all
+  those factors then continues block by block (16 KB) through the rest of the sieve, each factor
+  carrying its next multiple to the next block. Each composite is still cleared individually
+  with one operation; the question is whether running the factors' inner loops block by block
+  still counts as the outer loop performing two operations per factor (precedent:
+  rogiervandam's `PrimeC/solution_5`).
+
+### Both lineages against Rust (base)
+
+| Machine | clean `hc/champion` 1T / all | grey `hc/champion-grey` 1T / all | Rust 1T / all |
+|---|---|---|---|
+| Zen 5 D32as_v7 (32T) | 129.5k / 2.02M | 146.1k / 2.28M | 126.3k / 1.75M |
+| Zen 3 D16a_v4 (16T) | 56.0k / 432.0k | 61.6k / 455.4k | 52.5k / 411.1k |
+| Zen 4 D16as_v5 (16T) | 64.2k / 508.8k | 70.2k / 541.5k | 59.4k / 471.4k |
+| Zen 5 D96as_v7 (96T) | 123.9k / 4.44M | 141.2k / 5.17M | 120.7k / 3.97M |
+
+(From the F1 runs, same rounds. The status page's scoreboard has the same grey rows, labelled
+"grey (rules pending)".)
+
+### What changed
+
+- `hc/champion` 5a68114 → **1551635**: IDEAS 12 (13 folded into the wheel's pre-sieved tile).
+  Wheel, all threads: Zen 3 +1.7% ± 0.3 (16T, 8/8), Zen 5 +1.2% ± 0.0 (32T, 12/12); Zen 4 +1.2%
+  to +2.1% at 4-16T; Cobalt 100 +3.0%. Also at start-up, as approved: 8fd7f1f (thread count)
+  and 5a68114 (wheel-group32).
+- `hc/champion-grey` = **3a893c1**: clean champion + F1 (206ef99).
+- New Zig grey lineage `hc/zig-champion-grey` = **72e5b42**: F1 ported to the Zig base. Against
+  `hc/zig-submission`: Zen 5 +11.7% ± 1.7 at 1T, +9.2% at 16T; Zen 3 +8.7% ± 0.3 at 1T, +4.3% at
+  16T (6/6). The Zig base with F1 runs 132.9k at 1T on Zen 5, Rust 126.3k in the same rounds.
+- Reverted or not kept: wheel F1 (−7.5% at 32T), wheel F1 dense-only (−0.4%), F5 fold (−5.2% at
+  32T), F5 addr64 (+0.9% at 32T, under the bar), F2 on F1 (above), F1 on F2 (−2%), Zig F2 port
+  (Zen 3 −23% at 1T; something in the port, not blocking, costs more than it saves), Zig wheel
+  IDEAS 12 (Zen 5 +1.6% ± 0.3 at 1T, Zen 3 +1.8% ± 2.5 at 1T and +1.1% ± 0.5 at 16T over 14
+  rounds: positive but under the bar).
+- Not run: F6 (AVX-512 off at 96T), cancelled when the 96-vCPU node came up 25 minutes late on
+  the 128-core low-priority quota; F4 (dense limit 384-640).
+- Porting rule (Chris): recorded in IDEAS.md. Three ports this run: Zig F2 (reverted), Zig
+  IDEAS 12 (not kept), Zig F1 (kept, grey).
+
+### Waiting for Chris
+
+1. Whether to file the upstream issue with F1 and F2 as alternatives (numbers above).
+2. Nothing else needs a decision; no merges are pending.
+
+### Next three experiments
+
+1. F2 only when threads exceed cores, on the grey lineage (F1 at one per core, F2 under SMT);
+   needs a rules read, since the sieve would differ by thread count.
+2. F1 to the Rust base port and the C++ base, under the porting rule; then profile the Zig F2
+   port on Zen 3 before any retry.
+3. F6 and F4 on the 96-vCPU node: bring it up first, alone, to avoid the quota wait.
+
+Calibration: 3 of 6 predictions in range (F1 sparse cut, F1 on F2 "little", IDEAS 12 +1-3%);
+misses: F2 at +30% on Zen 5 1T (got +9%), wheel F1 +3-6% at all threads (got −7.5%), F5 fold.
 
 ## Morning report: run ap-20261010T0715Z (17:15 to about 22:30 AEST, 10 October)
 

@@ -1,5 +1,29 @@
 # Run retrospectives (newest first)
 
+## ap-20261010T2040Z (2026-10-11, 06:40 to 10:30 AEST)
+
+- Calibration: 3 of 6 predictions in range. Hits: F1's sparse phase (−10% expected, −18%), F1 on
+  F2 (little expected; −1 to −2%), IDEAS 12 on the new champion (+1-3%; +1.2-1.7% at all
+  threads). Misses: F2 (+30% at 1T on Zen 5 expected, +9%), wheel F1 (+3-6% at all threads
+  expected, −7.5%), F5 fold (expected a gain; −5% at 32T from the zmm clock).
+- Kept: IDEAS 12 (clean, both lineages), F1 (grey), Zig F1 (grey, new Zig lineage). About 740
+  node-minutes after removing the tally overcount, about 250 per kept change; tasks busy about
+  80% (estimated from run counts). Lost: 25 minutes of the 96-vCPU node to the low-priority core
+  quota (it sat at 0 nodes with a resize error until the 32-vCPU pool was deleted), and with it
+  F6.
+- Followed: falsify first (F1's profile before its A/B runs); arm gate before every base merge
+  (it caught F2). Skipped: a phase profile for F2 (time); the Zen 4 recheck for IDEAS 12 reused
+  last run's numbers (wheel-group32 does not touch the non-AVX-512 code).
+- What worked: two background agents writing candidates while ticks fed five pools; the
+  NEON-identical x86-only F2 (asm diff) instead of a second arm run; the porting rule turned one
+  ISPC win into a second entry's win within the hour.
+- What did not: a pool brought up while others held the quota; `st.py event` called with its
+  arguments in the wrong order (the text went into `level`); a status.json rewrite with a
+  different indent that touched every line.
+- New harness items: 29 (`up` checks the low-priority core quota against the pools already
+  holding nodes and says what to take down), 30 (`st.py event` checks its level argument),
+  31 (record task start and end times in the output so busy share is measured, not estimated).
+
 ## ap-20261010T0715Z (2026-10-10, 17:15 to 22:30 AEST)
 
 - Calibration: 5 of 12 predictions in range. Hits: thread-count fix level, stop flag flat, arena

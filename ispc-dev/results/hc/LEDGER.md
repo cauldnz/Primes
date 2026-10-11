@@ -265,3 +265,16 @@ faster, diff the ports' arithmetic types before their loop shapes.
 | zig-vs | 2026-10-10 | wheel | The Zig wheel against the new champion (`059b8f3`), same node, 4 rounds | n/a | Zig 119.0k against 110.6k (+7.6%) | Zig 218.7k against 209.0k (+4.6%) | measurement: the gap halved (was 15–19% and 10–13%) | `results/hc/zig-vs-champion-059b8f3` |
 | 046 | 2026-10-10 | wheel | Unsigned division in `apply_group`'s phase, the sparse round count and `is_composite` (after hc-045) | 0–2% | 111.5k / 930.5k, +1.5% / −1.0% | 210.7k / 1.58M, +0.5% / +0.0% | rejected (Zen 5 under the small-gain rule's 1%; Cobalt 100 flat) | `hc/046-wheel-unsigned-rest` |
 | board | 2026-10-10 | both | Leaderboard check: top 10 faithful 1-bit base entries at 1T, default commands, our nodes against runners 73 and 74 | n/a | same ten, Swift 3rd → 6th; EPYC VM ~17% faster than our Zen 3 | same ten, Swift 1st → 5th; Rust and Nim within 2% of the Threadripper | measurement: `results/leaderboard-check-2026-10-10.md` | `results/hc/board-2026-10-10` |
+| f1-alternate | 2026-10-11 | base (grey) | F1: alternate sweep direction per factor | sparse −10% at 1T on Zen 5 | 61.6k / 455.4k, +10.2% / +5.3% | 146.1k / 2.28M (32T), +12.7% / +12.6% | KEEP on `hc/champion-grey` (Zen 4 +9.3%, arm −0.4%; 96T +17.1%) | `hc/f1-alternate` 206ef99 |
+| f2-block-16 | 2026-10-11 | base (grey) | F2: blocked sparse phase, 16 KB | +30% at 1T on Zen 5 | 61.2k / 508.5k, +9.4% / +17.8% | 134.4k / 1.19M (D16as_v7), +9.2% / +21.5% | not merged: arm −2.1%; x86-only form does not stack on F1 | `hc/f2-block-16` 23487a8 |
+| f2-x86 | 2026-10-11 | base (grey) | F2 on F1, x86 only (NEON identical) | stacks | 62.4k / 513.2k, +1.2% / +12.7% | 141.2k / 1.24M (D16as_v7), −2.9% / +10.1% | REVERT (−3% at 1-8T on Zen 5) | `hc/f2-x86` 20998bc |
+| f1-on-f2 | 2026-10-11 | base (grey) | F1 alternation inside F2's blocks too | little | | −1.3% 1T, −2.0% 16T vs F2 | REVERT | `hc/f1-on-f2` 3731ced |
+| wheel-f1 | 2026-10-11 | wheel | F1 for the wheel's group and sparse passes | ~0 1T, +3-6% all threads | | −7.0% / −7.5% (32T) | REVERT | `hc/wheel-f1` f3d0e2d |
+| wheel-f1-dense | 2026-10-11 | wheel | wheel F1, sparse always ascending | small | | −0.7% / −0.4% (32T) | REVERT | `hc/wheel-f1-dense` |
+| f5-fold | 2026-10-11 | base | avx512 x16 per-lane fold | gain | | +8.6% 1T, −5.2% 32T | REVERT | `hc/f5-fold` 9e3a4e2 |
+| f5-addr64 | 2026-10-11 | base | `--addressing=64` on the dense loop | small | | +0.2% 1T, +0.9% 32T | no keep (under 1%) | `hc/f5-addr64` 9a976cf |
+| idea12-v2 | 2026-10-11 | wheel | IDEAS 12 on the new champion | +1-3% | 112.4k / 947.7k, +0.9% / +1.7% | 222.0k / 3.26M (32T), +1.6% / +1.2% | KEEP (clean, both lineages) | `hc/champion` 1551635 |
+| zig-f2 | 2026-10-11 | Zig base (grey) | port F2 | as ISPC | 42.3k / 373.0k, −23.3% / −11.7% | 129.0k / 1.01M, +3.2% / −0.6% | REVERT | `hc/zig-f2-block` 937da9e |
+| zig-idea12 | 2026-10-11 | Zig wheel | port IDEAS 12 | +1-3% | +1.8% / +1.1% (14 rounds) | +1.6% / +1.0% (32T) | not kept (Zen 3 straddles) | `hc/zig-idea12` e1a55bb |
+| zig-f1 | 2026-10-11 | Zig base (grey) | port F1 | as ISPC | 59.9k / 439.4k, +8.7% / +4.3% | 132.9k / 1.08M, +11.7% / +9.2% | KEEP on `hc/zig-champion-grey` | `hc/zig-f1` 72e5b42 |
+| f6-no512 | 2026-10-11 | both | AVX-512 off at 96T | −2% to +4% | | | cancelled (quota wait) | `hc/f6-no512` d6feacb |
