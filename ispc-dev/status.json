@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T07:12:53Z",
+  "updated_utc": "2026-10-11T07:13:10Z",
   "run": {
     "id": "ap-20261011T0645Z",
     "state": "running",
@@ -13,7 +13,7 @@
     "ends_utc": "2026-10-11T12:45:00Z",
     "background_runs": 15,
     "last_tick_utc": "2026-10-11T07:12:30Z",
-    "wakeup": "trig_01Nso3BcYEDxbWUhuvyHSQNZ"
+    "wakeup": "trig_01PZDaiPSnTwBmsDfThinRNP"
   },
   "current": null,
   "scoreboard": [
