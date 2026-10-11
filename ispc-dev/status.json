@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T01:29:19Z",
+  "updated_utc": "2026-10-11T01:29:49Z",
   "run": {
     "id": "ap-20261011T0100Z",
     "state": "running",
@@ -1207,21 +1207,6 @@
   ],
   "events": [
     {
-      "utc": "2026-10-10T22:19:46Z",
-      "level": "decision",
-      "text": "f2-block: 16 KB holds on Zen 5 (24 KB: +9.7% +-2.1 1T, +18.9% 16T vs 16 KB's +9.2 / +21.5). Arm gate FAILS: -1.9% 1T, -2.1% 4T (0/6). Next: x86-only F2 (NEON build keeps the unblocked sparse phase), Zen 4 still running. Why: .",
-      "id": "f2-block",
-      "what": "16 KB holds on Zen 5 (24 KB: +9.7% +-2.1 1T, +18.9% 16T vs 16 KB's +9.2 / +21.5). Arm gate FAILS: -1.9% 1T, -2.1% 4T (0/6). Next: x86-only F2 (NEON build keeps the unblocked sparse phase), Zen 4 still running"
-    },
-    {
-      "utc": "2026-10-10T22:45:49Z",
-      "level": "decision",
-      "text": "idea12-v2: KEEP (clean): hc/champion 5a68114 -> 1551635 (ff, wheel self-test 0); merged into hc/champion-grey as 3a893c1 (both self-tests 0). Why: all threads: Zen 3 +1.7% +-0.3 (16T, 8/8), Zen 5 +1.2% +-0.0 (32T, 12/12); Zen 4 +1.2% to +2.1% at 4-16T; Cobalt 100 +3.0% (tile13 run; wheel-group32 does not touch NEON).",
-      "id": "idea12-v2",
-      "what": "KEEP (clean): hc/champion 5a68114 -> 1551635 (ff, wheel self-test 0); merged into hc/champion-grey as 3a893c1 (both self-tests 0)",
-      "why": "all threads: Zen 3 +1.7% +-0.3 (16T, 8/8), Zen 5 +1.2% +-0.0 (32T, 12/12); Zen 4 +1.2% to +2.1% at 4-16T; Cobalt 100 +3.0% (tile13 run; wheel-group32 does not touch NEON)"
-    },
-    {
       "utc": "2026-10-10T22:45:49Z",
       "level": "decision",
       "text": "f1-on-f2: REVERT: alternating inside blocks loses to F2 alone. Why: Zen 5 D16as_v7 vs f2-block-16: -1.3% +-0.9 1T, -2.0% +-0.6 16T (0/6). hc/f1-on-f2-x86 (same idea) dropped unmeasured.",
@@ -1548,6 +1533,21 @@
       "utc": "2026-10-11T01:29:07Z",
       "level": "info",
       "text": "Agents: s6-wheel-210 rejected locally (-30%); p-cpp-wheel-ub (clang segfault) and p-rust-base-mb running. 19 tasks open."
+    },
+    {
+      "utc": "2026-10-11T01:29:49Z",
+      "level": "info",
+      "text": "Chris gave explicit permission for pool resizes and other Azure operations; Zen 5 pool raised to 4 nodes (Zen 3 stays 3: 112 of 128 Spot vCPUs, 16 left for the Zen 4 scoreboard node)."
+    },
+    {
+      "utc": "2026-10-11T01:29:49Z",
+      "level": "decision",
+      "text": "run: raise the Zen 5 pool's cap from 3 to 4 nodes. Why: 13 tasks queued behind 6 nodes; Zen 5 carries one more task (the s5 profile). Chris approved Azure operations in the session. Passed over: raising Zen 3 too (would leave no room for the Zen 4 node under 128 vCPUs). Expect: queue clears about 20 minutes sooner.",
+      "id": "run",
+      "what": "raise the Zen 5 pool's cap from 3 to 4 nodes",
+      "why": "13 tasks queued behind 6 nodes; Zen 5 carries one more task (the s5 profile). Chris approved Azure operations in the session",
+      "instead": "raising Zen 3 too (would leave no room for the Zen 4 node under 128 vCPUs)",
+      "expect": "queue clears about 20 minutes sooner"
     }
   ],
   "research": {
