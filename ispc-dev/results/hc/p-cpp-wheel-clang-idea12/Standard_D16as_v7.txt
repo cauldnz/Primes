@@ -1,0 +1,38 @@
+Architecture:                            x86_64
+CPU(s):                                  16
+Model name:                              AMD EPYC 9V45 96-Core Processor
+BIOS Model name:                         AMD EPYC 9V45 96-Core Processor                 None CPU @ 2.6GHz
+AVX-512: yes
+kind=port rounds=6 id=03272012617
+build cand
+build champ
+build ctx
+self-test cand: 8 ok, 0 bad, exit=0
+self-test champ: 8 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-cpp-wheel;204309;5.000016;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-cpp-wheel;1665462;5.000227;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-cpp-wheel;1507861;5.000085;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-cpp-wheel;814183;5.000040;4;algorithm=wheel,faithful=yes,bits=1
+== round warmup champ
+cauldnz-cpp-wheel;201834;5.000003;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-cpp-wheel;1630593;5.000182;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-cpp-wheel;1494065;5.000106;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-cpp-wheel;807607;5.000048;4;algorithm=wheel,faithful=yes,bits=1
+== round warmup champ2
+cauldnz-cpp-wheel;202293;5.000021;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-cpp-wheel;1624862;5.000172;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-cpp-wheel;1495251;5.000077;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-cpp-wheel;806866;5.000034;4;algorithm=wheel,faithful=yes,bits=1
+== round warmup ctrl
+cauldnz-ispc;222672;5.000014;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1631815;5.000176;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1633103;5.000091;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;882852;5.000030;4;algorithm=wheel,faithful=yes,bits=1
+== round warmup ctrl2
+rogiervandam_extend_epar;1196967;5.000021;16;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;960390;5.000028;8;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;509975;5.000018;4;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;276428;5.000024;2;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend;139340;5.000020;1;algorithm=other,faithful=yes,bits=1
+== round 1 champ2
