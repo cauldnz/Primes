@@ -1,0 +1,28 @@
+Architecture:                            aarch64
+CPU(s):                                  4
+Model name:                              Neoverse-N2
+BIOS Model name:                         Cobalt 100 None CPU @ 3.4GHz
+AVX-512: no
+kind=rust rounds=5 id=02070529969
+build cand
+build champ
+build ctx
+== round warmup cand
+mike-barber_bit-extreme-hybrid;profile;setup;358
+mike-barber_bit-extreme-hybrid;profile;dense;33425
+mike-barber_bit-extreme-hybrid;profile;sparse;90241
+mike-barber_bit-extreme-hybrid;profile;scan;6666
+mike-barber_bit-extreme-hybrid;profile;destroy;48
+mike-barber_bit-extreme-hybrid;profile;run_total;130333
+mike-barber_bit-extreme-hybrid;42828;5.0000176430;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;85776;5.0002765656;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;171090;5.0001578331;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ
+mike-barber_bit-extreme-hybrid;42870;5.0000014305;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;85743;5.0000948906;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;171355;5.0001177788;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ2
+mike-barber_bit-extreme-hybrid;42925;5.0000343323;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;85750;5.0001282692;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;171383;5.0001397133;4;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl

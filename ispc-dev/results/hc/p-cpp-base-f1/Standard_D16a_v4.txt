@@ -102,3 +102,71 @@ cauldnz-cpp-base;224436;5.000150;4;algorithm=base,faithful=yes,bits=1
 davepl_array_optimized;34501;5.00023;1;algorithm=base,faithful=yes,bits=1
 davepl_array_optimized;306587;5.00114;16;algorithm=base,faithful=yes,bits=1
 == round 4 cand
+cauldnz-cpp-base;56356;5.000065;1;algorithm=base,faithful=yes,bits=1
+cauldnz-cpp-base;438796;5.000353;16;algorithm=base,faithful=yes,bits=1
+cauldnz-cpp-base;448759;5.000185;8;algorithm=base,faithful=yes,bits=1
+cauldnz-cpp-base;224746;5.000109;4;algorithm=base,faithful=yes,bits=1
+== round 4 ctrl
+cauldnz-ispc-base;62053;5.000030;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;455478;5.000373;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;492458;5.000177;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;246650;5.000121;4;algorithm=base,faithful=yes,bits=1
+== round 4 champ
+cauldnz-cpp-base;51426;5.000067;1;algorithm=base,faithful=yes,bits=1
+cauldnz-cpp-base;399884;5.000381;16;algorithm=base,faithful=yes,bits=1
+cauldnz-cpp-base;410343;5.000216;8;algorithm=base,faithful=yes,bits=1
+cauldnz-cpp-base;205976;5.000153;4;algorithm=base,faithful=yes,bits=1
+== round 4 champ2
+cauldnz-cpp-base;51423;5.000084;1;algorithm=base,faithful=yes,bits=1
+cauldnz-cpp-base;398378;5.000379;16;algorithm=base,faithful=yes,bits=1
+cauldnz-cpp-base;412093;5.000197;8;algorithm=base,faithful=yes,bits=1
+cauldnz-cpp-base;206142;5.000126;4;algorithm=base,faithful=yes,bits=1
+== round 4 ctrl2
+davepl_array_optimized;36770;5.00023;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;306527;5.00058;16;algorithm=base,faithful=yes,bits=1
+== round 5 ctrl
+cauldnz-ispc-base;61726;5.000013;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;455100;5.000399;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;492433;5.000210;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;246316;5.000110;4;algorithm=base,faithful=yes,bits=1
+== round 5 ctrl2
+davepl_array_optimized;36756;5.00022;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;306277;5.0009;16;algorithm=base,faithful=yes,bits=1
+== round 5 champ
+cauldnz-cpp-base;51765;5.000039;1;algorithm=base,faithful=yes,bits=1
+cauldnz-cpp-base;399156;5.000398;16;algorithm=base,faithful=yes,bits=1
+cauldnz-cpp-base;412105;5.000203;8;algorithm=base,faithful=yes,bits=1
+cauldnz-cpp-base;206534;5.000153;4;algorithm=base,faithful=yes,bits=1
+== round 5 cand
+cauldnz-cpp-base;56317;5.000022;1;algorithm=base,faithful=yes,bits=1
+cauldnz-cpp-base;439037;5.000292;16;algorithm=base,faithful=yes,bits=1
+cauldnz-cpp-base;447860;5.000164;8;algorithm=base,faithful=yes,bits=1
+cauldnz-cpp-base;224441;5.000132;4;algorithm=base,faithful=yes,bits=1
+== round 5 champ2
+cauldnz-cpp-base;51276;5.000093;1;algorithm=base,faithful=yes,bits=1
+cauldnz-cpp-base;400710;5.000349;16;algorithm=base,faithful=yes,bits=1
+cauldnz-cpp-base;412917;5.000187;8;algorithm=base,faithful=yes,bits=1
+cauldnz-cpp-base;206331;5.000111;4;algorithm=base,faithful=yes,bits=1
+== round 6 champ2
+cauldnz-cpp-base;51629;5.000063;1;algorithm=base,faithful=yes,bits=1
+cauldnz-cpp-base;399274;5.000384;16;algorithm=base,faithful=yes,bits=1
+cauldnz-cpp-base;412706;5.000182;8;algorithm=base,faithful=yes,bits=1
+cauldnz-cpp-base;207022;5.000088;4;algorithm=base,faithful=yes,bits=1
+== round 6 champ
+cauldnz-cpp-base;51701;5.000017;1;algorithm=base,faithful=yes,bits=1
+cauldnz-cpp-base;399498;5.000401;16;algorithm=base,faithful=yes,bits=1
+cauldnz-cpp-base;411275;5.000172;8;algorithm=base,faithful=yes,bits=1
+cauldnz-cpp-base;206292;5.000127;4;algorithm=base,faithful=yes,bits=1
+== round 6 ctrl
+cauldnz-ispc-base;61451;5.000001;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;455557;5.000336;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;489302;5.000185;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;246856;5.000093;4;algorithm=base,faithful=yes,bits=1
+== round 6 ctrl2
+davepl_array_optimized;36656;5.0002;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;306489;5.00112;16;algorithm=base,faithful=yes,bits=1
+== round 6 cand
+cauldnz-cpp-base;56211;5.000068;1;algorithm=base,faithful=yes,bits=1
+cauldnz-cpp-base;439020;5.000366;16;algorithm=base,faithful=yes,bits=1
+cauldnz-cpp-base;447209;5.000200;8;algorithm=base,faithful=yes,bits=1
+cauldnz-cpp-base;223951;5.000108;4;algorithm=base,faithful=yes,bits=1
