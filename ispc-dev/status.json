@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T01:03:27Z",
+  "updated_utc": "2026-10-11T01:10:57Z",
   "run": {
     "id": "ap-20261011T0100Z",
     "state": "running",
@@ -8,14 +8,18 @@
     "mode_reason": "Chris kicked off a 4-hour run (RUN-PLAN.md: finish and freeze ISPC, then climb the C++, Rust and Zig ports alike); cached Azure login works, no pools up.",
     "started_utc": "2026-10-11T01:00:00Z",
     "time_box_hours": 4,
-    "spend_nzd": 0,
+    "spend_nzd": 0.0,
     "spend_cap_nzd": 30,
     "ends_utc": "2026-10-11T05:00:00Z",
-    "background_runs": 0,
-    "last_tick_utc": null,
+    "background_runs": 8,
+    "last_tick_utc": "2026-10-11T01:10:57Z",
     "wakeup": null
   },
-  "current": null,
+  "current": {
+    "id": "f4-dense",
+    "phase": "evaluate",
+    "detail": "6 tasks queued, pools starting (about 8 min start task)"
+  },
   "scoreboard": [
     {
       "machine": "Zen 5 (EPYC 9V45, D32as_v7)",
@@ -1044,6 +1048,56 @@
       "verdict": "KEEP (grey, hc/zig-champion-grey)",
       "where": "Zen 5 D16as_v7, Zen 3 vs hc/zig-submission, 6 rounds",
       "note": "Zen 5 +11.7% 1T, +9.2% 16T; Zen 3 +8.7% 1T, +4.3% 16T (6/6)"
+    },
+    {
+      "id": "f4-dense-384",
+      "entry": "wheel",
+      "tier": "extra-faithful",
+      "kind": "tuning",
+      "branch": "hc/f4-dense-384",
+      "base": "1551635",
+      "verdict": "running",
+      "hypothesis": "F4: raise the wheel's dense/sparse breakeven PRIMES_DENSE_MAX from 256 to 384",
+      "prediction": "flat to +2% at 1T (IDEAS F4)",
+      "plain": "If the wheel sieves primes up to 384 with the grouped dense pass instead of 256, then a pass gets a little faster, because recent changes made the dense pass cheaper relative to the sparse one.",
+      "note": "6 rounds, Zen 5 and Zen 3"
+    },
+    {
+      "id": "f4-dense-512",
+      "entry": "wheel",
+      "tier": "extra-faithful",
+      "kind": "tuning",
+      "branch": "hc/f4-dense-512",
+      "base": "1551635",
+      "verdict": "running",
+      "hypothesis": "F4: raise the wheel's dense/sparse breakeven PRIMES_DENSE_MAX from 256 to 512",
+      "prediction": "flat to +2% at 1T (IDEAS F4)",
+      "plain": "If the wheel sieves primes up to 512 with the grouped dense pass instead of 256, then a pass gets a little faster, because recent changes made the dense pass cheaper relative to the sparse one.",
+      "note": "6 rounds, Zen 5 and Zen 3"
+    },
+    {
+      "id": "f4-dense-640",
+      "entry": "wheel",
+      "tier": "extra-faithful",
+      "kind": "tuning",
+      "branch": "hc/f4-dense-640",
+      "base": "1551635",
+      "verdict": "running",
+      "hypothesis": "F4: raise the wheel's dense/sparse breakeven PRIMES_DENSE_MAX from 256 to 640",
+      "prediction": "flat to +2% at 1T (IDEAS F4)",
+      "plain": "If the wheel sieves primes up to 640 with the grouped dense pass instead of 256, then a pass gets a little faster, because recent changes made the dense pass cheaper relative to the sparse one.",
+      "note": "6 rounds, Zen 5 and Zen 3"
+    },
+    {
+      "id": "s3-crishoj-wheel",
+      "entry": "wheel",
+      "tier": "extra-faithful",
+      "kind": "tuning",
+      "verdict": "running",
+      "hypothesis": "Measurement: crishoj 210-wheel (upstream PR 1094, Zig 0.17) beside our Zig wheel (cand=champ), our ISPC wheel (ctrl) and the C wheel (ctrl2), 1T and all threads",
+      "prediction": "PR claims 2.2x the existing Zig wheel; locally it was not faster than ours, so expect within 10% of our ISPC wheel",
+      "plain": "If we run the newest outside wheel entry beside ours on the same machines, then we learn whether it is a faster rival, because its author claims more than twice the speed of the old Zig wheel.",
+      "note": "stream 3, a measurement, not an experiment; 5 rounds"
     }
   ],
   "azure_queue": 0,
@@ -1053,79 +1107,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T21:35:29Z",
-      "level": "info",
-      "text": "f5-fold (base) running: --addressing=64 plus a per-lane x16 dense fold (avx512skx-x16): dense instructions per word halve on AVX-512",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T21:37:32Z",
-      "level": "decision",
-      "text": "wheel-f1: measure wheel F1 and a dense-only variant on the 32-vCPU Zen 5 node, judged at all threads. Why: RUN-PLAN priority 3; the agent's local split hinted the sparse half may cost, so the variant isolates it. Expect: +2-5% at 32T.",
-      "id": "wheel-f1",
-      "what": "measure wheel F1 and a dense-only variant on the 32-vCPU Zen 5 node, judged at all threads",
-      "why": "RUN-PLAN priority 3; the agent's local split hinted the sparse half may cost, so the variant isolates it",
-      "expect": "+2-5% at 32T"
-    },
-    {
-      "utc": "2026-10-10T21:37:32Z",
-      "level": "info",
-      "text": "wheel-f1 (wheel) running: Wheel F1: alternate direction per group pass (planes visited 7..0 on down passes) and per sparse prime; ~0 at 1T, +3-6% at all threads",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T21:49:52Z",
-      "level": "decision",
-      "text": "f2-block: lead candidate for the block size is 16 KB: on Zen 3 it gives up 2-3% at 1T but gains +17.8% under SMT, where 32 KB gains nothing; Zen 4 and arm gates run with 16 KB; Zen 5's 16/24 KB results decide. Why: Zen 3's 32 KB L1D is shared by two SMT threads; the official EPYC runner (Zen 3/4 class) runs all threads.",
-      "id": "f2-block",
-      "what": "lead candidate for the block size is 16 KB: on Zen 3 it gives up 2-3% at 1T but gains +17.8% under SMT, where 32 KB gains nothing; Zen 4 and arm gates run with 16 KB; Zen 5's 16/24 KB results decide",
-      "why": "Zen 3's 32 KB L1D is shared by two SMT threads; the official EPYC runner (Zen 3/4 class) runs all threads"
-    },
-    {
-      "utc": "2026-10-10T21:49:52Z",
-      "level": "decision",
-      "text": "f1-alternate: F1 clears on Zen 5 at every thread count (+12.6% to +15.2%); Zen 3 decides, then the Zen 4 recheck and the arm gate (queued). Why: .",
-      "id": "f1-alternate",
-      "what": "F1 clears on Zen 5 at every thread count (+12.6% to +15.2%); Zen 3 decides, then the Zen 4 recheck and the arm gate (queued)"
-    },
-    {
-      "utc": "2026-10-10T21:49:52Z",
-      "level": "info",
-      "text": "f1-alternate Zen 5 clears; Zen 3 running. Zen 5 D16as_v7. Zen 5 D32as_v7 (16c x 2), 6 rounds vs clean champion 5a68114: +12.7% +-0.3% at 1T, +14.0% at 8T, +15.2% +-0.1% at 16T (one per core), +12.6% +-0.2% at 32T, 6/6 each. vs Rust +15.8% / +18.7% / +30.0%. Zen 4 and Cobalt 100 queued",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T21:49:52Z",
-      "level": "info",
-      "text": "f2-block Zen 3 and Zen 5 clear; block size by SMT. Zen 3 D16a_v4 (block sweep); Zen 5 after the F1 profile. Zen 3 (8c x 2), 6 rounds, 1T / 8T / 16T: 32 KB +12.1 / +12.4 / +0.1; 24 KB +11.6 / +11.1 / +6.7; 16 KB +9.4 / +9.4 / +17.8 (vs Rust 16 KB +16.6 / +16.5 / +23.6). Zen 5 D16as_v7 32 KB: +11.2% +-2.1 / +13.0% +-0.6 (8T) / +11.8% +-0.9 (16T); vs Rust +15.2 / +16.9 / +29.4. 16 and 24 KB on Zen 5 running; Zen 4 and Cobalt 100 queued with 16 KB",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T21:54:10Z",
-      "level": "decision",
-      "text": "run: scoreboard replaced with last run's final6 numbers (thread-count build vs Rust for the base and C5 for the wheel, Zen 5, Zen 4, Zen 3), source naming final6; grey rows (hc/champion-grey vs Rust, labelled 'grey (rules pending)') get added as F1/F2 are accepted; both refreshed at shutdown. Why: Chris, 21:51.",
-      "id": "run",
-      "what": "scoreboard replaced with last run's final6 numbers (thread-count build vs Rust for the base and C5 for the wheel, Zen 5, Zen 4, Zen 3), source naming final6; grey rows (hc/champion-grey vs Rust, labelled 'grey (rules pending)') get added as F1/F2 are accepted; both refreshed at shutdown",
-      "why": "Chris, 21:51"
-    },
-    {
-      "utc": "2026-10-10T22:04:32Z",
-      "level": "decision",
-      "text": "f2-block: F2 block size is 16 KB: best under SMT on both deciding machines (Zen 3 +17.8%, Zen 5 +21.5% at 16T) for 1-3% less at 1T than 32 KB. Why: the official ranking runs all threads. Passed over: 32 KB (best at 1T on Zen 3).",
-      "id": "f2-block",
-      "what": "F2 block size is 16 KB: best under SMT on both deciding machines (Zen 3 +17.8%, Zen 5 +21.5% at 16T) for 1-3% less at 1T than 32 KB",
-      "why": "the official ranking runs all threads",
-      "instead": "32 KB (best at 1T on Zen 3)"
-    },
-    {
-      "utc": "2026-10-10T22:04:32Z",
-      "level": "decision",
-      "text": "f5-fold: revert the x16 fold: +8% to 16T on Zen 5 but -5.2% at 32T, flat on Zen 4; test the addressing flag alone. Why: fails the target-specific rule; zmm under SMT likely shares the core's vector units badly.",
-      "id": "f5-fold",
-      "what": "revert the x16 fold: +8% to 16T on Zen 5 but -5.2% at 32T, flat on Zen 4; test the addressing flag alone",
-      "why": "fails the target-specific rule; zmm under SMT likely shares the core's vector units badly"
-    },
     {
       "utc": "2026-10-10T22:04:32Z",
       "level": "decision",
@@ -1392,6 +1373,75 @@
       "utc": "2026-10-11T01:03:27Z",
       "level": "info",
       "text": "Run ap-20261011T0100Z started: phase 1 finishes ISPC (streams 2-5), then phase 2 climbs the ports. Reset meter-state so the first tally doesn't charge last run's nodes (backlog 28)."
+    },
+    {
+      "utc": "2026-10-11T01:07:50Z",
+      "level": "decision",
+      "text": "f4-dense: submit 384/512/640 on Zen 5 and Zen 3, 6 rounds each. Why: RUN-PLAN stream 4 is the only open ISPC tuning item; a default-constant change per branch lets hc-pool run it unchanged. Local gate: self-test only (a one-constant change cannot be 30% slower). Passed over: F6 (needs the 96-vCPU node, not otherwise needed yet). Expect: flat to +2% at 1T.",
+      "id": "f4-dense",
+      "what": "submit 384/512/640 on Zen 5 and Zen 3, 6 rounds each",
+      "why": "RUN-PLAN stream 4 is the only open ISPC tuning item; a default-constant change per branch lets hc-pool run it unchanged. Local gate: self-test only (a one-constant change cannot be 30% slower)",
+      "instead": "F6 (needs the 96-vCPU node, not otherwise needed yet)",
+      "expect": "flat to +2% at 1T"
+    },
+    {
+      "utc": "2026-10-11T01:08:49Z",
+      "level": "decision",
+      "text": "run: start two agents: p1-port-keeps (C++/Rust wheel ports get IDEAS 12 and wheel-group32; base ports get F1 on grey branches) and s5-wheel-profile (TSC phase split of the ISPC wheel, start offsets and pattern building separated). Why: RUN-PLAN phase 1 has agents do stream 1 step 1 and the stream 5 profile while the fleet runs F4; both are local work over a tick's budget. Briefs: one change per branch, self-test and 5 s local gate, push only own hc/ branches, 30-35 min limit. Passed over: stream 6 wheel-210 agent (starts when one of these reports; at most two agents). Expect: branches ready to submit by about 01:45Z.",
+      "id": "run",
+      "what": "start two agents: p1-port-keeps (C++/Rust wheel ports get IDEAS 12 and wheel-group32; base ports get F1 on grey branches) and s5-wheel-profile (TSC phase split of the ISPC wheel, start offsets and pattern building separated)",
+      "why": "RUN-PLAN phase 1 has agents do stream 1 step 1 and the stream 5 profile while the fleet runs F4; both are local work over a tick's budget. Briefs: one change per branch, self-test and 5 s local gate, push only own hc/ branches, 30-35 min limit",
+      "instead": "stream 6 wheel-210 agent (starts when one of these reports; at most two agents)",
+      "expect": "branches ready to submit by about 01:45Z"
+    },
+    {
+      "utc": "2026-10-11T01:08:49Z",
+      "level": "info",
+      "text": "Agents started: p1-port-keeps, s5-wheel-profile. F4 sweep queued (6 tasks)."
+    },
+    {
+      "utc": "2026-10-11T01:10:56Z",
+      "level": "decision",
+      "text": "s3-crishoj-wheel: measure crishoj's wheel as ctrl3 in a Zig-wheel task on Zen 5 and Zen 3. Why: RUN-PLAN stream 3: one task gives our Zig wheel, ISPC wheel, the C wheel and the PR side by side; the harness got a RIVAL3_REF control for it (commit 7aa065b). Expect: within 10% of our ISPC wheel.",
+      "id": "s3-crishoj-wheel",
+      "what": "measure crishoj's wheel as ctrl3 in a Zig-wheel task on Zen 5 and Zen 3",
+      "why": "RUN-PLAN stream 3: one task gives our Zig wheel, ISPC wheel, the C wheel and the PR side by side; the harness got a RIVAL3_REF control for it (commit 7aa065b)",
+      "expect": "within 10% of our ISPC wheel"
+    },
+    {
+      "utc": "2026-10-11T01:10:56Z",
+      "level": "info",
+      "text": "Harness 7aa065b: per-thread table, ctrl3, port kind. Stream 3 queued (2 tasks)."
+    },
+    {
+      "utc": "2026-10-11T01:10:57Z",
+      "level": "info",
+      "text": "f4-dense-384 (wheel) running: F4: raise the wheel's dense/sparse breakeven PRIMES_DENSE_MAX from 256 to 384",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T01:10:57Z",
+      "level": "info",
+      "text": "f4-dense-512 (wheel) running: F4: raise the wheel's dense/sparse breakeven PRIMES_DENSE_MAX from 256 to 512",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T01:10:57Z",
+      "level": "info",
+      "text": "f4-dense-640 (wheel) running: F4: raise the wheel's dense/sparse breakeven PRIMES_DENSE_MAX from 256 to 640",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T01:10:57Z",
+      "level": "info",
+      "text": "s3-crishoj-wheel (wheel) running: Measurement: crishoj 210-wheel (upstream PR 1094, Zig 0.17) beside our Zig wheel (cand=champ), our ISPC wheel (ctrl) and the C wheel (ctrl2), 1T and all threads",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T01:10:57Z",
+      "level": "info",
+      "text": "f4-dense: evaluate. 6 tasks queued, pools starting (about 8 min start task)",
+      "auto": true
     }
   ],
   "research": {
@@ -1558,12 +1608,12 @@
     },
     "climber": {
       "totals": {
-        "calls": 2964,
-        "fresh": 6018,
-        "write": 6985239,
-        "read": 812057227,
-        "output": 1083735,
-        "total": 820132219
+        "calls": 3039,
+        "fresh": 6168,
+        "write": 7255812,
+        "read": 820450222,
+        "output": 1112541,
+        "total": 828824743
       },
       "runs": {
         "ap-20261009T0607Z": {
@@ -1616,14 +1666,14 @@
           "output": 117249
         },
         "between runs": {
-          "calls": 251,
-          "fresh": 506,
-          "write": 1637436,
-          "read": 87359956,
-          "output": 144859
+          "calls": 326,
+          "fresh": 656,
+          "write": 1908009,
+          "read": 95752951,
+          "output": 173665
         }
       },
-      "updated_utc": "2026-10-11T00:25:39Z"
+      "updated_utc": "2026-10-11T01:10:57Z"
     }
   }
 }
