@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T20:57:56Z",
+  "updated_utc": "2026-10-11T20:58:44Z",
   "run": {
     "id": "ap-20261011T1929Z",
     "state": "running",
@@ -1967,8 +1967,9 @@
       "kind": "novel",
       "plain": "If each loaded pattern word is ORed into two places in the sieve instead of one, then the dense loop gets faster, because it does fewer loads per word cleared.",
       "prediction": "+8% to +13% at 1T on Zen 5 and Zen 3",
-      "verdict": "running",
-      "commit": "0aaa340"
+      "verdict": "kept",
+      "commit": "0aaa340",
+      "note": "Zen 5 +7.3% 1T / +4.7% 4T, Zen 3 +8.5% / +7.0%, Cobalt +23%; hc/ocaml-champion 0aaa340"
     },
     {
       "id": "ocaml-005",
@@ -1979,7 +1980,8 @@
       "plain": "If fewer small primes use the pattern copy and more use direct marking, then a pass gets faster, because the profile shows direct marking is already cheaper above about 68.",
       "prediction": "0% to +8% at 1T",
       "verdict": "running",
-      "commit": "da786ff, c620f30"
+      "commit": "da786ff, c620f30",
+      "note": "limit 64 REVERT (Zen 3 -3.1%); limit 96 Zen 5 +1.9% 1T, Zen 3 more rounds"
     },
     {
       "id": "ox-004",
@@ -1989,8 +1991,9 @@
       "kind": "novel",
       "plain": "If the hot loops count with unboxed machine integers instead of OCaml tagged integers, then each mark and each copied block takes fewer instructions, because the tag shifts disappear.",
       "prediction": "+5% to +15% at 1T on Zen 5 and Zen 3; Cobalt must build and not lose",
-      "verdict": "running",
-      "commit": "a8f8435"
+      "verdict": "rejected",
+      "commit": "a8f8435",
+      "note": "Zen 5 +22% 1T, Zen 3 +16% (2 rounds), Cobalt -28%: gate fails; x86-only form is ox-008"
     },
     {
       "id": "ox-005",
@@ -2023,36 +2026,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T19:36:29Z",
-      "level": "decision",
-      "text": "ox-001: background agent: build the OxCaml switch locally and probe SIMD widths, intrinsics syntax, unboxed ints, locals, domains; notes on hc/ocaml-ox-probe. Why: the plan lists SIMD widths and how unboxed and local code compile as unknowns to settle in phase 0; the OxCaml port needs them. Expect: switch build 40-70 min on 4 vCPUs.",
-      "id": "ox-001",
-      "what": "background agent: build the OxCaml switch locally and probe SIMD widths, intrinsics syntax, unboxed ints, locals, domains; notes on hc/ocaml-ox-probe",
-      "why": "the plan lists SIMD widths and how unboxed and local code compile as unknowns to settle in phase 0; the OxCaml port needs them",
-      "expect": "switch build 40-70 min on 4 vCPUs"
-    },
-    {
-      "utc": "2026-10-11T19:36:29Z",
-      "level": "decision",
-      "text": "ocaml-001: background agent: plain OCaml 5.2 flambda base port (PrimeOCaml/solution_4) on hc/ocaml-plain-base, mirroring the Rust port of our ISPC base. Why: plain OCaml first, as the control; needs no special toolchain, so it can start while OxCaml builds. Expect: 2x to 4x gkpotter faithful at 1T; within 40-60% of the ISPC base.",
-      "id": "ocaml-001",
-      "what": "background agent: plain OCaml 5.2 flambda base port (PrimeOCaml/solution_4) on hc/ocaml-plain-base, mirroring the Rust port of our ISPC base",
-      "why": "plain OCaml first, as the control; needs no special toolchain, so it can start while OxCaml builds",
-      "expect": "2x to 4x gkpotter faithful at 1T; within 40-60% of the ISPC base"
-    },
-    {
-      "utc": "2026-10-11T19:36:30Z",
-      "level": "info",
-      "text": "Run ap-20261011T1929Z started (azure mode).",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T19:36:30Z",
-      "level": "info",
-      "text": "ox-000 (oxcaml) running: ",
-      "auto": true
-    },
     {
       "utc": "2026-10-11T19:36:30Z",
       "level": "info",
@@ -2370,6 +2343,36 @@
       "why": "sparse is now 50% of an OxCaml pass; ox-004 attacks it with untagged ints, but the spills come from 20 live values, which a loop with fewer live values avoids by design",
       "instead": "Cobalt arm64 investigation",
       "expect": "a form at or below 1.5 cycles per mark locally, +10% to +20% at 1T"
+    },
+    {
+      "utc": "2026-10-11T20:58:44Z",
+      "level": "decision",
+      "text": "ocaml-004: KEEP; hc/ocaml-champion fast-forwarded to 0aaa340. Why: analyze.py KEEP: 4T lower bounds +3.0% Zen 5 and +5.8% Zen 3, no loss anywhere, Cobalt +23%.",
+      "id": "ocaml-004",
+      "what": "KEEP; hc/ocaml-champion fast-forwarded to 0aaa340",
+      "why": "analyze.py KEEP: 4T lower bounds +3.0% Zen 5 and +5.8% Zen 3, no loss anywhere, Cobalt +23%"
+    },
+    {
+      "utc": "2026-10-11T20:58:44Z",
+      "level": "decision",
+      "text": "ox-004: REVERT on the Cobalt gate; agent ox-008 rebuilds it x86-only so arm64 compiles the champion's code unchanged. Why: x86 gains are large (lower bounds +12.6% Zen 5, +13.9% Zen 3) and the Cobalt loss is in code the arm64 build shares; per-architecture kernels keep the arm binary at the champion, the target-specific rule then needs no Cobalt run. Passed over: debugging the arm64 slowdown (Cobalt is a gate, and its OxCaml build has no SIMD anyway). Expect: x86 as ox-004; Cobalt unchanged.",
+      "id": "ox-004",
+      "what": "REVERT on the Cobalt gate; agent ox-008 rebuilds it x86-only so arm64 compiles the champion's code unchanged",
+      "why": "x86 gains are large (lower bounds +12.6% Zen 5, +13.9% Zen 3) and the Cobalt loss is in code the arm64 build shares; per-architecture kernels keep the arm binary at the champion, the target-specific rule then needs no Cobalt run",
+      "instead": "debugging the arm64 slowdown (Cobalt is a gate, and its OxCaml build has no SIMD anyway)",
+      "expect": "x86 as ox-004; Cobalt unchanged"
+    },
+    {
+      "utc": "2026-10-11T20:58:44Z",
+      "level": "info",
+      "text": "ocaml-004 kept.. Zen 5 +7.3% 1T / +4.7% 4T, Zen 3 +8.5% / +7.0%, Cobalt +23%; hc/ocaml-champion 0aaa340",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T20:58:44Z",
+      "level": "info",
+      "text": "ox-004 rejected.. Zen 5 +22% 1T, Zen 3 +16% (2 rounds), Cobalt -28%: gate fails; x86-only form is ox-008",
+      "auto": true
     }
   ],
   "research": {
