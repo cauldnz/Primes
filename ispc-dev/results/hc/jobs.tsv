@@ -253,3 +253,4 @@ id	pool	size	kind	outdir	submitted	state
 20120932242	hc-standard-d16a-v4	Standard_D16a_v4	ocaml	ispc-dev/results/hc/ox-002-port	2026-10-11T20:12:19Z	open
 20122621347	hc-standard-d16a-v4	Standard_D16a_v4	ocaml	ispc-dev/results/hc/ox-003-ext	2026-10-11T20:13:20Z	open
 20132615518	hc-standard-d4ps-v6	Standard_D4ps_v6	ocaml	ispc-dev/results/hc/ox-002-port	2026-10-11T20:13:37Z	open
+2013434069	hc-standard-d4ps-v6	Standard_D4ps_v6	ocaml	ispc-dev/results/hc/ox-003-ext	2026-10-11T20:14:24Z	open

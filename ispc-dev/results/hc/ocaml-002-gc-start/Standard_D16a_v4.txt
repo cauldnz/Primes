@@ -1,0 +1,40 @@
+Architecture:                            x86_64
+CPU(s):                                  16
+Model name:                              AMD EPYC 7763 64-Core Processor
+BIOS Model name:                         AMD EPYC 7763 64-Core Processor                 None CPU @ 2.4GHz
+AVX-512: no
+kind=ocaml rounds=5 id=1959093365
+build cand
+build champ
+build ctx
+build gk1 (PrimeOCaml/solution_1)
+build gk2 (PrimeOCaml/solution_2)
+self-test cand: 13 ok, 0 bad, exit=0
+self-test champ: 13 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-ocaml-base;16141;5.000175;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ocaml-base;131230;5.004923;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ocaml-base;61756;5.006070;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ
+cauldnz-ocaml-base;16158;5.000217;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ocaml-base;122683;5.004704;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ocaml-base;61751;5.006252;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ2
+cauldnz-ocaml-base;16239;5.000041;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ocaml-base;121918;5.013173;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ocaml-base;62535;5.003049;4;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl
+cauldnz-ispc-base;56994;5.000005;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;431143;5.000353;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;447727;5.000156;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;224243;5.000096;4;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl2
+mike-barber_bit-extreme-hybrid;54146;5.0000252724;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;210591;5.0001072884;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;420705;5.0002217293;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;411393;5.0004744530;16;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl3
+gkpotter-faithful;756;5.004261;1;algorithm=base,faithful=yes
+== round warmup gk2
+gkpotter-unfaithful;969;5.003462;1;algorithm=base,faithful=no
+== round 1 cand
