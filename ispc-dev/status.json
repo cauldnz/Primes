@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T09:45:38Z",
+  "updated_utc": "2026-10-11T09:54:14Z",
   "run": {
     "id": "ap-20261011T0645Z",
     "state": "running",
@@ -1800,9 +1800,10 @@
       "entry": "zig-wheel",
       "tier": "permitted",
       "kind": "novel",
-      "verdict": "building",
+      "verdict": "running",
       "hypothesis": "Zig tables line plus the one-pass tile|13 write (022e479)",
-      "plain": "If the tables wheel also writes 7, 11 and 13 in one pass per plane, it gains the ~2% the faithful line got, because the passes are separate."
+      "plain": "If the tables wheel also writes 7, 11 and 13 in one pass per plane, it gains the ~2% the faithful line got, because the passes are separate.",
+      "note": "hc/zig-tables-group 138e074: 13 from PAT via patternGroup(7,11,13), tile in a stack scratch, one tile|13 write per plane; self-test native and baseline. Local 1T +2% vs 0886ddf (noise). Zen 5 + Zen 3 6 rounds vs 0886ddf"
     }
   ],
   "azure_queue": 0,
@@ -1812,12 +1813,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T07:29:14Z",
-      "level": "info",
-      "text": "p-cpp-wheel-clang-idea12 rejected.. re-decided in run 9 under the per-thread rule: REVERT (see p-cpp-wheel-clang-idea12-r9)",
-      "auto": true
-    },
     {
       "utc": "2026-10-11T07:29:14Z",
       "level": "info",
@@ -2161,6 +2156,12 @@
       "utc": "2026-10-11T09:43:14Z",
       "level": "info",
       "text": "r9-zig-tables-group (zig-wheel) building: Zig tables line plus the one-pass tile|13 write (022e479)",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T09:54:14Z",
+      "level": "info",
+      "text": "r9-zig-tables-group running.. hc/zig-tables-group 138e074: 13 from PAT via patternGroup(7,11,13), tile in a stack scratch, one tile|13 write per plane; self-test native and baseline. Local 1T +2% vs 0886ddf (noise). Zen 5 + Zen 3 6 rounds vs 0886ddf",
       "auto": true
     }
   ],
