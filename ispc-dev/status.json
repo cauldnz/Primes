@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T20:15:00Z",
+  "updated_utc": "2026-10-11T20:16:15Z",
   "run": {
     "id": "ap-20261011T1929Z",
     "state": "running",
@@ -1911,6 +1911,17 @@
       "prediction": "+10% to +30% at 1T on Zen 5 and Zen 3; Cobalt unchanged (scalar path)",
       "verdict": "running",
       "commit": "cbcd24d"
+    },
+    {
+      "id": "ocaml-003",
+      "entry": "ocaml-plain",
+      "title": "Profile of the plain OCaml base",
+      "tier": "permitted",
+      "kind": "permitted",
+      "plain": "If we time each phase of the plain OCaml sieve, then we know which loop to attack, because a change to a small phase cannot give a big gain.",
+      "verdict": "confirmed",
+      "commit": "159152e",
+      "note": "dense OR loop 54%, sparse 36%; 11 instr/dense word vs ~1 in ISPC; ranked: 2-run dense step (+8-13%), word-indexed Bigarray (+10-20%), dense limit 64-96 (0-8%)"
     }
   ],
   "azure_queue": 0,
@@ -1920,18 +1931,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T09:43:14Z",
-      "level": "info",
-      "text": "r9-zig-tables-group (zig-wheel) building: Zig tables line plus the one-pass tile|13 write (022e479)",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T09:54:14Z",
-      "level": "info",
-      "text": "r9-zig-tables-group running.. hc/zig-tables-group 138e074: 13 from PAT via patternGroup(7,11,13), tile in a stack scratch, one tile|13 write per plane; self-test native and baseline. Local 1T +2% vs 0886ddf (noise). Zen 5 + Zen 3 6 rounds vs 0886ddf",
-      "auto": true
-    },
     {
       "utc": "2026-10-11T10:07:03Z",
       "level": "decision",
@@ -2259,6 +2258,20 @@
       "utc": "2026-10-11T20:13:38Z",
       "level": "info",
       "text": "ox-003 (oxcaml) running: ",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T20:16:15Z",
+      "level": "decision",
+      "text": "ocaml-003: accept the profile; it sets the targets: dense OR loop 54% and sparse 36% at 1T. Why: the agent's ranking rests on measured phase shares and a 17% local dense-loop gain for the two-run step; its sparse attempts (split loop, 64-bit ORs) lost, so sparse is parked until a new idea.",
+      "id": "ocaml-003",
+      "what": "accept the profile; it sets the targets: dense OR loop 54% and sparse 36% at 1T",
+      "why": "the agent's ranking rests on measured phase shares and a 17% local dense-loop gain for the two-run step; its sparse attempts (split loop, 64-bit ORs) lost, so sparse is parked until a new idea"
+    },
+    {
+      "utc": "2026-10-11T20:16:15Z",
+      "level": "info",
+      "text": "ocaml-003 (ocaml-plain) confirmed: ",
       "auto": true
     }
   ],

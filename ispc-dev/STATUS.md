@@ -993,6 +993,21 @@ Earlier entries:
 
 ## Where the cycles go
 
+**Run 10, plain OCaml base (ocaml-003, 2026-10-12 07:20 AEST).** rdtsc cycles a pass at 1T on the
+shared 4-vCPU Xeon in the container (not Zen), from `results/hc/ocaml-003-profile/`:
+
+| Phase | cycles/pass | share |
+|---|---:|---:|
+| dense pattern OR loop | 464.8k | 54% |
+| sparse (factors 128 and up) | 306.4k | 36% |
+| dense pattern build | 43.9k | 5% |
+| create (allocation, GC) | 14.4k | 2% |
+| next-prime scan | 5.2k | 1% |
+
+About 11 instructions per dense word (ISPC and Rust: about 1) and 10.6 per sparse mark, with ten
+of 20 live values spilled. OCaml runs ten times the instructions per unit of work; the pass is
+3-4 times slower. GC costs 2% at most at 1T.
+
 **Update, 2026-10-10 (12:10–12:25 AEST): the base against Rust, same node.** TSC cycles a pass at
 1T from `hc/diag-base-phases` and `hc/diag-rust-phases` (raw output in `results/hc/diag-base-phases/`):
 
