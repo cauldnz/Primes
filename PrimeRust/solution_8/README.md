@@ -17,7 +17,7 @@ Only numbers coprime to 30 are stored, in eight bit-planes, one per residue `R` 
 
 A stride-`p` bit pattern repeats every `p` 64-bit words. Because 64 is invertible modulo any odd `p`, every bit offset of the pattern is a whole-word rotation of one base pattern. Each prime builds that pattern once, with a 64-entry table of starting phases, and it serves all eight planes.
 
-Up to eight primes below 256 are fused into one pass over a plane. `apply_group::<N>` takes the member count as a const generic, so the per-member loop unrolls and each member's phase stays in a register. Each step loads 32 sieve words into a `[u64; 32]`, ORs in a 32-word slice of every member's pattern and stores the words back: one load and one store per sieve word for the whole group. A step of 32 words was 5% faster than 16 on an AVX-512 Xeon. Every member starts at the first word any member touches, so none needs a lead-in. A member then also marks its multiples below `p²`, which are composite, and `p` itself, which is cleared afterwards. The last partial step runs on into padding at the end of each plane instead of taking a scalar tail.
+Up to eight primes below 256 are fused into one pass over a plane. `apply_group::<N>` takes the member count as a const generic, so the per-member loop unrolls and each member's phase stays in a register. Each step loads 32 sieve words into a `[u64; 32]`, ORs in a 32-word slice of every member's pattern and stores the words back: one load and one store per sieve word for the whole group. A step of 32 words was 5% faster than 16 on an AVX-512 Xeon. Every member starts at the first word any member touches, so none needs a lead-in. A member then also marks its multiples below `p²`, which are composite, and `p` itself, which is cleared afterwards. The last partial step runs on into padding at the end of each plane instead of taking a scalar tail. The loop reads and writes through raw pointers: asserts before it bound every phase and the last step, and with checked slicing the compares and the values they kept live spilled the phases to the stack (170 instructions per 32 words for eight members on Zen 5, against 93 without).
 
 ### Wheel tile
 
@@ -25,7 +25,7 @@ Multiples of 7 and 11 repeat every 77 words in every plane. Each pass marks one 
 
 ### Large primes
 
-Primes from 256 to 1,000 set at most one bit per word. All eight planes advance in one loop, giving eight independent read-modify-write streams. This is the hottest loop, and the one place the code uses `unsafe`: the number of rounds is computed so that every stream stays inside its plane, and dropping the bounds checks made the whole run 13% faster at one thread. The tails after the last full round use checked indexing.
+Primes from 256 to 1,000 set at most one bit per word. All eight planes advance in one loop, giving eight independent read-modify-write streams. This is the hottest loop and uses `unsafe` too: the number of rounds is computed so that every stream stays inside its plane, and dropping the bounds checks made the whole run 13% faster at one thread. The tails after the last full round use checked indexing.
 
 ### Faithfulness
 

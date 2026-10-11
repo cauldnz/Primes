@@ -127,22 +127,35 @@ fn apply_group<const N: usize>(
             };
         end[j] = m.first + m.period;
         period[j] = m.period;
+        // A phase stays in [first, end): it starts there, and a step of VW <= period past end
+        // is pulled back by one period. Its read then ends by end + VW, inside the row.
+        assert!(r[j] < end[j] && VW <= m.period && end[j] + VW <= rows.len());
     }
+    // The last step starts below nw and reads and writes VW words.
+    let steps = nw.saturating_sub(start).div_ceil(VW);
+    assert!(start + steps * VW <= plane.len());
+    // Checked slicing here cost two compares and branches per member per step, and the extra
+    // live values spilled the phases to the stack: 170 instructions per 32 words with eight
+    // members on Zen 5, against 93 without.
+    let (wp, rp) = (plane.as_mut_ptr(), rows.as_ptr());
     let mut k = start;
-    while k < nw {
-        let w: &mut [u64; VW] = (&mut plane[k..k + VW]).try_into().unwrap();
-        let mut v = *w;
-        for j in 0..N {
-            let pat: &[u64; VW] = rows[r[j]..r[j] + VW].try_into().unwrap();
-            for i in 0..VW {
-                v[i] |= pat[i];
+    for _ in 0..steps {
+        // SAFETY: the asserts above keep k + VW <= plane.len() and r[j] + VW <= rows.len().
+        unsafe {
+            let w = wp.add(k).cast::<[u64; VW]>();
+            let mut v = w.read_unaligned();
+            for j in 0..N {
+                let pat = rp.add(r[j]).cast::<[u64; VW]>().read_unaligned();
+                for i in 0..VW {
+                    v[i] |= pat[i];
+                }
+                r[j] += VW;
+                if r[j] >= end[j] {
+                    r[j] -= period[j];
+                }
             }
-            r[j] += VW;
-            if r[j] >= end[j] {
-                r[j] -= period[j];
-            }
+            w.write_unaligned(v);
         }
-        *w = v;
         k += VW;
     }
 }
