@@ -216,9 +216,9 @@ id	pool	size	kind	outdir	submitted	state
 08153021926	hc-standard-d16a-v4	Standard_D16a_v4	zig	ispc-dev/results/hc/r9-zig-wheel-group-z3b	2026-10-11T08:15:39Z	done
 08154615107	hc-standard-d16as-v7	Standard_D16as_v7	zig	ispc-dev/results/hc/r9-zig-tables	2026-10-11T08:15:55Z	done
 08160124458	hc-standard-d16a-v4	Standard_D16a_v4	zig	ispc-dev/results/hc/r9-zig-tables	2026-10-11T08:16:11Z	done
-0919541614	hc-standard-d16as-v7	Standard_D16as_v7	port	ispc-dev/results/hc/r9-rust-wheel-combo	2026-10-11T09:20:03Z	open
-0919539669	hc-standard-d16a-v4	Standard_D16a_v4	port	ispc-dev/results/hc/r9-rust-wheel-combo	2026-10-11T09:20:03Z	open
-0920339052	hc-standard-d16as-v7	Standard_D16as_v7	zig	ispc-dev/results/hc/r9-zig-base-wide	2026-10-11T09:20:43Z	open
-09205022024	hc-standard-d16a-v4	Standard_D16a_v4	zig	ispc-dev/results/hc/r9-zig-base-wide	2026-10-11T09:20:59Z	open
+0919541614	hc-standard-d16as-v7	Standard_D16as_v7	port	ispc-dev/results/hc/r9-rust-wheel-combo	2026-10-11T09:20:03Z	done
+0919539669	hc-standard-d16a-v4	Standard_D16a_v4	port	ispc-dev/results/hc/r9-rust-wheel-combo	2026-10-11T09:20:03Z	done
+0920339052	hc-standard-d16as-v7	Standard_D16as_v7	zig	ispc-dev/results/hc/r9-zig-base-wide	2026-10-11T09:20:43Z	done
+09205022024	hc-standard-d16a-v4	Standard_D16a_v4	zig	ispc-dev/results/hc/r9-zig-base-wide	2026-10-11T09:20:59Z	done
 09534714390	hc-standard-d16as-v7	Standard_D16as_v7	zig	ispc-dev/results/hc/r9-zig-tables-group	2026-10-11T09:53:57Z	open
 09540415816	hc-standard-d16a-v4	Standard_D16a_v4	zig	ispc-dev/results/hc/r9-zig-tables-group	2026-10-11T09:54:14Z	open

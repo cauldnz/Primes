@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T09:54:14Z",
+  "updated_utc": "2026-10-11T10:06:30Z",
   "run": {
     "id": "ap-20261011T0645Z",
     "state": "running",
@@ -8,11 +8,11 @@
     "mode_reason": "Chris started run 9 in the same conversation (RUN-PLAN 16:50: size stream, submission-ready phase 0, fixed port shares). Azure via the container's cached service-principal login (the env secret was not used); Batch account and group set inline for this session.",
     "started_utc": "2026-10-11T06:45:00Z",
     "time_box_hours": 6,
-    "spend_nzd": 4.41,
+    "spend_nzd": 4.82,
     "spend_cap_nzd": 25,
     "ends_utc": "2026-10-11T12:45:00Z",
-    "background_runs": 4,
-    "last_tick_utc": "2026-10-11T09:40:24Z",
+    "background_runs": 2,
+    "last_tick_utc": "2026-10-11T10:06:30Z",
     "wakeup": "trig_01JrwhqJ8ZScryUEjaNohNQm"
   },
   "current": null,
@@ -2329,12 +2329,12 @@
     },
     "climber": {
       "totals": {
-        "calls": 5023,
-        "fresh": 10226,
-        "write": 11615973,
-        "read": 1174513704,
-        "output": 1632183,
-        "total": 1187772086
+        "calls": 5076,
+        "fresh": 10340,
+        "write": 11816667,
+        "read": 1180049609,
+        "output": 1644072,
+        "total": 1193520688
       },
       "runs": {
         "ap-20261009T0607Z": {
@@ -2394,11 +2394,11 @@
           "output": 211661
         },
         "ap-20261011T0645Z": {
-          "calls": 608,
-          "fresh": 1246,
-          "write": 1438249,
-          "read": 119682933,
-          "output": 127741
+          "calls": 661,
+          "fresh": 1360,
+          "write": 1638943,
+          "read": 125218838,
+          "output": 139630
         },
         "between runs": {
           "calls": 975,
@@ -2408,7 +2408,7 @@
           "output": 353905
         }
       },
-      "updated_utc": "2026-10-11T09:40:25Z"
+      "updated_utc": "2026-10-11T10:06:37Z"
     }
   }
 }
