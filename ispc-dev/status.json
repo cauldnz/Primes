@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T19:36:30Z",
+  "updated_utc": "2026-10-11T19:37:09Z",
   "run": {
     "id": "ap-20261011T1929Z",
     "state": "running",
@@ -13,7 +13,7 @@
     "ends_utc": "2026-10-12T01:29:00Z",
     "background_runs": 0,
     "last_tick_utc": "2026-10-11T12:14:23Z",
-    "wakeup": null
+    "wakeup": "trig_01MqZURtmDsqsjz8ccLSs8Qo"
   },
   "current": {
     "id": "ox-000",
@@ -1876,14 +1876,6 @@
   "events": [
     {
       "utc": "2026-10-11T08:46:26Z",
-      "level": "decision",
-      "text": "fold-zen5: merge the Zen 5 gate into hc/champion (216629d). Why: Chris's three checks all pass: Zen 5 +6.8% at 1T/4T, Zen 4 and Intel unchanged.",
-      "id": "fold-zen5",
-      "what": "merge the Zen 5 gate into hc/champion (216629d)",
-      "why": "Chris's three checks all pass: Zen 5 +6.8% at 1T/4T, Zen 4 and Intel unchanged"
-    },
-    {
-      "utc": "2026-10-11T08:46:26Z",
       "level": "info",
       "text": "r9-rust-base-dense rejected.. REVERT on Zen 5 alone (cannot reach +1%; Zen 3 result moot). Masks in registers did not help on Zen 5",
       "auto": true
@@ -2231,6 +2223,11 @@
       "level": "info",
       "text": "ox-000: implement. toolchain builds on Batch (Zen 5, Cobalt); two local agents: OxCaml probe, plain OCaml port",
       "auto": true
+    },
+    {
+      "utc": "2026-10-11T19:37:09Z",
+      "level": "info",
+      "text": "Waiting on the two toolchain builds (start tasks then switch builds) and the two agents; next tick 19:50 UTC."
     }
   ],
   "research": {

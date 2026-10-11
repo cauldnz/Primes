@@ -766,3 +766,4 @@
 {"utc": "2026-10-11T19:36:30Z", "level": "info", "text": "ox-000 (oxcaml) running: ", "auto": true}
 {"utc": "2026-10-11T19:36:30Z", "level": "info", "text": "ocaml-001 (ocaml-plain) running: ", "auto": true}
 {"utc": "2026-10-11T19:36:30Z", "level": "info", "text": "ox-000: implement. toolchain builds on Batch (Zen 5, Cobalt); two local agents: OxCaml probe, plain OCaml port", "auto": true}
+{"utc": "2026-10-11T19:37:09Z", "level": "info", "text": "Waiting on the two toolchain builds (start tasks then switch builds) and the two agents; next tick 19:50 UTC."}
