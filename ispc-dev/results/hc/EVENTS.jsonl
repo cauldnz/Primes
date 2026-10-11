@@ -775,3 +775,5 @@
 {"utc": "2026-10-11T20:00:12Z", "level": "info", "text": "ocaml-001 confirmed.. self-test passes (rebuilt by the loop); local 1T 14-16k vs gkpotter faithful 0.7k on the shared container; hot loops allocation-free; GC stops all domains at 4T", "auto": true}
 {"utc": "2026-10-11T20:00:12Z", "level": "info", "text": "ocaml-002 (ocaml-plain) running: ", "auto": true}
 {"utc": "2026-10-11T20:00:12Z", "level": "info", "text": "ocaml-002: evaluate. 5 rounds on Zen 5 and Zen 3", "auto": true}
+{"utc": "2026-10-11T20:06:44Z", "level": "info", "text": "ox-000 arm64: switch built in 604 s on Cobalt 100 (4 vCPU), image 775 s, uploaded. Both architectures cached; phase 0 step 1 done 25 min in."}
+{"utc": "2026-10-11T20:06:44Z", "level": "info", "text": "ox-000 confirmed.. switch build 347 s on Zen 5 (16 vCPU), 604 s on Cobalt 100 (4 vCPU); whole image 561 s and 775 s; 1.2 GB zstd each, in bench storage", "auto": true}
