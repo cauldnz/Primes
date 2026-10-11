@@ -4,6 +4,14 @@ Autopilot lock: ap-20261011T1929Z 2026-10-11T19:31Z
 **Last updated:** 2026-10-11 22:00 AEST. Living file; earlier versions are in
 `git log -p ispc-dev/STATUS.md`. Replies go in `ispc-dev/NEXT-STEPS.md`.
 
+## Run 10 hourly review, 09:30 AEST (3.0 h in)
+
+- Worked: OxCaml x86 climb ox-008 (+27%/+17%), ox-009 (+6%/+13%), ox-011 and the ox-014 merge (+8%/+4%); champion 997f71f at 69.3k Zen 5 1T, 2.3x the first OxCaml build. ox-017 (pattern build) passes on both Zens, waiting on Cobalt.
+- Didn't: x86 sparse width (ox-013) and unroll (ox-015) lost locally, line parked; Arm dense two-run (ox-010) flat; the standalone Dockerfile filled the Cobalt node's disk (DiskFull), about 40 node-minutes lost and the pool recreated.
+- Protocol: each candidate rebuilt and self-tested here, diffs read, x86-only changes skip Cobalt only when the Arm binary is byte-identical; three local-gate rejects kept off Azure.
+- Spend NZ$6.52 of NZ$25.
+- Next: decide ox-016 (Zen 3 more rounds) and ox-017 (Cobalt), the Cobalt profile for the Arm gap, then the final scoreboard from 00:44 UTC.
+
 ## Run 10 hourly review, 08:00 AEST (1.5 h in)
 
 - Worked: OxCaml toolchain built on both architectures in 25 min (switch 347 s Zen 5, 604 s Cobalt); ox-003 SIMD dense copy +60% Zen 5, +41% Zen 3; plain-line ocaml-004 +7%.
