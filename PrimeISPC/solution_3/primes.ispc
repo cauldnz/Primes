@@ -1,0 +1,476 @@
+// Prime sieve drag race - ISPC (Intel(r) Implicit SPMD Program Compiler) solution by cauldnz.
+//
+// Sieve of Eratosthenes on a mod-30 wheel. Only numbers coprime to 30 are stored, as 8
+// bit-planes, one per residue R in {1,7,11,13,17,19,23,29}; bit m of plane R stands for the
+// number 30m+R, and a set bit means composite. Within one plane the multiples of a prime p
+// form a plain stride-p progression, so every (prime, plane) pair is an ordinary bit-stride
+// sieve whose word pattern repeats every p words. Those repeating patterns are what the
+// SIMD lanes stream into the sieve.
+//
+// The whole program - entry point, timing loop, threads, sieve and output - is ISPC.
+// The only external calls are to the C library (clock, allocation, pthreads).
+
+// ---------------------------------------------------------------------------------------
+// C library
+// ---------------------------------------------------------------------------------------
+struct timespec { int64 tv_sec; int64 tv_nsec; };
+extern "C" uniform int clock_gettime(uniform int clk, uniform timespec * uniform ts);
+extern "C" void * uniform aligned_alloc(uniform int64 align, uniform int64 sz);
+extern "C" void free(void * uniform p);
+extern "C" uniform int pthread_create(uniform int64 * uniform tid, void * uniform attr,
+                                      void * uniform fn, void * uniform arg);
+extern "C" uniform int pthread_join(uniform int64 tid, void * uniform * uniform ret);
+extern "C" uniform int get_nprocs();
+extern "C" uniform int sched_getaffinity(uniform int pid, uniform int64 size,
+                                        uniform uint64 * uniform mask);
+extern "C" int8 * uniform getenv(const uniform int8 * uniform name);
+extern "C" uniform int atoi(const uniform int8 * uniform s);
+extern "C" void exit(uniform int code);
+extern "C" uniform int64 write(uniform int fd, const void * uniform buf, uniform int64 n);
+
+// Report a wrong result on stderr (ISPC's print() only writes to stdout) and stop.
+static void fail_count() {
+    uniform int8 msg[26] = {69,82,82,79,82,58,32,119,114,111,110,103,32,112,114,105,109,101,
+                            32,99,111,117,110,116,10,0};             // "ERROR: wrong prime count\n"
+    write(2, msg, 25);
+    exit(1);
+}
+
+static inline uniform double now() {
+    uniform timespec ts;
+    clock_gettime(1, &ts);   // CLOCK_MONOTONIC
+    return (uniform double)ts.tv_sec + 1e-9 * (uniform double)ts.tv_nsec;
+}
+
+// ---------------------------------------------------------------------------------------
+// Wheel constants
+// ---------------------------------------------------------------------------------------
+// Prime patterns fused into one pass over a plane. Six suits AVX-512 on Zen 5 (+4.5% at 1T,
+// hc-011) but costs AVX2 on Zen 3 (-1.2%), so the AVX2 and SSE builds keep eight.
+#if defined(ISPC_TARGET_AVX512SKX)
+#define G 6
+#else
+#define G 8
+#endif
+#define MAXPAT 1024      // largest prime handled as a word pattern
+// Masked vector stores are slow on AVX2 for Zen 2 to Zen 4 (about six cycles each) and cheap
+// with AVX-512. Without AVX-512, the group loop runs unmasked and partial vectors run past their
+// end into the plane's padding instead.
+#if defined(ISPC_TARGET_AVX512SKX)
+#define TAIL_OVERRUN 0
+#else
+#define TAIL_OVERRUN 1
+#endif
+// Words the fused group loop advances per iteration. With AVX-512 it takes two vectors, 32
+// words, so each member's phase update is paid once per 32 words. Patterns then have a period
+// of at least STEP words and run STEP words past it.
+#if defined(ISPC_TARGET_AVX512SKX)
+#define STEP (2 * programCount)
+#else
+#define STEP programCount
+#endif
+
+static const uniform int RES[8] = {1, 7, 11, 13, 17, 19, 23, 29};
+// plane index of n % 30, or -1 when n shares a factor with 30
+static const uniform int PLANE[30] = {-1,0,-1,-1,-1,-1,-1,1,-1,-1,-1,2,-1,3,-1,-1,-1,4,-1,5,
+                                      -1,-1,-1,6,-1,-1,-1,-1,-1,7};
+// multiplicative inverse mod 30, for residues coprime to 30
+static const uniform int INV30[30] = {0,1,0,0,0,0,0,13,0,0,0,11,0,7,0,0,0,23,0,19,
+                                      0,0,0,17,0,0,0,0,0,29};
+
+// Build-time tables from gen_tables.c (see there): each prime's first bit at or after p*p in
+// every plane, the dense primes' word patterns and phases, and the 7x11 tile and 13's pattern.
+// They depend only on the primes below a fixed bound, never on the sieve size; primes beyond
+// them use start_bit() at run time. Each pass still sieves from scratch.
+#include "primes_tables.h"
+#if TAB_MAXPAT != MAXPAT || TAB_EXT < 32     // 32: the largest STEP
+#error "primes_tables.h does not match primes.ispc"
+#endif
+
+// ---------------------------------------------------------------------------------------
+// The sieve "class": a struct holding all of a sieve's state, plus the functions below that
+// take it as their first argument. A fresh instance is created for every pass.
+// ---------------------------------------------------------------------------------------
+
+struct Sieve {
+    uniform int64 size;              // find primes up to and including this number
+    uniform int mbits;               // bits used per plane
+    uniform int nw;                  // words used per plane
+    uniform int pw;                  // plane stride in words (64-byte aligned)
+    uniform int dense_max;           // primes below this are applied as word patterns
+    uniform uint64 * uniform bits;   // the 8 bit-planes, pw words apart
+};
+
+static void sieve_create(uniform Sieve * uniform s, uniform int64 size, uniform int dense_max) {
+    s->size = size;
+    s->mbits = (uniform int)(size / 30) + 1;
+    s->nw = (s->mbits + 63) >> 6;
+    s->pw = (s->nw + (TAIL_OVERRUN ? programCount - 1 : 0) + 7) & ~7;   // room to overrun nw
+    s->dense_max = min(dense_max, MAXPAT);
+    s->bits = (uniform uint64 * uniform)aligned_alloc(64, (uniform int64)8 * s->pw * 8);
+}
+
+static void sieve_destroy(uniform Sieve * uniform s) {
+    free(s->bits);
+}
+
+// First bit index in plane R of a multiple p*k with k >= kmin.
+// Unsigned throughout: division and remainder by 30 then need no sign fix-ups (it runs for every
+// prime and plane, about 1,300 times a pass).
+static inline uniform int start_bit(uniform int p, uniform int R, uniform int kmin) {
+    uniform unsigned int up = p, uR = R, uk = kmin;
+    uniform unsigned int kr = (uR * (uniform unsigned int)INV30[up % 30]) % 30;   // k = kr (mod 30)
+    uniform unsigned int k = uk + (kr + 30 - uk % 30) % 30;
+    return (uniform int)((up * k - uR) / 30);
+}
+
+// First bit in plane pl of a multiple p*k with k >= p, for the idx-th prime from 17 on.
+static inline uniform int first_bit(uniform int p, uniform int idx, uniform int pl) {
+    if (idx < TAB_N)
+        return (uniform int)((uniform unsigned int)(p * p) / 30u) + (uniform int)TAB_SB[idx][pl];
+    return start_bit(p, RES[pl], p);
+}
+
+// OR one pattern into words [b>>6, wend), starting at phase r; the first word is masked so
+// nothing below bit b is touched. Returns the phase of word wend.
+static inline uniform int apply_range(uniform uint64 * uniform w, const uniform uint64 * uniform pat,
+                                      uniform int L, uniform int r, uniform int b, uniform int wend) {
+    uniform int w0 = b >> 6;
+    if (w0 >= wend) return r;
+    w[w0] |= pat[r] & (~((uniform uint64)0) << (b & 63));
+    r += 1; r = (r >= L) ? r - L : r;
+    uniform int k = w0 + 1;
+    for (; k + programCount <= wend; k += programCount) {
+        w[k + programIndex] |= pat[r + programIndex];
+        r += programCount;
+        r = (r >= L) ? r - L : r;
+    }
+    // The last partial vector. With TAIL_OVERRUN it runs past wend: the extra words get this
+    // prime's own pattern, which is correct for them, and past nw they land in padding.
+    if (TAIL_OVERRUN) { if (k < wend) w[k + programIndex] |= pat[r + programIndex]; }
+    else if (k + programIndex < wend) w[k + programIndex] |= pat[r + programIndex];
+    r += wend - k; r = (r >= L) ? r - L : r;
+    return r;
+}
+
+// Fused pass over one plane: every group member is OR'd in with a single load and store of
+// each sieve word. Member j starts at bit b[j], where its pattern (tabled at PAT_OFF[t[j]]) is
+// at phase ph[j]; members j >= n read the all-zero row at the start of PAT.
+static void apply_group(uniform uint64 * uniform w, uniform int nw, uniform int n,
+                        const uniform int * uniform b, const uniform int * uniform ph,
+                        const uniform int * uniform t) {
+    // Every member starts at the earliest member's first word, so no member needs a lead-in.
+    // A member then also marks its multiples below p*p, which are composite, and p itself,
+    // which dense_primes clears again.
+#if TAIL_OVERRUN
+    unmasked {   // callers run with every lane on; without this each store is masked
+#endif
+    // r[j] indexes PAT directly; it wraps back by L[j] once it reaches E[j], the end of the
+    // member's period. Phases and periods are 64-bit, so addressing needs no sign extension.
+    uniform int64 r[G], L[G], E[G];
+    uniform int start = nw;
+    for (uniform int j = 0; j < n; j++) start = min(start, b[j] >> 6);
+    for (uniform int j = 0; j < G; j++) {
+        if (j < n) {
+            uniform int Lj = PAT_L[t[j]];
+            uniform int r0 = ph[j] - ((b[j] >> 6) - start) % Lj;   // phase at start
+            uniform int64 o = PAT_OFF[t[j]];
+            L[j] = Lj;
+            r[j] = o + ((r0 < 0) ? r0 + Lj : r0);
+            E[j] = o + Lj;
+        } else { r[j] = 0; L[j] = TAB_EXT; E[j] = TAB_EXT; }
+    }
+    uniform int64 k = start;
+#if defined(ISPC_TARGET_AVX512SKX)
+    // Two vectors per iteration and one phase update per member. The callers run with every
+    // lane on, so the full vectors need no mask; the loop below takes the rest.
+    unmasked {
+        for (; k + STEP <= nw; k += STEP) {
+            uint64 v0 = w[k + programIndex];
+            uint64 v1 = w[k + programCount + programIndex];
+            for (uniform int j = 0; j < G; j++) {
+                v0 |= PAT[r[j] + programIndex];
+                v1 |= PAT[r[j] + programCount + programIndex];
+                uniform int64 x = r[j] + STEP;
+                r[j] = (x >= E[j]) ? x - L[j] : x;
+            }
+            w[k + programIndex] = v0;
+            w[k + programCount + programIndex] = v1;
+        }
+    }
+#endif
+    for (; k + programCount <= nw; k += programCount) {
+        uint64 v = w[k + programIndex];
+        for (uniform int j = 0; j < G; j++) {
+            v |= PAT[r[j] + programIndex];
+            uniform int64 x = r[j] + programCount;
+            r[j] = (x >= E[j]) ? x - L[j] : x;
+        }
+        w[k + programIndex] = v;
+    }
+    if (TAIL_OVERRUN ? k < nw : k + programIndex < nw) {
+        uint64 v = w[k + programIndex];
+        for (uniform int j = 0; j < G; j++) v |= PAT[r[j] + programIndex];
+        w[k + programIndex] = v;
+    }
+#if TAIL_OVERRUN
+    }
+#endif
+}
+
+// Apply a group of primes, from p*p on, to all 8 planes. t[j] is primes[j]'s index among the
+// primes from 17 on, which is its row in the tables.
+static void dense_primes(uniform Sieve * uniform s, const uniform int * uniform primes,
+                         const uniform int * uniform t, uniform int n) {
+    uniform int b[G], ph[G];
+    for (uniform int pl = 0; pl < 8; pl++) {
+        for (uniform int j = 0; j < n; j++) {
+            b[j] = first_bit(primes[j], t[j], pl);
+            ph[j] = PAT_PH[t[j]][pl];
+        }
+        if (n == 1) {      // a lone prime: skip the fused loop and its G-1 empty patterns
+            apply_range(s->bits + pl * s->pw, PAT + PAT_OFF[t[0]], PAT_L[t[0]], ph[0], b[0], s->nw);
+            continue;
+        }
+        apply_group(s->bits + pl * s->pw, s->nw, n, b, ph, t);
+    }
+    if (n == 1) return;
+    for (uniform int j = 0; j < n; j++) {          // apply_group marked each member itself
+        uniform int m = primes[j] / 30;
+        if (m < s->mbits)
+            s->bits[PLANE[primes[j] % 30] * s->pw + (m >> 6)] &= ~(((uniform uint64)1) << (m & 63));
+    }
+}
+
+// Large primes: at most one bit per word. All 8 planes advance in one loop, giving 8
+// independent read-modify-write streams per iteration.
+static void sparse_prime(uniform Sieve * uniform s, uniform int p, uniform int idx) {
+    uniform int nbits = s->mbits, pw = s->pw;
+    uniform uint64 * uniform base = s->bits;
+    uniform int64 i[8];                            // 64-bit, so no sign extension per OR
+    uniform int hi = 0;
+    for (uniform int pl = 0; pl < 8; pl++) {
+        uniform int sb = first_bit(p, idx, pl);
+        hi = max(hi, sb);
+        i[pl] = sb + (uniform int64)pl * pw * 64;  // bit index within the whole buffer
+    }
+    // rounds in which all 8 streams are still inside their plane
+    uniform int rounds = (hi < nbits) ? (nbits - 1 - hi) / p + 1 : 0;
+    const uniform int64 lim = i[0] + (uniform int64)rounds * p;   // bounds stream 0; no counter
+    while (i[0] < lim) {
+        for (uniform int pl = 0; pl < 8; pl++) {
+            base[i[pl] >> 6] |= ((uniform uint64)1) << (i[pl] & 63);
+            i[pl] += p;
+        }
+    }
+    for (uniform int pl = 0; pl < 8; pl++) {
+        uniform int64 end = (uniform int64)pl * pw * 64 + nbits;
+        for (uniform int64 x = i[pl]; x < end; x += p) base[x >> 6] |= ((uniform uint64)1) << (x & 63);
+    }
+}
+
+static inline uniform bool is_composite(const uniform Sieve * uniform s, uniform int n) {
+    uniform int m = n / 30;
+    const uniform uint64 * uniform w = s->bits + PLANE[n % 30] * s->pw;
+    return ((w[m >> 6] >> (m & 63)) & 1) != 0;
+}
+
+static void run_sieve(uniform Sieve * uniform s) {
+    uniform int nw = s->nw, pw = s->pw;
+
+    // Phase 1: wheel tile and 13. Multiples of 7 and 11 repeat every 77 words in every plane;
+    // TILE holds one period per plane (starting from 7 and 11 themselves, which keeps it exactly
+    // periodic). Each plane is written in one pass: tile word OR 13's pattern word. 13's pattern
+    // starts at the plane's first word, so it also marks 13 itself and 91 and 143 (already
+    // marked by 7 and 11). 7, 11 and 13 are then unmarked. Afterwards every bit below 17*17 is
+    // final.
+    for (uniform int pl = 0; pl < 8; pl++) {
+        uniform uint64 * uniform w = s->bits + pl * pw;
+        const uniform uint64 * uniform tile = TILE[pl];
+        uniform int64 r13 = P13_PH[pl];             // 13's phase at word 0
+        uniform int64 rt = 0;
+#if TAIL_OVERRUN
+        unmasked {
+#endif
+        uniform int64 k = 0;
+        for (; k + programCount <= nw; k += programCount) {
+            w[k + programIndex] = tile[rt + programIndex] | P13[r13 + programIndex];
+            rt += programCount; rt = (rt >= 77) ? rt - 77 : rt;
+            r13 += programCount; r13 = (r13 >= P13_L) ? r13 - P13_L : r13;
+        }
+        // as in apply_group: with TAIL_OVERRUN the last vector runs on into the padding
+        if (TAIL_OVERRUN ? k < nw : k + programIndex < nw)
+            w[k + programIndex] = tile[rt + programIndex] | P13[r13 + programIndex];
+#if TAIL_OVERRUN
+        }
+#endif
+    }
+    s->bits[0]      |= (uniform uint64)1;          // 1 is not prime (plane 1, bit 0)
+    s->bits[1 * pw] &= ~((uniform uint64)1);       // 7 is prime
+    s->bits[2 * pw] &= ~((uniform uint64)1);       // 11 is prime
+    s->bits[3 * pw] &= ~((uniform uint64)1);       // 13 is prime
+
+    // Phase 3: the remaining primes up to sqrt(size), small ones as fused pattern groups and
+    // large ones as strided bit sets. A candidate is only read once every prime up to its
+    // square root has been applied: c < g0*g0 for the smallest prime g0 still pending.
+    // idx counts the primes found from 17 on: it is each prime's row in the build-time tables.
+    uniform int q = (uniform int)sqrt((uniform double)s->size);
+    while ((uniform int64)(q + 1) * (q + 1) <= s->size) q++;
+    while ((uniform int64)q * q > s->size) q--;
+    uniform int dm = s->dense_max;
+    uniform int grp[G], gt[G];
+    uniform int n = 0, idx = 0;
+    for (uniform int c = 17; c <= q; c += 2) {
+        if (PLANE[c % 30] < 0) continue;
+        if (n > 0 && (c >= dm || c >= grp[0] * grp[0])) { dense_primes(s, grp, gt, n); n = 0; }
+        if (is_composite(s, c)) continue;
+        if (c < dm) {
+            grp[n] = c; gt[n] = idx; n++;
+            if (n == G) { dense_primes(s, grp, gt, n); n = 0; }
+        } else {
+            sparse_prime(s, c, idx);
+        }
+        idx++;
+    }
+    if (n > 0) dense_primes(s, grp, gt, n);
+}
+
+// Number of primes up to and including size: unmarked bits for numbers <= size, plus 2, 3, 5.
+static uniform int count_primes(const uniform Sieve * uniform s) {
+    uniform int64 size = s->size;
+    uniform int c = (size >= 2 ? 1 : 0) + (size >= 3 ? 1 : 0) + (size >= 5 ? 1 : 0);
+    for (uniform int pl = 0; pl < 8; pl++) {
+        if (size < RES[pl]) continue;
+        const uniform uint64 * uniform w = s->bits + pl * s->pw;
+        uniform int mmax = (uniform int)((size - RES[pl]) / 30);   // last bit <= size
+        for (uniform int k = 0; k < s->nw; k++) {
+            uniform int lo = k << 6;
+            if (lo > mmax) break;
+            uniform uint64 x = ~w[k];
+            if (lo + 63 > mmax) x &= ~((uniform uint64)0) >> (63 - (mmax - lo));
+            c += popcnt(x);
+        }
+    }
+    return c;
+}
+
+// ---------------------------------------------------------------------------------------
+// Benchmark driver
+// ---------------------------------------------------------------------------------------
+static const uniform int64 SIEVE_SIZE = 1000000;
+static const uniform int EXPECTED = 78498;
+static const uniform double RUN_SECONDS = 5.0;
+
+struct Job {
+    uniform double deadline;
+    uniform int dense_max;
+    uniform int64 passes;
+    uniform int count;    // prime count from the last pass, for validation
+};
+
+// Hardware threads this process may run on: the CPUs in its affinity mask, so a container
+// limited with --cpuset-cpus is not oversubscribed. get_nprocs() counts every online CPU.
+static uniform int hardware_threads() {
+    uniform uint64 mask[16];                                       // up to 1024 CPUs
+    for (uniform int i = 0; i < 16; i++) mask[i] = 0;
+    if (sched_getaffinity(0, 16 * 8, mask) != 0) return get_nprocs();
+    uniform int n = 0;
+    for (uniform int i = 0; i < 16; i++) n += popcnt(mask[i]);
+    return n > 0 ? n : get_nprocs();
+}
+
+// Thread entry point, also called directly for the single-threaded run. A function passed
+// to pthread_create is entered without ISPC's execution mask, so the body runs under
+// 'unmasked' to switch all SIMD lanes on.
+export void * uniform worker(void * uniform arg) {
+    unmasked {
+        uniform Job * uniform job = (uniform Job * uniform)arg;
+        uniform int64 passes = 0;
+        uniform int count = 0;
+        while (now() < job->deadline) {
+            uniform Sieve s;
+            sieve_create(&s, SIEVE_SIZE, job->dense_max);
+            run_sieve(&s);
+            if (passes == 0) count = count_primes(&s);
+            sieve_destroy(&s);
+            passes++;
+        }
+        job->passes = passes;
+        job->count = count;
+    }
+    return NULL;
+}
+
+static uniform int env_int(const uniform int8 * uniform name, uniform int dflt) {
+    int8 * uniform e = getenv(name);
+    return (e != NULL) ? atoi(e) : dflt;
+}
+
+// PRIMES_TEST=1: check prime counts for powers of ten up to 10^8 and exit.
+static void self_test(uniform int dense_max) {
+    uniform int64 sizes[9] = {10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 0};
+    uniform int expect[9] = {4, 25, 168, 1229, 9592, 78498, 664579, 5761455, 0};
+    uniform int bad = 0;
+    for (uniform int i = 0; sizes[i] != 0; i++) {
+        uniform Sieve s;
+        sieve_create(&s, sizes[i], dense_max);
+        run_sieve(&s);
+        uniform int c = count_primes(&s);
+        sieve_destroy(&s);
+        print("size % -> % primes (expected %) %\n", sizes[i], c, expect[i],
+              c == expect[i] ? 1 : 0);
+        if (c != expect[i]) bad = 1;
+    }
+    exit(bad);
+}
+
+static void run_threads(uniform Job * uniform jobs, uniform int64 * uniform tids,
+                        uniform int n, uniform int dense_max) {
+    uniform double start = now();
+    for (uniform int t = 0; t < n; t++) {
+        jobs[t].deadline = start + RUN_SECONDS;
+        jobs[t].dense_max = dense_max;
+        pthread_create(&tids[t], NULL, (void * uniform)worker, &jobs[t]);
+    }
+    uniform int64 total = 0;
+    for (uniform int t = 0; t < n; t++) {
+        pthread_join(tids[t], NULL);
+        total += jobs[t].passes;
+        if (jobs[t].count != EXPECTED) fail_count();
+    }
+    uniform double elapsed = now() - start;
+    print("cauldnz-ispc-wheel-tables;%;%;%;algorithm=wheel,faithful=yes,bits=1\n", total, elapsed, n);
+}
+
+export uniform int main() {
+    uniform int8 n_dense[17] = {80,82,73,77,69,83,95,68,69,78,83,69,95,77,65,88,0}; // PRIMES_DENSE_MAX
+    uniform int8 n_test[12] = {80,82,73,77,69,83,95,84,69,83,84,0};                 // PRIMES_TEST
+    uniform int dense_max = env_int(n_dense, 256);
+    if (env_int(n_test, 0) != 0) self_test(dense_max);
+
+    uniform int nthreads = clamp(hardware_threads(), 1, 1024);
+    uniform Job jobs[1024];
+    uniform int64 tids[1024];
+
+    // single-threaded
+    uniform double start = now();
+    jobs[0].deadline = start + RUN_SECONDS;
+    jobs[0].dense_max = dense_max;
+    worker(&jobs[0]);
+    uniform double elapsed = now() - start;
+    if (jobs[0].count != EXPECTED) fail_count();
+    print("cauldnz-ispc-wheel-tables;%;%;1;algorithm=wheel,faithful=yes,bits=1\n", jobs[0].passes, elapsed);
+
+    // One independent sieve per thread at all, half and a quarter of the hardware threads:
+    // where SMT siblings share an L1, fewer threads can complete more passes.
+    uniform bool did4 = false;
+    for (uniform int n = nthreads; n >= 2 && n * 4 >= nthreads; n /= 2) {
+        run_threads(jobs, tids, n, dense_max);
+        did4 = did4 || n == 4;
+    }
+    // The leaderboard sorts multi-thread results by passes per second per thread, and its leaders
+    // report 4 threads, so report 4 too, unless the loop above did or the machine has no more.
+    if (nthreads > 4 && !did4)
+        run_threads(jobs, tids, 4, dense_max);
+    return 0;
+}
