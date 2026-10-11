@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T01:43:57Z",
+  "updated_utc": "2026-10-11T01:44:30Z",
   "run": {
     "id": "ap-20261011T0100Z",
     "state": "running",
@@ -1260,17 +1260,6 @@
   ],
   "events": [
     {
-      "utc": "2026-10-10T22:54:32Z",
-      "level": "token count recorded (tools/tokens.py from agentic-hill-climber 0389df8, run from /tmp/ahc, not copied in): 2,855 calls, output 1.04M, cache writes 6.75M, cache reads 793.4M, new input 5.8k. Covers every run in EVENTS.jsonl (ap-20261009T0607Z, 1112Z, 1349Z, 2033Z, ap-20261010T0140Z, 0715Z, and 2040Z so far), all from this session's container; not covered: sessions in other containers (earlier workshop/setup sessions). Re-run at shutdown",
-      "text": "info"
-    },
-    {
-      "utc": "2026-10-10T22:56:33Z",
-      "level": "info",
-      "text": "zig-idea12 (Zig wheel (port)) running: IDEAS 12 ported to the Zig wheel: 7x11 tile OR a 13 pattern in one store pass, dropping the separate 13 sweep",
-      "auto": true
-    },
-    {
       "utc": "2026-10-10T22:56:33Z",
       "level": "warn",
       "auto": true,
@@ -1613,6 +1602,20 @@
       "why": "every step up lost more (Zen 3 1T -8.6%, -19.7%, -27.5%), 0/6 rounds each, tight intervals; the slope points below 256, which was never tested after hc-035/045 changed both sides",
       "instead": "F6 (needs the 96-vCPU node)",
       "expect": "192 or 128 gains 0% to +4%"
+    },
+    {
+      "utc": "2026-10-11T01:44:30Z",
+      "level": "decision",
+      "text": "run: start agent history-audit: read-only sweep of the ledger, queue, status reports, ideas and hc/ branches for candidates never tested on AMD, queued and never run, or inconclusive. Why: Chris asked to look back across history for anything else that deserves a pool run, after his rule that nothing is discarded on local results alone. Expect: 5-12 candidates; I check each and screen the best on Zen 5.",
+      "id": "run",
+      "what": "start agent history-audit: read-only sweep of the ledger, queue, status reports, ideas and hc/ branches for candidates never tested on AMD, queued and never run, or inconclusive",
+      "why": "Chris asked to look back across history for anything else that deserves a pool run, after his rule that nothing is discarded on local results alone",
+      "expect": "5-12 candidates; I check each and screen the best on Zen 5"
+    },
+    {
+      "utc": "2026-10-11T01:44:30Z",
+      "level": "info",
+      "text": "Chris: look back across history for anything else that deserves a pool run. Agent history-audit started (read-only)."
     }
   ],
   "research": {
