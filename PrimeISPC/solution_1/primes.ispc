@@ -95,7 +95,36 @@ struct Group {
     uniform int16 tab13[64];
 };
 
+// DIAGNOSTIC BUILD (hc/diag-wheel-phases-2, never merged): TSC cycles per phase.
+// Each boundary reads the TSC once and charges the time since the previous boundary to one
+// slot, so the slots add up to the whole pass with nothing unattributed.
+#ifndef PROF
+#define PROF 1
+#endif
+#define P_SO_DENSE 0     // (a) start_bit for group members, all 8 planes
+#define P_SO_SPARSE 1    // (a) start_bit for sparse primes, all 8 planes
+#define P_SO_TILE 2      // (a) start_bit for 7, 11, 13 per plane
+#define P_PAT 3          // (b) group pattern building (build_group)
+#define P_TILE_BUILD 4   // (d) 7x11 tile into scratch, 13 pattern, phase set-up
+#define P_GROUP 5        // (c) fused group passes over the 8 planes (+ member bit clear)
+#define P_TILE_COPY 6    // (d) tile|13 written to each plane
+#define P_SPARSE 7       // (e) sparse marks
+#define P_SCAN 8         // (f) next-prime scan, sqrt, fix-ups
+#define P_SETUP 9        // (f) alloc/free, count (first pass), deadline check
+#define P_TOTAL 10       // TSC over the whole 1-thread loop
+#define P_LAST 15        // previous boundary's TSC
+#define P_N 16
+
+static inline void mark(uniform int64 * uniform pt, uniform int slot) {
+#if PROF
+    uniform int64 t = clock();
+    pt[slot] += t - pt[P_LAST];
+    pt[P_LAST] = t;
+#endif
+}
+
 struct Sieve {
+    uniform int64 * uniform pt;      // DIAGNOSTIC: phase counters
     uniform int64 size;              // find primes up to and including this number
     uniform int mbits;               // bits used per plane
     uniform int nw;                  // words used per plane
@@ -251,10 +280,15 @@ static void apply_group(uniform uint64 * uniform w, uniform int nw,
 // Apply a group of primes, from p*p on, to all 8 planes.
 static void dense_primes(uniform Sieve * uniform s, const uniform int * uniform primes,
                          uniform int n) {
+    mark(s->pt, P_SCAN);
     build_group(s->grp, primes, n);
-    uniform int b[G];
+    mark(s->pt, P_PAT);
+    uniform int bb[8][G];
+    for (uniform int pl = 0; pl < 8; pl++)
+        for (uniform int j = 0; j < n; j++) bb[pl][j] = start_bit(primes[j], RES[pl], primes[j]);
+    mark(s->pt, P_SO_DENSE);
     for (uniform int pl = 0; pl < 8; pl++) {
-        for (uniform int j = 0; j < n; j++) b[j] = start_bit(primes[j], RES[pl], primes[j]);
+        uniform int * uniform b = bb[pl];
         if (n == 1) {      // a lone prime: skip the fused loop and its G-1 empty patterns
             apply_range(s->bits + pl * s->pw, s->grp->pp[0], s->grp->L[0],
                         s->grp->tab[0][b[0] & 63], b[0], s->nw);
@@ -262,12 +296,13 @@ static void dense_primes(uniform Sieve * uniform s, const uniform int * uniform 
         }
         apply_group(s->bits + pl * s->pw, s->nw, s->grp, b);
     }
-    if (n == 1) return;
+    if (n == 1) { mark(s->pt, P_GROUP); return; }
     for (uniform int j = 0; j < n; j++) {          // apply_group marked each member itself
         uniform int m = primes[j] / 30;
         if (m < s->mbits)
             s->bits[PLANE[primes[j] % 30] * s->pw + (m >> 6)] &= ~(((uniform uint64)1) << (m & 63));
     }
+    mark(s->pt, P_GROUP);
 }
 
 // Large primes: at most one bit per word. All 8 planes advance in one loop, giving 8
@@ -277,12 +312,14 @@ static void sparse_prime(uniform Sieve * uniform s, uniform int p) {
     uniform uint64 * uniform base = s->bits;
     uniform int64 i[8];                            // 64-bit, so no sign extension per OR
     uniform int hi = 0;
+    mark(s->pt, P_SCAN);
     for (uniform int pl = 0; pl < 8; pl++) {
         uniform int sb = start_bit(p, RES[pl], p);
         hi = max(hi, sb);
         i[pl] = sb + (uniform int64)pl * pw * 64;  // bit index within the whole buffer
     }
     // rounds in which all 8 streams are still inside their plane
+    mark(s->pt, P_SO_SPARSE);
     uniform int rounds = (hi < nbits) ? (nbits - 1 - hi) / p + 1 : 0;
     const uniform int64 lim = i[0] + (uniform int64)rounds * p;   // bounds stream 0; no counter
     while (i[0] < lim) {
@@ -295,6 +332,7 @@ static void sparse_prime(uniform Sieve * uniform s, uniform int p) {
         uniform int64 end = (uniform int64)pl * pw * 64 + nbits;
         for (uniform int64 x = i[pl]; x < end; x += p) base[x >> 6] |= ((uniform uint64)1) << (x & 63);
     }
+    mark(s->pt, P_SPARSE);
 }
 
 static inline uniform bool is_composite(const uniform Sieve * uniform s, uniform int n) {
@@ -313,21 +351,25 @@ static void run_sieve(uniform Sieve * uniform s) {
     // (already marked by 7 and 11). 7, 11 and 13 are then unmarked. Afterwards every bit below
     // 17*17 is final.
     uniform Group * uniform g = s->grp;
+    mark(s->pt, P_SETUP);
     uniform int tp[2] = {7, 11};
     build_group(g, tp, 2);
     const uniform int64 L13 = build_pattern(g->p13, g->tab13, 13);
     for (uniform int pl = 0; pl < 8; pl++) {
         uniform uint64 * uniform w = s->bits + pl * pw;
-        foreach (k = 0 ... 77) g->tile[k] = 0;
+        mark(s->pt, P_TILE_BUILD);
         uniform int tb[2];
         tb[0] = start_bit(7, RES[pl], 1);
         tb[1] = start_bit(11, RES[pl], 1);
+        uniform int b13 = start_bit(13, RES[pl], 13);
+        mark(s->pt, P_SO_TILE);
+        foreach (k = 0 ... 77) g->tile[k] = 0;
         apply_group(g->tile, 77, g, tb);
         foreach (k = 0 ... programCount) g->tile[77 + k] = g->tile[k];
-        uniform int b13 = start_bit(13, RES[pl], 13);
         uniform int64 r13 = g->tab13[b13 & 63] - (b13 >> 6) % L13;   // 13's phase at word 0
         r13 = (r13 < 0) ? r13 + L13 : r13;
         uniform int64 rt = 0;
+        mark(s->pt, P_TILE_BUILD);
 #if TAIL_OVERRUN
         unmasked {
 #endif
@@ -343,6 +385,7 @@ static void run_sieve(uniform Sieve * uniform s) {
 #if TAIL_OVERRUN
         }
 #endif
+        mark(s->pt, P_TILE_COPY);
     }
     s->bits[0]      |= (uniform uint64)1;          // 1 is not prime (plane 1, bit 0)
     s->bits[1 * pw] &= ~((uniform uint64)1);       // 7 is prime
@@ -370,6 +413,7 @@ static void run_sieve(uniform Sieve * uniform s) {
         }
     }
     if (n > 0) dense_primes(s, grp, n);
+    mark(s->pt, P_SCAN);
 }
 
 // Number of primes up to and including size: unmarked bits for numbers <= size, plus 2, 3, 5.
@@ -403,6 +447,7 @@ struct Job {
     uniform int dense_max;
     uniform int64 passes;
     uniform int count;    // prime count from the last pass, for validation
+    uniform int64 pt[P_N];   // DIAGNOSTIC: phase counters (per job, so threads share nothing)
 };
 
 // Hardware threads this process may run on: the CPUs in its affinity mask, so a container
@@ -424,14 +469,20 @@ export void * uniform worker(void * uniform arg) {
         uniform Job * uniform job = (uniform Job * uniform)arg;
         uniform int64 passes = 0;
         uniform int count = 0;
+        for (uniform int i = 0; i < P_N; i++) job->pt[i] = 0;
+        uniform int64 t0 = clock();
+        job->pt[P_LAST] = t0;
         while (now() < job->deadline) {
             uniform Sieve s;
             sieve_create(&s, SIEVE_SIZE, job->dense_max);
+            s.pt = job->pt;
             run_sieve(&s);
             if (passes == 0) count = count_primes(&s);
             sieve_destroy(&s);
             passes++;
         }
+        mark(job->pt, P_SETUP);
+        job->pt[P_TOTAL] = clock() - t0;
         job->passes = passes;
         job->count = count;
     }
@@ -448,9 +499,12 @@ static void self_test(uniform int dense_max) {
     uniform int64 sizes[9] = {10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 0};
     uniform int expect[9] = {4, 25, 168, 1229, 9592, 78498, 664579, 5761455, 0};
     uniform int bad = 0;
+    uniform int64 pt[P_N];
+    for (uniform int i = 0; i < P_N; i++) pt[i] = 0;
     for (uniform int i = 0; sizes[i] != 0; i++) {
         uniform Sieve s;
         sieve_create(&s, sizes[i], dense_max);
+        s.pt = pt;
         run_sieve(&s);
         uniform int c = count_primes(&s);
         sieve_destroy(&s);
@@ -497,6 +551,29 @@ export uniform int main() {
     uniform double elapsed = now() - start;
     if (jobs[0].count != EXPECTED) fail_count();
     print("cauldnz-ispc;%;%;1;algorithm=wheel,faithful=yes,bits=1\n", jobs[0].passes, elapsed);
+    {   // DIAGNOSTIC: phase split of the 1-thread run, TSC cycles per pass and share of total
+        const uniform int64 * uniform pt = jobs[0].pt;
+        uniform double np = (uniform double)jobs[0].passes;
+        uniform double tot = (uniform double)pt[P_TOTAL];
+        uniform int64 sum = 0;
+        for (uniform int i = 0; i < 10; i++) sum += pt[i];
+        uniform double v[10];
+        for (uniform int i = 0; i < 10; i++) v[i] = (uniform double)pt[i];
+        print("phase;start_offsets;%;%\n", (v[0] + v[1] + v[2]) / np, 100.0 * (v[0] + v[1] + v[2]) / tot);
+        print("phase;pattern_build;%;%\n", v[3] / np, 100.0 * v[3] / tot);
+        print("phase;group_passes;%;%\n", v[5] / np, 100.0 * v[5] / tot);
+        print("phase;tile;%;%\n", (v[4] + v[6]) / np, 100.0 * (v[4] + v[6]) / tot);
+        print("phase;sparse_marks;%;%\n", v[7] / np, 100.0 * v[7] / tot);
+        print("phase;scan_setup;%;%\n", (v[8] + v[9]) / np, 100.0 * (v[8] + v[9]) / tot);
+        print("phase;total;%;%\n", tot / np, 100.0 * (uniform double)sum / tot);
+        print("phase;detail.start_offsets_dense;%;%\n", v[0] / np, 100.0 * v[0] / tot);
+        print("phase;detail.start_offsets_sparse;%;%\n", v[1] / np, 100.0 * v[1] / tot);
+        print("phase;detail.start_offsets_tile;%;%\n", v[2] / np, 100.0 * v[2] / tot);
+        print("phase;detail.tile_build;%;%\n", v[4] / np, 100.0 * v[4] / tot);
+        print("phase;detail.tile_copy;%;%\n", v[6] / np, 100.0 * v[6] / tot);
+        print("phase;detail.scan;%;%\n", v[8] / np, 100.0 * v[8] / tot);
+        print("phase;detail.setup_alloc_count;%;%\n", v[9] / np, 100.0 * v[9] / tot);
+    }
 
     // One independent sieve per thread at all, half and a quarter of the hardware threads:
     // where SMT siblings share an L1, fewer threads can complete more passes.
