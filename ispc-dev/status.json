@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T20:59:04Z",
+  "updated_utc": "2026-10-11T21:00:43Z",
   "run": {
     "id": "ap-20261011T1929Z",
     "state": "running",
@@ -2017,6 +2017,17 @@
       "prediction": "+3% to +8% at 1T on Zen 5 and Zen 3",
       "verdict": "running",
       "commit": "2ef6a1d"
+    },
+    {
+      "id": "ox-007",
+      "entry": "oxcaml",
+      "title": "Sparse: constant bit masks, untagged word ORs",
+      "tier": "extra-faithful",
+      "kind": "novel",
+      "plain": "If the eight marks in each chunk are taken in bit order, then every mask is a constant and only the eight offsets need registers, because an odd prime puts its eight multiples on eight different bits of a byte.",
+      "prediction": "x86 +8% to +20% at 1T; Cobalt may lose as ox-004 did (same word OR)",
+      "verdict": "running",
+      "commit": "0245d04"
     }
   ],
   "azure_queue": 0,
@@ -2026,23 +2037,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T19:36:30Z",
-      "level": "info",
-      "text": "ocaml-001 (ocaml-plain) running: ",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T19:36:30Z",
-      "level": "info",
-      "text": "ox-000: implement. toolchain builds on Batch (Zen 5, Cobalt); two local agents: OxCaml probe, plain OCaml port",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T19:37:09Z",
-      "level": "info",
-      "text": "Waiting on the two toolchain builds (start tasks then switch builds) and the two agents; next tick 19:50 UTC."
-    },
     {
       "utc": "2026-10-11T19:51:58Z",
       "level": "info",
@@ -2372,6 +2366,32 @@
       "utc": "2026-10-11T20:58:44Z",
       "level": "info",
       "text": "ox-004 rejected.. Zen 5 +22% 1T, Zen 3 +16% (2 rounds), Cobalt -28%: gate fails; x86-only form is ox-008",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T21:00:22Z",
+      "level": "decision",
+      "text": "ox-007: submit 0245d04 vs cbcd24d on Zen 5, Zen 3 and Cobalt. Why: rebuilt here, PRIMES_TEST=1 exits 0; diff read: still eight ORs per chunk, one per composite, reordered by bit, tail keeps byte ORs; sparse 1.55 cycles per mark vs 2.0 locally. Cobalt shows whether the arm64 loss is the word OR itself; if it loses there, the form goes into ox-008's x86-only sparse kernel. Passed over: waiting for ox-008 to land first. Expect: x86 +8% to +20%.",
+      "id": "ox-007",
+      "what": "submit 0245d04 vs cbcd24d on Zen 5, Zen 3 and Cobalt",
+      "why": "rebuilt here, PRIMES_TEST=1 exits 0; diff read: still eight ORs per chunk, one per composite, reordered by bit, tail keeps byte ORs; sparse 1.55 cycles per mark vs 2.0 locally. Cobalt shows whether the arm64 loss is the word OR itself; if it loses there, the form goes into ox-008's x86-only sparse kernel",
+      "instead": "waiting for ox-008 to land first",
+      "expect": "x86 +8% to +20%"
+    },
+    {
+      "utc": "2026-10-11T21:00:43Z",
+      "level": "decision",
+      "text": "ocaml-006: background agent: plain OCaml sieve in a word-indexed Int64 Bigarray (ocaml-006, on 0aaa340). Why: the plain line's profile change 2 (11 to 7 instructions per dense word); the dense loop is still the biggest plain phase, and the plain line needs its own climb for the gap record. Passed over: porting ox-003's SIMD, which plain OCaml can't express. Expect: +5% to +15% at 1T, GC cost to check.",
+      "id": "ocaml-006",
+      "what": "background agent: plain OCaml sieve in a word-indexed Int64 Bigarray (ocaml-006, on 0aaa340)",
+      "why": "the plain line's profile change 2 (11 to 7 instructions per dense word); the dense loop is still the biggest plain phase, and the plain line needs its own climb for the gap record",
+      "instead": "porting ox-003's SIMD, which plain OCaml can't express",
+      "expect": "+5% to +15% at 1T, GC cost to check"
+    },
+    {
+      "utc": "2026-10-11T21:01:18Z",
+      "level": "info",
+      "text": "ox-007 (oxcaml) running: ",
       "auto": true
     }
   ],
