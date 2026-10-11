@@ -1,8 +1,8 @@
 // Prime sieve drag race - ISPC (Intel(r) Implicit SPMD Program Compiler) solution by cauldnz.
 //
-// Sieve of Eratosthenes on a mod-30 wheel. Only numbers coprime to 30 are stored, as 8
-// bit-planes, one per residue R in {1,7,11,13,17,19,23,29}; bit m of plane R stands for the
-// number 30m+R, and a set bit means composite. Within one plane the multiples of a prime p
+// Sieve of Eratosthenes on a mod-210 wheel. Only numbers coprime to 210 = 2*3*5*7 are stored,
+// as 48 bit-planes, one per residue R in {1,11,13,...,209}; bit m of plane R stands for the
+// number 210m+R, and a set bit means composite. Within one plane the multiples of a prime p
 // form a plain stride-p progression, so every (prime, plane) pair is an ordinary bit-stride
 // sieve whose word pattern repeats every p words. Those repeating patterns are what the
 // SIMD lanes stream into the sieve.
@@ -70,48 +70,55 @@ static inline uniform double now() {
 #define STEP programCount
 #endif
 
-static const uniform int RES[8] = {1, 7, 11, 13, 17, 19, 23, 29};
-// plane index of n % 30, or -1 when n shares a factor with 30
-static const uniform int PLANE[30] = {-1,0,-1,-1,-1,-1,-1,1,-1,-1,-1,2,-1,3,-1,-1,-1,4,-1,5,
-                                      -1,-1,-1,6,-1,-1,-1,-1,-1,7};
-// multiplicative inverse mod 30, for residues coprime to 30
-static const uniform int INV30[30] = {0,1,0,0,0,0,0,13,0,0,0,11,0,7,0,0,0,23,0,19,
-                                      0,0,0,17,0,0,0,0,0,29};
+// The 48 residues mod 210 coprime to 210 (2*3*5*7), in increasing order.
+static const uniform int RES[48] = {1,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97,101,103,107,109,113,
+    121,127,131,137,139,143,149,151,157,163,167,169,173,179,181,187,191,193,197,199,209};
+// plane index of n % 210, or -1 when n shares a factor with 210
+static const uniform int8 PLANE[210] = {
+    -1,0,-1,-1,-1,-1,-1,-1,-1,-1,-1,1,-1,2,-1,-1,-1,3,-1,4,-1,-1,-1,5,-1,-1,-1,-1,-1,6,-1,7,
+    -1,-1,-1,-1,-1,8,-1,-1,-1,9,-1,10,-1,-1,-1,11,-1,-1,-1,-1,-1,12,-1,-1,-1,-1,-1,13,-1,14,
+    -1,-1,-1,-1,-1,15,-1,-1,-1,16,-1,17,-1,-1,-1,-1,-1,18,-1,-1,-1,19,-1,-1,-1,-1,-1,20,-1,
+    -1,-1,-1,-1,-1,-1,21,-1,-1,-1,22,-1,23,-1,-1,-1,24,-1,25,-1,-1,-1,26,-1,-1,-1,-1,-1,-1,
+    -1,27,-1,-1,-1,-1,-1,28,-1,-1,-1,29,-1,-1,-1,-1,-1,30,-1,31,-1,-1,-1,32,-1,-1,-1,-1,-1,
+    33,-1,34,-1,-1,-1,-1,-1,35,-1,-1,-1,-1,-1,36,-1,-1,-1,37,-1,38,-1,-1,-1,39,-1,-1,-1,-1,
+    -1,40,-1,41,-1,-1,-1,-1,-1,42,-1,-1,-1,43,-1,44,-1,-1,-1,45,-1,46,-1,-1,-1,-1,-1,-1,-1,
+    -1,-1,47};
+// half the gap from RES[i] to the next residue coprime to 210 (RES[47] = 209 -> 211)
+static const uniform int8 GAPH[48] = {5,1,2,1,2,3,1,3,2,1,2,3,3,1,3,2,1,3,2,3,4,2,1,2,1,2,4,3,2,3,1,2,3,1,3,3,2,1,2,3,1,3,2,1,
+    2,1,5,1};
 
 // ---------------------------------------------------------------------------------------
 // The sieve "class": a struct holding all of a sieve's state, plus the functions below that
 // take it as their first argument. A fresh instance is created for every pass.
 // ---------------------------------------------------------------------------------------
 
-// Patterns for a group of up to G primes, built once and shared by all 8 planes.
+// Patterns for a group of up to G primes, built once and shared by all 48 planes.
 struct Group {
     uniform int n;
     uniform int L[G];                       // pattern period in words
     uniform int16 tab[G][64];               // starting phase for each bit offset
     const uniform uint64 * uniform pp[G];   // pattern for each member
     uniform uint64 buf[G][MAXPAT + 64];
-    uniform uint64 tile[77 + 64];           // one plane's 7x11 period, extended by a vector
-    uniform uint64 p13[13 * 5 + 64];        // base pattern for 13
-    uniform int16 tab13[64];
+    uniform int st[G][48];                  // each member's first bit, by plane
 };
 
 struct Sieve {
     uniform int64 size;              // find primes up to and including this number
     uniform int mbits;               // bits used per plane
     uniform int nw;                  // words used per plane
-    uniform int pw;                  // plane stride in words (64-byte aligned)
+    uniform int pw;                  // plane stride in words
     uniform int dense_max;           // primes below this are applied as word patterns
-    uniform uint64 * uniform bits;   // the 8 bit-planes, pw words apart
+    uniform uint64 * uniform bits;   // the 48 bit-planes, pw words apart
     uniform Group * uniform grp;     // pattern scratch space
 };
 
 static void sieve_create(uniform Sieve * uniform s, uniform int64 size, uniform int dense_max) {
     s->size = size;
-    s->mbits = (uniform int)(size / 30) + 1;
+    s->mbits = (uniform int)(size / 210) + 1;
     s->nw = (s->mbits + 63) >> 6;
-    s->pw = (s->nw + (TAIL_OVERRUN ? programCount - 1 : 0) + 7) & ~7;   // room to overrun nw
+    s->pw = s->nw + (TAIL_OVERRUN ? programCount - 1 : 0);   // room to overrun nw
     s->dense_max = min(dense_max, MAXPAT);
-    s->bits = (uniform uint64 * uniform)aligned_alloc(64, (uniform int64)8 * s->pw * 8);
+    s->bits = (uniform uint64 * uniform)aligned_alloc(64, (((uniform int64)48 * s->pw * 8 + 63) / 64) * 64);
     s->grp = (uniform Group * uniform)aligned_alloc(64, ((sizeof(uniform Group) + 63) / 64) * 64);
 }
 
@@ -120,14 +127,39 @@ static void sieve_destroy(uniform Sieve * uniform s) {
     free(s->bits);
 }
 
-// First bit index in plane R of a multiple p*k with k >= kmin.
-// Unsigned throughout: division and remainder by 30 then need no sign fix-ups (it runs for every
-// prime and plane, about 1,300 times a pass).
-static inline uniform int start_bit(uniform int p, uniform int R, uniform int kmin) {
-    uniform unsigned int up = p, uR = R, uk = kmin;
-    uniform unsigned int kr = (uR * (uniform unsigned int)INV30[up % 30]) % 30;   // k = kr (mod 30)
-    uniform unsigned int k = uk + (kr + 30 - uk % 30) % 30;
-    return (uniform int)((up * k - uR) / 30);
+// First bit of p's multiples from p*p on, in each of the 48 planes, written to st[plane];
+// returns the largest. The multiples p*q with q coprime to 210 hit every plane exactly once in
+// any 48 consecutive such q, so walk q = p and the next 47 values coprime to 210, keeping
+// n = p*q as (n / 210, n % 210). p is split by 210 once; each step then adds a precomputed
+// increment (gap*p, split the same way) with a single carry. No division per plane.
+static inline uniform int starts48(uniform int p, uniform int * uniform st) {
+    uniform unsigned int up = p;
+    uniform unsigned int pq = up / 210;
+    uniform unsigned int pr = up - pq * 210;
+    uniform unsigned int dq[6], dr[6];       // (2k*p) / 210 and % 210, k = 1..5
+    dq[0] = 0; dr[0] = 0;
+    uniform unsigned int q2 = 2 * pq, r2 = 2 * pr;
+    if (r2 >= 210) { r2 -= 210; q2++; }
+    for (uniform int k = 1; k <= 5; k++) {
+        uniform unsigned int r = dr[k - 1] + r2, q = dq[k - 1] + q2;
+        if (r >= 210) { r -= 210; q++; }
+        dq[k] = q; dr[k] = r;
+    }
+    // p*p = 210 (p*pq) + p*pr, with p*pr split by 210 in turn
+    uniform unsigned int t = up * pr;
+    uniform unsigned int tq = t / 210;
+    uniform unsigned int nq = up * pq + tq, nr = t - tq * 210;
+    uniform int iq = PLANE[pr];
+    uniform int last = 0;
+    for (uniform int j = 0; j < 48; j++) {
+        st[PLANE[nr]] = (uniform int)nq;
+        last = (uniform int)nq;
+        uniform int k = GAPH[iq];
+        nq += dq[k]; nr += dr[k];
+        if (nr >= 210) { nr -= 210; nq++; }
+        iq = (iq == 47) ? 0 : iq + 1;
+    }
+    return last;
 }
 
 // Base pattern for p: a bit at every j = 0 (mod p) across one period of p words, extended to
@@ -248,118 +280,76 @@ static void apply_group(uniform uint64 * uniform w, uniform int nw,
 #endif
 }
 
-// Apply a group of primes, from p*p on, to all 8 planes.
+// Apply a group of primes, from p*p on, to all 48 planes.
 static void dense_primes(uniform Sieve * uniform s, const uniform int * uniform primes,
                          uniform int n) {
-    build_group(s->grp, primes, n);
+    uniform Group * uniform g = s->grp;
+    build_group(g, primes, n);
+    for (uniform int j = 0; j < n; j++) starts48(primes[j], g->st[j]);
     uniform int b[G];
-    for (uniform int pl = 0; pl < 8; pl++) {
-        for (uniform int j = 0; j < n; j++) b[j] = start_bit(primes[j], RES[pl], primes[j]);
+    for (uniform int pl = 0; pl < 48; pl++) {
+        for (uniform int j = 0; j < n; j++) b[j] = g->st[j][pl];
         if (n == 1) {      // a lone prime: skip the fused loop and its G-1 empty patterns
-            apply_range(s->bits + pl * s->pw, s->grp->pp[0], s->grp->L[0],
-                        s->grp->tab[0][b[0] & 63], b[0], s->nw);
+            apply_range(s->bits + pl * s->pw, g->pp[0], g->L[0], g->tab[0][b[0] & 63], b[0], s->nw);
             continue;
         }
-        apply_group(s->bits + pl * s->pw, s->nw, s->grp, b);
+        apply_group(s->bits + pl * s->pw, s->nw, g, b);
     }
     if (n == 1) return;
     for (uniform int j = 0; j < n; j++) {          // apply_group marked each member itself
-        uniform int m = primes[j] / 30;
+        uniform int m = primes[j] / 210;
         if (m < s->mbits)
-            s->bits[PLANE[primes[j] % 30] * s->pw + (m >> 6)] &= ~(((uniform uint64)1) << (m & 63));
+            s->bits[PLANE[primes[j] % 210] * s->pw + (m >> 6)] &= ~(((uniform uint64)1) << (m & 63));
     }
 }
 
-// Large primes: at most one bit per word. All 8 planes advance in one loop, giving 8
-// independent read-modify-write streams per iteration.
+// Large primes: at most one bit per word. All 48 planes advance in one loop, giving 48
+// independent read-modify-write streams per round.
 static void sparse_prime(uniform Sieve * uniform s, uniform int p) {
     uniform int nbits = s->mbits, pw = s->pw;
     uniform uint64 * uniform base = s->bits;
-    uniform int64 i[8];                            // 64-bit, so no sign extension per OR
-    uniform int hi = 0;
-    for (uniform int pl = 0; pl < 8; pl++) {
-        uniform int sb = start_bit(p, RES[pl], p);
-        hi = max(hi, sb);
-        i[pl] = sb + (uniform int64)pl * pw * 64;  // bit index within the whole buffer
-    }
-    // rounds in which all 8 streams are still inside their plane
+    uniform int st[48];
+    uniform int hi = starts48(p, st);
+    uniform int64 i[48];                           // 64-bit, so no sign extension per OR
+    for (uniform int pl = 0; pl < 48; pl++)
+        i[pl] = st[pl] + (uniform int64)pl * pw * 64;  // bit index within the whole buffer
+    // rounds in which all 48 streams are still inside their plane
     uniform int rounds = (hi < nbits) ? (nbits - 1 - hi) / p + 1 : 0;
-    const uniform int64 lim = i[0] + (uniform int64)rounds * p;   // bounds stream 0; no counter
-    while (i[0] < lim) {
-        for (uniform int pl = 0; pl < 8; pl++) {
+    for (uniform int r = 0; r < rounds; r++) {
+        for (uniform int pl = 0; pl < 48; pl++) {
             base[i[pl] >> 6] |= ((uniform uint64)1) << (i[pl] & 63);
             i[pl] += p;
         }
     }
-    for (uniform int pl = 0; pl < 8; pl++) {
+    for (uniform int pl = 0; pl < 48; pl++) {
         uniform int64 end = (uniform int64)pl * pw * 64 + nbits;
         for (uniform int64 x = i[pl]; x < end; x += p) base[x >> 6] |= ((uniform uint64)1) << (x & 63);
     }
 }
 
 static inline uniform bool is_composite(const uniform Sieve * uniform s, uniform int n) {
-    uniform int m = n / 30;
-    const uniform uint64 * uniform w = s->bits + PLANE[n % 30] * s->pw;
+    uniform int m = n / 210;
+    const uniform uint64 * uniform w = s->bits + PLANE[n % 210] * s->pw;
     return ((w[m >> 6] >> (m & 63)) & 1) != 0;
 }
 
 static void run_sieve(uniform Sieve * uniform s) {
-    uniform int nw = s->nw, pw = s->pw;
+    // 2, 3, 5 and 7 are the wheel. Every other prime up to sqrt(size) is applied in turn,
+    // small ones as fused pattern groups and large ones as strided bit sets. A candidate is
+    // only read once every prime up to its square root has been applied: c < g0*g0 for the
+    // smallest prime g0 still pending. Below 11*11 every candidate is prime.
+    uniform int64 total = (uniform int64)48 * s->pw;
+    foreach (k = 0 ... total) s->bits[k] = 0;
+    s->bits[0] |= (uniform uint64)1;               // 1 is not prime (plane 1, bit 0)
 
-    // Phase 1: wheel tile and 13. Multiples of 7 and 11 repeat every 77 words in every plane,
-    // so mark one period (starting from 7 and 11 themselves, which keeps it exactly periodic)
-    // in scratch space. Each plane is then written in one pass: tile word OR 13's pattern word.
-    // 13's pattern starts at the plane's first word, so it also marks 13 itself and 91 and 143
-    // (already marked by 7 and 11). 7, 11 and 13 are then unmarked. Afterwards every bit below
-    // 17*17 is final.
-    uniform Group * uniform g = s->grp;
-    uniform int tp[2] = {7, 11};
-    build_group(g, tp, 2);
-    const uniform int64 L13 = build_pattern(g->p13, g->tab13, 13);
-    for (uniform int pl = 0; pl < 8; pl++) {
-        uniform uint64 * uniform w = s->bits + pl * pw;
-        foreach (k = 0 ... 77) g->tile[k] = 0;
-        uniform int tb[2];
-        tb[0] = start_bit(7, RES[pl], 1);
-        tb[1] = start_bit(11, RES[pl], 1);
-        apply_group(g->tile, 77, g, tb);
-        foreach (k = 0 ... programCount) g->tile[77 + k] = g->tile[k];
-        uniform int b13 = start_bit(13, RES[pl], 13);
-        uniform int64 r13 = g->tab13[b13 & 63] - (b13 >> 6) % L13;   // 13's phase at word 0
-        r13 = (r13 < 0) ? r13 + L13 : r13;
-        uniform int64 rt = 0;
-#if TAIL_OVERRUN
-        unmasked {
-#endif
-        uniform int64 k = 0;
-        for (; k + programCount <= nw; k += programCount) {
-            w[k + programIndex] = g->tile[rt + programIndex] | g->p13[r13 + programIndex];
-            rt += programCount; rt = (rt >= 77) ? rt - 77 : rt;
-            r13 += programCount; r13 = (r13 >= L13) ? r13 - L13 : r13;
-        }
-        // as in apply_group: with TAIL_OVERRUN the last vector runs on into the padding
-        if (TAIL_OVERRUN ? k < nw : k + programIndex < nw)
-            w[k + programIndex] = g->tile[rt + programIndex] | g->p13[r13 + programIndex];
-#if TAIL_OVERRUN
-        }
-#endif
-    }
-    s->bits[0]      |= (uniform uint64)1;          // 1 is not prime (plane 1, bit 0)
-    s->bits[1 * pw] &= ~((uniform uint64)1);       // 7 is prime
-    s->bits[2 * pw] &= ~((uniform uint64)1);       // 11 is prime
-    s->bits[3 * pw] &= ~((uniform uint64)1);       // 13 is prime
-
-    // Phase 3: the remaining primes up to sqrt(size), small ones as fused pattern groups and
-    // large ones as strided bit sets. A candidate is only read once every prime up to its
-    // square root has been applied: c < g0*g0 for the smallest prime g0 still pending.
     uniform int q = (uniform int)sqrt((uniform double)s->size);
     while ((uniform int64)(q + 1) * (q + 1) <= s->size) q++;
     while ((uniform int64)q * q > s->size) q--;
     uniform int dm = s->dense_max;
     uniform int grp[G];
     uniform int n = 0;
-    for (uniform int c = 17; c <= q; c += 2) {
-        if (PLANE[c % 30] < 0) continue;
+    for (uniform int c = 11; c <= q; c += 2) {
+        if (PLANE[c % 210] < 0) continue;
         if (n > 0 && (c >= dm || c >= grp[0] * grp[0])) { dense_primes(s, grp, n); n = 0; }
         if (is_composite(s, c)) continue;
         if (c < dm) {
@@ -372,14 +362,15 @@ static void run_sieve(uniform Sieve * uniform s) {
     if (n > 0) dense_primes(s, grp, n);
 }
 
-// Number of primes up to and including size: unmarked bits for numbers <= size, plus 2, 3, 5.
+// Number of primes up to and including size: unmarked bits for numbers <= size, plus 2, 3, 5, 7.
 static uniform int count_primes(const uniform Sieve * uniform s) {
     uniform int64 size = s->size;
-    uniform int c = (size >= 2 ? 1 : 0) + (size >= 3 ? 1 : 0) + (size >= 5 ? 1 : 0);
-    for (uniform int pl = 0; pl < 8; pl++) {
+    uniform int c = (size >= 2 ? 1 : 0) + (size >= 3 ? 1 : 0) + (size >= 5 ? 1 : 0)
+                  + (size >= 7 ? 1 : 0);
+    for (uniform int pl = 0; pl < 48; pl++) {
         if (size < RES[pl]) continue;
         const uniform uint64 * uniform w = s->bits + pl * s->pw;
-        uniform int mmax = (uniform int)((size - RES[pl]) / 30);   // last bit <= size
+        uniform int mmax = (uniform int)((size - RES[pl]) / 210);   // last bit <= size
         for (uniform int k = 0; k < s->nw; k++) {
             uniform int lo = k << 6;
             if (lo > mmax) break;
