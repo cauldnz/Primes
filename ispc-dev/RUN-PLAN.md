@@ -31,7 +31,20 @@ report of run ap-20261010T2040Z in `STATUS.md`.
   −14% / −12%. The Rust base trails mike-barber's Rust by 8% to 11%.
 - None of the ports has today's ISPC keeps (wheel-group32, IDEAS 12) or F1.
 
-## Stream 1 (main): climb the three ports, the same way in each language
+## Order: finish ISPC first, then climb the ports against it
+
+**Phase 1, about the first 75 minutes: finish ISPC and freeze it.** Streams 2, 3 and 4 below run
+first, on the fleet. Then run one final ISPC scoreboard, base and wheel, Zen 5, Zen 3 and Zen 4,
+with per-thread columns, and tag the result `hc/ispc-ref` (clean champion). That tag is the
+fixed reference every port is measured against in phase 2, so the port comparisons don't move
+under the run. Meanwhile, background agents do stream 1's local work: port the ISPC keeps into
+each port (step 1 below) and prepare the profiles (step 2). Nothing in phase 1 changes
+`hc/champion` except a keep from F4.
+
+**Phase 2, the rest: climb the ports** (stream 1), against `hc/ispc-ref`. If a phase 1 task
+overruns, start phase 2 on the nodes that are free rather than wait.
+
+## Stream 1 (main, phase 2): climb the three ports, the same way in each language
 
 This run is the test in `docs/generalising.md` of the hill-climber repo: does the machine carry
 over to new code without being rebuilt? Treat the three languages alike.
@@ -40,7 +53,7 @@ over to new code without being rebuilt? Treat the three languages alike.
   the port branch above. Grey changes (F1) go on `hc/port-<lang>-<design>-grey` only.
 - **Deciding machines and rule.** Zen 5 and Zen 3 decide, as for ISPC; the interval rule from
   `HILL-CLIMB.md`; Cobalt 100 gate for any change that touches Arm code; Zen 4 recheck for keeps.
-- **Rivals in every round:** our ISPC entry of the same design (the reference ceiling) and the
+- **Rivals in every round:** our ISPC entry of the same design at `hc/ispc-ref` (the reference ceiling) and the
   fastest existing entry in the port's language: mike-barber's Rust (`PrimeRust/solution_1`) for
   the Rust base; davepl's C++ (`PrimeCPP/solution_5`) for the C++ base; for the wheels, which
   have no rival in their own language, rogiervandam's C wheel.
@@ -67,7 +80,7 @@ over to new code without being rebuilt? Treat the three languages alike.
   - which ISPC keeps helped in each language and which didn't;
   - node-minutes per language from `jobs.tsv`.
 
-## Stream 2: rank the way the leaderboard ranks
+## Stream 2 (phase 1): rank the way the leaderboard ranks
 
 The official multi-thread table sorts by passes per second per thread (`tools/src/formatters/
 table.ts` upstream). mike-barber's Rust reports a 4-thread line, which tops that table; ours
@@ -79,7 +92,7 @@ reports one thread, then all, half and a quarter of the threads.
 - Put a 4-thread line on a branch (`hc/line-4t`) for both ISPC entries, built and self-tested,
   **not merged**: whether our entries report it is Chris's decision.
 
-## Stream 3: a new rival wheel
+## Stream 3 (phase 1): a new rival wheel
 
 PR #1094 upstream (crishoj, Zig, `PrimeZig/solution_5`, a 210-wheel) claims about 2.2 times the
 existing Zig wheel. Build it from `pull/1094/head` (Zig 0.17, its own Dockerfile) and add it as a
@@ -87,7 +100,7 @@ second control in one wheel task on Zen 5 and Zen 3, beside our ISPC and Zig whe
 thread and all threads. A measurement only. Its faithfulness is not ours to judge in the run;
 record the numbers.
 
-## Stream 4: ISPC leftovers, only on spare node time
+## Stream 4 (phase 1): ISPC leftovers
 
 F4 (`PRIMES_DENSE_MAX` 384, 512, 640, wheel), then F6 (AVX-512 off at 96 threads) if the 96-vCPU
 node is up for something else anyway. Nothing grey this run beyond porting F1.
