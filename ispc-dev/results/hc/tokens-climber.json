@@ -167,16 +167,16 @@
   },
   "between runs": {
    "main": {
-    "calls": 454,
+    "calls": 462,
     "first": "2026-10-09T06:06:38Z",
-    "fresh": 940,
-    "last": "2026-10-11T03:39:44Z",
+    "fresh": 956,
+    "last": "2026-10-11T03:54:09Z",
     "models": {
-     "claude-opus-5-5": 454
+     "claude-opus-5-5": 462
     },
-    "output": 318956,
-    "read": 146480296,
-    "write": 1805968
+    "output": 324860,
+    "read": 150050815,
+    "write": 1824838
    },
    "sub-agents": {
     "calls": 481,
@@ -193,12 +193,12 @@
   }
  },
  "totals": {
-  "calls": 3648,
-  "fresh": 7414,
-  "output": 1263912,
-  "read": 912951280,
-  "total": 922722236,
-  "write": 8499630
+  "calls": 3656,
+  "fresh": 7430,
+  "output": 1269816,
+  "read": 916521799,
+  "total": 926317545,
+  "write": 8518500
  },
- "updated_utc": "2026-10-11T03:41:16Z"
+ "updated_utc": "2026-10-11T03:55:19Z"
 }
