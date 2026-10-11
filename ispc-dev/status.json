@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T07:07:06Z",
+  "updated_utc": "2026-10-11T07:07:58Z",
   "run": {
     "id": "ap-20261011T0645Z",
     "state": "running",
@@ -1629,6 +1629,17 @@
       "hypothesis": "C++ base: read GCC dense loop, then bring fold-1pc (16-lane dense when a thread has a core) to C++ if GCC can express it",
       "plain": "If the C++ base uses its widest vector code for small factors when a thread has a core to itself, then it gains as the ISPC base did, because the same change bought 7.5% there.",
       "note": "agent building hc/port-cpp-base-wide"
+    },
+    {
+      "id": "r9-zig-wheel-group",
+      "entry": "zig-wheel",
+      "tier": "extra-faithful",
+      "kind": "borrowed",
+      "verdict": "running",
+      "hypothesis": "Zig wheel: write each plane once as tile | 13-pattern instead of a tile copy plus a separate 13 group pass (ISPC IDEAS 12 shape)",
+      "prediction": "0 to +4% at 1T (the extra 13 pass is ~2.9k of 61k cycles on Zen 5)",
+      "plain": "If the Zig wheel marks 13 while it copies the 7-and-11 tile, then it saves a whole pass over the sieve, because the ISPC wheel does it that way.",
+      "note": "hc/zig-wheel-group 022e479; agent: Zig group loop already equals ISPC per member (13.1 vs 14.3 instr/member/step); self-test 26/26 native and SSE2; local neutral to -2.6% (3 of 4 pairs). AMD screen per Chris rule: Zen 5 + Zen 3 6 rounds"
     }
   ],
   "azure_queue": 0,
@@ -1638,18 +1649,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T03:04:46Z",
-      "level": "info",
-      "text": "ha-029 rejected.. ISPC 1.28 / Ubuntu 26.04 no longer helps the base on the current champion",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T03:04:46Z",
-      "level": "warn",
-      "text": "ha-023 inconclusive.. noisy screen; not rerun (lower priority than the base 1T candidates)",
-      "auto": true
-    },
     {
       "utc": "2026-10-11T03:11:36Z",
       "level": "decision",
@@ -1970,6 +1969,20 @@
       "utc": "2026-10-11T07:07:06Z",
       "level": "info",
       "text": "r9-cpp-base (cpp-base) running: C++ base: read GCC dense loop, then bring fold-1pc (16-lane dense when a thread has a core) to C++ if GCC can express it",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T07:07:58Z",
+      "level": "decision",
+      "text": "r9-zig-wheel-group: submit despite a neutral local result. Why: Chris: nothing dropped on local results; the structural difference (a separate 13 pass over 8 planes) is real in the Zen 5 profile.",
+      "id": "r9-zig-wheel-group",
+      "what": "submit despite a neutral local result",
+      "why": "Chris: nothing dropped on local results; the structural difference (a separate 13 pass over 8 planes) is real in the Zen 5 profile"
+    },
+    {
+      "utc": "2026-10-11T07:07:58Z",
+      "level": "info",
+      "text": "r9-zig-wheel-group (zig-wheel) running: Zig wheel: write each plane once as tile | 13-pattern instead of a tile copy plus a separate 13 group pass (ISPC IDEAS 12 shape)",
       "auto": true
     }
   ],
