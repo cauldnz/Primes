@@ -207,6 +207,11 @@ static inline void clear_sparse_e(uniform uint8 * uniform bytes, uniform int nby
     uniform uint8 * uniform q = bytes + ((p * p / 2) / 8 / p) * p;
     uniform uint8 * uniform end = bytes + nbytes;
     for (; q + p <= end; q += p) {                                  // one composite each
+#if !defined(ISPC_TARGET_NEON)
+        // The sieve is larger than L1: ask for a line four chunks ahead with write intent.
+        // A hint only (x86; the NEON code is unchanged).
+        prefetchw_l1(q + 4 * p);
+#endif
         q[o0] |= m0; q[o1] |= m1; q[o2] |= m2; q[o3] |= m3;
         q[o4] |= m4; q[o5] |= m5; q[o6] |= m6; q[o7] |= m7;
     }
