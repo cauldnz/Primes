@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T06:57:34Z",
+  "updated_utc": "2026-10-11T07:01:51Z",
   "run": {
     "id": "ap-20261011T0645Z",
     "state": "running",
@@ -1598,6 +1598,27 @@
       "prediction": "+15% to +20% at 1T (tables +23% minus the start-offset keep solution_1 now has)",
       "plain": "If the tables wheel ships as its own entry, then it sits beside the run-time wheel about a fifth faster, because it reads what the other works out each pass.",
       "note": "hc/solution3 4a42d98 (agent b5ca2bd + 4T line): self-test, Dockerfile build by hand, 5,396-size sweep bad 0, solution_1 self-test; Zen 5 + Zen 3 6 rounds"
+    },
+    {
+      "id": "r9-rust-wheel-prof",
+      "entry": "rust-wheel",
+      "tier": "extra-faithful",
+      "kind": "tuning",
+      "verdict": "running",
+      "hypothesis": "Measurement: Rust wheel phase split against the ISPC wheel diagnostic, same node",
+      "plain": "If we time each step of the Rust wheel beside the ISPC wheel, then we see which step makes Rust slower, because the totals differ by a fifth on Zen 5.",
+      "note": "hc/diag-rust-wheel-phases 2547427; local Xeon: pattern build 26.3k vs ISPC 12.3k cycles/pass (+14k, more than the whole gap), group passes +8k, Rust ahead on sparse start offsets (-7k). Zen 5 2 rounds (ctrl = ISPC diag)"
+    },
+    {
+      "id": "r9-rust-wheel-pat",
+      "entry": "rust-wheel",
+      "tier": "extra-faithful",
+      "kind": "borrowed",
+      "verdict": "running",
+      "hypothesis": "Rust wheel: build group patterns word by word and extend by one copy, as the ISPC wheel does",
+      "prediction": "+5% to +8% at 1T (pattern build 14% of the Rust pass, halved)",
+      "plain": "If the Rust wheel builds each small prime pattern a whole word at a time instead of bit by bit, then that step gets about twice as fast, because that is how the ISPC wheel does it.",
+      "note": "agent building hc/port-rust-wheel-pat"
     }
   ],
   "azure_queue": 0,
@@ -1607,24 +1628,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T02:50:14Z",
-      "level": "info",
-      "text": "b2-sparse-prefetchw (base) running: Base sparse loop: prefetchw the chunk 4 primes ahead (x86 only; NEON byte-identical)",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T02:50:14Z",
-      "level": "info",
-      "text": "b2-dense-prefetchw (base) running: Base dense loop: prefetchw one line per 64 words ahead (x86 only)",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T02:50:14Z",
-      "level": "info",
-      "text": "b2-base-fold-1pc (base) running: Use the F5 x16 folded dense code when each thread has a core to itself (1T and one-per-core), x8 otherwise",
-      "auto": true
-    },
     {
       "utc": "2026-10-11T03:04:46Z",
       "level": "decision",
@@ -1939,6 +1942,27 @@
       "id": "run",
       "what": "start port agents r9-zig-group (Zig wheel group passes vs ISPC's compiled loop) and r9-rust-wheel-prof (Rust wheel phase split vs ISPC)",
       "why": "RUN-PLAN stream 2 gives each language a fixed share: Zig and Rust wheel first, C++ base when a slot frees"
+    },
+    {
+      "utc": "2026-10-11T07:01:51Z",
+      "level": "decision",
+      "text": "r9-rust-wheel-pat: start the Rust pattern-build agent; profile build to Zen 5 for confirmation. Why: the local split puts more than the whole Rust-ISPC gap in pattern building; the idea is ISPC's own (borrowed). Passed over: group passes (second, +8k).",
+      "id": "r9-rust-wheel-pat",
+      "what": "start the Rust pattern-build agent; profile build to Zen 5 for confirmation",
+      "why": "the local split puts more than the whole Rust-ISPC gap in pattern building; the idea is ISPC's own (borrowed)",
+      "instead": "group passes (second, +8k)"
+    },
+    {
+      "utc": "2026-10-11T07:01:51Z",
+      "level": "info",
+      "text": "r9-rust-wheel-prof (rust-wheel) running: Measurement: Rust wheel phase split against the ISPC wheel diagnostic, same node",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T07:01:51Z",
+      "level": "info",
+      "text": "r9-rust-wheel-pat (rust-wheel) running: Rust wheel: build group patterns word by word and extend by one copy, as the ISPC wheel does",
+      "auto": true
     }
   ],
   "research": {
