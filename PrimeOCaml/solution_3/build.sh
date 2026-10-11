@@ -11,4 +11,4 @@ case "$(uname -m)" in
   *) d=scalar; extra= ;;
 esac
 ocamlopt -O3 -unsafe -alert -do_not_spawn_domains -alert -unsafe_multidomain \
-  -I +unix -I $d unix.cmxa $extra $d/dense.ml $d/sparse.ml primes.ml -o primes
+  -I +unix -I $d unix.cmxa $extra diag_stub.c $d/dense.ml $d/sparse.ml primes.ml -o primes

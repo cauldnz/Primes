@@ -1,3 +1,27 @@
+(* DIAGNOSTIC BUILD (experiment ox-012), not for submission. The OxCaml champion's primes.ml
+   (PrimeOCaml/solution_3 at 4f1ba99) with the same Dense and Sparse modules, plus a timed copy
+   of the sieve loop with tick timers around each phase (the design of ox-005): setup (create),
+   dense pattern build, dense copy (runs, partial run, restore p), sparse, next-prime scan.
+
+   Ticks come from diag_stub.c: rdtsc on x86-64 (TSC cycles), cntvct_el0 on aarch64 (generic
+   timer at cntfrq_el0, not CPU cycles), clock_gettime elsewhere. TSC ticks are converted to
+   ns by calibration against CLOCK_MONOTONIC over the measured passes. The cost of a timer
+   pair is measured and taken out of each phase.
+
+   PRIMES_TEST=1 runs the normal self-test. Otherwise: DIAG_PASSES (default 3000) one-thread
+   passes after 200 warm-up passes, printed as
+     cauldnz-oxcaml-diag;<phase>;<ns per pass>;<share percent>;<cycles per pass or 0>
+   with a final total line, then one normal 5-second one-thread run of the untimed loop. *)
+
+external ticks : unit -> (int [@untagged]) = "diag_ticks_byte" "diag_ticks" [@@noalloc]
+external mono_ns : unit -> (int [@untagged]) = "diag_mono_ns_byte" "diag_mono_ns" [@@noalloc]
+external tick_hz : unit -> int = "diag_tick_hz"
+external ticks_are_cycles : unit -> bool = "diag_ticks_are_cycles"
+
+let t_create = ref 0 and t_build = ref 0 and t_copy = ref 0 and t_sparse = ref 0
+and t_scan = ref 0
+let n_dense_f = ref 0 and n_sparse_f = ref 0 and n_scan = ref 0
+
 (* Prime sieve drag race: an OxCaml base-algorithm solution by cauldnz.
 
    The base algorithm: an outer loop finds the next prime, then clears every one of its odd
@@ -133,6 +157,106 @@ let count_primes s =
     !c
   end
 
+(* ---- Timed copies of clear_dense and run (diagnostic): the same code with timers. ---- *)
+
+let clear_dense_t s p init =
+  let t0 = ticks () in
+  build_pattern s p;
+  let t1 = ticks () in
+  t_build := !t_build + (t1 - t0);
+  let b = s.bits and pat = s.pattern and n = s.nwords in
+  let c0 = p * p / 2 / 64 / p * p in
+  let runs = (n - c0) / (4 * p) in
+  let rb = p * 32 in
+  let q =
+    if init then Dense.store_runs b pat (c0 * 8) runs rb
+    else Dense.or_runs b pat (c0 * 8) runs rb
+  in
+  let left = (n * 8) - q in
+  let v = ref 0 in
+  while !v < left do
+    let a = q + !v in
+    let x = if init then 0L else get64 b a in
+    set64 b a (Int64.logor x (get64 pat !v));
+    v := !v + 8
+  done;
+  let f = p lsr 1 in
+  let i = f lsr 3 in
+  Bytes.unsafe_set b i
+    (Char.unsafe_chr (Char.code (Bytes.unsafe_get b i) land lnot (1 lsl (f land 7))));
+  t_copy := !t_copy + (ticks () - t1);
+  incr n_dense_f
+
+let run_t s =
+  let q = ref (int_of_float (sqrt (float_of_int s.size))) in
+  while (!q + 1) * (!q + 1) <= s.size do incr q done;
+  while !q * !q > s.size do decr q done;
+  let q = !q in
+  let factor = ref 3 in
+  let continue = ref true in
+  while !continue && !factor <= q do
+    let t0 = ticks () in
+    let i = ref (!factor lsr 1) in
+    while !i < s.nbits && is_composite s !i do incr i done;
+    let p = (2 * !i) + 1 in
+    t_scan := !t_scan + (ticks () - t0);
+    incr n_scan;
+    if p > q then continue := false
+    else begin
+      if p < dense_limit then clear_dense_t s p (p = 3)
+      else begin
+        let t0 = ticks () in
+        Sparse.clear s.bits (s.nwords * 8) p;
+        t_sparse := !t_sparse + (ticks () - t0);
+        incr n_sparse_f
+      end;
+      factor := p + 2
+    end
+  done
+
+let diag passes =
+  for _ = 1 to 200 do let s = create sieve_size in run_t s done;
+  let s = create sieve_size in
+  run_t s;
+  if count_primes s <> expected then begin
+    prerr_endline "ERROR: wrong prime count (timed loop)";
+    exit 1
+  end;
+  t_create := 0; t_build := 0; t_copy := 0; t_sparse := 0; t_scan := 0;
+  n_dense_f := 0; n_sparse_f := 0; n_scan := 0;
+  (* Cost of one timer pair, in ticks. *)
+  let k = 100_000 in
+  let o = ref 0 in
+  for _ = 1 to k do let a = ticks () in o := !o + (ticks () - a) done;
+  let ovh = float !o /. float k in
+  let w0 = mono_ns () and c0 = ticks () in
+  for _ = 1 to passes do
+    let t0 = ticks () in
+    let s = create sieve_size in
+    t_create := !t_create + (ticks () - t0);
+    run_t s
+  done;
+  let c1 = ticks () and w1 = mono_ns () in
+  let fp = float passes in
+  let ns_per_tick =
+    let hz = tick_hz () in
+    if hz > 0 then 1e9 /. float hz else float (w1 - w0) /. float (c1 - c0)
+  in
+  let cyc = ticks_are_cycles () in
+  let total = float (c1 - c0) /. fp in
+  let line name t =
+    Printf.printf "cauldnz-oxcaml-diag;%s;%.1f;%.2f;%.0f\n" name (t *. ns_per_tick)
+      (100. *. t /. total) (if cyc then t else 0.)
+  in
+  let per name tr calls = line name (Float.max 0. ((float !tr /. fp) -. (calls *. ovh))) in
+  per "setup" t_create 1.;
+  per "dense_pattern" t_build (float !n_dense_f /. fp);
+  per "dense_copy" t_copy (float !n_dense_f /. fp);
+  per "sparse" t_sparse (float !n_sparse_f /. fp);
+  per "scan" t_scan (float !n_scan /. fp);
+  line "total" total;
+  flush stdout
+
 let sieve_count size =
   let s = create size in
   run s;
@@ -210,7 +334,9 @@ let test_requested () =
 
 let () =
   if test_requested () then exit (if self_test () then 0 else 1);
-  (* One domain, then all hardware threads, then exactly four when there are more than four. *)
-  let hw = max 1 (Domain.recommended_domain_count ()) in
-  let runs = if hw > 4 then [ 1; hw; 4 ] else if hw > 1 then [ 1; hw ] else [ 1 ] in
-  List.iter (fun threads -> if not (timed_run threads) then exit 1) runs
+  let passes =
+    match Sys.getenv_opt "DIAG_PASSES" with Some v -> int_of_string v | None -> 3000
+  in
+  diag passes;
+  (* One normal one-domain run of the untimed loop. *)
+  if not (timed_run 1) then exit 1

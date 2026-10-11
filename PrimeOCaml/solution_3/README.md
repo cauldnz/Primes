@@ -1,5 +1,11 @@
 # OxCaml solution by cauldnz
 
+> **Diagnostic branch (experiment ox-012), not for submission.** `primes` runs a phase-timed
+> copy of the sieve (setup, dense pattern, dense copy, sparse, scan; ticks from `diag_stub.c`:
+> rdtsc on x86-64, cntvct_el0 on aarch64) for 3000 one-thread passes, prints one
+> `cauldnz-oxcaml-diag;<phase>;<ns/pass>;<share %>;<cycles/pass or 0>` line per phase plus a
+> total, then one normal 5-second one-thread result line. `PRIMES_TEST=1` is the normal self-test.
+
 ![Algorithm](https://img.shields.io/badge/Algorithm-base-green)
 ![Faithfulness](https://img.shields.io/badge/Faithful-yes-green)
 ![Parallelism](https://img.shields.io/badge/Parallel-yes-green)

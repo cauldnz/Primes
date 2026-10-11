@@ -3,7 +3,7 @@
 FROM oxcaml:5.2.0-ox AS build
 
 WORKDIR /build
-COPY primes.ml build.sh ./
+COPY primes.ml build.sh diag_stub.c ./
 COPY amd64 amd64
 COPY scalar scalar
 RUN sh build.sh
