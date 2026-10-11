@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T02:27:04Z",
+  "updated_utc": "2026-10-11T02:28:54Z",
   "run": {
     "id": "ap-20261011T0100Z",
     "state": "running",
@@ -1416,6 +1416,17 @@
       "prediction": "Cobalt 100 +1% to +2% at 1T; x86 flat",
       "plain": "If the base's large-prime loop checks against a precomputed last position instead of adding before every check, then it runs one instruction fewer per eight marks on Arm, because that is the one instruction the fastest Rust entry saves there.",
       "note": "from b1-arm-asm (hc/b1-arm-asm 866a636: our sparse 29 vs Rust 28 instr per 8 composites, dense ours fewer); hc/b1-sparse-last; x86 local neutral (3 pairs); Cobalt + Zen 5 + Zen 3, 6 rounds; Cobalt pool raised to 2 nodes"
+    },
+    {
+      "id": "p-rust-base-zprof",
+      "entry": "rust-base",
+      "tier": "extra-faithful",
+      "kind": "tuning",
+      "verdict": "running",
+      "hypothesis": "Measurement: Zen 5 phase split of our Rust base port (hc/diag-rust-base-port 27f6dff) and of mike-barber (hc/diag-rust-phases-avx512off, his flags), to name the Zen-only 8-11% gap",
+      "prediction": "the gap is in the dense phase (our AVX-512 native build vs his AVX2)",
+      "plain": "If we time each step of both Rust bases on the official kind of machine, then we can see which step makes ours slower there, because on the local Intel machine ours is faster in every step.",
+      "note": "two 3-round tasks on Zen 5"
     }
   ],
   "azure_queue": 0,
@@ -1425,18 +1436,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T00:13:41Z",
-      "level": "info",
-      "text": "Run ap-20261010T2040Z is stopped; spend NZ$3.88.",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T00:13:41Z",
-      "level": "info",
-      "text": "Scoreboard, wheel on Zen 5 (EPYC 9V45, D32as_v7): 189600 → 222000 at 1T, 2740000 → 3260000 at 32 threads.",
-      "auto": true
-    },
     {
       "utc": "2026-10-11T00:13:41Z",
       "level": "info",
@@ -1808,6 +1807,20 @@
       "utc": "2026-10-11T02:27:04Z",
       "level": "info",
       "text": "b1-sparse-last: evaluate. Cobalt 100 (deciding), Zen 5 and Zen 3, 6 rounds; also running: base 20-round scoreboard, s5-tables, s5-starts-ef, Rust base x4, F4 128/192, history rechecks",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T02:28:54Z",
+      "level": "decision",
+      "text": "p-rust-base-zprof: run both Rust profile builds on Zen 5, with mike-barber's own -avx512f flag restored in his. Why: the gap exists only on Zen; the existing diag branch had dropped his flag on x86, which would profile a build he doesn't ship.",
+      "id": "p-rust-base-zprof",
+      "what": "run both Rust profile builds on Zen 5, with mike-barber's own -avx512f flag restored in his",
+      "why": "the gap exists only on Zen; the existing diag branch had dropped his flag on x86, which would profile a build he doesn't ship"
+    },
+    {
+      "utc": "2026-10-11T02:28:54Z",
+      "level": "info",
+      "text": "p-rust-base-zprof (rust-base) running: Measurement: Zen 5 phase split of our Rust base port (hc/diag-rust-base-port 27f6dff) and of mike-barber (hc/diag-rust-phases-avx512off, his flags), to name the Zen-only 8-11% gap",
       "auto": true
     }
   ],
