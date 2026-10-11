@@ -235,6 +235,7 @@ const Group = struct {
     L: [G]usize, // pattern period in words: a multiple of p, at least VW
     tab: [G][64]u16, // starting phase for each bit offset
     buf: [G][MAXPAT + 64]u64, // the patterns, extended by VW words past L
+    tile: [77 + VW]u64, // one plane's 7*11 period, extended by VW words
 };
 
 // First bit in plane R of a multiple p*k with k >= kmin.
@@ -385,30 +386,44 @@ const WheelSieve = struct {
     fn run(self: *WheelSieve) void {
         const nw = self.nw;
 
-        // Phase 1: the wheel tile. Multiples of 7 and 11 repeat every 77 words in each plane,
-        // so mark one period, starting from 7 and 11 themselves to keep it periodic, and copy
-        // it along the plane. 7 and 11 are then unmarked.
-        const t = @min(77, nw);
+        // Phase 1: the wheel tile and 13. Multiples of 7 and 11 repeat every 77 words in each
+        // plane, so mark one period, starting from 7 and 11 themselves to keep it periodic, in
+        // scratch space. Each plane is then written in one pass: tile word OR 13's pattern word,
+        // with no separate read-modify-write pass for 13. 13's pattern starts at the plane's
+        // first word, so it also marks 13 itself and 91 and 143 (already composite). 7, 11 and
+        // 13 are then unmarked. Afterwards every bit below 17*17 is final.
         const tp = [2]u32{ 7, 11 };
         self.buildGroup(&tp);
+        const g = self.grp;
+        const tile: [*]u64 = &g.tile;
+        const p13: [*]const u64 = &g.buf[2];
+        const L13 = buildPattern(&g.buf[2], &g.tab[2], 13);
         for (0..8) |pl| {
             const w = self.plane(pl);
-            @memset(w[0..t], 0);
+            @memset(tile[0..77], 0);
             const tb = [2]usize{ startBit(7, RES[pl], 1), startBit(11, RES[pl], 1) };
-            applyGroup(2, w, t, self.grp, &tb);
-            var base: usize = t;
-            while (base < nw) : (base += t) {
-                const n = @min(t, nw - base);
-                @memcpy(w[base .. base + n], w[0..n]);
+            applyGroup(2, tile, 77, g, &tb);
+            @memcpy(tile[77 .. 77 + VW], tile[0..VW]);
+            const b13 = startBit(13, RES[pl], 13);
+            const back = (b13 >> 6) % L13;
+            const t13: usize = g.tab[2][b13 & 63];
+            var r13 = if (t13 >= back) t13 - back else t13 + L13 - back; // 13's phase at word 0
+            var rt: usize = 0;
+            var k: usize = 0;
+            while (k + VW <= nw) : (k += VW) {
+                storeV(VW, w + k, loadV(VW, tile + rt) | loadV(VW, p13 + r13));
+                rt += VW;
+                if (rt >= 77) rt -= 77;
+                r13 += VW;
+                if (r13 >= L13) r13 -= L13;
             }
+            // The last partial vector runs on into the plane's padding, as in applyGroup.
+            if (k < nw) storeV(VW, w + k, loadV(VW, tile + rt) | loadV(VW, p13 + r13));
         }
         self.plane(0)[0] |= 1; // 1 is not prime
         self.plane(1)[0] &= ~@as(u64, 1); // 7 is prime
         self.plane(2)[0] &= ~@as(u64, 1); // 11 is prime
-
-        // Phase 2: 13 on its own. Afterwards every bit below 17*17 is final.
-        const thirteen = [1]u32{13};
-        self.densePrimes(&thirteen);
+        self.plane(3)[0] &= ~@as(u64, 1); // 13 is prime
 
         // Phase 3: the remaining primes up to sqrt(size), small ones as fused pattern groups,
         // large ones as strided bit sets. A candidate is read only once every prime up to its
