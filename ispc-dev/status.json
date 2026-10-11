@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T20:30:37Z",
+  "updated_utc": "2026-10-11T20:31:14Z",
   "run": {
     "id": "ap-20261011T1929Z",
     "state": "running",
@@ -16,9 +16,9 @@
     "wakeup": "trig_01C9VueTxWfMx5sdkckZNcSU"
   },
   "current": {
-    "id": "ocaml-002",
+    "id": "ox-003",
     "phase": "evaluate",
-    "detail": "Zen 5 done (1T -3.0%); Zen 3 running"
+    "detail": "ox-002 Zen 3, ox-003 all machines, ocaml-004/005, ox-004 queued or running"
   },
   "scoreboard": [
     {
@@ -1875,8 +1875,9 @@
       "kind": "tuning",
       "plain": "If the garbage collector waits much longer between cycles, then four threads run faster, because each cycle stops every thread while it works.",
       "prediction": "1T -5% to -10%, 4T +10% to +40%",
-      "verdict": "running",
-      "commit": "662c2d4"
+      "verdict": "rejected",
+      "commit": "662c2d4",
+      "note": "Zen 5 -3.0% 1T, -0.8% 4T; Zen 3 -0.1%, -0.5%; 16T +16% / +7% recorded only"
     },
     {
       "id": "ox-001",
@@ -1964,38 +1965,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T10:37:33Z",
-      "level": "decision",
-      "text": "r9-final: start the final ISPC scoreboard now (10:33Z) instead of at 12:15Z. Why: no ISPC experiment is open, so the entries are final; Zen 3 and Zen 4/Cobalt capacity is idle, and starting early leaves time for more rounds if any row is noisy. Passed over: waiting for the last 45 minutes. Expect: the ports row follows once Zig evex512 is decided.",
-      "id": "r9-final",
-      "what": "start the final ISPC scoreboard now (10:33Z) instead of at 12:15Z",
-      "why": "no ISPC experiment is open, so the entries are final; Zen 3 and Zen 4/Cobalt capacity is idle, and starting early leaves time for more rounds if any row is noisy",
-      "instead": "waiting for the last 45 minutes",
-      "expect": "the ports row follows once Zig evex512 is decided"
-    },
-    {
-      "utc": "2026-10-11T10:37:33Z",
-      "level": "info",
-      "text": "r9-final (scoreboard) running: final per-thread scoreboard: three ISPC entries at 1T and 4T on Zen 5, Zen 3, Zen 4 (AVX-512) and Cobalt, with rogiervandam C5, danielspaangberg C wheel and mike-barber Rust",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T11:00:28Z",
-      "level": "decision",
-      "text": "r9-zig-evex512: REVERT; Zig champion stays at 8ba3386. Why: no change on Zen 5 for base or wheel (all within ±0.3%); unverified whether the gate fired in the Docker build, noted in the backlog.",
-      "id": "r9-zig-evex512",
-      "what": "REVERT; Zig champion stays at 8ba3386",
-      "why": "no change on Zen 5 for base or wheel (all within ±0.3%); unverified whether the gate fired in the Docker build, noted in the backlog"
-    },
-    {
-      "utc": "2026-10-11T11:04:53Z",
-      "level": "decision",
-      "text": "r9-final-ports: start the ports scoreboard (1T, Zen 5 and Zen 3). Why: every port decision is in (Zig evex512 reverted: no change).",
-      "id": "r9-final-ports",
-      "what": "start the ports scoreboard (1T, Zen 5 and Zen 3)",
-      "why": "every port decision is in (Zig evex512 reverted: no change)"
-    },
     {
       "utc": "2026-10-11T11:04:53Z",
       "level": "info",
@@ -2307,6 +2276,31 @@
       "utc": "2026-10-11T20:25:45Z",
       "level": "info",
       "text": "ox-004 (oxcaml) running: ",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T20:31:14Z",
+      "level": "decision",
+      "text": "ocaml-002: REVERT. Why: analyze.py: Zen 5 1T -3.0% +-3.9, Zen 3 flat at 1T and 4T; the gain is only at all threads, which the rule records but doesn't decide.",
+      "id": "ocaml-002",
+      "what": "REVERT",
+      "why": "analyze.py: Zen 5 1T -3.0% +-3.9, Zen 3 flat at 1T and 4T; the gain is only at all threads, which the rule records but doesn't decide"
+    },
+    {
+      "utc": "2026-10-11T20:31:14Z",
+      "level": "info",
+      "text": "ox-002 Zen 5 and Cobalt in: the same source compiled by OxCaml runs -4.1% at 1T on Zen 5 but +163% on Cobalt (7.3k vs 2.8k). Plain OCaml 5.2 on Cobalt is 15x slower than Rust (2.8k vs 42.9k), against 4x on Zen; something in upstream OCaml's arm64 code generation for this loop. Zen 3 still running."
+    },
+    {
+      "utc": "2026-10-11T20:31:14Z",
+      "level": "info",
+      "text": "ocaml-002 rejected.. Zen 5 -3.0% 1T, -0.8% 4T; Zen 3 -0.1%, -0.5%; 16T +16% / +7% recorded only",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T20:31:14Z",
+      "level": "info",
+      "text": "ox-003: evaluate. ox-002 Zen 3, ox-003 all machines, ocaml-004/005, ox-004 queued or running",
       "auto": true
     }
   ],

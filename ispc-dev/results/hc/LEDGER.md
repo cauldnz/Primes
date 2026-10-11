@@ -365,3 +365,13 @@ Zen 5.
 | r9-zig-base-wide | 2026-10-11 | zig-base | dense step twice as wide on Zen 5 (fold-1pc gate) | +2% to +6% Zen 5 | Zen 3: 54.7k, −2.0% ± 0.4 / −2.1% ± 0.1 (0/6) | Zen 5: 113.9k, −8.9% ± 0.7 / −8.7% ± 1.0 (0/6) | REVERT (no 512-bit ops from Zig 0.13 on Zen 5) | `hc/zig-base-wide` 13edc68 |
 | r9-zig-tables-group | 2026-10-11 | zig-wheel (permitted) | tables line + one-pass tile\|13 write (13 from the comptime table) | +1% to +3% | Zen 3: 142.1k, +2.1% ± 2.7 / +5.1% ± 1.2 (6/6) | Zen 5: 253.9k, +1.5% ± 0.4 / +1.6% ± 0.4 (6/6) | **KEEP** (permitted), `hc/zig-champion-tables` 138e074 | `hc/zig-tables-group` |
 | r9-zig-evex512 | 2026-10-11 | zig (both) | build with `native+evex512` on Zen 5 (build.sh gate) | base +3% to +8% | (byte-identical off Zen 5) | Zen 5 base: +0.0% ± 0.2 / −0.2% ± 0.3; wheel: +0.0% ± 0.1 / −0.1% ± 0.3 | REVERT (gate firing in the image build not verified) | `hc/zig-zen5-evex512` 66c0cce |
+| r10-ox-000 | 2026-10-12 | oxcaml | Build the 5.2.0+ox toolchain once per architecture and cache it | amd64 30-60 min, arm64 60-120 min | - | Zen 5: switch 347 s, image 561 s; Cobalt: switch 604 s, image 775 s; 1.2 GB zstd each | measurement | `ispc-dev/ocaml/oxcaml.Dockerfile` |
+| r10-ox-001 | 2026-10-12 | oxcaml | Probe SIMD widths, unboxed types, locals, domains | - | - | local: 128/256-bit SIMD work, AVX-512 crashes the emitter; flambda2 already unboxes Int64 in loops; AVX2 on by default from the build CPU | measurement | `hc/ocaml-ox-probe` c144bad |
+| r10-ocaml-001 | 2026-10-12 | ocaml-plain | Plain OCaml 5.2 flambda port of our ISPC base design | 2-4x gkpotter faithful | Zen 3: 16.4k at 1T, 62.1k at 4T | Zen 5: 31.6k at 1T, 116.4k at 4T (ISPC base 130k, Rust 119k, gkpotter 1.6k) | control line | `hc/ocaml-plain-base` 0b8d98c |
+| r10-ocaml-002 | 2026-10-12 | ocaml-plain | GC space_overhead 1000 from program start | 1T -5% to -10%, 4T +10% to +40% (1T/4T columns) | Zen 3: -0.1% ± 1.5 / -0.5% ± 0.6 (16T +7.0%) | Zen 5: -3.0% ± 3.9 / -0.8% ± 2.0 (16T +16.0%) | REVERT (1T/4T rule); all-threads gain recorded | `hc/ocaml-002-gc-start` 662c2d4 |
+| r10-ocaml-003 | 2026-10-12 | ocaml-plain | Profile phases and hot loops | sparse and tag shifts dominate | - | local Xeon: dense OR 54%, sparse 36%; 11 instr/dense word, 10.6/sparse mark | measurement | `results/hc/ocaml-003-profile/` |
+
+**Run 10 notes.** Ledger columns for run 10 read 1T/4T, the deciding thread counts. ocaml-002: the
+all-threads gain (+16% Zen 5, +7% Zen 3 at 16T) is real but the rule decides at 1T and 4T, where
+it loses on Zen 5. 4T already scales to 92% per thread with the default GC on Zen 5, so the GC
+stall the agent saw on the shared container doesn't show on Zen.
