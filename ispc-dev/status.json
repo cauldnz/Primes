@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T03:25:10Z",
+  "updated_utc": "2026-10-11T03:27:46Z",
   "run": {
     "id": "ap-20261011T0100Z",
     "state": "running",
@@ -1134,13 +1134,14 @@
       "entry": "cpp-wheel",
       "tier": "extra-faithful",
       "kind": "borrowed",
-      "verdict": "running",
+      "verdict": "kept",
       "hypothesis": "ISPC wheel IDEAS 12 (fold 13 into the 7x11 tile copy) ported to the C++ wheel",
       "prediction": "+2% to +6% at 1T (local +6%)",
       "plain": "If the C++ wheel writes 13's pattern in the same pass as the 7 and 11 tile, then it gets faster, because one sweep over the sieve disappears, as it did in our ISPC wheel.",
-      "note": "MORE ROUNDS: Zen 5 clears at 1T; Zen 3 straddles +1% at 16T. 12 more Zen 3 rounds in p-cpp-wheel-idea12-z3b",
+      "note": "KEEP: Zen 5 +6.2% ± 0.5 1T, Zen 3 1T lower bound +1.0% over 12 rounds; measured on the g++ port, so re-measured on the clang champion as p-cpp-wheel-clang-idea12 before it joins hc/port-cpp-wheel-champion",
       "zen5": "+6.2% ± 0.5 1T (6/6), -0.3% ± 0.2 16T",
-      "zen3": "+0.4% ± 1.2 1T, +1.4% ± 1.0 16T (6/6)"
+      "zen3": "+0.4% ± 1.2 1T, +1.4% ± 1.0 16T (6/6)",
+      "zen3_more": "12 more rounds: +1.8% ± 0.8 1T (12/12), +1.4% ± 0.6 16T"
     },
     {
       "id": "p-rust-wheel-idea12",
@@ -1374,13 +1375,15 @@
       "entry": "wheel",
       "tier": "extra-faithful",
       "kind": "novel",
-      "verdict": "running",
+      "verdict": "confirmed",
       "hypothesis": "Cheaper sparse start offsets computed at run time (one division per prime and a residue walk, or the 8 planes vectorised)",
       "prediction": "+3% to +8% at 1T (start offsets are 15.3% on Zen 5)",
       "plain": "If the wheel finds where each large prime starts in all eight planes with one division instead of eight, then a pass gets faster, because that step takes about a seventh of the time now.",
-      "note": "hc/s5-starts-ef 71bda5d: start_bits8 computes p^2 once and the 8 starts as independent products divided by the constant 30 (a multiply); used for sparse primes and dense members. Self-test passes here; agent: 5,300 odd sizes x 3 targets, 0 mismatches; local 1T +1% to +9.5% (4 pairs); start-offset phase 12.2% -> 7.5% locally. Zen 5 + Zen 3 6 rounds, Cobalt 5 rounds (shared code)",
-      "cobalt": "-1.1% ± 0.1 1T, -1.0% ± 0.2 4T (0/5)",
-      "note_cobalt": "Cobalt 100 loses 1.1%: a keep would need the change guarded off NEON (target-specific) if Zen gains"
+      "note": "Passes the keep rule on both Zens but fails the arm64 gate (-1.1% on Cobalt). Not merged: phase 1 is frozen at hc/ispc-ref and Chris stopped new ISPC wheel speed work, so the NEON-guarded variant (x86 only, NEON byte-identical) is left for Chris/the workshop. Extra-faithful, novel; +5.5% Zen 5 1T is the largest extra-faithful wheel gain of the run",
+      "cobalt": "-1.1% ± 0.1 1T, -1.0% 4T (0/5)",
+      "note_cobalt": "Cobalt 100 loses 1.1%: a keep would need the change guarded off NEON (target-specific) if Zen gains",
+      "zen5": "+5.5% ± 0.2 1T, +5.3% 4T, +5.2% ± 0.1 16T (6/6)",
+      "zen3": "+1.9% ± 0.6 1T, +1.7% ± 0.5 16T (6/6)"
     },
     {
       "id": "s5-tables",
@@ -1391,7 +1394,9 @@
       "hypothesis": "Build-time tables of start offsets (and group patterns if cheap) for primes below 10,000, run-time fallback beyond",
       "prediction": "+5% to +15% at 1T against hc/champion-tables",
       "plain": "If the wheel looks up where each prime starts instead of working it out every pass, then a pass gets faster, because that work is about a quarter of the time, and the contest rules allow precalculated wheel tables.",
-      "note": "hc/s5-tables 90e81f9 on hc/champion-tables: build-time C generator writes start offsets (primes 17..10,000, 19.6 KB), word patterns (primes 17..1,024, 685 KB; ~61 KB read per pass), 7x11 tile and 13 pattern; run-time start_bit fallback beyond 10,000; binary 2.2 MB. Clean build of the three Docker files passes PRIMES_TEST here; agent: 5,700 odd sizes x 6 builds, 0 bad. Local 1T +20% (4 pairs). Zen 5 + Zen 3 6 rounds. Over the 20% bar: if Zen agrees, clean rebuild on a fresh node and a line-by-line rules re-read before any keep"
+      "note": "clears the keep rule on both Zens; over the 20% bar on Zen 5: fresh-node Zen 5 recheck (s5-tables-verify) and the Cobalt gate (shared code) queued before any merge into hc/champion-tables. Permitted tier",
+      "zen5": "+23.4% ± 0.5 1T, +18.7% ± 0.3 4T, +17.2% ± 0.1 16T (6/6)",
+      "zen3": "+19.8% ± 1.4 1T, +19.3% ± 1.5 4T, +16.6% ± 0.4 16T (6/6)"
     },
     {
       "id": "b1-cobalt-profile",
@@ -1420,46 +1425,49 @@
       "entry": "rust-base",
       "tier": "extra-faithful",
       "kind": "tuning",
-      "verdict": "running",
+      "verdict": "rejected",
       "hypothesis": "Rust base port dense/sparse cutoff 128 -> 160 (sweep 64-256 locally; 128-192 within noise)",
       "prediction": "0 to +1%",
       "plain": "If the Rust base clears a few more small factors with its vector pass, then it may run slightly faster, because the vector pass costs the same for every factor while the one-at-a-time pass gets cheaper only slowly.",
-      "note": "hc/port-rust-base-2 8ae7553. Local phase split: ours dense 89k / sparse 179k cycles vs mike-barber 101k / 180k; locally ours leads him by 5-8%, so the Zen gap needs a Zen profile (diag agent started)"
+      "note": "cutoff 160 loses at 16T",
+      "zen5": "+0.5% ± 0.1 1T, -2.1% ± 0.6 16T"
     },
     {
       "id": "b1-sparse-last",
       "entry": "base",
       "tier": "extra-faithful",
       "kind": "novel",
-      "verdict": "running",
+      "verdict": "rejected",
       "hypothesis": "Base sparse loop tests q against the last full chunk start instead of q + p <= end, removing two register copies per chunk on arm64 (29 -> 28 instructions per 8 composites, Rust has 28)",
       "prediction": "Cobalt 100 +1% to +2% at 1T; x86 flat",
       "plain": "If the base's large-prime loop checks against a precomputed last position instead of adding before every check, then it runs one instruction fewer per eight marks on Arm, because that is the one instruction the fastest Rust entry saves there.",
-      "note": "from b1-arm-asm (hc/b1-arm-asm 866a636: our sparse 29 vs Rust 28 instr per 8 composites, dense ours fewer); hc/b1-sparse-last; x86 local neutral (3 pairs); Cobalt + Zen 5 + Zen 3, 6 rounds; Cobalt pool raised to 2 nodes",
+      "note": "flat on Cobalt, a loss on Zen 5: the x86 compile of the new test is worse. The Cobalt 2% stays unexplained by the sparse loop; dense (ours +3.8% slower there) is the remaining lead",
       "cobalt": "-0.2% ± 0.4 1T, +0.0% ± 0.1 4T",
-      "note_cobalt": "flat on Cobalt: the extra arm64 instruction is not the 2% (Rust still +2.0% in the same rounds). Zen 5 / Zen 3 pending"
+      "note_cobalt": "flat on Cobalt: the extra arm64 instruction is not the 2% (Rust still +2.0% in the same rounds). Zen 5 / Zen 3 pending",
+      "zen5": "-1.9% ± 0.1 1T, -2.6% ± 0.9 4T, -1.5% 16T (0/6)",
+      "zen3": "-0.1% 1T, +0.2% 16T"
     },
     {
       "id": "p-rust-base-zprof",
       "entry": "rust-base",
       "tier": "extra-faithful",
       "kind": "tuning",
-      "verdict": "running",
+      "verdict": "confirmed",
       "hypothesis": "Measurement: Zen 5 phase split of our Rust base port (hc/diag-rust-base-port 27f6dff) and of mike-barber (hc/diag-rust-phases-avx512off, his flags), to name the Zen-only 8-11% gap",
       "prediction": "the gap is in the dense phase (our AVX-512 native build vs his AVX2)",
       "plain": "If we time each step of both Rust bases on the official kind of machine, then we can see which step makes ours slower there, because on the local Intel machine ours is faster in every step.",
-      "note": "two 3-round tasks on Zen 5"
+      "note": "Zen 5, TSC ticks per pass (before the AVX-512-off keep): ours dense 45.3k, sparse 60.3k, scan 4.2k, total 109.9k; mike-barber dense 38.5k, sparse 61.5k, scan 4.1k, setup 0.9k, total 104.1k. The gap is the dense phase (+17%); sparse is level. The AVX-512-off keep (+10% at 1T) likely closed most of it: our dense path was 512-bit"
     },
     {
       "id": "b2-base-zen5-profile",
       "entry": "base",
       "tier": "extra-faithful",
       "kind": "tuning",
-      "verdict": "running",
+      "verdict": "confirmed",
       "hypothesis": "Measurement: ISPC base phase split on Zen 5 at 1T (ns timer build), beside mike-barber profile on Zen 5 (p-rust-base-zprof-mb)",
       "prediction": "sparse ~60%, dense ~35%",
       "plain": "If we time each step of our base on the official kind of machine beside the fastest Rust base, then we see which step to speed up to pass it by 4%, because the totals alone do not say where the time goes.",
-      "note": "hc/diag-base-phases-arm 53ea880; 3 rounds"
+      "note": "Zen 5, ns per pass (clock_gettime timer, which inflates per-call phases on x86): dense 14.3k (33%), sparse 25.7k (59%), scan 3.6k (8%). Benchmark lines in the same rounds: ours +3.2% over mike-barber at 1T (130.0k vs 126.0k). Not comparable phase by phase with his TSC profile; the bench lines are the reliable part"
     },
     {
       "id": "b2-sparse-prefetchw",
@@ -1503,6 +1511,17 @@
       "hypothesis": "Phase 1 final scoreboard at hc/ispc-ref = 1551635: base and wheel on Zen 5, Zen 3, Zen 4, per thread at 1T and 4T, with rivals",
       "plain": "If we run both our entries beside the best rivals on three kinds of AMD machine, then we have a fixed reference for the ports and the morning report, because nothing in ISPC changes after this.",
       "note": "base Zen 5 20 rounds (sb-base-z5-20); base Zen 3/Zen 4 and wheel Zen 5/Zen 3/Zen 4 6 rounds (sb-base, sb-wheel); hc/ispc-ref pushed"
+    },
+    {
+      "id": "p-cpp-wheel-clang-idea12",
+      "entry": "cpp-wheel",
+      "tier": "extra-faithful",
+      "kind": "borrowed",
+      "verdict": "running",
+      "hypothesis": "IDEAS 12 merged onto the clang C++ wheel champion",
+      "prediction": "+1% to +6% (as on g++)",
+      "plain": "If the faster Clang build of the C++ wheel also writes 13 in the same pass as the tile, then it gains as the GCC build did, because the saved sweep does not depend on the compiler.",
+      "note": "hc/port-cpp-wheel-clang-idea12 547221c; both compilers pass PRIMES_TEST=1; Zen 5 + Zen 3 6 rounds"
     }
   ],
   "azure_queue": 0,
@@ -1512,77 +1531,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T01:43:45Z",
-      "level": "decision",
-      "text": "f4-dense: revert 384/512/640; extend the sweep to 192 and 128. Why: every step up lost more (Zen 3 1T -8.6%, -19.7%, -27.5%), 0/6 rounds each, tight intervals; the slope points below 256, which was never tested after hc-035/045 changed both sides. Passed over: F6 (needs the 96-vCPU node). Expect: 192 or 128 gains 0% to +4%.",
-      "id": "f4-dense",
-      "what": "revert 384/512/640; extend the sweep to 192 and 128",
-      "why": "every step up lost more (Zen 3 1T -8.6%, -19.7%, -27.5%), 0/6 rounds each, tight intervals; the slope points below 256, which was never tested after hc-035/045 changed both sides",
-      "instead": "F6 (needs the 96-vCPU node)",
-      "expect": "192 or 128 gains 0% to +4%"
-    },
-    {
-      "utc": "2026-10-11T01:44:30Z",
-      "level": "decision",
-      "text": "run: start agent history-audit: read-only sweep of the ledger, queue, status reports, ideas and hc/ branches for candidates never tested on AMD, queued and never run, or inconclusive. Why: Chris asked to look back across history for anything else that deserves a pool run, after his rule that nothing is discarded on local results alone. Expect: 5-12 candidates; I check each and screen the best on Zen 5.",
-      "id": "run",
-      "what": "start agent history-audit: read-only sweep of the ledger, queue, status reports, ideas and hc/ branches for candidates never tested on AMD, queued and never run, or inconclusive",
-      "why": "Chris asked to look back across history for anything else that deserves a pool run, after his rule that nothing is discarded on local results alone",
-      "expect": "5-12 candidates; I check each and screen the best on Zen 5"
-    },
-    {
-      "utc": "2026-10-11T01:44:30Z",
-      "level": "info",
-      "text": "Chris: look back across history for anything else that deserves a pool run. Agent history-audit started (read-only)."
-    },
-    {
-      "utc": "2026-10-11T01:59:51Z",
-      "level": "decision",
-      "text": "run: act on the history audit: rows 1-4, 7, 8 submitted (rows 2-4, 7, 8 merged onto 1551635 and self-tested here); row 5 (wheel F1 dense, needs a rebase, Zen 5 already -0.7%) and row 6 (byte sparse kernel, needs an agent build) held for later; F6 and the stop flag need the 96-vCPU node. Why: Chris asked to re-run anything history left undecided; the audit found no unrun queue, only stopped-early, noisy or single-machine results. Screens are 3 rounds on Zen 5; Zen 3 runs where Zen 5 was already measured. Passed over: the 96-vCPU node (it would need every other pool down under 128 vCPUs). Expect: mostly flat; zig-idea12 and 029 base the likeliest keeps.",
-      "id": "run",
-      "what": "act on the history audit: rows 1-4, 7, 8 submitted (rows 2-4, 7, 8 merged onto 1551635 and self-tested here); row 5 (wheel F1 dense, needs a rebase, Zen 5 already -0.7%) and row 6 (byte sparse kernel, needs an agent build) held for later; F6 and the stop flag need the 96-vCPU node",
-      "why": "Chris asked to re-run anything history left undecided; the audit found no unrun queue, only stopped-early, noisy or single-machine results. Screens are 3 rounds on Zen 5; Zen 3 runs where Zen 5 was already measured",
-      "instead": "the 96-vCPU node (it would need every other pool down under 128 vCPUs)",
-      "expect": "mostly flat; zig-idea12 and 029 base the likeliest keeps"
-    },
-    {
-      "utc": "2026-10-11T01:59:51Z",
-      "level": "info",
-      "text": "History audit: 7 rechecks queued (zig-idea12 Zen 3, ISPC 1.28/Ubuntu 26.04, wheel scratch 256, base addr64 Zen 3, base hc-018, hc-023). Zig wheel profile and direct-pattern idea on Zen 5. Note for Chris: hc/champion tracks build outputs (primes, *.o) since the IDEAS 12 merge."
-    },
-    {
-      "utc": "2026-10-11T02:02:28Z",
-      "level": "decision",
-      "text": "s5-wheel-profile: stream 5 step 2 goes ahead: start offsets + pattern build are 23.5% of a Zen 5 wheel pass. Why: the bar was 5%; at 23.5% precomputed tables (permitted lineage) could buy up to ~20%, and an extra-faithful speed-up of the sparse start computation (11.3% alone) is worth trying first on hc/champion. Expect: tables: +5% to +15% on hc/champion-tables.",
-      "id": "s5-wheel-profile",
-      "what": "stream 5 step 2 goes ahead: start offsets + pattern build are 23.5% of a Zen 5 wheel pass",
-      "why": "the bar was 5%; at 23.5% precomputed tables (permitted lineage) could buy up to ~20%, and an extra-faithful speed-up of the sparse start computation (11.3% alone) is worth trying first on hc/champion",
-      "expect": "tables: +5% to +15% on hc/champion-tables"
-    },
-    {
-      "utc": "2026-10-11T02:02:28Z",
-      "level": "decision",
-      "text": "p-cpp-wheel-idea12: 12 more Zen 3 rounds. Why: Zen 5 clears (+6.2% ± 0.5 at 1T), Zen 3 straddles +1% at 16T (+1.4% ± 1.0); HILL-CLIMB says add rounds to 20. Expect: Zen 3 16T settles near +1.4%: keep.",
-      "id": "p-cpp-wheel-idea12",
-      "what": "12 more Zen 3 rounds",
-      "why": "Zen 5 clears (+6.2% ± 0.5 at 1T), Zen 3 straddles +1% at 16T (+1.4% ± 1.0); HILL-CLIMB says add rounds to 20",
-      "expect": "Zen 3 16T settles near +1.4%: keep"
-    },
-    {
-      "utc": "2026-10-11T02:03:21Z",
-      "level": "decision",
-      "text": "run: start agents s5-starts-ef (extra-faithful, on hc/champion) and s5-tables (permitted, on the new hc/champion-tables). Why: the Zen 5 profile puts the two target phases at 23.5%; RUN-PLAN wants both what an extra-faithful speed-up is worth and what tables add, on separate lineages. Passed over: byte sparse kernel (history audit row 6) until a slot frees.",
-      "id": "run",
-      "what": "start agents s5-starts-ef (extra-faithful, on hc/champion) and s5-tables (permitted, on the new hc/champion-tables)",
-      "why": "the Zen 5 profile puts the two target phases at 23.5%; RUN-PLAN wants both what an extra-faithful speed-up is worth and what tables add, on separate lineages",
-      "instead": "byte sparse kernel (history audit row 6) until a slot frees"
-    },
-    {
-      "utc": "2026-10-11T02:08:12Z",
-      "level": "info",
-      "text": "Chris: base gets more weight for the rest of the run. (1) Cobalt 100 profile of our ISPC base vs mike-barber's Rust, phases and compiled sparse loop, name the 2% gap, one experiment if ours; (2) at least three Rust base port experiments vs mike-barber, ahead of the C++ wheel if nodes are short; (3) morning report opens with the 4-thread per-thread base table; (4) phase 1 scoreboard: base on Zen 5 at 1T to 20 rounds, paired ratio with 95% interval."
-    },
     {
       "utc": "2026-10-11T02:08:12Z",
       "level": "decision",
@@ -1874,6 +1822,66 @@
       "utc": "2026-10-11T03:11:36Z",
       "level": "info",
       "text": "sb-ispc-ref (both) running: Phase 1 final scoreboard at hc/ispc-ref = 1551635: base and wheel on Zen 5, Zen 3, Zen 4, per thread at 1T and 4T, with rivals",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T03:27:46Z",
+      "level": "decision",
+      "text": "s5-starts-ef: record as passing on Zen but failing the arm gate; not merged. Why: Cobalt -1.1% breaks 'no loss of 1% or more anywhere'; the fix (guard it off NEON) would be a new ISPC wheel experiment, which Chris stopped, and phase 1 is frozen at hc/ispc-ref. Passed over: a NEON-guarded variant now.",
+      "id": "s5-starts-ef",
+      "what": "record as passing on Zen but failing the arm gate; not merged",
+      "why": "Cobalt -1.1% breaks 'no loss of 1% or more anywhere'; the fix (guard it off NEON) would be a new ISPC wheel experiment, which Chris stopped, and phase 1 is frozen at hc/ispc-ref",
+      "instead": "a NEON-guarded variant now"
+    },
+    {
+      "utc": "2026-10-11T03:27:46Z",
+      "level": "decision",
+      "text": "s5-tables: recheck on a fresh Zen 5 node and run the Cobalt gate before merging into hc/champion-tables. Why: +23.4% on Zen 5 is over the 20% bar; tables change shared code, so the arm gate applies. Expect: Zen 5 within 2% of +23%; Cobalt positive (start offsets dominate there too).",
+      "id": "s5-tables",
+      "what": "recheck on a fresh Zen 5 node and run the Cobalt gate before merging into hc/champion-tables",
+      "why": "+23.4% on Zen 5 is over the 20% bar; tables change shared code, so the arm gate applies",
+      "expect": "Zen 5 within 2% of +23%; Cobalt positive (start offsets dominate there too)"
+    },
+    {
+      "utc": "2026-10-11T03:27:46Z",
+      "level": "info",
+      "text": "p-cpp-wheel-idea12 kept.. KEEP: Zen 5 +6.2% ± 0.5 1T, Zen 3 1T lower bound +1.0% over 12 rounds; measured on the g++ port, so re-measured on the clang champion as p-cpp-wheel-clang-idea12 before it joins hc/port-cpp-wheel-champion",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T03:27:46Z",
+      "level": "info",
+      "text": "s5-starts-ef confirmed.. Passes the keep rule on both Zens but fails the arm64 gate (-1.1% on Cobalt). Not merged: phase 1 is frozen at hc/ispc-ref and Chris stopped new ISPC wheel speed work, so the NEON-guarded variant (x86 only, NEON byte-identical) is left for Chris/the workshop. Extra-faithful, novel; +5.5% Zen 5 1T is the largest extra-faithful wheel gain of the run",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T03:27:46Z",
+      "level": "info",
+      "text": "p-rust-base-2 rejected.. cutoff 160 loses at 16T",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T03:27:46Z",
+      "level": "info",
+      "text": "b1-sparse-last rejected.. flat on Cobalt, a loss on Zen 5: the x86 compile of the new test is worse. The Cobalt 2% stays unexplained by the sparse loop; dense (ours +3.8% slower there) is the remaining lead",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T03:27:46Z",
+      "level": "info",
+      "text": "p-rust-base-zprof confirmed.. Zen 5, TSC ticks per pass (before the AVX-512-off keep): ours dense 45.3k, sparse 60.3k, scan 4.2k, total 109.9k; mike-barber dense 38.5k, sparse 61.5k, scan 4.1k, setup 0.9k, total 104.1k. The gap is the dense phase (+17%); sparse is level. The AVX-512-off keep (+10% at 1T) likely closed most of it: our dense path was 512-bit",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T03:27:46Z",
+      "level": "info",
+      "text": "b2-base-zen5-profile confirmed.. Zen 5, ns per pass (clock_gettime timer, which inflates per-call phases on x86): dense 14.3k (33%), sparse 25.7k (59%), scan 3.6k (8%). Benchmark lines in the same rounds: ours +3.2% over mike-barber at 1T (130.0k vs 126.0k). Not comparable phase by phase with his TSC profile; the bench lines are the reliable part",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T03:27:46Z",
+      "level": "info",
+      "text": "p-cpp-wheel-clang-idea12 (cpp-wheel) running: IDEAS 12 merged onto the clang C++ wheel champion",
       "auto": true
     }
   ],
