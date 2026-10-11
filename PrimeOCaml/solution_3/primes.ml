@@ -13,8 +13,9 @@
      the pattern into the sieve. The copy loops live in module Dense, picked by build.sh: on
      x86-64 (amd64/dense.ml) they use OxCaml's 256-bit vector type and do one AVX load, OR and
      store per 32 bytes; elsewhere (scalar/dense.ml) they do four 64-bit words per step.
-   - Sparse (larger factors): eight multiples repeat every p bytes, each at a fixed bit. The
-     byte offsets and masks are computed per factor; each composite is one byte OR.
+   - Sparse (larger factors): eight multiples repeat every p bytes, one at each bit of a byte.
+     The eight byte offsets are computed per factor; each composite is one OR of a constant
+     single-bit mask.
 
    The sieve is a [Bytes] buffer read and written as 64-bit little-endian words or as bytes.
    The 64-bit accesses go through the compiler's unboxed primitives, so the inner loops do not
@@ -22,6 +23,18 @@
 
 external get64 : Bytes.t -> int -> int64 = "%caml_bytes_get64u"
 external set64 : Bytes.t -> int -> int64 -> unit = "%caml_bytes_set64u"
+
+(* The same accesses with the offset and the word as untagged 64-bit integers (int64#), for
+   the sparse loop. flambda2 removes the boxes in the helpers below. *)
+external get64x : Bytes.t -> int64# -> int64# = "%caml_bytes_get64u#_indexed_by_int64#"
+external set64x : Bytes.t -> int64# -> int64# -> unit = "%caml_bytes_set64u#_indexed_by_int64#"
+external box : int64# -> int64 = "%box_int64"
+external unbox : int64 -> int64# = "%unbox_int64"
+
+let[@inline always] u x = unbox (Int64.of_int x)
+let[@inline always] add_u x y = unbox (Int64.add (box x) (box y))
+let[@inline always] lt_u x y = Int64.compare (box x) (box y) < 0
+let[@inline always] or_u x y = unbox (Int64.logor (box x) (box y))
 
 let sieve_size = 1_000_000
 let expected = 78_498
@@ -98,70 +111,68 @@ let clear_dense s p init =
   Bytes.unsafe_set b i
     (Char.unsafe_chr (Char.code (Bytes.unsafe_get b i) land lnot (1 lsl (f land 7))))
 
-(* Sparse clearing over bytes for odd p >= dense_limit. Chunks of p bytes start at byte
-   multiples of p; in each, the eight multiples p(2j + 1), j = 0..7, sit at fixed byte offsets
-   o_j = (p/2 + jp) / 8 with fixed single-bit masks. *)
+(* The partial last chunk of the sparse clearing, starting at byte [a]: one byte OR per
+   composite, skipping those past the end. Out of line, so that clear_sparse keeps only its loop
+   values alive across its loop. *)
+let[@inline never] sparse_tail b p a nbytes =
+  let t = ref (p lsr 1) in
+  for _ = 0 to 7 do
+    let i = a + (!t lsr 3) in
+    if i < nbytes then
+      Bytes.unsafe_set b i
+        (Char.unsafe_chr (Char.code (Bytes.unsafe_get b i) lor (1 lsl (!t land 7))));
+    t := !t + p
+  done
+
+(* Sparse clearing for odd p >= dense_limit. Chunks of p bytes start at byte multiples of p; in
+   each, the eight multiples p(2j + 1), j = 0..7, sit at fixed byte offsets (p/2 + jp) / 8 and
+   fixed bits (p/2 + jp) land 7. As p is odd, the eight bits are all different, so each bit k
+   of a byte holds exactly one of the eight. The loop takes them in order of their bit, with
+   byte offset o_k for bit k, and the mask of each is the constant 1 lsl k. Only the eight
+   offsets are live in the loop, not eight offsets and eight masks.
+
+   Each composite is one OR of its single-bit mask into the unaligned 64-bit word that starts at
+   its byte: the mask sits in the low byte (little-endian), so the other seven bytes are ORed
+   with zero and do not change. The word stays inside the chunk: o_k <= 15p/16, and p >= 128
+   gives o_k + 8 <= p. Offsets and the chunk start are untagged 64-bit integers (int64#), so a
+   composite is an add, a load, an OR with a constant and a store. OCaml has no byte access
+   indexed by an untagged integer; with tagged ints a byte OR costs seven instructions. The
+   partial last chunk (sparse_tail) uses plain byte ORs, so nothing is touched past the end of
+   the sieve. *)
 let clear_sparse s p =
   let b = s.bits and nbytes = s.nwords * 8 in
-  let h = p lsr 1 in
-  let o0 = h lsr 3 and m0 = 1 lsl (h land 7) in
-  let t = h + p in
-  let o1 = t lsr 3 and m1 = 1 lsl (t land 7) in
-  let t = t + p in
-  let o2 = t lsr 3 and m2 = 1 lsl (t land 7) in
-  let t = t + p in
-  let o3 = t lsr 3 and m3 = 1 lsl (t land 7) in
-  let t = t + p in
-  let o4 = t lsr 3 and m4 = 1 lsl (t land 7) in
-  let t = t + p in
-  let o5 = t lsr 3 and m5 = 1 lsl (t land 7) in
-  let t = t + p in
-  let o6 = t lsr 3 and m6 = 1 lsl (t land 7) in
-  let t = t + p in
-  let o7 = t lsr 3 and m7 = 1 lsl (t land 7) in
-  let[@inline always] mark a m =
-    Bytes.unsafe_set b a (Char.unsafe_chr (Char.code (Bytes.unsafe_get b a) lor m))
+  let o0 = ref 0 and o1 = ref 0 and o2 = ref 0 and o3 = ref 0
+  and o4 = ref 0 and o5 = ref 0 and o6 = ref 0 and o7 = ref 0 in
+  let t = ref (p lsr 1) in
+  for _ = 0 to 7 do
+    let o = !t lsr 3 in
+    (match !t land 7 with
+     | 0 -> o0 := o | 1 -> o1 := o | 2 -> o2 := o | 3 -> o3 := o
+     | 4 -> o4 := o | 5 -> o5 := o | 6 -> o6 := o | _ -> o7 := o);
+    t := !t + p
+  done;
+  let o0 = u !o0 and o1 = u !o1 and o2 = u !o2 and o3 = u !o3 in
+  let o4 = u !o4 and o5 = u !o5 and o6 = u !o6 and o7 = u !o7 in
+  let[@inline always] markw a o m =
+    let i = add_u a o in
+    set64x b i (or_u (get64x b i) (u m))
   in
   let s0 = p * p / 2 / 8 / p * p in
-  let chunks = (nbytes - s0) / p in
-  let q = ref s0 in
-  for _ = 1 to chunks do
-    let a = !q in
-    mark (a + o0) m0;  (* one composite each *)
-    mark (a + o1) m1;
-    mark (a + o2) m2;
-    mark (a + o3) m3;
-    mark (a + o4) m4;
-    mark (a + o5) m5;
-    mark (a + o6) m6;
-    mark (a + o7) m7;
-    q := a + p
+  let up = u p in
+  let qe = u (s0 + ((nbytes - s0) / p * p)) in
+  let mutable q = u s0 in
+  while lt_u q qe do
+    markw q o0 1;  (* one composite each *)
+    markw q o1 2;
+    markw q o2 4;
+    markw q o3 8;
+    markw q o4 16;
+    markw q o5 32;
+    markw q o6 64;
+    markw q o7 128;
+    q <- add_u q up
   done;
-  (* Partial last chunk: the offsets increase, so stop at the first one past the end. *)
-  let a = !q in
-  let left = nbytes - a in
-  if o0 < left then begin
-    mark (a + o0) m0;
-    if o1 < left then begin
-      mark (a + o1) m1;
-      if o2 < left then begin
-        mark (a + o2) m2;
-        if o3 < left then begin
-          mark (a + o3) m3;
-          if o4 < left then begin
-            mark (a + o4) m4;
-            if o5 < left then begin
-              mark (a + o5) m5;
-              if o6 < left then begin
-                mark (a + o6) m6;
-                if o7 < left then mark (a + o7) m7
-              end
-            end
-          end
-        end
-      end
-    end
-  end
+  sparse_tail b p (Int64.to_int (box q)) nbytes
 
 (* The base algorithm: find the next prime, clear its multiples, repeat up to sqrt(size). *)
 let run s =
