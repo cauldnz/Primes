@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T02:10:03Z",
+  "updated_utc": "2026-10-11T02:11:43Z",
   "run": {
     "id": "ap-20261011T0100Z",
     "state": "running",
@@ -1364,7 +1364,7 @@
       "hypothesis": "Build-time tables of start offsets (and group patterns if cheap) for primes below 10,000, run-time fallback beyond",
       "prediction": "+5% to +15% at 1T against hc/champion-tables",
       "plain": "If the wheel looks up where each prime starts instead of working it out every pass, then a pass gets faster, because that work is about a quarter of the time, and the contest rules allow precalculated wheel tables.",
-      "note": "agent building hc/s5-tables on hc/champion-tables (branched at 1551635)"
+      "note": "hc/s5-tables 90e81f9 on hc/champion-tables: build-time C generator writes start offsets (primes 17..10,000, 19.6 KB), word patterns (primes 17..1,024, 685 KB; ~61 KB read per pass), 7x11 tile and 13 pattern; run-time start_bit fallback beyond 10,000; binary 2.2 MB. Clean build of the three Docker files passes PRIMES_TEST here; agent: 5,700 odd sizes x 6 builds, 0 bad. Local 1T +20% (4 pairs). Zen 5 + Zen 3 6 rounds. Over the 20% bar: if Zen agrees, clean rebuild on a fresh node and a line-by-line rules re-read before any keep"
     },
     {
       "id": "b1-cobalt-profile",
@@ -1407,12 +1407,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T23:15:09Z",
-      "level": "warn",
-      "auto": true,
-      "text": "zig-f1 changed with no reasoning recorded (st.py decide)."
-    },
     {
       "utc": "2026-10-10T23:30:07Z",
       "level": "info",
@@ -1777,6 +1771,15 @@
       "what": "start a second Rust base idea agent ahead of any C++ wheel work",
       "why": "Chris: at least three Rust base experiments against mike-barber; the two already on Azure are a build flag and a borrowed resetter that lost locally, so a phase-guided clean idea is next",
       "instead": "byte sparse kernel for the ISPC wheel (history audit row 6)"
+    },
+    {
+      "utc": "2026-10-11T02:11:43Z",
+      "level": "decision",
+      "text": "s5-tables: submit on Zen 5 and Zen 3; any keep goes on hc/champion-tables only, never hc/champion. Why: tier permitted (prime-specific build-time tables, allowed by the wheel definition and the PrimeZig/solution_3 precedent); tags unchanged, the tag question stays Chris's. Expect: +10% to +20% at 1T; less at all threads (61 KB pattern stream vs L1).",
+      "id": "s5-tables",
+      "what": "submit on Zen 5 and Zen 3; any keep goes on hc/champion-tables only, never hc/champion",
+      "why": "tier permitted (prime-specific build-time tables, allowed by the wheel definition and the PrimeZig/solution_3 precedent); tags unchanged, the tag question stays Chris's",
+      "expect": "+10% to +20% at 1T; less at all threads (61 KB pattern stream vs L1)"
     }
   ],
   "research": {
