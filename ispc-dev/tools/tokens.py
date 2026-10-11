@@ -47,6 +47,16 @@ def runs_from(events_path):
             if not r["start"]:
                 st = re.match(r"ap-(\d{8})T(\d{4})Z", m.group(1))
                 r["start"] = datetime.strptime("".join(st.groups()), "%Y%m%d%H%M").strftime("%Y-%m-%dT%H:%M:00Z") if st else e["utc"]
+    # A run whose start event is missing (the log was silent at start-up) still counts: take its
+    # start from status.json, and treat it as open until its stop event arrives.
+    sp = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(events_path))), "status.json")
+    try:
+        r = json.load(open(sp)).get("run") or {}
+        if r.get("id") and r["id"] not in cur and r.get("started_utc"):
+            cur[r["id"]] = {"id": r["id"], "start": r["started_utc"],
+                            "end": None if r.get("state") == "running" else r.get("ends_utc")}
+    except Exception:
+        pass
     runs = sorted(cur.values(), key=lambda r: r["start"])
     return runs
 
