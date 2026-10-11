@@ -297,3 +297,4 @@ id	pool	size	kind	outdir	submitted	state
 23002829627	hc-standard-d4ps-v6	Standard_D4ps_v6	ocaml	ispc-dev/results/hc/ox-020-armstore	2026-10-11T23:00:39Z	done
 23114018420	hc-standard-d4ps-v6	Standard_D4ps_v6	ocaml	ispc-dev/results/hc/ox-021-arm-set32	2026-10-11T23:11:51Z	open
 2320256620	hc-standard-d16as-v7	Standard_D16as_v7	ocaml	ispc-dev/results/hc/r10-final	2026-10-11T23:20:36Z	open
+23210727793	hc-standard-d16a-v4	Standard_D16a_v4	ocaml	ispc-dev/results/hc/r10-final	2026-10-11T23:21:18Z	open
