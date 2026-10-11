@@ -1,4 +1,4 @@
-FROM ubuntu:24.04 AS build
+FROM ubuntu:26.04 AS build
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends ispc gcc libc6-dev \
@@ -9,7 +9,7 @@ ARG ISPC_TARGETS
 COPY primes.ispc build.sh ./
 RUN sh build.sh
 
-FROM ubuntu:24.04
+FROM ubuntu:26.04
 
 WORKDIR /opt/app
 COPY --from=build /opt/app/primes .
