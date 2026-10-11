@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T10:30:59Z",
+  "updated_utc": "2026-10-11T10:31:18Z",
   "run": {
     "id": "ap-20261011T0645Z",
     "state": "running",
@@ -1804,10 +1804,12 @@
       "entry": "zig-wheel",
       "tier": "permitted",
       "kind": "novel",
-      "verdict": "running",
+      "verdict": "KEEP",
       "hypothesis": "Zig tables line plus the one-pass tile|13 write (022e479)",
       "plain": "If the tables wheel also writes 7, 11 and 13 in one pass per plane, it gains the ~2% the faithful line got, because the passes are separate.",
-      "note": "hc/zig-tables-group 138e074: 13 from PAT via patternGroup(7,11,13), tile in a stack scratch, one tile|13 write per plane; self-test native and baseline. Local 1T +2% vs 0886ddf (noise). Zen 5 + Zen 3 6 rounds vs 0886ddf"
+      "note": "hc/zig-tables-group 138e074: 13 from PAT via patternGroup(7,11,13), tile in a stack scratch, one tile|13 write per plane; self-test native and baseline. Local 1T +2% vs 0886ddf (noise). Zen 5 + Zen 3 6 rounds vs 0886ddf",
+      "zen5": "+1.5% ± 0.4 1T, +1.6% ± 0.4 4T (6/6)",
+      "zen3": "+2.1% ± 2.7 1T, +5.1% ± 1.2 4T (6/6)"
     },
     {
       "id": "r9-zig-evex512",
@@ -1827,21 +1829,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T07:43:48Z",
-      "level": "info",
-      "text": "p0-line-4t kept.. KEEP: no 1T/4T line moves (wheel +0.2%/+0.0%, base -0.1%/-0.1%, Zen 5 6 rounds); the 6-CPU run prints 6, 3 and the new 4-thread line. Merged: hc/champion = 55be5a9",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T07:56:58Z",
-      "level": "decision",
-      "text": "size-cliff: do not build the wheel size candidates (plane order, plane halves, plane-by-plane sparse, scratch trim). Why: RUN-PLAN stream 1 step 2 is conditional on a Zen 3 wheel cliff; the measurement shows none at 1M (plateau within 2%), so there is no prize for them to take; plane halves needs no question to Chris. Passed over: building plane order anyway (it targets a spill that isn't there).",
-      "id": "size-cliff",
-      "what": "do not build the wheel size candidates (plane order, plane halves, plane-by-plane sparse, scratch trim)",
-      "why": "RUN-PLAN stream 1 step 2 is conditional on a Zen 3 wheel cliff; the measurement shows none at 1M (plateau within 2%), so there is no prize for them to take; plane halves needs no question to Chris",
-      "instead": "building plane order anyway (it targets a spill that isn't there)"
-    },
     {
       "utc": "2026-10-11T07:57:29Z",
       "level": "decision",
@@ -2177,6 +2164,21 @@
       "utc": "2026-10-11T10:09:28Z",
       "level": "info",
       "text": "r9-zig-evex512 (zig) running: Zig on Zen 5: build with -mcpu=native+evex512 (Zig 0.13 has no znver5, so native emits no zmm)",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T10:31:18Z",
+      "level": "decision",
+      "text": "r9-zig-tables-group: KEEP (permitted); hc/zig-champion-tables -> 138e074. Why: over the tables line: Zen 5 4T +1.6% (lower +1.2%), Zen 3 4T +5.1% (lower +3.9%); no loss. Expect: Zig tables wheel now +8% over the ISPC wheel on Zen 5 and +23% on Zen 3 at 1T.",
+      "id": "r9-zig-tables-group",
+      "what": "KEEP (permitted); hc/zig-champion-tables -> 138e074",
+      "why": "over the tables line: Zen 5 4T +1.6% (lower +1.2%), Zen 3 4T +5.1% (lower +3.9%); no loss",
+      "expect": "Zig tables wheel now +8% over the ISPC wheel on Zen 5 and +23% on Zen 3 at 1T"
+    },
+    {
+      "utc": "2026-10-11T10:31:18Z",
+      "level": "info",
+      "text": "r9-zig-tables-group KEEP.. hc/zig-tables-group 138e074: 13 from PAT via patternGroup(7,11,13), tile in a stack scratch, one tile|13 write per plane; self-test native and baseline. Local 1T +2% vs 0886ddf (noise). Zen 5 + Zen 3 6 rounds vs 0886ddf",
       "auto": true
     }
   ],
