@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T20:44:11Z",
+  "updated_utc": "2026-10-11T20:44:51Z",
   "run": {
     "id": "ap-20261011T1929Z",
     "state": "running",
@@ -1898,8 +1898,9 @@
       "kind": "permitted",
       "plain": "If we compile the same OCaml source with OxCaml instead of standard OCaml, then any speed difference is the compiler alone, because nothing else changes.",
       "prediction": "within +-10% of plain OCaml",
-      "verdict": "running",
-      "commit": "fe63db5"
+      "verdict": "confirmed",
+      "commit": "fe63db5",
+      "note": "measurement: Zen 5 -4.1% 1T, Zen 3 +8.4%, Cobalt +163% (7.3k vs 2.8k)"
     },
     {
       "id": "ox-003",
@@ -1910,8 +1911,9 @@
       "source": "our ISPC base vector dense resets (hc-002)",
       "plain": "If the step that copies each small prime pattern into the sieve moves 256 bits at a time instead of 64, then the dense phase gets faster, because it does a quarter of the loads and stores.",
       "prediction": "+10% to +30% at 1T on Zen 5 and Zen 3; Cobalt unchanged (scalar path)",
-      "verdict": "running",
-      "commit": "cbcd24d"
+      "verdict": "kept",
+      "commit": "cbcd24d",
+      "note": "Zen 5 +60.5% 1T / +56.2% 4T, Zen 3 +41.4% / +40.2%, Cobalt flat; champion hc/oxcaml-champion cbcd24d"
     },
     {
       "id": "ocaml-003",
@@ -1965,36 +1967,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T11:04:53Z",
-      "level": "info",
-      "text": "r9-zig-evex512 REVERT.. hc/zig-zen5-evex512 66c0cce on hc/zig-champion-r9 8ba3386: build.sh gate (AuthenticAMD, family 26, avx512f, ZIG_CPU unset); off Zen 5 the build is byte-identical (target-specific rule: Zen 5 only). Local evex512 build self-test 0 wrong. Base and wheel, Zen 5 6 rounds each",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T11:04:53Z",
-      "level": "info",
-      "text": "r9-final-ports (scoreboard) running: ports at 1T (and 4T) on Zen 5 and Zen 3: each port champion against its run-start version, beside our ISPC entry of the same design (57e0792) and the language rival",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T11:27:56Z",
-      "level": "decision",
-      "text": "r9-final-refs: hc/ispc-final = 216629d, hc/ispc-final-tables = 57e0792 (as branches). Why: the git proxy refuses tag pushes (HTTP 403); every other hc/* ref is a branch.",
-      "id": "r9-final-refs",
-      "what": "hc/ispc-final = 216629d, hc/ispc-final-tables = 57e0792 (as branches)",
-      "why": "the git proxy refuses tag pushes (HTTP 403); every other hc/* ref is a branch"
-    },
-    {
-      "utc": "2026-10-11T11:27:56Z",
-      "level": "info",
-      "text": "Pools for Zen 4, Cobalt and Intel deleted (their scoreboard work is done)"
-    },
-    {
-      "utc": "2026-10-11T12:15:01Z",
-      "level": "info",
-      "text": "Run ap-20261011T0645Z stopped: all pools deleted (last one deleting at 12:15Z), morning report in STATUS.md, final refs hc/ispc-final 216629d and hc/ispc-final-tables 57e0792 (branches)"
-    },
     {
       "utc": "2026-10-11T12:15:01Z",
       "level": "info",
@@ -2301,6 +2273,39 @@
       "utc": "2026-10-11T20:31:14Z",
       "level": "info",
       "text": "ox-003: evaluate. ox-002 Zen 3, ox-003 all machines, ocaml-004/005, ox-004 queued or running",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T20:44:51Z",
+      "level": "decision",
+      "text": "ox-002: record as the OxCaml line's starting measurement, not a revert. Why: it compares two compilers on one source, which is the question the plan asks; there is nothing to revert to.",
+      "id": "ox-002",
+      "what": "record as the OxCaml line's starting measurement, not a revert",
+      "why": "it compares two compilers on one source, which is the question the plan asks; there is nothing to revert to"
+    },
+    {
+      "utc": "2026-10-11T20:44:51Z",
+      "level": "decision",
+      "text": "ox-003: KEEP; hc/oxcaml-champion = cbcd24d; plain line champion hc/ocaml-champion = 0b8d98c. Why: analyze.py KEEP: lower bounds +60.4% Zen 5 and +40.0% Zen 3 at 1T, Cobalt flat. Over 20%, so re-read the diff line by line: SIMD only copies the pattern, which is built with one OR per composite; self-tests passed on all nodes; the dense loop was 54% of a pass, so a 4x wider copy can give this. ox-004 (champion cbcd24d as its base) runs on other tasks and repeats cbcd24d's number.",
+      "id": "ox-003",
+      "what": "KEEP; hc/oxcaml-champion = cbcd24d; plain line champion hc/ocaml-champion = 0b8d98c",
+      "why": "analyze.py KEEP: lower bounds +60.4% Zen 5 and +40.0% Zen 3 at 1T, Cobalt flat. Over 20%, so re-read the diff line by line: SIMD only copies the pattern, which is built with one OR per composite; self-tests passed on all nodes; the dense loop was 54% of a pass, so a 4x wider copy can give this. ox-004 (champion cbcd24d as its base) runs on other tasks and repeats cbcd24d's number"
+    },
+    {
+      "utc": "2026-10-11T20:44:51Z",
+      "level": "info",
+      "text": "Scoreboard at 1T, Zen 5: OxCaml 48.6k, plain OCaml 31.6k, our ISPC base 139k, Rust 126k, gkpotter faithful 1.6k. OxCaml is 0.35x ISPC and 30x gkpotter."
+    },
+    {
+      "utc": "2026-10-11T20:44:51Z",
+      "level": "info",
+      "text": "ox-002 confirmed.. measurement: Zen 5 -4.1% 1T, Zen 3 +8.4%, Cobalt +163% (7.3k vs 2.8k)",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T20:44:51Z",
+      "level": "info",
+      "text": "ox-003 kept.. Zen 5 +60.5% 1T / +56.2% 4T, Zen 3 +41.4% / +40.2%, Cobalt flat; champion hc/oxcaml-champion cbcd24d",
       "auto": true
     }
   ],

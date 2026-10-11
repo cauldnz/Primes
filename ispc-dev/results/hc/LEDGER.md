@@ -375,3 +375,5 @@ Zen 5.
 all-threads gain (+16% Zen 5, +7% Zen 3 at 16T) is real but the rule decides at 1T and 4T, where
 it loses on Zen 5. 4T already scales to 92% per thread with the default GC on Zen 5, so the GC
 stall the agent saw on the shared container doesn't show on Zen.
+| r10-ox-002 | 2026-10-12 | oxcaml | The plain OCaml source compiled by OxCaml (compiler alone) | within ±10% of plain | Zen 3: 17.1k, +8.4% ± 0.4 / +8.6% ± 0.6 (5/5) | Zen 5: 30.3k, −4.1% ± 0.2 / −2.5% ± 0.8 (0/5); Cobalt: 7.3k, +163% / +157% | measurement (the OxCaml line's start, not a keep decision) | `hc/ox-002-port` fe63db5 |
+| r10-ox-003 | 2026-10-12 | oxcaml | 256-bit SIMD copy of the dense pattern (borrowed: ISPC hc-002 vector resets) | +10% to +30% at 1T | Zen 3: 25.1k, +41.4% ± 1.3 / +40.2% ± 2.0 (5/5) | Zen 5: 48.6k, +60.5% ± 0.1 / +56.2% ± 0.4 (5/5); Cobalt +0.1% / +0.3% (scalar path) | **KEEP**, `hc/oxcaml-champion` cbcd24d | `hc/ox-003-ext` cbcd24d |
