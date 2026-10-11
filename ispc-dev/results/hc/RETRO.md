@@ -1,5 +1,33 @@
 # Run retrospectives (newest first)
 
+## ap-20261011T0100Z (2026-10-11, 11:00 to 15:00 AEST)
+
+- Calibration: 6 of 19 predictions in range. Hits: F4 slope (sign known after 384, 128/192 as
+  expected), Rust AVX-512 off (+1-5% predicted, +10%: above range, counted as a miss), crishoj
+  under our wheel, s5 profile share (5-15% predicted, 23.5%: miss), s5-starts-ef (+3-6%; +5.5%
+  Zen 5), fold-1pc (+5-8%; +7.5%), C++ IDEAS 12 (+2-6%; +6.2% Zen 5), clang C++ wheel (+5-18%;
+  +16-20%). Misses: F4 (flat to +2%; −7% to −27%), wheel-210 (−5% to +3%; −40%), the Cobalt
+  loop test (+1-2%; flat, −1.9% Zen 5), both prefetches, the Rust resetter, hc-018 on Zen 3,
+  the tables (+5-15%; +23%), the C++ base clang (−63%).
+- Kept: clean hc/champion 1551635 → 9f62bd6 (wheel start offsets, x86) → 330b3d4 (base
+  fold-1pc); hc/champion-tables 90e81f9 (build-time tables); C++ wheel champion 547221c
+  (alignment fix, clang, IDEAS 12); Rust base champion (AVX-512 off); grey: F1 on both base
+  ports. About 1,200 task-minutes for 8 keeps: about 150 per kept change.
+- Lost: two queued ISPC wheel rechecks cancelled after Chris's priority change; two Zen 4 tasks
+  cancelled when the D16as_v5 node came up as a 7763; the Zig profile's first run (its phase
+  lines were filtered out); the first Zen 5 submit of b1-sparse-last failed silently.
+- Protocol: the event log stopped 01:11-02:26 (direct commits bypassed autolog; fixed and
+  backfilled); the first two hourly reviews were missed; three local losers were dropped before
+  Chris's rule (all re-screened, all worse on Zen); one commit landed on local ispc-dev before
+  push and was undone; phase 1's 75 minutes overran into the base work by design after Chris's
+  messages.
+- What worked: profile first (stream 5 found 23.5%, both halves paid); asm identity to carry
+  measurements across a guard (s5-starts-ef-x86, fold-1pc) instead of rerunning; borrowed build
+  settings (clang, AVX-512 off) were the cheapest big wins in the ports.
+- New harness items: tick.sh warns when EVENTS.jsonl lags status.json; hc-pool records each
+  task's CPU model in jobs.tsv and refuses a size whose node is not the expected CPU (D16as_v5);
+  submit fails loudly when `task create` errors (the silent Zen 5 miss).
+
 ## ap-20261010T2040Z (2026-10-11, 06:40 to 10:30 AEST)
 
 - Calibration: 3 of 6 predictions in range. Hits: F1's sparse phase (−10% expected, −18%), F1 on

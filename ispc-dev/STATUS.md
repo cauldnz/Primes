@@ -1,12 +1,132 @@
-Autopilot lock: ap-20261011T0100Z 2026-10-11T01:00Z
 # Status from the Claude Code session
 
 
 
 
 
-**Last updated:** 2026-10-11 10:30 AEST. Living file; earlier versions are in
+**Last updated:** 2026-10-11 14:45 AEST. Living file; earlier versions are in
 `git log -p ispc-dev/STATUS.md`. Replies go in `ispc-dev/NEXT-STEPS.md`.
+
+## Morning report: run ap-20261011T0100Z (11:00 to 15:00 AEST, 11 October)
+
+Four-hour run from RUN-PLAN.md, from a cleared conversation, with Chris steering in the session
+(base priority, AMD screens for local losers, no new ISPC wheel speed work after 12:30, finish
+s5-starts-ef). Spend NZ$6.31 of NZ$30. All pools deleted at the end. Nothing went to `ispc`
+or to a PR. No tags changed. The 4-thread line was not built (see "Not done").
+
+### Base, per thread at 4 threads (the leaderboard's multi-thread sort key)
+
+Passes per second per thread, median of counted rounds, 16-vCPU nodes (so 4 threads = one per
+core). Rust = mike-barber's `bit-extreme-hybrid`; davepl = PrimeCPP/solution_5.
+
+| Machine | ISPC base 1551635 | ISPC base 330b3d4 (now) | Rust | davepl | ISPC now vs Rust |
+|---|---|---|---|---|---|
+| Zen 5 (9V45) | 24,268 | 26,012 | 23,523 | - | +10.45% ± 0.04 (20/20) |
+| Zen 3 (7763) | 11,215 | 11,215 (code unchanged on AVX2) | 10,520 | - | +6.6% |
+
+At one thread on Zen 5, 20 paired rounds each: 1551635 against Rust **+3.08% ± 0.12** (20/20, a
+win); 330b3d4 against Rust **+10.44% ± 0.11 (20/20; 27,807 vs 25,196 passes/s), +7.14% ± 0.05 over 1551635, and −0.46% ± 0.11 at 16T**. Chris's target was +4%. Zen 3 at 1T: +6.6%
+(11,202 vs 10,507). The "Zen 4" node (D16as_v5) came up as an EPYC 7763 this time: no Zen 4
+numbers this run.
+
+### Gain by kind, this run (ISPC entries; mean 1T change on Zen 5 / Zen 3)
+
+| Kind | Base | Wheel |
+|---|---|---|
+| novel (ours) | +7.5% / 0 (fold-1pc: 16 lanes when a thread has a core; AVX-512 only) | +5.5% / +1.9% (start offsets as independent products; x86 only) |
+| borrowed | 0 | 0 |
+| tuning | 0 (F4 is wheel; addr64, prefetch, hc-018 all reverted) | 0 (F4 256 is optimal) |
+| permitted (hc/champion-tables only) | - | +23.4% / +19.8% (build-time tables) |
+| grey | 0 this run | 0 |
+
+Earlier runs' gains are in the ledger; this table covers only this run's keeps.
+
+### Stream 1: the ports, start and end of the run
+
+Passes in 5 s, 1T / all threads (16T), median. Rival = the language's best existing entry
+(Rust: mike-barber; C++: davepl; wheels: rogiervandam's C wheel).
+
+**Wheel**
+
+| Entry | Zen 5 start | Zen 5 end | Zen 3 start | Zen 3 end |
+|---|---|---|---|---|
+| ISPC (hc/ispc-ref → hc/champion) | 222.2k / 1.63M | 234.8k / 1.72M | 112.4k / 947.7k | 114.2k / 962.1k |
+| Zig (hc/zig-submission) | 217.2k / 1.61M | unchanged | 119.2k / 925.7k | unchanged |
+| C++ (port-cpp-wheel → champion 547221c) | 170.6k / 1.36M | 204.7k / 1.66M | 104.5k / 872.3k | 123.2k / 1.01M |
+| Rust (port-rust-wheel) | 179.1k / 1.31M | unchanged | 97.1k / 796.7k | unchanged |
+| C wheel (rogiervandam) | 139.2k / 1.18M | | 65.2k / 537.7k | |
+| crishoj Zig 210-wheel (PR 1094) | 191.7k / 1.45M | | 87.8k / 645.7k | |
+
+**Base**
+
+| Entry | Zen 5 start | Zen 5 end | Zen 3 start | Zen 3 end |
+|---|---|---|---|---|
+| ISPC (1551635 → 330b3d4) | 130.0k / 1.01M | 139.0k / 1.01M | 56.0k / 431.6k | unchanged |
+| Rust port (→ champion, AVX-512 off) | 112.4k / 808.6k | 123.6k / 959.0k | 48.4k / 392.6k | unchanged (no AVX-512) |
+| Rust port grey (F1) | | 137.3k / 890.2k | | 52.3k / 417.9k |
+| C++ port | 131.5k / 926.6k | unchanged | 51.7k / 399.3k | unchanged |
+| C++ port grey (F1) | | 153.1k / 1.03M | | 56.2k / 439.0k |
+| Rust, mike-barber | 126.0k / 875k | | 52.5k / 411k | |
+| C++, davepl | 92.0k / 712k | | 36.7k / 307k | |
+
+The Zig base was not climbed this run (its grey F1 lineage is from last run).
+
+### Generalisation record (for docs/generalising.md)
+
+- **Set-up cost.** One harness commit, 7aa065b: a `port` kind in hc-pool.sh (PORT_DIR,
+  PORT_FILTER, DESIGN, RIVAL; ~15 lines), a third control for crishoj, per-thread tables in
+  analyze.py. f1f3745: the zig kind dropped a diagnostic build's `phase;` lines. Builds, self-tests
+  and rules checks needed nothing language-specific beyond each port's own `PRIMES_TEST`.
+- **Experiments decided per language** (base and wheel together): C++ 7 (keeps: alignment fix,
+  clang, IDEAS 12 ×2 measurements, F1 grey; rejects: clang base; inconclusive: group32), Rust 5
+  (keeps: AVX-512 off, F1 grey; rejects: IDEAS 12 wheel, period resetter, cutoff 160), Zig 2
+  (reject: direct pattern; inconclusive: IDEAS 12 recheck) plus a phase profile. Zig fell short
+  of the five the plan asked for: its agent slot went to the base after Chris's change of
+  priority.
+- **Where the ideas came from.** Carried over from ISPC: IDEAS 12 (C++ kept, Rust no gain, Zig
+  under the bar), wheel-group32 (C++ inconclusive; the Rust wheel already had it), F1 (both base
+  ports, grey, +8% to +22%). Found in the language: the clang alignment bug and its fix; clang
+  itself (+16-20% for the C++ wheel, −63% for the C++ base). From outside: mike-barber's
+  AVX-512-off flag (+10% on the Rust base at 1T on Zen 5) and his per-period resetter (−42%).
+- **Gaps at the end** (1T, Zen 5): C++ wheel −7.9% to our ISPC reference wheel (+1.7% at 16T),
+  +47% over the C wheel; Rust wheel −19%; Zig wheel −2%. Rust base −1.9% to mike-barber (from
+  about −11%); C++ base +43% over davepl.
+- **Node-minutes** (task minutes from tasks.log): ISPC 639 (46 tasks), C++ 277 (15), Rust 160
+  (12), Zig 123 (6), of about 1,200 in all.
+
+### Stream 2, 3 and the rest
+
+- Per-thread columns are in analyze.py; the tables above use them. The 4-thread line branch
+  (`hc/line-4t`) was not built: the 16-vCPU nodes already report a 4-thread line for both entries
+  (a quarter of the threads), and the time went to the base.
+- crishoj's 210-wheel (PR 1094) trails both our wheels: Zen 5 −14% / −11% (1T / 16T) against the
+  ISPC wheel, Zen 3 −21% / −32%. Its 2.2× claim is against the old Zig wheel.
+- Stream 5: start offsets + pattern building were 23.5% of a Zen 5 wheel pass. Extra-faithful
+  starts bought +5.5% (Zen 5); build-time tables (permitted) +23%.
+- Stream 6: the mod-210 ISPC wheel is correct but −40% on Zen 5 (48 short planes multiply the
+  per-plane set-up). Parked.
+- Cobalt 100 base gap (Chris): our dense phase is 3.8% slower than Rust's there (about 1% of a
+  pass); the sparse loop-test fix was flat on Cobalt and −1.9% on Zen 5. Not closed.
+- Tokens: about 115M over about 700 calls this run, 40 experiments and measurements (2.9M each).
+  Last run 105M, the run before 155M, each with far fewer experiments: the cleared context did
+  not cut tokens per call much, but per experiment it roughly halved.
+
+### Waiting for Chris
+
+0. An older STATUS.md line (from an earlier run) named the Batch account; redacted now, but it
+   stays in git history. Rotating or renaming is your call.
+1. Tags for hc/champion-tables (faithful=yes kept, as the merged Zig wheel does).
+2. s5-starts-ef-x86 on Zen 3 is +1.9%: clears the general rule, under the 2% of the
+   target-specific rule. Kept as a general change.
+3. fold-1pc on Zen 4 with AVX-512 (D16as_v6) was not measured; the Threadripper is Zen 5.
+4. hc/champion tracks build outputs (primes, *.o) since the IDEAS 12 merge.
+5. Whether the entries should report a 4-thread line.
+
+### Three best next experiments
+
+1. Zen 4 (D16as_v6) check of fold-1pc, then the same per-run choice for the wheel's group loop.
+2. Bring hc/champion's two keeps into hc/champion-tables and re-measure.
+3. The Cobalt dense gap: scalar ORs for dense factors 65-127 (no mask reloads).
 
 ## Hourly review, run ap-20261011T0100Z (13:30 AEST, 2.5 h in)
 
@@ -926,7 +1046,7 @@ All four target noise sources we saw today:
 
 - **Azure Batch Spot, the default for benchmarks.**
   - Command: `MODE=batch SUITE=default|targets ./azure-epyc-bench.sh <size...>`.
-  - Account `batchllmwestus2gves` has 128 Spot vCPUs.
+  - The Batch account has 128 Spot vCPUs.
   - Nodes allocate in about 40 s and tasks start about 90 s after submission.
   - Sizes proven to work:
     - D16as_v5 (Zen 3), D16as_v6 (Zen 4), D16as_v7 (Zen 5)

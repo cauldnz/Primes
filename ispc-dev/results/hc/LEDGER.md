@@ -341,3 +341,4 @@ there with no change on any other target, which puts the champion about 10.5% ah
 20-round scoreboard of 330b3d4 is running. hc-018 and both prefetches did not survive Zen 3 or
 Zen 5.
 | p-cpp-wheel-clang-idea12 | 2026-10-11 | cpp-wheel | IDEAS 12 on the clang champion | +1% to +6% | Zen 3: 123.2k / 1.01M, +1.1% ± 0.8 / +1.9% ± 0.7 (6/6) | Zen 5: 204.7k / 1.66M, +1.3% ± 0.5 / +1.9% ± 0.3 (6/6) | **KEEP**, `hc/port-cpp-wheel-champion` 547221c | `hc/port-cpp-wheel-clang-idea12` |
+| sb-base-z5-20-new | 2026-10-11 | base | Scoreboard of hc/champion 330b3d4 against mike-barber's Rust, Zen 5, 20 paired rounds | ≈ +10.5% 1T | | 1T +10.44% ± 0.11 (27,807 vs 25,196 per thread), 4T +10.45% ± 0.04, 8T +10.66%, 16T +15.11%; vs 1551635: +7.14% / +7.20% / +7.15% / −0.46% ± 0.11 (20/20 each) | WIN | `hc/champion` 330b3d4 |
