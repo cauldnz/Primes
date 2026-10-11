@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T23:08:17Z",
+  "updated_utc": "2026-10-11T23:09:10Z",
   "run": {
     "id": "ap-20261011T1929Z",
     "state": "running",
@@ -2174,6 +2174,17 @@
       "verdict": "confirmed",
       "commit": "8233d3a",
       "note": "no allocation; every 64-bit store has a dmb ishld barrier before it (OCaml 5 memory model on Arm)"
+    },
+    {
+      "id": "ox-020",
+      "entry": "oxcaml",
+      "title": "Arm store forms vs the barrier",
+      "tier": "permitted",
+      "kind": "permitted",
+      "plain": "If we time every way of storing 64 bits on Arm, then we find one without the barrier, because the barrier applies only to some kinds of store.",
+      "verdict": "confirmed",
+      "commit": "ad463f1",
+      "note": "64-bit integer stores ~18.9 us per copy, 32-bit pairs 6.2 us, float stores 2.0-3.7 us"
     }
   ],
   "azure_queue": 0,
@@ -2183,21 +2194,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T21:25:16Z",
-      "level": "info",
-      "text": "Scoreboard, oxcaml base on Zen 3 (EPYC 7763, D16a_v4): 25100 → 29800 at 1T, 95000 → 110700 at 4 threads.",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T21:27:48Z",
-      "level": "decision",
-      "text": "ox-011: submit c99a179 vs a4e63af on Zen 5 and Zen 3; no Cobalt run. Why: rebuilt here, PRIMES_TEST=1 exits 0; amd64/dense.ml only (arm64 byte-identical); 10 to 7.5 instructions per 32 bytes; locally level within noise, which passes the local gate. Expect: +2% to +5%.",
-      "id": "ox-011",
-      "what": "submit c99a179 vs a4e63af on Zen 5 and Zen 3; no Cobalt run",
-      "why": "rebuilt here, PRIMES_TEST=1 exits 0; amd64/dense.ml only (arm64 byte-identical); 10 to 7.5 instructions per 32 bytes; locally level within noise, which passes the local gate",
-      "expect": "+2% to +5%"
-    },
     {
       "utc": "2026-10-11T21:27:48Z",
       "level": "info",
@@ -2527,6 +2523,22 @@
       "utc": "2026-10-11T22:55:51Z",
       "level": "info",
       "text": "ox-018 (oxcaml) confirmed: ",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T23:09:10Z",
+      "level": "decision",
+      "text": "ox-021: two agents: 32-bit stores in OxCaml's Arm dense copy (ox-021) and in the plain OCaml dense loop (ocaml-007). Why: on Cobalt every 64-bit integer store form costs 18.9 us per copy and 32-bit pairs 6.2 us; float stores are faster still but need Obj.magic, which I won't put in an entry. The Arm dense copy is 80% of the Cobalt pass, so this is the biggest Arm lever by far. Passed over: Obj.magic float stores (3.7 us, but a type-system hack). Expect: Cobalt +60% to +120% at 1T for OxCaml; plain OCaml Cobalt similar, x86 -5% to +5%.",
+      "id": "ox-021",
+      "what": "two agents: 32-bit stores in OxCaml's Arm dense copy (ox-021) and in the plain OCaml dense loop (ocaml-007)",
+      "why": "on Cobalt every 64-bit integer store form costs 18.9 us per copy and 32-bit pairs 6.2 us; float stores are faster still but need Obj.magic, which I won't put in an entry. The Arm dense copy is 80% of the Cobalt pass, so this is the biggest Arm lever by far",
+      "instead": "Obj.magic float stores (3.7 us, but a type-system hack)",
+      "expect": "Cobalt +60% to +120% at 1T for OxCaml; plain OCaml Cobalt similar, x86 -5% to +5%"
+    },
+    {
+      "utc": "2026-10-11T23:09:10Z",
+      "level": "info",
+      "text": "ox-020 (oxcaml) confirmed: ",
       "auto": true
     }
   ],
