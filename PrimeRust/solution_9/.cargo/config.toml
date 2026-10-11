@@ -1,3 +1,4 @@
 # The Docker image is built on the machine that runs it, so the build can target that CPU.
+# AVX-512 off, as mike-barber's Rust entry builds (PrimeRust/solution_1/.cargo/config).
 [build]
-rustflags = ["-C", "target-cpu=native"]
+rustflags = ["-C", "target-cpu=native", "-C", "target-feature=-avx512f"]
