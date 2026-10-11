@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T08:59:46Z",
+  "updated_utc": "2026-10-11T09:01:07Z",
   "run": {
     "id": "ap-20261011T0645Z",
     "state": "running",
@@ -1641,7 +1641,9 @@
       "hypothesis": "C++ base: read GCC dense loop, then bring fold-1pc (16-lane dense when a thread has a core) to C++ if GCC can express it",
       "plain": "If the C++ base uses its widest vector code for small factors when a thread has a core to itself, then it gains as the ISPC base did, because the same change bought 7.5% there.",
       "note": "KEEP (target-specific: Zen 3 code unchanged without AVX-512). Gated on Zen 5 per Chris: hc/port-cpp-base-wide-zen5 558a949 (CPUID family 1Ah) = hc/port-cpp-base-champion; 3-round Zen 5 check of the gated build queued. C++ base vs ISPC base (ctrl) on Zen 5: +0.1% at 1T (was -5%)",
-      "zen5": "+5.9% ± 0.1 1T, +5.6% ± 0.2 4T, +5.7% 8T, -1.3% 16T (recorded) (6/6)"
+      "zen5": "+5.9% ± 0.1 1T, +5.6% ± 0.2 4T, +5.7% 8T, -1.3% 16T (recorded) (6/6)",
+      "zen5_gated": "+6.1% ± 0.5 1T, +5.6% ± 0.2 4T (3/3) vs C++ base champion; equals ungated wide build (+0.4%/+0.3%)",
+      "note_gate": "Zen 5 gate confirmed: the gated build reaches the wide path on Zen 5; off Zen 5 it is the 8-lane path by construction"
     },
     {
       "id": "r9-zig-wheel-group",
@@ -1710,12 +1712,14 @@
       "entry": "wheel-tables",
       "tier": "permitted",
       "kind": "permitted",
-      "verdict": "running",
+      "verdict": "REVERT",
       "hypothesis": "solution_3: read fewer table bytes per pass (patterns without the stored extension, or rotations computed), for 32 KB-L1 machines",
       "plain": "If the tables wheel reads less table data each pass, then it competes less with the sieve for the small fast cache on most machines, because sieve and tables together overflow it.",
       "note": "hc/solution3-compact b48ee0a: one period stored per pattern, extended per pass in a scratch region (13-17 KB); table bytes read per pass 73.3 KB -> 59.4 KB (-19%), but 61.5 KB of scratch writes per pass. Self-test, Docker stage, sweep 0 bad x3 targets. Local -1% to -5%. Zen 3 (the 32 KB target) + Zen 5 6 rounds against solution_3",
       "zen5": "-2.4% ± 1.8 1T, -2.7% ± 2.7 4T",
-      "note_z5": "Zen 5 loses; Zen 3 (the 32 KB target) pending"
+      "note_z5": "Zen 5 loses; Zen 3 (the 32 KB target) pending",
+      "zen3": "-0.5% ± 1.4 1T, -0.6% ± 0.3 4T, -4.7% ± 0.3 16T",
+      "note_z3": "Zen 3 (32 KB L1 target) also loses: scratch writes cost more than the table bytes saved"
     },
     {
       "id": "fold-zen5",
@@ -1763,6 +1767,15 @@
       "hypothesis": "Zig wheel: start offsets (and patterns if simple) as comptime tables, run-time fallback beyond them",
       "plain": "If the Zig wheel works out its start positions when it is compiled, as the existing Zig wheel entry does, then each pass skips that work, because the tables do not depend on the sieve size.",
       "note": "hc/zig-wheel-tables 0886ddf: comptime start offsets (primes 13..9973, 19.6 KB + 5.3 KB index) and word patterns for all 51 pattern primes 7..251 (63 KB AVX); run-time startBit beyond 10,007; self-test incl. a new 2e8 wheel check (fallback). Binary +94 KB. Local +18.1% (4 pairs). Zen 5 + Zen 3 6 rounds. Permitted lineage"
+    },
+    {
+      "id": "r9-zig-base-wide",
+      "entry": "zig-base",
+      "tier": "faithful",
+      "kind": "borrowed",
+      "verdict": "building",
+      "hypothesis": "Zig base: 16 lanes per dense step on Zen 5 only (fold-1pc gate)",
+      "plain": "If the Zig base marks small factors 1024 bits at a time on Zen 5, as the ISPC base does, then it gains a few percent there, because Zen 5 runs 512-bit operations at full width."
     }
   ],
   "azure_queue": 0,
@@ -1772,40 +1785,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T07:01:51Z",
-      "level": "info",
-      "text": "r9-rust-wheel-prof (rust-wheel) running: Measurement: Rust wheel phase split against the ISPC wheel diagnostic, same node",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T07:01:51Z",
-      "level": "info",
-      "text": "r9-rust-wheel-pat (rust-wheel) running: Rust wheel: build group patterns word by word and extend by one copy, as the ISPC wheel does",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T07:07:06Z",
-      "level": "decision",
-      "text": "run: Rust pattern fix to Zen 5 + Zen 3; C++ base agent started (fixed share). Why: Rust wheel: verified self-test, local +4-5%; C++ base is the third language's turn per RUN-PLAN stream 2.",
-      "id": "run",
-      "what": "Rust pattern fix to Zen 5 + Zen 3; C++ base agent started (fixed share)",
-      "why": "Rust wheel: verified self-test, local +4-5%; C++ base is the third language's turn per RUN-PLAN stream 2"
-    },
-    {
-      "utc": "2026-10-11T07:07:06Z",
-      "level": "info",
-      "text": "r9-cpp-base (cpp-base) running: C++ base: read GCC dense loop, then bring fold-1pc (16-lane dense when a thread has a core) to C++ if GCC can express it",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T07:07:58Z",
-      "level": "decision",
-      "text": "r9-zig-wheel-group: submit despite a neutral local result. Why: Chris: nothing dropped on local results; the structural difference (a separate 13 pass over 8 planes) is real in the Zen 5 profile.",
-      "id": "r9-zig-wheel-group",
-      "what": "submit despite a neutral local result",
-      "why": "Chris: nothing dropped on local results; the structural difference (a separate 13 pass over 8 planes) is real in the Zen 5 profile"
-    },
     {
       "utc": "2026-10-11T07:07:58Z",
       "level": "info",
@@ -2114,6 +2093,46 @@
       "utc": "2026-10-11T08:46:26Z",
       "level": "info",
       "text": "fold-zen5 kept.. KEEP (Chris's gate): Zen 5 holds (+6.8%, in line with +7.1% over 20 rounds), Zen 4 and Intel unchanged (+0.1%, 0.0%). Merged: hc/champion = 216629d (base self-test passes)",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T09:00:23Z",
+      "level": "decision",
+      "text": "s1-tables-compact: REVERT; solution_3 stays at 4a42d98. Why: loses on both deciders (Zen 5 -2.4%/-2.7%, Zen 3 -0.5%/-0.6%, -4.7% at 16T); the per-pass scratch writes cost more than the 19% fewer table bytes save. Passed over: more rounds (no route to +1%).",
+      "id": "s1-tables-compact",
+      "what": "REVERT; solution_3 stays at 4a42d98",
+      "why": "loses on both deciders (Zen 5 -2.4%/-2.7%, Zen 3 -0.5%/-0.6%, -4.7% at 16T); the per-pass scratch writes cost more than the 19% fewer table bytes save",
+      "instead": "more rounds (no route to +1%)"
+    },
+    {
+      "utc": "2026-10-11T09:00:23Z",
+      "level": "decision",
+      "text": "r9-cpp-base-zen5: gate confirmed; hc/port-cpp-base-champion stays at 558a949. Why: the gated build on Zen 5 matches the ungated wide build (+0.4%/+0.3%) and beats the previous champion by +6.1% 1T / +5.6% 4T; other chips take the unchanged 8-lane path. Passed over: more Zen 5 rounds (the check is identity, not a new effect).",
+      "id": "r9-cpp-base-zen5",
+      "what": "gate confirmed; hc/port-cpp-base-champion stays at 558a949",
+      "why": "the gated build on Zen 5 matches the ungated wide build (+0.4%/+0.3%) and beats the previous champion by +6.1% 1T / +5.6% 4T; other chips take the unchanged 8-lane path",
+      "instead": "more Zen 5 rounds (the check is identity, not a new effect)"
+    },
+    {
+      "utc": "2026-10-11T09:01:07Z",
+      "level": "decision",
+      "text": "r9-zig-base-wide: start agent: Zig base 16-lane dense path gated on Zen 5. Why: Zig's turn in the fixed shares; the same change gained +6.8% in ISPC and +6.1% in C++ on Zen 5; Zen 5 slots idle. Passed over: a second Zig wheel idea (waits on the group result). Expect: +2% to +6% on Zen 5, unchanged elsewhere.",
+      "id": "r9-zig-base-wide",
+      "what": "start agent: Zig base 16-lane dense path gated on Zen 5",
+      "why": "Zig's turn in the fixed shares; the same change gained +6.8% in ISPC and +6.1% in C++ on Zen 5; Zen 5 slots idle",
+      "instead": "a second Zig wheel idea (waits on the group result)",
+      "expect": "+2% to +6% on Zen 5, unchanged elsewhere"
+    },
+    {
+      "utc": "2026-10-11T09:01:07Z",
+      "level": "info",
+      "text": "s1-tables-compact REVERT.. hc/solution3-compact b48ee0a: one period stored per pattern, extended per pass in a scratch region (13-17 KB); table bytes read per pass 73.3 KB -> 59.4 KB (-19%), but 61.5 KB of scratch writes per pass. Self-test, Docker stage, sweep 0 bad x3 targets. Local -1% to -5%. Zen 3 (the 32 KB target) + Zen 5 6 rounds against solution_3",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T09:01:07Z",
+      "level": "info",
+      "text": "r9-zig-base-wide (zig-base) building: Zig base: 16 lanes per dense step on Zen 5 only (fold-1pc gate)",
       "auto": true
     }
   ],
