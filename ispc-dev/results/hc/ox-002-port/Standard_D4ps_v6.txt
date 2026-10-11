@@ -7,3 +7,37 @@ kind=ocaml rounds=5 id=20132615518
 build cand
 build champ
 build ctx
+build gk1 (PrimeOCaml/solution_1)
+build gk2 (PrimeOCaml/solution_2)
+self-test cand: 13 ok, 0 bad, exit=0
+self-test champ: 13 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-oxcaml-base;7287;5.000471;1;algorithm=base,faithful=yes,bits=1
+cauldnz-oxcaml-base;27039;5.001672;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ
+cauldnz-ocaml-base;2770;5.000435;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ocaml-base;10469;5.002388;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ2
+cauldnz-ocaml-base;2770;5.000907;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ocaml-base;10324;5.002293;4;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl
+cauldnz-ispc-base;42003;5.000111;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;168119;5.000144;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;84165;5.000218;2;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl2
+mike-barber_bit-extreme-hybrid;42935;5.0000629425;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;85754;5.0001502037;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;171376;5.0001401901;4;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl3
+gkpotter-faithful;627;5.002837;1;algorithm=base,faithful=yes
+== round warmup gk2
+gkpotter-unfaithful;630;5.002392;1;algorithm=base,faithful=no
+== round 1 gk2
+gkpotter-unfaithful;621;5.002128;1;algorithm=base,faithful=no
+== round 1 ctrl
+cauldnz-ispc-base;41993;5.000005;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;168058;5.000104;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;84163;5.000116;2;algorithm=base,faithful=yes,bits=1
+== round 1 ctrl3
+gkpotter-faithful;617;5.002068;1;algorithm=base,faithful=yes
+== round 1 champ
