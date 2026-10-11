@@ -482,7 +482,7 @@ static void run_threads(uniform Job * uniform jobs, uniform int64 * uniform tids
 export uniform int main() {
     uniform int8 n_dense[17] = {80,82,73,77,69,83,95,68,69,78,83,69,95,77,65,88,0}; // PRIMES_DENSE_MAX
     uniform int8 n_test[12] = {80,82,73,77,69,83,95,84,69,83,84,0};                 // PRIMES_TEST
-    uniform int dense_max = env_int(n_dense, 256);
+    uniform int dense_max = env_int(n_dense, 640);
     if (env_int(n_test, 0) != 0) self_test(dense_max);
 
     uniform int nthreads = clamp(hardware_threads(), 1, 1024);
