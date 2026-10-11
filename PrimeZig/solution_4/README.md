@@ -52,6 +52,9 @@ faster than a baseline SSE2 build at one thread, about 102,000 passes against 71
 entry gained nothing. `ZIG_CPU`, set for `build.sh` or as a Docker build argument, overrides
 the target, for example `ZIG_CPU=baseline` for a portable binary.
 
+On Zen 5 the build asks for `native+evex512`: Zig 0.13 has no Zen 5 model, and without it the
+compiler emits no 512-bit instructions there although the CPU has AVX-512.
+
 ## How this was built
 
 This solution came out of the same experiment in agentic engineering with Claude (Anthropic) as the author's ISPC entries. A Claude Code session ported the designs, wrote the self-tests and ran the benchmarks; the author set the brief and made the calls. Each change was self-tested with `PRIMES_TEST=1` and timed in interleaved runs against the previous build.
