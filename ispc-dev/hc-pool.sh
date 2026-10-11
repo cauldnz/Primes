@@ -94,7 +94,8 @@ if [ -f "$STAGE/oxcaml.url" ] && grep -qs oxcaml "$STAGE/cand/Dockerfile" "$STAG
 fi
 for d in cand champ ctx ctx3; do
   [ -d "$STAGE/$d" ] || continue
-  echo "build $d"; docker build -q -t "$d-$ID" "$STAGE/$d" >/dev/null || { echo "!!! build $d failed"; exit 3; }
+  echo "build $d"; t0=$(date +%s); docker build -q -t "$d-$ID" "$STAGE/$d" >/dev/null || { echo "!!! build $d failed"; exit 3; }
+  echo "build $d seconds: $(( $(date +%s) - t0 ))"
 done
 if [ -f "$STAGE/builds" ]; then   # board kind: upstream entries, built from the start task checkout
   while read -r img dir; do
