@@ -171,7 +171,7 @@ cmd_submit() {
   local CTRL_REF="${CTRL_REF:-origin/hc/champion}" SELF=1 X86=1
   is_arm "$SIZE" && X86=
   case "$KIND" in
-    wheel) ctx_from "$CAND" "${CAND_DIR:-PrimeISPC/solution_1}" "$S/cand"; ctx_from "$CHAMP" PrimeISPC/solution_1 "$S/champ"
+    wheel) ctx_from "$CAND" "${CAND_DIR:-PrimeISPC/solution_1}" "$S/cand"; ctx_from "$CHAMP" "${CHAMP_DIR:-PrimeISPC/solution_1}" "$S/champ"
            if [ -n "$X86" ]; then C1='ctrl|c5||^rogiervandam_extend(_epar)?;'
            else C1='ctrl|rust|--bits-extreme|^mike-barber_bit-extreme-hybrid;'; fi
            printf '%s\n' "cand|${CAND_OPTS:-}cand-@ID||;" 'champ|champ-@ID||;' 'champ2|champ-@ID||;' "$C1" \
@@ -217,7 +217,7 @@ cmd_submit() {
     board) # leaderboard check: our two entries (cand = base at CAND, champ = wheel at CHAMP) and
            # the top faithful entries, each run with its image's default command, as the official
            # benchmark does. Summarise with tools/board.py, not analyze.py.
-           ctx_from "$CAND" PrimeISPC/solution_2 "$S/cand"; ctx_from "$CHAMP" PrimeISPC/solution_1 "$S/champ"
+           ctx_from "$CAND" PrimeISPC/solution_2 "$S/cand"; ctx_from "$CHAMP" "${CHAMP_DIR:-PrimeISPC/solution_1}" "$S/champ"
            printf '%s\n' 'b-swift PrimeSwift/solution_1' 'b-chapel PrimeChapel/solution_1' 'b-nim PrimeNim/solution_3' \
              'b-haskell PrimeHaskell/solution_2' 'b-julia PrimeJulia/solution_4' 'b-d PrimeD/solution_3' 'b-v PrimeV/solution_2' > "$S/builds"
            printf '%s\n' 'cand|cand-@ID||;' 'champ|champ-@ID||;' \
