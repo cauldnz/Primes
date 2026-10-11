@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T21:04:37Z",
+  "updated_utc": "2026-10-11T21:09:08Z",
   "run": {
     "id": "ap-20261011T1929Z",
     "state": "running",
@@ -2039,6 +2039,18 @@
       "prediction": "Zen 5 +15% to +25%, Zen 3 +12% to +18% at 1T; Cobalt within 1%",
       "verdict": "running",
       "commit": "a4e63af"
+    },
+    {
+      "id": "ocaml-006",
+      "entry": "ocaml-plain",
+      "title": "Word-indexed Int64 Bigarray",
+      "tier": "extra-faithful",
+      "kind": "novel",
+      "plain": "If the sieve lives in a Bigarray of 64-bit words, then the dense loop needs fewer instructions, because word indexes need no tag shifts.",
+      "prediction": "+5% to +15% at 1T",
+      "verdict": "rejected",
+      "commit": "3d1e663",
+      "note": "local gate: 1T about -8%; Bigarray reloads its data pointer every access; byte view needs Obj.magic; RSS flat at 16 MB (side benefit)"
     }
   ],
   "azure_queue": 0,
@@ -2048,23 +2060,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T20:00:12Z",
-      "level": "decision",
-      "text": "ocaml-001: accept the plain OCaml port as the control line (hc/ocaml-plain-base 0b8d98c). Why: rebuilt here, PRIMES_TEST=1 exits 0; read the code: one OR per composite, pattern scratch in the per-pass sieve record, nothing kept across passes, odd-only next-prime scan.",
-      "id": "ocaml-001",
-      "what": "accept the plain OCaml port as the control line (hc/ocaml-plain-base 0b8d98c)",
-      "why": "rebuilt here, PRIMES_TEST=1 exits 0; read the code: one OR per composite, pattern scratch in the per-pass sieve record, nothing kept across passes, odd-only next-prime scan"
-    },
-    {
-      "utc": "2026-10-11T20:00:12Z",
-      "level": "decision",
-      "text": "ocaml-002: first Azure measurement: GC space_overhead 1000 from program start (662c2d4) against the shipped setting (1000 only before multi-domain runs), Zen 5 and Zen 3, 5 rounds. Why: the agent found 4T limited by major-GC stop-the-world cycles and couldn't settle the two settings on the shared container; this round also gives the first numbers against gkpotter, Rust and the ISPC base. Expect: 1T -5% to -10%, 4T +10% to +40%.",
-      "id": "ocaml-002",
-      "what": "first Azure measurement: GC space_overhead 1000 from program start (662c2d4) against the shipped setting (1000 only before multi-domain runs), Zen 5 and Zen 3, 5 rounds",
-      "why": "the agent found 4T limited by major-GC stop-the-world cycles and couldn't settle the two settings on the shared container; this round also gives the first numbers against gkpotter, Rust and the ISPC base",
-      "expect": "1T -5% to -10%, 4T +10% to +40%"
-    },
     {
       "utc": "2026-10-11T20:00:12Z",
       "level": "decision",
@@ -2408,6 +2403,20 @@
       "utc": "2026-10-11T21:04:37Z",
       "level": "info",
       "text": "ox-008 (oxcaml) running: ",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T21:09:08Z",
+      "level": "decision",
+      "text": "ocaml-006: reject at the local gate; not sent to Azure. Why: 8% slower at 1T locally over 6 rounds; the dense saving (8.5 to 7 instr/word) is eaten by data-pointer reloads and a slower sparse loop, and the only fast byte view is an Obj.magic cast, which a reviewer would question.",
+      "id": "ocaml-006",
+      "what": "reject at the local gate; not sent to Azure",
+      "why": "8% slower at 1T locally over 6 rounds; the dense saving (8.5 to 7 instr/word) is eaten by data-pointer reloads and a slower sparse loop, and the only fast byte view is an Obj.magic cast, which a reviewer would question"
+    },
+    {
+      "utc": "2026-10-11T21:09:08Z",
+      "level": "info",
+      "text": "ocaml-006 (ocaml-plain) rejected: ",
       "auto": true
     }
   ],
