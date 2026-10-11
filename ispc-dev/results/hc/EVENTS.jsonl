@@ -836,3 +836,6 @@
 {"utc": "2026-10-11T21:25:03Z", "level": "info", "text": "ox-006 kept.. Zen 3 +3.1% 1T / +3.3% 4T, Zen 5 +7.5% 4T (noisy node); on cbcd24d, combined with ox-008 as ox-011", "auto": true}
 {"utc": "2026-10-11T21:25:03Z", "level": "info", "text": "ox-007 rejected.. x86 +28% to +33% but Cobalt -27.6%; carried into the x86 kernel as ox-009", "auto": true}
 {"utc": "2026-10-11T21:25:03Z", "level": "info", "text": "ox-008 kept.. Zen 5 +26.6% 1T, Zen 3 +17.4%, Cobalt flat; champion a4e63af", "auto": true}
+{"utc": "2026-10-11T21:25:16Z", "level": "info", "text": "OxCaml champion now a4e63af: Zen 5 60.5k at 1T (0.44x ISPC base, 0.49x Rust), Zen 3 29.8k, Cobalt 7.3k."}
+{"utc": "2026-10-11T21:25:16Z", "level": "info", "text": "Scoreboard, oxcaml base on Zen 5 (EPYC 9V45, D16as_v7): 48600 → 60500 at 1T, 178200 → 222000 at 4 threads.", "auto": true}
+{"utc": "2026-10-11T21:25:16Z", "level": "info", "text": "Scoreboard, oxcaml base on Zen 3 (EPYC 7763, D16a_v4): 25100 → 29800 at 1T, 95000 → 110700 at 4 threads.", "auto": true}

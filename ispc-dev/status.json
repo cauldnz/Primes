@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T21:25:03Z",
+  "updated_utc": "2026-10-11T21:25:16Z",
   "run": {
     "id": "ap-20261011T1929Z",
     "state": "running",
@@ -24,24 +24,24 @@
     {
       "machine": "Zen 5 (EPYC 9V45, D16as_v7)",
       "entry": "oxcaml base",
-      "ours_1t": 48600,
-      "ours_mt": 178200,
+      "ours_1t": 60500,
+      "ours_mt": 222000,
       "rival": "mike-barber Rust",
       "rival_1t": 126300,
       "rival_mt": 471600,
       "threads": 4,
-      "source": "run 10 ox-003 (5 rounds, same-round medians); rival = mike-barber Rust; 4T in ours_mt; plain OCaml 31.6k, ISPC base 139k, gkpotter 1.6k"
+      "source": "run 10 ox-008 cand (champion a4e63af), same-round medians, 4T in ours_mt; Rust 124.1k, ISPC base 136.8k, plain OCaml 32.5k (ocaml-004)"
     },
     {
       "machine": "Zen 3 (EPYC 7763, D16a_v4)",
       "entry": "oxcaml base",
-      "ours_1t": 25100,
-      "ours_mt": 95000,
+      "ours_1t": 29800,
+      "ours_mt": 110700,
       "rival": "mike-barber Rust",
       "rival_1t": 55100,
       "rival_mt": 213800,
       "threads": 4,
-      "source": "run 10 ox-003 (5 rounds, same-round medians); rival = mike-barber Rust; 4T in ours_mt; plain OCaml 16.4k, ISPC base 58.4k, gkpotter 0.8k"
+      "source": "run 10 ox-008 cand (champion a4e63af), same-round medians, 4T in ours_mt; Rust 55.6k, ISPC base 59.9k, plain OCaml 18.0k"
     },
     {
       "machine": "Cobalt 100 (D4ps_v6)",
@@ -52,7 +52,7 @@
       "rival_1t": 42900,
       "rival_mt": 171300,
       "threads": 4,
-      "source": "run 10 ox-003 (5 rounds, same-round medians); rival = mike-barber Rust; 4T in ours_mt; plain OCaml 2.8k, ISPC base 42.2k"
+      "source": "run 10 ox-008 cand (champion a4e63af), same-round medians, 4T in ours_mt; Rust 42.9k, ISPC base 42.2k, plain OCaml 3.4k"
     },
     {
       "machine": "Zen 5 (EPYC 9V45, D32as_v7)",
@@ -2087,32 +2087,6 @@
   ],
   "events": [
     {
-      "utc": "2026-10-11T20:16:15Z",
-      "level": "info",
-      "text": "ocaml-003 (ocaml-plain) confirmed: ",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T20:16:59Z",
-      "level": "decision",
-      "text": "ocaml-004: background agent: plain OCaml dense OR over two runs per step (ocaml-004), then dense limit 64 and 96 on top (ocaml-005). Why: the profile's change 1 measured +17% on the dense loop locally, and the dense loop is 54% of a pass; the limit sweep is its change 3, tuned after the loop gets cheaper. Passed over: Bigarray word indexing for plain OCaml (unmeasured, GC risk). Expect: ocaml-004 +8% to +13% at 1T; limit 0% to +8%.",
-      "id": "ocaml-004",
-      "what": "background agent: plain OCaml dense OR over two runs per step (ocaml-004), then dense limit 64 and 96 on top (ocaml-005)",
-      "why": "the profile's change 1 measured +17% on the dense loop locally, and the dense loop is 54% of a pass; the limit sweep is its change 3, tuned after the loop gets cheaper",
-      "instead": "Bigarray word indexing for plain OCaml (unmeasured, GC risk)",
-      "expect": "ocaml-004 +8% to +13% at 1T; limit 0% to +8%"
-    },
-    {
-      "utc": "2026-10-11T20:16:59Z",
-      "level": "decision",
-      "text": "ox-004: background agent: untagged index arithmetic in the OxCaml sparse and vector dense loops (ox-004, on ox-003). Why: sparse is 36% of a pass and unchanged by ox-003; OCaml's tagged ints cost about four extra instructions per mark, and OxCaml's unboxed integer types are the extension most likely to remove them. Passed over: porting the two-run dense step to OxCaml (wait for ocaml-004's Azure result first). Expect: +5% to +15% at 1T.",
-      "id": "ox-004",
-      "what": "background agent: untagged index arithmetic in the OxCaml sparse and vector dense loops (ox-004, on ox-003)",
-      "why": "sparse is 36% of a pass and unchanged by ox-003; OCaml's tagged ints cost about four extra instructions per mark, and OxCaml's unboxed integer types are the extension most likely to remove them",
-      "instead": "porting the two-run dense step to OxCaml (wait for ocaml-004's Azure result first)",
-      "expect": "+5% to +15% at 1T"
-    },
-    {
       "utc": "2026-10-11T20:18:45Z",
       "level": "info",
       "text": "ocaml-002 Zen 5: GC space_overhead 1000 from start -3.0% +-3.9% at 1T, -0.8% at 4T, +16% at 16T (recorded only). Plain OCaml 31.6k at 1T: 0.24x our ISPC base (130k), 0.26x Rust (119k), 20x gkpotter faithful (1.6k). 4T scales to 92% per thread. Zen 3 still running."
@@ -2449,6 +2423,23 @@
       "utc": "2026-10-11T21:25:03Z",
       "level": "info",
       "text": "ox-008 kept.. Zen 5 +26.6% 1T, Zen 3 +17.4%, Cobalt flat; champion a4e63af",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T21:25:16Z",
+      "level": "info",
+      "text": "OxCaml champion now a4e63af: Zen 5 60.5k at 1T (0.44x ISPC base, 0.49x Rust), Zen 3 29.8k, Cobalt 7.3k."
+    },
+    {
+      "utc": "2026-10-11T21:25:16Z",
+      "level": "info",
+      "text": "Scoreboard, oxcaml base on Zen 5 (EPYC 9V45, D16as_v7): 48600 → 60500 at 1T, 178200 → 222000 at 4 threads.",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T21:25:16Z",
+      "level": "info",
+      "text": "Scoreboard, oxcaml base on Zen 3 (EPYC 7763, D16a_v4): 25100 → 29800 at 1T, 95000 → 110700 at 4 threads.",
       "auto": true
     }
   ],
