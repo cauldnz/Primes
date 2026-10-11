@@ -51,7 +51,7 @@ ALWAYS_INLINE void clear_period(std::uint64_t* __restrict q, std::index_sequence
     ((q[(P / 2 + J * P) >> 6] |= std::uint64_t{1} << ((P / 2 + J * P) & 63)), ...);
 }
 
-template <int P, bool Init>
+template <int P, bool Init, bool Restore = true>
 ALWAYS_INLINE void clear_dense(std::uint64_t* __restrict w, std::size_t nwords) {
     constexpr std::size_t first = std::size_t((P * P / 2) / 64 / P) * P;   // period holding P*P
     // Clearing starts at the period that holds P*P. Its smaller multiples are composite too;
@@ -68,11 +68,48 @@ ALWAYS_INLINE void clear_dense(std::uint64_t* __restrict w, std::size_t nwords) 
         q[t >> 6] |= std::uint64_t{1} << (t & 63);                      // one composite
     }
     constexpr int f = P / 2;                                           // P itself is prime
-    if (std::size_t(f >> 6) < nwords) w[f >> 6] &= ~(std::uint64_t{1} << (f & 63));
+    if (Restore && std::size_t(f >> 6) < nwords) w[f >> 6] &= ~(std::uint64_t{1} << (f & 63));
 }
 
 template <int P>
 void dense(std::uint64_t* w, std::size_t nwords) { clear_dense<P, P == 3>(w, nwords); }
+
+#ifdef __AVX512F__
+// Wide dense clearing for factors 65..127, where GCC's own vectorisation of clear_period falls
+// back to 128-bit and scalar ORs (some words of a period hold no multiple). Eight periods make
+// 8P words, which split evenly into P blocks of eight words. Each block gets one 512-bit OR:
+// each of its eight lanes builds its own word's mask, one single-bit OR per composite in that
+// word. The word offsets are compile-time constants, so the masks fold to constants.
+using Vec8 = std::uint64_t __attribute__((vector_size(64), aligned(8)));
+
+template <int P, std::size_t B>
+ALWAYS_INLINE void clear_block(std::uint64_t* __restrict q) {
+    Vec8 v = {};
+    for (int l = 0; l < 8; l++) {
+        const int word = int(B) * 8 + l;                                 // in the 8 periods
+        for (int t = ((P / 2 - 64 * word) % P + P) % P; t < 64; t += P)  // bits P apart
+            v[l] |= std::uint64_t{1} << t;                               // one composite
+    }
+    *reinterpret_cast<Vec8*>(q + B * 8) |= v;
+}
+
+template <int P, std::size_t... B>
+ALWAYS_INLINE void clear_octet(std::uint64_t* __restrict q, std::index_sequence<B...>) {
+    (clear_block<P, B>(q), ...);
+}
+
+template <int P>
+void dense_wide(std::uint64_t* w, std::size_t nwords) {
+    static_assert(P > 64 && P < 128);   // P*P lies in the first period: clearing starts at w
+    std::uint64_t* __restrict q = w;
+    for (std::size_t n = nwords / (8 * P); n > 0; n--, q += 8 * P)
+        clear_octet<P>(q, std::make_index_sequence<P>{});
+    // The remaining periods through the 64-bit routine, then restore P itself.
+    clear_dense<P, false, false>(q, nwords - std::size_t(q - w));
+    constexpr int f = P / 2;
+    if (std::size_t(f >> 6) < nwords) w[f >> 6] &= ~(std::uint64_t{1} << (f & 63));
+}
+#endif
 
 // One dense routine per odd factor below DenseLimit, indexed by factor / 2. Factor 3 always
 // runs first, so its routine also initialises the sieve.
@@ -82,6 +119,22 @@ constexpr auto dense_table(std::index_sequence<I...>) {
     return std::array<Fn, sizeof...(I)>{(I == 0 ? nullptr : &dense<int(2 * I + 1)>)...};
 }
 constexpr auto dense_routines = dense_table(std::make_index_sequence<DenseLimit / 2>{});
+
+#ifdef __AVX512F__
+template <int P>
+constexpr auto pick_wide() {
+    if constexpr (P > 64) return &dense_wide<P>;
+    else return &dense<P>;
+}
+
+template <std::size_t... I>
+constexpr auto dense_wide_table(std::index_sequence<I...>) {
+    using Fn = void (*)(std::uint64_t*, std::size_t);
+    return std::array<Fn, sizeof...(I)>{(I == 0 ? nullptr : pick_wide<int(2 * I + 1)>())...};
+}
+constexpr auto dense_routines_wide =
+    dense_wide_table(std::make_index_sequence<DenseLimit / 2>{});
+#endif
 
 // Sparse clearing over bytes for an odd factor p > 16. In each p-byte chunk the eight
 // multiples sit at bit offsets p/2 + j*p (j = 0..7). Their bit-in-byte positions depend only
@@ -107,8 +160,9 @@ void clear_sparse(std::uint8_t* __restrict bytes, std::size_t nbytes, std::size_
 // The sieve class: the whole state of one sieve. A new instance is made for every pass.
 class Sieve {
 public:
-    explicit Sieve(std::uint64_t size)
-        : size_(size), nbits_((size + 1) / 2), nwords_((nbits_ + 63) / 64) {
+    // wide: use the 512-bit dense routines, for runs where each sieve thread has a core.
+    explicit Sieve(std::uint64_t size, bool wide = false)
+        : size_(size), nbits_((size + 1) / 2), nwords_((nbits_ + 63) / 64), wide_(wide) {
         const std::size_t bytes = (nwords_ * 8 + 63) / 64 * 64;
         void* p = nullptr;
         if (posix_memalign(&p, 64, bytes) != 0) throw std::bad_alloc();
@@ -147,7 +201,13 @@ private:
     bool is_composite(std::uint64_t i) const { return (bits_[i / 64] >> (i % 64)) & 1; }
 
     void clear_factor(std::uint64_t p) {
-        if (p < DenseLimit) { dense_routines[p / 2](bits_, nwords_); return; }
+        if (p < DenseLimit) {
+#ifdef __AVX512F__
+            if (wide_) { dense_routines_wide[p / 2](bits_, nwords_); return; }
+#endif
+            dense_routines[p / 2](bits_, nwords_);
+            return;
+        }
         auto* b = reinterpret_cast<std::uint8_t*>(bits_);
         const std::size_t n = nwords_ * 8;
         switch (p & 15) {
@@ -165,6 +225,7 @@ private:
     std::uint64_t size_;
     std::uint64_t nbits_;
     std::size_t nwords_;
+    bool wide_;
     std::uint64_t* bits_;
 };
 
@@ -181,10 +242,10 @@ struct Result {
     std::uint64_t count = 0;   // prime count from the first pass, for validation
 };
 
-Result worker(Clock::time_point deadline) {
+Result worker(Clock::time_point deadline, bool wide) {
     Result r;
     while (Clock::now() < deadline) {
-        Sieve s(SieveSize);
+        Sieve s(SieveSize, wide);
         s.run();
         if (r.passes == 0) r.count = s.count();
         r.passes++;
@@ -204,14 +265,17 @@ void report(std::uint64_t passes, Clock::duration elapsed, unsigned threads) {
     std::exit(1);
 }
 
-void run_threads(unsigned n) {
+// wide: each thread has a core to itself (no SMT sibling sieving next to it).
+void run_threads(unsigned n, bool wide) {
     const auto start = Clock::now();
     const auto deadline = start + RunTime;
     std::vector<Result> results(n);
     std::vector<std::thread> threads;
     threads.reserve(n);
     for (unsigned t = 0; t < n; t++)
-        threads.emplace_back([&results, t, deadline] { results[t] = worker(deadline); });
+        threads.emplace_back([&results, t, deadline, wide] {
+            results[t] = worker(deadline, wide);
+        });
     std::uint64_t total = 0;
     for (unsigned t = 0; t < n; t++) {
         threads[t].join();
@@ -237,10 +301,15 @@ unsigned available_cpus() {
 [[noreturn]] void self_test(int mode) {
     if (mode == 2) {
         for (std::uint64_t n = 1; n < 400'000; n = (n < 5'000) ? n + 1 : n + 997) {
-            Sieve s(n);
+            Sieve s(n), sw(n, true);
             s.run();
+            sw.run();
             std::printf("%llu %llu\n", static_cast<unsigned long long>(n),
                         static_cast<unsigned long long>(s.count()));
+            if (sw.count() != s.count()) {
+                std::fprintf(stderr, "wide mismatch at %llu\n", static_cast<unsigned long long>(n));
+                std::exit(1);
+            }
         }
         std::exit(0);
     }
@@ -249,14 +318,17 @@ unsigned available_cpus() {
         {100'000, 9'592}, {1'000'000, 78'498}, {10'000'000, 664'579},
         {100'000'000, 5'761'455}, {127, 31}, {16'383, 1'900}};
     int bad = 0;
-    for (auto [size, expect] : cases) {
-        Sieve s(size);
-        s.run();
-        const std::uint64_t c = s.count();
-        std::printf("size %llu -> %llu primes (expected %llu) %d\n",
-                    static_cast<unsigned long long>(size), static_cast<unsigned long long>(c),
-                    static_cast<unsigned long long>(expect), c == expect ? 1 : 0);
-        if (c != expect) bad = 1;
+    for (bool wide : {false, true}) {
+        for (auto [size, expect] : cases) {
+            Sieve s(size, wide);
+            s.run();
+            const std::uint64_t c = s.count();
+            std::printf("%s size %llu -> %llu primes (expected %llu) %d\n",
+                        wide ? "wide" : "narrow", static_cast<unsigned long long>(size),
+                        static_cast<unsigned long long>(c),
+                        static_cast<unsigned long long>(expect), c == expect ? 1 : 0);
+            if (c != expect) bad = 1;
+        }
     }
     std::exit(bad);
 }
@@ -268,7 +340,7 @@ int main() {
         self_test(std::atoi(t));
 
     const auto start = Clock::now();
-    const Result r = worker(start + RunTime);
+    const Result r = worker(start + RunTime, true);
     const auto elapsed = Clock::now() - start;
     if (r.count != Expected) fail_count();
     report(r.passes, elapsed, 1);
@@ -276,6 +348,6 @@ int main() {
     // One independent sieve per thread at all, half and a quarter of the available CPUs:
     // where SMT siblings share an L1, fewer threads can complete more passes.
     const unsigned cpus = available_cpus();
-    for (unsigned n = cpus; n >= 2 && n * 4 >= cpus; n /= 2) run_threads(n);
+    for (unsigned n = cpus; n >= 2 && n * 4 >= cpus; n /= 2) run_threads(n, 2 * n <= cpus);
     return 0;
 }
