@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T23:11:51Z",
+  "updated_utc": "2026-10-11T23:13:42Z",
   "run": {
     "id": "ap-20261011T1929Z",
     "state": "running",
@@ -2196,6 +2196,19 @@
       "prediction": "Cobalt +60% to +120% at 1T; x86 byte-identical",
       "verdict": "running",
       "commit": "37e493e"
+    },
+    {
+      "id": "ocaml-007",
+      "entry": "ocaml-plain",
+      "title": "Dense loop with 32-bit stores (all targets)",
+      "tier": "extra-faithful",
+      "kind": "borrowed",
+      "source": "ox-020 finding",
+      "plain": "If plain OCaml stores the dense pattern 32 bits at a time, then Arm skips the store barrier, because only 64-bit integer stores get it.",
+      "prediction": "Cobalt +60% to +120%; x86 -5% to +5%",
+      "verdict": "rejected",
+      "commit": "e7e8016",
+      "note": "local gate: x86 -38%; would need an Arm-only source file"
     }
   ],
   "azure_queue": 0,
@@ -2205,23 +2218,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T21:38:07Z",
-      "level": "decision",
-      "text": "ox-009: KEEP; hc/oxcaml-champion fast-forwarded to 4f1ba99. Why: analyze.py KEEP: lower bounds +5.6% Zen 5 and +12.4% Zen 3 at 1T, no loss; arm64 binary byte-identical to a4e63af.",
-      "id": "ox-009",
-      "what": "KEEP; hc/oxcaml-champion fast-forwarded to 4f1ba99",
-      "why": "analyze.py KEEP: lower bounds +5.6% Zen 5 and +12.4% Zen 3 at 1T, no loss; arm64 binary byte-identical to a4e63af"
-    },
-    {
-      "utc": "2026-10-11T21:38:07Z",
-      "level": "decision",
-      "text": "ox-010: REVERT. Why: Cobalt -0.4% at 1T: the plain line's +23% on Cobalt didn't carry over, so OxCaml's Arm gap to Rust (7.3k vs 42.9k) is not in the dense copy loop; the next Arm step is a profile on a Cobalt node, not another guess. Passed over: more Arm-only loop changes.",
-      "id": "ox-010",
-      "what": "REVERT",
-      "why": "Cobalt -0.4% at 1T: the plain line's +23% on Cobalt didn't carry over, so OxCaml's Arm gap to Rust (7.3k vs 42.9k) is not in the dense copy loop; the next Arm step is a profile on a Cobalt node, not another guess",
-      "instead": "more Arm-only loop changes"
-    },
     {
       "utc": "2026-10-11T21:38:07Z",
       "level": "info",
@@ -2550,6 +2546,21 @@
       "utc": "2026-10-11T23:11:51Z",
       "level": "info",
       "text": "ox-021 (oxcaml) running: ",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T23:13:42Z",
+      "level": "decision",
+      "text": "ocaml-007: reject at the local gate; not sent to Azure, not even Cobalt alone. Why: 38% slower locally on x86, past the 30% gate; plain OCaml has one source for all targets, so the x86 loss would ship with the Arm gain. A per-architecture file (as the OxCaml line has) is the follow-up, left for the next run. Passed over: a Cobalt-only measurement of e7e8016.",
+      "id": "ocaml-007",
+      "what": "reject at the local gate; not sent to Azure, not even Cobalt alone",
+      "why": "38% slower locally on x86, past the 30% gate; plain OCaml has one source for all targets, so the x86 loss would ship with the Arm gain. A per-architecture file (as the OxCaml line has) is the follow-up, left for the next run",
+      "instead": "a Cobalt-only measurement of e7e8016"
+    },
+    {
+      "utc": "2026-10-11T23:13:42Z",
+      "level": "info",
+      "text": "ocaml-007 (ocaml-plain) rejected: ",
       "auto": true
     }
   ],
