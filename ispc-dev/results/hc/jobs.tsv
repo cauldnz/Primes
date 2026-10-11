@@ -243,4 +243,4 @@ id	pool	size	kind	outdir	submitted	state
 1103474294	hc-standard-d16as-v7	Standard_D16as_v7	port	ispc-dev/results/hc/r9-final-cpp-wheel	2026-10-11T11:03:56Z	done
 11040217480	hc-standard-d16a-v4	Standard_D16a_v4	port	ispc-dev/results/hc/r9-final-cpp-wheel	2026-10-11T11:04:12Z	done
 11041927599	hc-standard-d16as-v7	Standard_D16as_v7	port	ispc-dev/results/hc/r9-final-rust-base	2026-10-11T11:04:28Z	done
-11043630488	hc-standard-d16a-v4	Standard_D16a_v4	port	ispc-dev/results/hc/r9-final-rust-base	2026-10-11T11:04:45Z	open
+11043630488	hc-standard-d16a-v4	Standard_D16a_v4	port	ispc-dev/results/hc/r9-final-rust-base	2026-10-11T11:04:45Z	done
