@@ -1,0 +1,8 @@
+Architecture:                            x86_64
+CPU(s):                                  16
+Model name:                              Intel(R) Xeon(R) Platinum 8370C CPU @ 2.80GHz
+BIOS Model name:                         Intel(R) Xeon(R) Platinum 8370C CPU @ 2.80GHz None CPU @ 2.8GHz
+CPU(s) scaling MHz:                      104%
+AVX-512: yes
+kind=base rounds=6 id=0804135563
+build cand

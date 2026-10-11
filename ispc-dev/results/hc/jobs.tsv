@@ -189,11 +189,11 @@ id	pool	size	kind	outdir	submitted	state
 06560520487	hc-standard-d16as-v7	Standard_D16as_v7	wheel	ispc-dev/results/hc/p0-solution3	2026-10-11T06:56:15Z	done
 0656211109	hc-standard-d16a-v4	Standard_D16a_v4	wheel	ispc-dev/results/hc/p0-solution3	2026-10-11T06:56:32Z	done
 07013023463	hc-standard-d16as-v7	Standard_D16as_v7	port	ispc-dev/results/hc/r9-rust-wheel-prof	2026-10-11T07:01:40Z	done
-0706167760	hc-standard-d16as-v7	Standard_D16as_v7	port	ispc-dev/results/hc/r9-rust-wheel-pat	2026-10-11T07:06:27Z	open
-07063320642	hc-standard-d16a-v4	Standard_D16a_v4	port	ispc-dev/results/hc/r9-rust-wheel-pat	2026-10-11T07:06:43Z	open
-07073119702	hc-standard-d16as-v7	Standard_D16as_v7	zig	ispc-dev/results/hc/r9-zig-wheel-group	2026-10-11T07:07:41Z	open
-07074832311	hc-standard-d16a-v4	Standard_D16a_v4	zig	ispc-dev/results/hc/r9-zig-wheel-group	2026-10-11T07:07:58Z	open
-07161932350	hc-standard-d16as-v7	Standard_D16as_v7	port	ispc-dev/results/hc/r9-cpp-base-wide	2026-10-11T07:16:29Z	open
+0706167760	hc-standard-d16as-v7	Standard_D16as_v7	port	ispc-dev/results/hc/r9-rust-wheel-pat	2026-10-11T07:06:27Z	done
+07063320642	hc-standard-d16a-v4	Standard_D16a_v4	port	ispc-dev/results/hc/r9-rust-wheel-pat	2026-10-11T07:06:43Z	done
+07073119702	hc-standard-d16as-v7	Standard_D16as_v7	zig	ispc-dev/results/hc/r9-zig-wheel-group	2026-10-11T07:07:41Z	done
+07074832311	hc-standard-d16a-v4	Standard_D16a_v4	zig	ispc-dev/results/hc/r9-zig-wheel-group	2026-10-11T07:07:58Z	done
+07161932350	hc-standard-d16as-v7	Standard_D16as_v7	port	ispc-dev/results/hc/r9-cpp-base-wide	2026-10-11T07:16:29Z	done
 07205431935	hc-standard-d16as-v7	Standard_D16as_v7	zig	ispc-dev/results/hc/r9-zig-base	2026-10-11T07:21:04Z	open
 0721117296	hc-standard-d16a-v4	Standard_D16a_v4	zig	ispc-dev/results/hc/r9-zig-base	2026-10-11T07:21:21Z	open
 07242912596	hc-standard-d16as-v7	Standard_D16as_v7	base	ispc-dev/results/hc/s1-f1-grey	2026-10-11T07:24:39Z	open

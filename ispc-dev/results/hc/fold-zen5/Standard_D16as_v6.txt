@@ -1,0 +1,31 @@
+Architecture:                            x86_64
+CPU(s):                                  16
+Model name:                              AMD EPYC 9V74 80-Core Processor
+BIOS Model name:                         AMD EPYC 9V74 80-Core Processor                 None CPU @ 2.6GHz
+AVX-512: yes
+kind=base rounds=6 id=08035814536
+build cand
+build champ
+self-test cand: 13 ok, 0 bad, exit=0
+self-test champ: 13 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-ispc-base;82872;5.000033;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;656411;5.000271;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;663917;5.000113;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;332317;5.000091;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ
+cauldnz-ispc-base;82958;5.000007;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;656379;5.000253;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;664972;5.000139;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;332471;5.000091;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ2
+cauldnz-ispc-base;83168;5.000053;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;656493;5.000257;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;665483;5.000153;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;332540;5.000096;4;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl
+mike-barber_bit-extreme-hybrid;76604;5.0000061989;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;306377;5.0001235008;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;612797;5.0002651215;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;609104;5.0003900528;16;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl2
