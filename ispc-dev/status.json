@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T02:17:56Z",
+  "updated_utc": "2026-10-11T02:26:03Z",
   "run": {
     "id": "ap-20261011T0100Z",
     "state": "running",
@@ -1399,12 +1399,23 @@
       "id": "p-rust-base-2",
       "entry": "rust-base",
       "tier": "extra-faithful",
-      "kind": "borrowed",
+      "kind": "tuning",
       "verdict": "running",
-      "hypothesis": "Phase split of our Rust base vs mike-barber locally, then one change on the phase where ours costs more",
-      "prediction": "+2% to +6% at 1T",
-      "plain": "If we time each step of our Rust base beside the fastest Rust entry, then the step where ours is slower tells us what to change, because the sparse loops already match instruction for instruction.",
-      "note": "agent building hc/port-rust-base-2"
+      "hypothesis": "Rust base port dense/sparse cutoff 128 -> 160 (sweep 64-256 locally; 128-192 within noise)",
+      "prediction": "0 to +1%",
+      "plain": "If the Rust base clears a few more small factors with its vector pass, then it may run slightly faster, because the vector pass costs the same for every factor while the one-at-a-time pass gets cheaper only slowly.",
+      "note": "hc/port-rust-base-2 8ae7553. Local phase split: ours dense 89k / sparse 179k cycles vs mike-barber 101k / 180k; locally ours leads him by 5-8%, so the Zen gap needs a Zen profile (diag agent started)"
+    },
+    {
+      "id": "b1-sparse-last",
+      "entry": "base",
+      "tier": "extra-faithful",
+      "kind": "novel",
+      "verdict": "running",
+      "hypothesis": "Base sparse loop tests q against the last full chunk start instead of q + p <= end, removing two register copies per chunk on arm64 (29 -> 28 instructions per 8 composites, Rust has 28)",
+      "prediction": "Cobalt 100 +1% to +2% at 1T; x86 flat",
+      "plain": "If the base's large-prime loop checks against a precomputed last position instead of adding before every check, then it runs one instruction fewer per eight marks on Arm, because that is the one instruction the fastest Rust entry saves there.",
+      "note": "from b1-arm-asm (hc/b1-arm-asm 866a636: our sparse 29 vs Rust 28 instr per 8 composites, dense ours fewer); hc/b1-sparse-last; x86 local neutral (3 pairs); Cobalt + Zen 5 + Zen 3, 6 rounds; Cobalt pool raised to 2 nodes"
     }
   ],
   "azure_queue": 0,
@@ -1414,19 +1425,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T23:47:15Z",
-      "level": "decision",
-      "text": "f6-no512: cancelled unmeasured: the 96-vCPU node came up 25 min late (low-priority core quota) and F1/F2 at 48/96T take the remaining time. Why: .",
-      "id": "f6-no512",
-      "what": "cancelled unmeasured: the 96-vCPU node came up 25 min late (low-priority core quota) and F1/F2 at 48/96T take the remaining time"
-    },
-    {
-      "utc": "2026-10-10T23:47:23Z",
-      "level": "info",
-      "text": "f6-no512 cancelled (no time on the 96-vCPU node). Zen 5 D96as_v7 vs champion, 4 rounds each kind. hc/f6-no512 d6feacb: build.sh only (both entries), self-tests 0; probe, not for merge as is",
-      "auto": true
-    },
     {
       "utc": "2026-10-10T23:47:23Z",
       "level": "info",
@@ -1793,6 +1791,24 @@
       "what": "inconclusive: rerun on Zen 5 later, behind the base and Rust work",
       "why": "the Zen 5 A/A spread reached +6.9%, so the +6.3% at 16T is not trustworthy; Zen 3 runs unchanged AVX2 code so only AVX-512 machines decide (target-specific rule)",
       "instead": "rerunning now (Chris put the Rust base ahead of the C++ wheel when nodes are short)"
+    },
+    {
+      "utc": "2026-10-11T02:26:03Z",
+      "level": "decision",
+      "text": "b1-sparse-last: submit the arm64 loop-test change on Cobalt (deciding), Zen 5 and Zen 3; Cobalt pool max 1 -> 2 (120 of 128 vCPUs). Why: Chris asked to name the 2% Cobalt gap and run one experiment if the cause is ours; the static count puts the gap at one instruction per 8 composites in the sparse loop (~60% of instructions), about 1.5-2% of a pass. Passed over: the dense 65-127 mask reload fix (secondary; next if this one gains). Expect: Cobalt +1% to +2%, x86 within ±0.5%.",
+      "id": "b1-sparse-last",
+      "what": "submit the arm64 loop-test change on Cobalt (deciding), Zen 5 and Zen 3; Cobalt pool max 1 -> 2 (120 of 128 vCPUs)",
+      "why": "Chris asked to name the 2% Cobalt gap and run one experiment if the cause is ours; the static count puts the gap at one instruction per 8 composites in the sparse loop (~60% of instructions), about 1.5-2% of a pass",
+      "instead": "the dense 65-127 mask reload fix (secondary; next if this one gains)",
+      "expect": "Cobalt +1% to +2%, x86 within ±0.5%"
+    },
+    {
+      "utc": "2026-10-11T02:26:03Z",
+      "level": "decision",
+      "text": "p-rust-base-2: submit the cutoff change and start a diag build of our Rust port for a Zen 5 phase split beside mike-barber's. Why: the local split shows ours cheaper in every phase, so the 8-11% Zen deficit is a Zen effect; only a Zen profile can name it (Chris: three Rust base experiments against him).",
+      "id": "p-rust-base-2",
+      "what": "submit the cutoff change and start a diag build of our Rust port for a Zen 5 phase split beside mike-barber's",
+      "why": "the local split shows ours cheaper in every phase, so the 8-11% Zen deficit is a Zen effect; only a Zen profile can name it (Chris: three Rust base experiments against him)"
     }
   ],
   "research": {
