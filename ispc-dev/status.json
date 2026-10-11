@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T03:04:46Z",
+  "updated_utc": "2026-10-11T03:11:36Z",
   "run": {
     "id": "ap-20261011T0100Z",
     "state": "running",
@@ -1492,7 +1492,17 @@
       "hypothesis": "Use the F5 x16 folded dense code when each thread has a core to itself (1T and one-per-core), x8 otherwise",
       "prediction": "+5% to +8% at 1T on Zen 5; flat at all threads",
       "plain": "If the base uses its widest dense code only when a thread has a whole core, then it keeps the 9% one-thread gain measured earlier without the 5% loss when two threads share a core, because the loss came from sharing.",
-      "note": "agent building hc/b2-base-fold-1pc"
+      "note": "hc/b2-base-fold-1pc 282a9d7+19e51d4: the dense routine for factors 3-117 compiled a second time for avx512skx-x16 (FOLD16), used when n==1 or n*2 <= hardware threads; sse4/avx2/NEON asm byte-identical to the champion. Self-test passes both paths here. Local Cascade Lake: x16 path -9% (f5-fold equally slow there: Intel 512-bit penalty), x8 path = champion. Zen 5 6 rounds; Zen 4 (D16as_v5, AVX-512 hidden) only checks the unchanged path"
+    },
+    {
+      "id": "sb-ispc-ref",
+      "entry": "both",
+      "tier": "extra-faithful",
+      "kind": "tuning",
+      "verdict": "running",
+      "hypothesis": "Phase 1 final scoreboard at hc/ispc-ref = 1551635: base and wheel on Zen 5, Zen 3, Zen 4, per thread at 1T and 4T, with rivals",
+      "plain": "If we run both our entries beside the best rivals on three kinds of AMD machine, then we have a fixed reference for the ports and the morning report, because nothing in ISPC changes after this.",
+      "note": "base Zen 5 20 rounds (sb-base-z5-20); base Zen 3/Zen 4 and wheel Zen 5/Zen 3/Zen 4 6 rounds (sb-base, sb-wheel); hc/ispc-ref pushed"
     }
   ],
   "azure_queue": 0,
@@ -1502,21 +1512,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T01:40:24Z",
-      "level": "decision",
-      "text": "run: Chris: nothing is discarded on local results alone; every candidate gets at least a 3-round Zen 5 screen. Re-opened s6-wheel-210, p-cpp-base-clang, p-rust-base-mb as Zen 5 screens. Why: local and Azure deltas have disagreed widely (e.g. F1 and the ports); a 3-round screen costs about 15 node-minutes. Passed over: full 6-round Zen 5 + Zen 3 runs for all three (screen first; promote anything within 3% of the champion). Expect: all three still lose on Zen 5, but by less than locally.",
-      "id": "run",
-      "what": "Chris: nothing is discarded on local results alone; every candidate gets at least a 3-round Zen 5 screen. Re-opened s6-wheel-210, p-cpp-base-clang, p-rust-base-mb as Zen 5 screens",
-      "why": "local and Azure deltas have disagreed widely (e.g. F1 and the ports); a 3-round screen costs about 15 node-minutes",
-      "instead": "full 6-round Zen 5 + Zen 3 runs for all three (screen first; promote anything within 3% of the champion)",
-      "expect": "all three still lose on Zen 5, but by less than locally"
-    },
-    {
-      "utc": "2026-10-11T01:40:24Z",
-      "level": "info",
-      "text": "Rule change from Chris: local losers get a 3-round Zen 5 screen before being dropped. Three re-opened."
-    },
     {
       "utc": "2026-10-11T01:43:45Z",
       "level": "decision",
@@ -1863,6 +1858,22 @@
       "utc": "2026-10-11T03:04:46Z",
       "level": "warn",
       "text": "ha-023 inconclusive.. noisy screen; not rerun (lower priority than the base 1T candidates)",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T03:11:36Z",
+      "level": "decision",
+      "text": "run: phase 1 freeze: hc/ispc-ref = 1551635 (no ISPC keep this run); scoreboard queued on Zen 5, Zen 3 and a new 1-node Zen 4 pool; Zen 3 max 3 -> 2 and Cobalt 2 -> 1 to stay at 116 of 128 vCPUs; fold-1pc submitted on Zen 5 and Zen 4. Why: RUN-PLAN's phase 1 scoreboard and Zen 4 rechecks for the keeps (Rust AVX-512 off); fold-1pc is the base 1T candidate Chris's +4% target needs; the local -9% is Cascade Lake's 512-bit penalty, not Zen. Passed over: a D16as_v6 node for a real Zen 4 AVX-512 check of fold-1pc (no vCPU room). Expect: fold-1pc Zen 5 1T +5% to +8%.",
+      "id": "run",
+      "what": "phase 1 freeze: hc/ispc-ref = 1551635 (no ISPC keep this run); scoreboard queued on Zen 5, Zen 3 and a new 1-node Zen 4 pool; Zen 3 max 3 -> 2 and Cobalt 2 -> 1 to stay at 116 of 128 vCPUs; fold-1pc submitted on Zen 5 and Zen 4",
+      "why": "RUN-PLAN's phase 1 scoreboard and Zen 4 rechecks for the keeps (Rust AVX-512 off); fold-1pc is the base 1T candidate Chris's +4% target needs; the local -9% is Cascade Lake's 512-bit penalty, not Zen",
+      "instead": "a D16as_v6 node for a real Zen 4 AVX-512 check of fold-1pc (no vCPU room)",
+      "expect": "fold-1pc Zen 5 1T +5% to +8%"
+    },
+    {
+      "utc": "2026-10-11T03:11:36Z",
+      "level": "info",
+      "text": "sb-ispc-ref (both) running: Phase 1 final scoreboard at hc/ispc-ref = 1551635: base and wheel on Zen 5, Zen 3, Zen 4, per thread at 1T and 4T, with rivals",
       "auto": true
     }
   ],
