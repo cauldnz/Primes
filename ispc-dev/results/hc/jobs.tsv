@@ -178,3 +178,11 @@ id	pool	size	kind	outdir	submitted	state
 0357405126	hc-standard-d16as-v7	Standard_D16as_v7	base	ispc-dev/results/hc/sb-base-z5-20-new	2026-10-11T03:57:49Z	done
 06453517259	hc-standard-d16as-v6	Standard_D16as_v6	base	ispc-dev/results/hc/p0-fold-avx512	2026-10-11T06:45:45Z	open
 06455126843	hc-standard-d16s-v5	Standard_D16s_v5	base	ispc-dev/results/hc/p0-fold-avx512	2026-10-11T06:46:02Z	open
+06475113860	hc-standard-d16as-v7	Standard_D16as_v7	port	ispc-dev/results/hc/p-cpp-wheel-clang-idea12-r9	2026-10-11T06:48:02Z	open
+06480827232	hc-standard-d16a-v4	Standard_D16a_v4	port	ispc-dev/results/hc/p-cpp-wheel-clang-idea12-r9	2026-10-11T06:48:18Z	open
+06520123073	hc-standard-d16as-v7	Standard_D16as_v7	size	ispc-dev/results/hc/size-cliff	2026-10-11T06:52:10Z	open
+065216798	hc-standard-d16a-v4	Standard_D16a_v4	size	ispc-dev/results/hc/size-cliff	2026-10-11T06:52:26Z	open
+06523317026	hc-standard-d4ps-v6	Standard_D4ps_v6	size	ispc-dev/results/hc/size-cliff	2026-10-11T06:52:43Z	open
+06530716301	hc-standard-d16as-v7	Standard_D16as_v7	wheel	ispc-dev/results/hc/p0-line-4t-wheel	2026-10-11T06:53:16Z	open
+06532422872	hc-standard-d16as-v7	Standard_D16as_v7	base	ispc-dev/results/hc/p0-line-4t-base	2026-10-11T06:54:16Z	open
+0654223850	hc-standard-d16as-v7	Standard_D16as_v7	base	ispc-dev/results/hc/p0-line-4t-6cpu	2026-10-11T06:55:15Z	open

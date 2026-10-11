@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T06:47:31Z",
+  "updated_utc": "2026-10-11T06:55:15Z",
   "run": {
     "id": "ap-20261011T0645Z",
     "state": "running",
@@ -1545,6 +1545,48 @@
       "hypothesis": "Scoreboard: hc/champion 330b3d4 base against mike-barber on Zen 5, 20 paired rounds",
       "plain": "If we run the final base beside the fastest Rust base twenty times, then we know its lead with a tight interval.",
       "note": "1T +10.44% ± 0.11 (20/20), 4T +10.45% ± 0.04, 16T +15.11%; vs 1551635 +7.14% 1T, -0.46% ± 0.11 16T"
+    },
+    {
+      "id": "p0-fold-avx512",
+      "entry": "base",
+      "tier": "extra-faithful",
+      "kind": "novel",
+      "verdict": "running",
+      "hypothesis": "AVX-512 check of fold-1pc (330b3d4 vs 1551635) on Zen 4 with AVX-512 (D16as_v6) and Intel Xeon (D16s_v5)",
+      "prediction": "Zen 4 0 to +5% at 1T/4T (512-bit ops double-pumped); Intel -5% to +5% (Cascade Lake lost 9% locally)",
+      "plain": "If the 16-lane base code runs on the other chips that have the widest vector instructions, then we learn whether it helps or hurts there, because it was only measured on Zen 5.",
+      "note": "6 rounds each; a 1T/4T loss of 1% or more is reported, not fixed, this run"
+    },
+    {
+      "id": "p0-line-4t",
+      "entry": "both",
+      "tier": "extra-faithful",
+      "kind": "novel",
+      "verdict": "running",
+      "hypothesis": "Report exactly 4 threads when the thread loop didn't and the machine has more than 4 (hc/line-4t 365991b)",
+      "prediction": "no existing line moves (±0.5%); the 6-CPU run shows a 4-thread line",
+      "plain": "If each entry also reports a run with exactly four threads, then it shows up where the leaderboard's multi-thread leaders do, because they all report four threads.",
+      "note": "Zen 5 6 rounds per entry (16 vCPU: the loop already prints 4); a 2-round base run with docker --cpuset-cpus=0-5 shows the new line firing"
+    },
+    {
+      "id": "size-cliff",
+      "entry": "both",
+      "tier": "extra-faithful",
+      "kind": "tuning",
+      "verdict": "running",
+      "hypothesis": "Measurement: throughput per number against working set, 16 sizes 250k-2M, both entries, Zen 3, Zen 5, Cobalt",
+      "prediction": "see results/hc/size-cliff/README.md (wheel -10% to -20% at 1M on Zen 3, none on Zen 5; base -5% to -15% near 800k on Zen 5)",
+      "plain": "If we run both entries at many sieve sizes, then a sudden drop where the sieve stops fitting in the fastest cache shows how much fitting is worth, because every lead so far points to that cache.",
+      "note": "hc/diag-size db6cf2e; 3 rounds"
+    },
+    {
+      "id": "p-cpp-wheel-clang-idea12-r9",
+      "entry": "cpp-wheel",
+      "tier": "extra-faithful",
+      "kind": "borrowed",
+      "verdict": "running",
+      "hypothesis": "More rounds for the C++ wheel IDEAS 12 on clang under the per-thread rule",
+      "note": "backtest: kept on 16T last run, straddles at 1T/4T; 10 rounds Zen 5 + Zen 3"
     }
   ],
   "azure_queue": 0,
@@ -1554,40 +1596,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T02:33:47Z",
-      "level": "info",
-      "text": "p-cpp-wheel-ub kept.. kept as a correctness fix, not a speed keep: no regression anywhere (worst +0.0%), and clang builds need it. Under the speed rule alone it would need ~20 rounds",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T02:33:47Z",
-      "level": "info",
-      "text": "p-rust-base-mb rejected.. Zen 5 screen confirms and deepens the local loss (-15% locally)",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T02:33:47Z",
-      "level": "info",
-      "text": "p-rust-base-noavx512 kept.. KEEP under the target-specific rule (>=2% where the code changes, identical elsewhere): hc/port-rust-base-champion = noavx512. vs mike-barber (ctrl2): Zen 5 -1.9% 1T (was about -11%), +9.5% at 16T. Zen 4 recheck at the scoreboard",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T02:33:47Z",
-      "level": "info",
-      "text": "b1-cobalt-profile confirmed.. Cobalt 100, 5 rounds, both profiled builds (ns per pass): ours dense 34.7k / sparse 89.2k / scan 5.3k / total 129.2k; Rust dense 33.4k / sparse 90.1k / scan 6.7k / total 130.2k. Benchmark lines in the same rounds: Rust diag 42.9k vs ours 42.0k (+2.1%). Ours trails only in the dense phase (+3.8% there, about 1% of a pass); sparse and scan are ours. The rest of the 2% is not in the timed phases (timer cost differs: ours clock_gettime, Rust Instant). Named gap: dense 65.127 reloads masks every period (b1-arm-asm) and the sparse loop-test (29 vs 28 instructions, b1-sparse-last running)",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T02:50:14Z",
-      "level": "decision",
-      "text": "run: F4 closed at 256; b1-sparse-last is flat on Cobalt, so the arm gap is not that instruction; submit both prefetch candidates; start agent b2-base-fold-1pc (x16 fold only when one thread per core). Why: Chris's target is +4% over Rust at 1T on Zen 5; the x86 side-by-side shows no instruction gap, and the only measured lever that big is the F5 fold (+8.6% 1T, -5.2% at 32T from SMT sharing): choosing it per run keeps the keep rule satisfiable unchanged. Passed over: dense 65-127 mask reload fix on arm (the Cobalt gap is 2% on a non-deciding machine; Zen 5 1T comes first). Expect: fold-1pc +5% to +8% at 1T Zen 5.",
-      "id": "run",
-      "what": "F4 closed at 256; b1-sparse-last is flat on Cobalt, so the arm gap is not that instruction; submit both prefetch candidates; start agent b2-base-fold-1pc (x16 fold only when one thread per core)",
-      "why": "Chris's target is +4% over Rust at 1T on Zen 5; the x86 side-by-side shows no instruction gap, and the only measured lever that big is the F5 fold (+8.6% 1T, -5.2% at 32T from SMT sharing): choosing it per run keeps the keep rule satisfiable unchanged",
-      "instead": "dense 65-127 mask reload fix on arm (the Cobalt gap is 2% on a non-deciding machine; Zen 5 1T comes first)",
-      "expect": "fold-1pc +5% to +8% at 1T Zen 5"
-    },
     {
       "utc": "2026-10-11T02:50:14Z",
       "level": "info",
@@ -1885,6 +1893,38 @@
       "id": "run",
       "what": "analyze.py verdict switched to the per-thread rule and backtested on run 8 (results/hc/rule-backtest)",
       "why": "RUN-PLAN phase 0 item 5: decide nothing before the verdict line matches HILL-CLIMB.md; one past keep (C++ wheel IDEAS 12 on clang) needs more rounds under it"
+    },
+    {
+      "utc": "2026-10-11T06:55:15Z",
+      "level": "decision",
+      "text": "run: phase 0 in flight: AVX-512 check (Zen 4 v6, Intel), 4T line (Zen 5 + a 6-CPU functional run), size cliff (Zen 5, Zen 3, Cobalt; predictions written first), C++ IDEAS 12 re-decided under the new rule. Why: RUN-PLAN phase 0 items 1, 3, 5 and stream 1 step 1; solution_3 and the champion clean-up next.",
+      "id": "run",
+      "what": "phase 0 in flight: AVX-512 check (Zen 4 v6, Intel), 4T line (Zen 5 + a 6-CPU functional run), size cliff (Zen 5, Zen 3, Cobalt; predictions written first), C++ IDEAS 12 re-decided under the new rule",
+      "why": "RUN-PLAN phase 0 items 1, 3, 5 and stream 1 step 1; solution_3 and the champion clean-up next"
+    },
+    {
+      "utc": "2026-10-11T06:55:15Z",
+      "level": "info",
+      "text": "p0-fold-avx512 (base) running: AVX-512 check of fold-1pc (330b3d4 vs 1551635) on Zen 4 with AVX-512 (D16as_v6) and Intel Xeon (D16s_v5)",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T06:55:15Z",
+      "level": "info",
+      "text": "p0-line-4t (both) running: Report exactly 4 threads when the thread loop didn't and the machine has more than 4 (hc/line-4t 365991b)",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T06:55:15Z",
+      "level": "info",
+      "text": "size-cliff (both) running: Measurement: throughput per number against working set, 16 sizes 250k-2M, both entries, Zen 3, Zen 5, Cobalt",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T06:55:15Z",
+      "level": "info",
+      "text": "p-cpp-wheel-clang-idea12-r9 (cpp-wheel) running: More rounds for the C++ wheel IDEAS 12 on clang under the per-thread rule",
+      "auto": true
     }
   ],
   "research": {
