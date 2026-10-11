@@ -171,14 +171,14 @@ cmd_submit() {
   local CTRL_REF="${CTRL_REF:-origin/hc/champion}" SELF=1 X86=1
   is_arm "$SIZE" && X86=
   case "$KIND" in
-    wheel) ctx_from "$CAND" PrimeISPC/solution_1 "$S/cand"; ctx_from "$CHAMP" PrimeISPC/solution_1 "$S/champ"
+    wheel) ctx_from "$CAND" "${CAND_DIR:-PrimeISPC/solution_1}" "$S/cand"; ctx_from "$CHAMP" PrimeISPC/solution_1 "$S/champ"
            if [ -n "$X86" ]; then C1='ctrl|c5||^rogiervandam_extend(_epar)?;'
            else C1='ctrl|rust|--bits-extreme|^mike-barber_bit-extreme-hybrid;'; fi
-           printf '%s\n' 'cand|cand-@ID||;' 'champ|champ-@ID||;' 'champ2|champ-@ID||;' "$C1" \
+           printf '%s\n' "cand|${CAND_OPTS:-}cand-@ID||;" 'champ|champ-@ID||;' 'champ2|champ-@ID||;' "$C1" \
              'ctrl2|--entrypoint ./sieve_5760of30030_only_write_read_bits dsp||^danielspaangberg' \
              'ctrl2|--entrypoint ./sieve_5760of30030_epar dsp||^danielspaangberg' > "$S/spec" ;;
     base)  ctx_from "$CAND" PrimeISPC/solution_2 "$S/cand"; ctx_from "$CHAMP" PrimeISPC/solution_2 "$S/champ"
-           printf '%s\n' 'cand|cand-@ID||;' 'champ|champ-@ID||;' 'champ2|champ-@ID||;' \
+           printf '%s\n' "cand|${CAND_OPTS:-}cand-@ID||;" 'champ|champ-@ID||;' 'champ2|champ-@ID||;' \
              'ctrl|rust|--bits-extreme|^mike-barber_bit-extreme-hybrid;' \
              'ctrl2|davepl|dummy -l 1000000 -t 1|^davepl' 'ctrl2|davepl|dummy -l 1000000|^davepl' > "$S/spec" ;;
     rust)  SELF=; ctx_from "$CAND" PrimeRust/solution_1 "$S/cand"; ctx_from "$CHAMP" PrimeRust/solution_1 "$S/champ"
@@ -207,6 +207,13 @@ cmd_submit() {
              davepl) printf '%s\n' 'ctrl2|davepl|dummy -l 1000000 -t 1|^davepl' 'ctrl2|davepl|dummy -l 1000000|^davepl' >> "$S/spec" ;;
              c5)     [ -n "$X86" ] && echo 'ctrl2|c5||^rogiervandam_extend(_epar)?;' >> "$S/spec" ;;
            esac ;;
+    size)  # size cliff (RUN-PLAN run 9): both ISPC entries of a PRIMES_SIZE diagnostic build at CAND,
+           # wheel = cand image, base = champ image, one label per entry and size (w<n>, b<n>).
+           ctx_from "$CAND" PrimeISPC/solution_1 "$S/cand"; ctx_from "$CAND" PrimeISPC/solution_2 "$S/champ"
+           : > "$S/spec"
+           for n in ${SIZES:-250000 400000 500000 600000 700000 770000 850000 920000 960000 1000000 1050000 1100000 1300000 1450000 1600000 2000000}; do
+             printf '%s\n' "w$n|-e PRIMES_SIZE=$n cand-@ID||;" "b$n|-e PRIMES_SIZE=$n champ-@ID||;" >> "$S/spec"
+           done ;;
     board) # leaderboard check: our two entries (cand = base at CAND, champ = wheel at CHAMP) and
            # the top faithful entries, each run with its image's default command, as the official
            # benchmark does. Summarise with tools/board.py, not analyze.py.
@@ -248,7 +255,7 @@ json.dump({"id": tid,
            "environmentSettings": [{"name": "KIND", "value": kind}, {"name": "ROUNDS", "value": rounds},
                                    {"name": "ID", "value": tid}, {"name": "SELFTEST", "value": selftest}],
            "userIdentity": {"autoUser": {"scope": "pool", "elevationLevel": "admin"}},
-           "constraints": {"maxWallClockTime": "PT120M" if kind == "board" else "PT50M", "maxTaskRetryCount": 0}},
+           "constraints": {"maxWallClockTime": "PT120M" if kind in ("board", "size") else "PT50M", "maxTaskRetryCount": 0}},
           open(f"{d}/task.json", "w"))
 PY
   az batch task create --job-id "$P" --json-file "$D/task.json" -o none
