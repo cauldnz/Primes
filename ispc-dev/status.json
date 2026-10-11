@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T08:07:34Z",
+  "updated_utc": "2026-10-11T08:08:02Z",
   "run": {
     "id": "ap-20261011T0645Z",
     "state": "running",
@@ -1735,6 +1735,16 @@
       "prediction": "+5% to +10% at 1T (group passes 28.9k of 75.9k cycles)",
       "plain": "If the Rust wheel checks its array bounds once before its busiest loop instead of every step, then the loop gets much shorter, because the checks were forcing values out of registers.",
       "note": "hc/port-rust-wheel-group 47d9afd; self-test incl. sweep (DENSE_MAX 17/1024) 0 wrong; local median 1.14x over 11 noisy pairs. Zen 5 + Zen 3 6 rounds"
+    },
+    {
+      "id": "r9-zig-tables",
+      "entry": "zig-wheel",
+      "tier": "permitted",
+      "kind": "borrowed",
+      "verdict": "running",
+      "hypothesis": "Zig wheel: start offsets (and patterns if simple) as comptime tables, run-time fallback beyond them",
+      "plain": "If the Zig wheel works out its start positions when it is compiled, as the existing Zig wheel entry does, then each pass skips that work, because the tables do not depend on the sieve size.",
+      "note": "agent building hc/zig-wheel-tables (permitted lineage; borrowed from PrimeZig/solution_3 and our solution_3)"
     }
   ],
   "azure_queue": 0,
@@ -1744,20 +1754,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T06:43:58Z",
-      "level": "info",
-      "text": "Run ap-20261011T0645Z started (azure mode).",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T06:47:31Z",
-      "level": "decision",
-      "text": "run: analyze.py verdict switched to the per-thread rule and backtested on run 8 (results/hc/rule-backtest). Why: RUN-PLAN phase 0 item 5: decide nothing before the verdict line matches HILL-CLIMB.md; one past keep (C++ wheel IDEAS 12 on clang) needs more rounds under it.",
-      "id": "run",
-      "what": "analyze.py verdict switched to the per-thread rule and backtested on run 8 (results/hc/rule-backtest)",
-      "why": "RUN-PLAN phase 0 item 5: decide nothing before the verdict line matches HILL-CLIMB.md; one past keep (C++ wheel IDEAS 12 on clang) needs more rounds under it"
-    },
     {
       "utc": "2026-10-11T06:55:15Z",
       "level": "decision",
@@ -2086,6 +2082,20 @@
       "utc": "2026-10-11T08:07:34Z",
       "level": "info",
       "text": "r9-rust-wheel-group (rust-wheel) running: Rust wheel group loop: hoist bounds checks out of the loop (asserts before, raw pointers inside); 170 -> 93 instructions per 32 words on Zen 5, ORs fuse into vpternlog",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T08:08:02Z",
+      "level": "decision",
+      "text": "r9-zig-tables: start the Zig tables agent. Why: Zig's fixed share: third experiment; the comptime precedent is in Zig itself, and our tables entry gained 17-19%.",
+      "id": "r9-zig-tables",
+      "what": "start the Zig tables agent",
+      "why": "Zig's fixed share: third experiment; the comptime precedent is in Zig itself, and our tables entry gained 17-19%"
+    },
+    {
+      "utc": "2026-10-11T08:08:03Z",
+      "level": "info",
+      "text": "r9-zig-tables (zig-wheel) running: Zig wheel: start offsets (and patterns if simple) as comptime tables, run-time fallback beyond them",
       "auto": true
     }
   ],
