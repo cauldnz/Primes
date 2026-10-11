@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T07:13:10Z",
+  "updated_utc": "2026-10-11T07:16:29Z",
   "run": {
     "id": "ap-20261011T0645Z",
     "state": "running",
@@ -1630,7 +1630,7 @@
       "verdict": "running",
       "hypothesis": "C++ base: read GCC dense loop, then bring fold-1pc (16-lane dense when a thread has a core) to C++ if GCC can express it",
       "plain": "If the C++ base uses its widest vector code for small factors when a thread has a core to itself, then it gains as the ISPC base did, because the same change bought 7.5% there.",
-      "note": "agent building hc/port-cpp-base-wide"
+      "note": "hc/port-cpp-base-wide 738377c: GCC already emits 512-bit dense code for P<64 on Zen-like targets; for P 65-127 its vectorisation breaks down (0.55-2.3 instr/word). New dense_wide<P> (GCC vector extension, behind __AVX512F__, one |= per composite per lane, constant masks): 0.34 instr/word at P=113. Used when each thread has a core. Self-test both modes; sweep identical. Local Cascade Lake native -6.8% (zmm downclock), Zen-like build +4.5%. Zen 3 code unchanged (no AVX-512); Zen 5 6 rounds decides (target-specific)"
     },
     {
       "id": "r9-zig-wheel-group",
@@ -1661,12 +1661,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T03:27:46Z",
-      "level": "info",
-      "text": "p-cpp-wheel-idea12 kept.. KEEP: Zen 5 +6.2% ± 0.5 1T, Zen 3 1T lower bound +1.0% over 12 rounds; measured on the g++ port, so re-measured on the clang champion as p-cpp-wheel-clang-idea12 before it joins hc/port-cpp-wheel-champion",
-      "auto": true
-    },
     {
       "utc": "2026-10-11T03:27:46Z",
       "level": "info",
@@ -1987,6 +1981,16 @@
       "level": "info",
       "text": "p0-fold-avx512 confirmed.. REPORTED, not fixed (RUN-PLAN): the 16-lane path helps only Zen 5 (+7.5%). None of the official runners except the Zen 5 Threadripper has AVX-512 (EPYC VM AVX2-only, i7-9750H, Celeron, Pi 4), so their code is byte-identical; a Zen 4 or Ice Lake machine would lose 3% / 7%. Fix options for Chris: gate the 16-lane choice on a CPUID family check (Zen 5 only) or drop it",
       "auto": true
+    },
+    {
+      "utc": "2026-10-11T07:16:29Z",
+      "level": "decision",
+      "text": "r9-cpp-base: submit on Zen 5 only. Why: the change is behind __AVX512F__, so Zen 3's native build is unchanged; Cascade Lake's local loss is the known 512-bit downclock, and Zen 5 is the machine it targets. Passed over: Zen 4 / Ice Lake check (fold-1pc showed AVX-512 losses there; same caveat would apply). Expect: +2% to +5% at 1T on Zen 5.",
+      "id": "r9-cpp-base",
+      "what": "submit on Zen 5 only",
+      "why": "the change is behind __AVX512F__, so Zen 3's native build is unchanged; Cascade Lake's local loss is the known 512-bit downclock, and Zen 5 is the machine it targets",
+      "instead": "Zen 4 / Ice Lake check (fold-1pc showed AVX-512 losses there; same caveat would apply)",
+      "expect": "+2% to +5% at 1T on Zen 5"
     }
   ],
   "research": {

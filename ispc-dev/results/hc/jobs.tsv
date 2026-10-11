@@ -193,3 +193,4 @@ id	pool	size	kind	outdir	submitted	state
 07063320642	hc-standard-d16a-v4	Standard_D16a_v4	port	ispc-dev/results/hc/r9-rust-wheel-pat	2026-10-11T07:06:43Z	open
 07073119702	hc-standard-d16as-v7	Standard_D16as_v7	zig	ispc-dev/results/hc/r9-zig-wheel-group	2026-10-11T07:07:41Z	open
 07074832311	hc-standard-d16a-v4	Standard_D16a_v4	zig	ispc-dev/results/hc/r9-zig-wheel-group	2026-10-11T07:07:58Z	open
+07161932350	hc-standard-d16as-v7	Standard_D16as_v7	port	ispc-dev/results/hc/r9-cpp-base-wide	2026-10-11T07:16:29Z	open
