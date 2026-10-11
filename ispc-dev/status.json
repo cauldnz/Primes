@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T01:44:30Z",
+  "updated_utc": "2026-10-11T01:59:51Z",
   "run": {
     "id": "ap-20261011T0100Z",
     "state": "running",
@@ -1250,6 +1250,94 @@
       "prediction": "one of them +0% to +4% at 1T (the loss grows steeply above 256, so the optimum may sit below it)",
       "plain": "If the wheel hands primes to the sparse pass earlier than it does now, then a pass gets faster, because raising the limit cost up to a quarter of the speed, which suggests the limit is already too high.",
       "note": "hc/f4-dense-192, hc/f4-dense-128; 6 rounds Zen 5 + Zen 3"
+    },
+    {
+      "id": "p-zig-wheel-direct-pattern",
+      "entry": "zig-wheel",
+      "tier": "extra-faithful",
+      "kind": "novel",
+      "verdict": "running",
+      "hypothesis": "Zig wheel: build each group pattern word in a register and store once",
+      "prediction": "+3% (local -5% to -9%)",
+      "plain": "If the Zig wheel builds each pattern word in a register before storing it, then pattern building gets cheaper, because it skips a clearing pass and many small memory updates.",
+      "note": "hc/zig-wheel-direct-pattern 82a21fa; local 3 pairs -5% to -9%; Zen 5 screen per Chris's rule, 3 rounds"
+    },
+    {
+      "id": "s5-zig-wheel-profile",
+      "entry": "zig-wheel",
+      "tier": "extra-faithful",
+      "kind": "tuning",
+      "verdict": "running",
+      "hypothesis": "Measurement: Zig wheel phase split on Zen 5",
+      "prediction": "Zig behind ISPC only in group passes and pattern build",
+      "plain": "If we time each step of the Zig wheel on the same machine as the ISPC wheel, then we see where the two differ, because the local split showed Zig ahead everywhere except the grouped passes.",
+      "note": "hc/diag-zig-wheel-phases-2 afd9146; local: start 7.7%, pattern 8.5%, group 38.6%, tile 2.4%, sparse 38.2%, scan 4.7% (147k cycles vs ISPC 175.6k)"
+    },
+    {
+      "id": "ha-zig-idea12",
+      "entry": "zig-wheel",
+      "tier": "extra-faithful",
+      "kind": "borrowed",
+      "verdict": "running",
+      "hypothesis": "Recheck: IDEAS 12 in the Zig wheel on a fresh Zen 3 node",
+      "prediction": "+1% to +2% (Zen 5 already +1.6% ± 0.3)",
+      "plain": "If we rerun the Zig wheel's tile-fold change on a quiet Zen 3 machine, then it can be decided, because its earlier Zen 3 node was noisy.",
+      "note": "history audit row 1; hc/zig-idea12 e1a55bb; Zen 3 6 rounds"
+    },
+    {
+      "id": "ha-029",
+      "entry": "ispc",
+      "tier": "extra-faithful",
+      "kind": "tuning",
+      "verdict": "running",
+      "hypothesis": "Recheck: ISPC 1.28 on Ubuntu 26.04 (hc-029), on the current champion",
+      "prediction": "base +2% on Zen 5; wheel flat",
+      "plain": "If the entries build with the newer compiler on the newer OS, then the base may gain a little, because the earlier short run showed +2.4% before later changes.",
+      "note": "history audit row 2; hc/029-ubuntu-2604-on-1551635; Zen 5 3-round screens, base and wheel"
+    },
+    {
+      "id": "ha-030",
+      "entry": "wheel",
+      "tier": "extra-faithful",
+      "kind": "tuning",
+      "verdict": "running",
+      "hypothesis": "Recheck: wheel pattern scratch 1024 -> 256 words (hc-030), which also shortens the row stride to 2,560 B (IDEAS 14, 4K aliasing)",
+      "prediction": "0 to +2%",
+      "plain": "If the wheel's pattern scratch rows are shorter, then the grouped pass may run faster, because rows 8.7 KB apart can alias in the cache and 2.5 KB apart cannot.",
+      "note": "history audit row 3; caps PRIMES_DENSE_MAX at 256; Zen 5 3-round screen"
+    },
+    {
+      "id": "ha-f5-addr64",
+      "entry": "base",
+      "tier": "extra-faithful",
+      "kind": "tuning",
+      "verdict": "running",
+      "hypothesis": "Recheck: base --addressing=64 on Zen 3 (AVX2), never measured there",
+      "prediction": "0 to +2% on Zen 3",
+      "plain": "If the base is compiled with 64-bit addressing, then its dense loop loses two sign-extension instructions per vector on Zen 3, because the same flag gave the wheel 2% to 3% there.",
+      "note": "history audit row 4; Zen 5 was +0.2%/+0.9%; Zen 3 6 rounds"
+    },
+    {
+      "id": "ha-018",
+      "entry": "base",
+      "tier": "extra-faithful",
+      "kind": "novel",
+      "verdict": "running",
+      "hypothesis": "Recheck: base sparse two chunks a trip (hc-018)",
+      "prediction": "-1% to +1%",
+      "plain": "If the base's sparse loop does two chunks per trip, then it may save loop overhead, because its earlier test ran on a noisy node.",
+      "note": "history audit row 7; Zen 5 3-round screen; touches NEON-shared code, Cobalt gate if it wins"
+    },
+    {
+      "id": "ha-023",
+      "entry": "base",
+      "tier": "extra-faithful",
+      "kind": "novel",
+      "verdict": "running",
+      "hypothesis": "Recheck: base dense pointer walk (hc-023), never measured on Zen 5",
+      "prediction": "-1% to +1%",
+      "plain": "If the base's dense loop walks a pointer instead of an index, then it may save an instruction per store on Zen 5, because it was never measured there.",
+      "note": "history audit row 8; Zen 5 3-round screen"
     }
   ],
   "azure_queue": 0,
@@ -1259,20 +1347,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T22:56:33Z",
-      "level": "warn",
-      "auto": true,
-      "text": "zig-idea12 changed with no reasoning recorded (st.py decide)."
-    },
-    {
-      "utc": "2026-10-10T23:03:24Z",
-      "level": "decision",
-      "text": "zig-f2: REVERT the Zig F2 port as it stands. Why: Zen 3: -23.3% +-0.5 at 1T, -11.7% at 16T (0/6), while the ISPC F2 gains +9-12% there; Zen 5 +3.2% 1T, -0.6% 16T. The port loses on the 32 KB L1 machine, so something in it (per-pass factor list from the arena, per-block sparseReset entry) costs more than blocking saves; worth a profile before a retry.",
-      "id": "zig-f2",
-      "what": "REVERT the Zig F2 port as it stands",
-      "why": "Zen 3: -23.3% +-0.5 at 1T, -11.7% at 16T (0/6), while the ISPC F2 gains +9-12% there; Zen 5 +3.2% 1T, -0.6% 16T. The port loses on the 32 KB L1 machine, so something in it (per-pass factor list from the arena, per-block sparseReset entry) costs more than blocking saves; worth a profile before a retry"
-    },
     {
       "utc": "2026-10-10T23:03:24Z",
       "level": "decision",
@@ -1616,6 +1690,21 @@
       "utc": "2026-10-11T01:44:30Z",
       "level": "info",
       "text": "Chris: look back across history for anything else that deserves a pool run. Agent history-audit started (read-only)."
+    },
+    {
+      "utc": "2026-10-11T01:59:51Z",
+      "level": "decision",
+      "text": "run: act on the history audit: rows 1-4, 7, 8 submitted (rows 2-4, 7, 8 merged onto 1551635 and self-tested here); row 5 (wheel F1 dense, needs a rebase, Zen 5 already -0.7%) and row 6 (byte sparse kernel, needs an agent build) held for later; F6 and the stop flag need the 96-vCPU node. Why: Chris asked to re-run anything history left undecided; the audit found no unrun queue, only stopped-early, noisy or single-machine results. Screens are 3 rounds on Zen 5; Zen 3 runs where Zen 5 was already measured. Passed over: the 96-vCPU node (it would need every other pool down under 128 vCPUs). Expect: mostly flat; zig-idea12 and 029 base the likeliest keeps.",
+      "id": "run",
+      "what": "act on the history audit: rows 1-4, 7, 8 submitted (rows 2-4, 7, 8 merged onto 1551635 and self-tested here); row 5 (wheel F1 dense, needs a rebase, Zen 5 already -0.7%) and row 6 (byte sparse kernel, needs an agent build) held for later; F6 and the stop flag need the 96-vCPU node",
+      "why": "Chris asked to re-run anything history left undecided; the audit found no unrun queue, only stopped-early, noisy or single-machine results. Screens are 3 rounds on Zen 5; Zen 3 runs where Zen 5 was already measured",
+      "instead": "the 96-vCPU node (it would need every other pool down under 128 vCPUs)",
+      "expect": "mostly flat; zig-idea12 and 029 base the likeliest keeps"
+    },
+    {
+      "utc": "2026-10-11T01:59:51Z",
+      "level": "info",
+      "text": "History audit: 7 rechecks queued (zig-idea12 Zen 3, ISPC 1.28/Ubuntu 26.04, wheel scratch 256, base addr64 Zen 3, base hc-018, hc-023). Zig wheel profile and direct-pattern idea on Zen 5. Note for Chris: hc/champion tracks build outputs (primes, *.o) since the IDEAS 12 merge."
     }
   ],
   "research": {
