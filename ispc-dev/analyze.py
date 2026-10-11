@@ -10,17 +10,18 @@ The warm-up round is ignored.
 
 Per machine and thread count it prints medians and ranges, the same-round ratio cand/champ (median
 and range, then mean, 95% confidence interval and SD of the per-round ratios), the A/A spread
-champ2/champ, cand/ctrl and cand/ctrl2. The interval is reported, not yet used in the verdict. Then it gives a verdict (HILL-CLIMB.md, "Acceptance rule", from 2026-10-10), on the mean of the
-per-round ratio and its 95% confidence interval, at 1 thread or all threads, whichever is better:
-  KEEP         the interval's lower end is at least +1% on both Zen 3 and Zen 5, and nothing
-               loses 1% or more on the mean.
+champ2/champ, cand/ctrl and cand/ctrl2. The interval is reported, not yet used in the verdict. Then it gives a verdict (HILL-CLIMB.md, "Acceptance rule", per thread, from 2026-10-11), on the
+mean of the per-round ratio and its 95% confidence interval at 1 thread and at 4 threads:
+  KEEP         the lower end is at least +1% at 1T or 4T on both Zen 3 and Zen 5, and neither
+               1T nor 4T loses 1% or more on Zen 3, Zen 5, Intel AVX2 or Cobalt (the gates).
+  (all-threads is recorded, not decided: a loss over 5% there is printed for Chris)
   MORE ROUNDS  the interval straddles +1%; it estimates how many rounds would settle it.
   REVERT       a regression of 1% or more anywhere, an interval that can't reach +1%, or 20
                rounds without settling.
 A/A intervals that exclude zero by more than 0.5% mark the machine NOISY: rerun it elsewhere.
 HILL-CLIMB.md requires Zen 3 and Zen 5 logs for a decision; the script warns if either is missing.
 """
-import re
+import os, re
 import statistics
 import sys
 from collections import defaultdict
@@ -123,8 +124,7 @@ def main(paths):
     if not paths:
         sys.exit(__doc__)
     results = [summarise(p) for p in paths]
-    deciding = {}          # machine -> best (lower bound, mean, sd, n) at 1T or all threads
-    worst = (1.0, "")      # lowest mean ratio anywhere, and where
+    stats = {}             # (file, threads) -> (lower bound, mean, sd, n, is all-threads)
     noisy = []
     for res in results:
         print(f"\n### {res['machine']}  ({res['rounds']} scored rounds, {res['file']})\n")
@@ -152,47 +152,81 @@ def main(paths):
                   + f" | {pct(gain)} ({pct(min(cc))} to {pct(max(cc))}) | {ci_txt} | {won}/{len(cc)} | {aa_txt} | {ctrl} | {ctrl2} | "
                   + (kfmt(med["ctrl3"]) if "ctrl3" in med else "-") + " | "
                   + (pct(statistics.median(ratios["cand/ctrl3"])) if ratios["cand/ctrl3"] else "n/a") + " |")
-            if mu < worst[0]:
-                worst = (mu, f"{res['machine']} {t}T")
-            if t in (1, tmax) and hw == hw:
-                cand = (mu - hw, mu, sd, len(cc))
-                key = res["machine"]
-                if key not in deciding or cand[0] > deciding[key][0]:
-                    deciding[key] = cand
+            if hw == hw:
+                stats[(res["file"], t)] = (mu - hw, mu, sd, len(cc), t == tmax)
         per_thread_table(res["file"])
 
-    names = " ".join(r["machine"] for r in results)
-    need = {"Zen 3": "7763|7V73|Zen 3", "Zen 5": "9V45|9005|Zen 5"}
-    picked = {}
-    for label, pat in need.items():
-        hits = [v for m, v in deciding.items() if re.search(pat, m)]
-        if hits:
-            picked[label] = max(hits)
-        else:
-            print(f"\nWARNING: no {label} log; HILL-CLIMB.md needs Zen 3 and Zen 5 for a decision.")
+    verdict(results, stats, noisy)
+
+
+# Which chip each Azure size should give (HILL-CLIMB.md: a log on the wrong chip doesn't count).
+SIZE_CHIP = {"Standard_D16a_v4": "7763", "Standard_D16as_v7": "9V45", "Standard_D32as_v7": "9V45",
+             "Standard_D96as_v7": "9V45", "Standard_D16as_v6": "9V74", "Standard_D16as_v5": "9V74",
+             "Standard_D16s_v5": "Xeon", "Standard_D4ps_v6": "Neoverse|N2|Cobalt|ARM|aarch64"}
+ROLE = [("Zen 5", "9V45|9005|Zen 5", "decide"), ("Zen 3", "7763|7V73|Zen 3", "decide"),
+        ("Intel", "Intel|Xeon", "gate"), ("Cobalt", "Neoverse|Cobalt|ARM|aarch64|N2", "gate")]
+DECIDE_T = (1, 4)
+
+
+def verdict(results, stats, noisy):
+    """HILL-CLIMB.md acceptance rule from 2026-10-11 (per thread): decide at 1T and 4T on Zen 5
+    and Zen 3; Intel AVX2 and Cobalt are gates; all-threads is recorded, not decided."""
+    roles, wrong = {}, []
+    for res in results:
+        size = os.path.basename(res["file"]).split(".")[0]
+        want = SIZE_CHIP.get(size)
+        if want and not re.search(want, res["machine"] or ""):
+            wrong.append(f"{res['file']} is {res['machine']}, not {want}")
+            continue
+        for name, pat, role in ROLE:
+            if re.search(pat, res["machine"] or ""):
+                roles.setdefault(name, []).append(res["file"])
+                break
+    for w in wrong:
+        print(f"\nWRONG CHIP (not counted): {w}")
     if noisy:
         print("\nNOISY: the champion differs from itself beyond 0.5% on " + "; ".join(noisy)
               + ". Treat this machine's result as inconclusive and rerun it, ideally on another node.")
-    if not picked:
+    losses, notes, best, rounds = [], [], {}, 0
+    for name, pat, role in ROLE:
+        for f in roles.get(name, []):
+            for (ff, t), (lo, mu, sd, n, is_all) in stats.items():
+                if ff != f:
+                    continue
+                rounds = max(rounds, n)
+                if t in DECIDE_T:
+                    if mu <= 1 - REGRESS:
+                        losses.append(f"{name} {t}T {pct(mu)}")
+                    if role == "decide" and (name not in best or lo > best[name][0]):
+                        best[name] = (lo, mu, sd, n, t)
+                elif is_all and mu < 0.95:
+                    notes.append(f"{name} all threads ({t}T) {pct(mu)}: report to Chris, not a revert")
+    for nm in ("Zen 5", "Zen 3"):
+        if nm not in best:
+            print(f"\nWARNING: no {nm} log at 1T/4T; HILL-CLIMB.md needs Zen 3 and Zen 5 for a decision.")
+    for n_ in notes:
+        print(f"\nRECORDED: {n_}")
+    gates = [g for g in ("Intel", "Cobalt") if g in roles]
+    print("\nDeciding (best of 1T/4T, lower bound / mean): " + "; ".join(
+        f"{k} {t}T {pct(lo)} / {pct(mu)}" for k, (lo, mu, sd, n, t) in best.items())
+        + (f". Gates present: {', '.join(gates)}" if gates else ". No gate logs"))
+    if not best:
         print("\nVERDICT: NO DATA")
         return
-    lows = [v[0] for v in picked.values()]
-    if worst[0] <= 1 - REGRESS:
-        verdict = f"REVERT (regresses {pct(worst[0])} on {worst[1]})"
-    elif len(picked) == 2 and min(lows) >= 1 + THRESH:
-        verdict = "KEEP (95% interval clears +1% on both Zen machines)"
-    elif any(v[1] + (v[1] - v[0]) < 1 + THRESH for v in picked.values()) or max(v[3] for v in picked.values()) >= MAX_ROUNDS:
-        verdict = "REVERT (the interval can't reach +1% on both machines, or the round limit is reached)"
+    if losses:
+        v = f"REVERT (loses 1% or more at 1T/4T: {'; '.join(losses)})"
+    elif len(best) == 2 and min(b[0] for b in best.values()) >= 1 + THRESH:
+        v = "KEEP (lower bound >= +1% at 1T or 4T on both Zen 5 and Zen 3; no 1T/4T loss on any machine)"
+    elif any(b[1] + (b[1] - b[0]) < 1 + THRESH for b in best.values()) or rounds >= MAX_ROUNDS:
+        v = "REVERT (the interval can't reach +1% at 1T or 4T on both Zens, or the round limit is reached)"
     else:
         est = []
-        for label, (lo, mu, sd, n) in picked.items():
+        for k, (lo, mu, sd, n, t) in best.items():
             if lo < 1 + THRESH and mu > 1 + THRESH and sd > 0:
-                k = (2.1 * sd / (mu - 1 - THRESH)) ** 2
-                est.append(f"{label} about {min(MAX_ROUNDS, max(n + 2, int(k + 0.999)))}")
-        more = "; ".join(est) if est else f"up to {MAX_ROUNDS}"
-        verdict = f"MORE ROUNDS (the interval straddles +1%; rounds needed: {more})"
-    print(f"\nVERDICT: {verdict}")
-
+                need = (2.1 * sd / (mu - 1 - THRESH)) ** 2
+                est.append(f"{k} {t}T about {min(MAX_ROUNDS, max(n + 2, int(need + 0.999)))}")
+        v = f"MORE ROUNDS (the interval straddles +1%; rounds needed: {'; '.join(est) or f'up to {MAX_ROUNDS}'})"
+    print(f"\nVERDICT: {v}")
 
 if __name__ == "__main__":
     main(sys.argv[1:])

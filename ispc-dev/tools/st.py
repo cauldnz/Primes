@@ -38,7 +38,7 @@ elif a[0]=="exp":
         if x["id"]==e["id"]: x.update(e); break
     else: xs.append(e)
 elif a[0]=="spend":
-    price={"Standard_D16a_v4":0.13,"Standard_D16as_v5":0.127,"Standard_D16as_v6":0.134,"Standard_D16as_v7":0.134}
+    price={"Standard_D16a_v4":0.13,"Standard_D16as_v5":0.127,"Standard_D16as_v6":0.134,"Standard_D16as_v7":0.134,"Standard_D16s_v5":0.15}
     tot=0
     for r in csv.reader(open(os.path.join(os.path.dirname(P),"results","cost-log.csv"))):
         if len(r)<4 or r[0]<d["run"]["started_utc"]: continue
