@@ -20,6 +20,9 @@
 //    masks are compile-time constants selected by p mod 16.
 
 #include <sched.h>
+#if defined(__x86_64__) || defined(__i386__)
+#include <cpuid.h>
+#endif
 #include <unistd.h>
 
 #include <array>
@@ -333,14 +336,31 @@ unsigned available_cpus() {
     std::exit(bad);
 }
 
+// Zen 5 (AMD family 1Ah). The 512-bit dense routines gain about 6% at one thread there; the
+// ISPC base's same idea lost 3% on Zen 4 and 7% on Intel Ice Lake, so they run on Zen 5 only.
+bool is_zen5() {
+#if defined(__x86_64__) || defined(__i386__)
+    unsigned a, b, c, d;
+    if (!__get_cpuid(0, &a, &b, &c, &d)) return false;
+    const bool amd = b == 0x68747541 && d == 0x69746e65 && c == 0x444d4163;  // "AuthenticAMD"
+    if (!__get_cpuid(1, &a, &b, &c, &d)) return false;
+    unsigned family = (a >> 8) & 0xF;
+    if (family == 0xF) family += (a >> 20) & 0xFF;
+    return amd && family == 0x1A;
+#else
+    return false;
+#endif
+}
+
 }  // namespace
 
 int main() {
     if (const char* t = std::getenv("PRIMES_TEST"); t != nullptr && std::atoi(t) != 0)
         self_test(std::atoi(t));
 
+    const bool zen5 = is_zen5();
     const auto start = Clock::now();
-    const Result r = worker(start + RunTime, true);
+    const Result r = worker(start + RunTime, zen5);
     const auto elapsed = Clock::now() - start;
     if (r.count != Expected) fail_count();
     report(r.passes, elapsed, 1);
@@ -348,6 +368,6 @@ int main() {
     // One independent sieve per thread at all, half and a quarter of the available CPUs:
     // where SMT siblings share an L1, fewer threads can complete more passes.
     const unsigned cpus = available_cpus();
-    for (unsigned n = cpus; n >= 2 && n * 4 >= cpus; n /= 2) run_threads(n, 2 * n <= cpus);
+    for (unsigned n = cpus; n >= 2 && n * 4 >= cpus; n /= 2) run_threads(n, zen5 && 2 * n <= cpus);
     return 0;
 }

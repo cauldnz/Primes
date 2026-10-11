@@ -52,6 +52,9 @@ clearing routines follow mike-barber's Rust solution
   composite, and the block gets one 512-bit OR and store. The word offsets are compile-time
   constants, so the masks fold to constants. The GCC vector extension
   (`vector_size(64)`) expresses this; there are still no intrinsics.
+  It is used on Zen 5 only (AMD family 1Ah, from CPUID): there it is about 6% faster at one
+  thread, while the same idea in our ISPC base was 3% slower on Zen 4 and 7% slower on Intel Ice
+  Lake, where 512-bit operations are split in two or lower the clock.
 - **Factors of 128 and above.** The same idea over bytes: eight multiples repeat every `p`
   bytes, each at a fixed bit position. Their byte offsets are computed once per factor and a
   pointer walks over the `p`-byte chunks, so each composite costs one OR instruction. The
