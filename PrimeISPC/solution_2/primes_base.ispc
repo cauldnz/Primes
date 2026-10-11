@@ -206,7 +206,10 @@ static inline void clear_sparse_e(uniform uint8 * uniform bytes, uniform int nby
     // Indexing with a 32-bit chunk offset cost a sign extension and an add per composite.
     uniform uint8 * uniform q = bytes + ((p * p / 2) / 8 / p) * p;
     uniform uint8 * uniform end = bytes + nbytes;
-    for (; q + p <= end; q += p) {                                  // one composite each
+    // Test against the last full chunk's start, not q + p: on arm64 q + p <= end cost two
+    // register copies per chunk (29 instructions per 8 composites against Rust's 28).
+    uniform uint8 * uniform last = end - p;
+    for (; q <= last; q += p) {                                     // one composite each
         q[o0] |= m0; q[o1] |= m1; q[o2] |= m2; q[o3] |= m3;
         q[o4] |= m4; q[o5] |= m5; q[o6] |= m6; q[o7] |= m7;
     }
