@@ -174,3 +174,4 @@ id	pool	size	kind	outdir	submitted	state
 03262618114	hc-standard-d4ps-v6	Standard_D4ps_v6	wheel	ispc-dev/results/hc/s5-tables	2026-10-11T03:26:36Z	done
 03272012617	hc-standard-d16as-v7	Standard_D16as_v7	port	ispc-dev/results/hc/p-cpp-wheel-clang-idea12	2026-10-11T03:27:30Z	open
 03273620540	hc-standard-d16a-v4	Standard_D16a_v4	port	ispc-dev/results/hc/p-cpp-wheel-clang-idea12	2026-10-11T03:27:46Z	open
+0342123006	hc-standard-d16as-v7	Standard_D16as_v7	base	ispc-dev/results/hc/ha-018-z5b	2026-10-11T03:42:21Z	open
