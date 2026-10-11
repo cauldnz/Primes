@@ -190,7 +190,7 @@ cmd_submit() {
     zig)   local E="${ZIG_ENTRY:-base}" SOL=solution_2; [ "$E" = wheel ] && SOL=solution_1
            ctx_from "$CAND" PrimeZig/solution_4 "$S/cand"; ctx_from "$CHAMP" PrimeZig/solution_4 "$S/champ"
            ctx_from "$CTRL_REF" "PrimeISPC/$SOL" "$S/ctx"
-           printf '%s\n' "cand|cand-@ID||^cauldnz-zig-$E;" "champ|champ-@ID||^cauldnz-zig-$E;" \
+           printf '%s\n' "cand|cand-@ID||^(cauldnz-zig-$E|phase);" "champ|champ-@ID||^cauldnz-zig-$E;" \
              "champ2|champ-@ID||^cauldnz-zig-$E;" 'ctrl|ctx-@ID||;' > "$S/spec"
            [ "$E" = base ] && printf '%s\n' 'ctrl2|davepl|dummy -l 1000000 -t 1|^davepl' 'ctrl2|davepl|dummy -l 1000000|^davepl' >> "$S/spec"
            [ "$E" = wheel ] && [ -n "$X86" ] && echo 'ctrl2|c5||^rogiervandam_extend(_epar)?;' >> "$S/spec" ;;
