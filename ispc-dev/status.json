@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T21:38:07Z",
+  "updated_utc": "2026-10-11T21:38:39Z",
   "run": {
     "id": "ap-20261011T1929Z",
     "state": "running",
@@ -2103,14 +2103,6 @@
     {
       "utc": "2026-10-11T20:44:51Z",
       "level": "decision",
-      "text": "ox-002: record as the OxCaml line's starting measurement, not a revert. Why: it compares two compilers on one source, which is the question the plan asks; there is nothing to revert to.",
-      "id": "ox-002",
-      "what": "record as the OxCaml line's starting measurement, not a revert",
-      "why": "it compares two compilers on one source, which is the question the plan asks; there is nothing to revert to"
-    },
-    {
-      "utc": "2026-10-11T20:44:51Z",
-      "level": "decision",
       "text": "ox-003: KEEP; hc/oxcaml-champion = cbcd24d; plain line champion hc/ocaml-champion = 0b8d98c. Why: analyze.py KEEP: lower bounds +60.4% Zen 5 and +40.0% Zen 3 at 1T, Cobalt flat. Over 20%, so re-read the diff line by line: SIMD only copies the pattern, which is built with one OR per composite; self-tests passed on all nodes; the dense loop was 54% of a pass, so a 4x wider copy can give this. ox-004 (champion cbcd24d as its base) runs on other tasks and repeats cbcd24d's number.",
       "id": "ox-003",
       "what": "KEEP; hc/oxcaml-champion = cbcd24d; plain line champion hc/ocaml-champion = 0b8d98c",
@@ -2458,6 +2450,15 @@
       "level": "info",
       "text": "Scoreboard, oxcaml base on Zen 3 (EPYC 7763, D16a_v4): 29800 → 31400 at 1T, 110700 → 120300 at 4 threads.",
       "auto": true
+    },
+    {
+      "utc": "2026-10-11T21:38:39Z",
+      "level": "decision",
+      "text": "ox-012: background agent: portable phase-timer build of the champion (rdtsc on x86, cntvct_el0 on Arm) to run on Cobalt and Zen 3. Why: OxCaml is 6x behind Rust on Cobalt and 2x on Zen; ox-010 showed the Arm dense copy isn't it, so the next Arm change needs a profile from an Arm node (AUTOPILOT section 3). Passed over: more Arm loop guesses.",
+      "id": "ox-012",
+      "what": "background agent: portable phase-timer build of the champion (rdtsc on x86, cntvct_el0 on Arm) to run on Cobalt and Zen 3",
+      "why": "OxCaml is 6x behind Rust on Cobalt and 2x on Zen; ox-010 showed the Arm dense copy isn't it, so the next Arm change needs a profile from an Arm node (AUTOPILOT section 3)",
+      "instead": "more Arm loop guesses"
     }
   ],
   "research": {
