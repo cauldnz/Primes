@@ -166,3 +166,13 @@ cauldnz-ispc-wheel-tables;1093667;5.000236;16;algorithm=wheel,faithful=yes,bits=
 cauldnz-ispc-wheel-tables;1068103;5.000142;8;algorithm=wheel,faithful=yes,bits=1
 cauldnz-ispc-wheel-tables;534475;5.000080;4;algorithm=wheel,faithful=yes,bits=1
 == round 6 ctrl
+rogiervandam_extend_epar;534852;5.000063;16;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;514578;5.000029;8;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;260591;5.000035;4;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;130628;5.000012;2;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend;65368;5.000011;1;algorithm=other,faithful=yes,bits=1
+== round 6 cand
+cauldnz-ispc-wheel-tables;133861;5.000033;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc-wheel-tables;1056377;5.000255;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc-wheel-tables;1061053;5.000157;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc-wheel-tables;533767;5.000099;4;algorithm=wheel,faithful=yes,bits=1
