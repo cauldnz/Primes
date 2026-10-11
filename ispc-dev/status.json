@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T01:25:31Z",
+  "updated_utc": "2026-10-11T01:26:00Z",
   "run": {
     "id": "ap-20261011T0100Z",
     "state": "running",
@@ -1115,11 +1115,11 @@
       "entry": "wheel",
       "tier": "extra-faithful",
       "kind": "novel",
-      "verdict": "running",
+      "verdict": "rejected",
       "hypothesis": "A mod-210 wheel (48 planes, ~28.6 KB at 1M) with incrementally derived starts beats the mod-30 champion with every thread busy",
       "prediction": "Zen 5 1T -5% to +3%, all threads 0 to +6%; Zen 3 1T -3% to +4%, all threads 0 to +5% (IDEAS.md)",
       "plain": "If the wheel also skips multiples of 7, then the sieve shrinks enough that two copies sharing a core fit better in its fastest cache, because 48 of every 210 numbers are kept instead of 8 of every 30.",
-      "note": "agent building hc/wheel-210"
+      "note": "hc/wheel-210 99de3e7: correct (self-test; 6,000 odd sizes on avx512/avx2/sse4, 0 mismatches) but about 30% slower than the champion at 1T locally (58k vs 85k passes, interleaved). Stopped at the local gate, never sent to Azure. Cause: a plane is only 75 words at 1M, so per-group-per-plane set-up (432 apply_group calls per pass) dominates the dense side (~40 us vs the champion whole pass 58 us); the 48-start walk costs ~200 cycles per sparse prime. Prediction (-5% to +3% at 1T) missed. Next shape, if ever: interleave the 48 planes (one 3.6 KB stripe layout) so the dense pass vectorises across planes."
     },
     {
       "id": "p-cpp-wheel-idea12",
@@ -1184,22 +1184,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T22:05:03Z",
-      "level": "decision",
-      "text": "idea12-v2: 8 rounds of IDEAS 12 (v2, on the new champion) on the free Zen 3 node. Why: its Zen 3 1T interval straddled +1% last run; keeps the node busy while the grey gates run elsewhere.",
-      "id": "idea12-v2",
-      "what": "8 rounds of IDEAS 12 (v2, on the new champion) on the free Zen 3 node",
-      "why": "its Zen 3 1T interval straddled +1% last run; keeps the node busy while the grey gates run elsewhere"
-    },
-    {
-      "utc": "2026-10-10T22:11:16Z",
-      "level": "decision",
-      "text": "run: standing rule from Chris: port every ISPC keep (clean or grey) to our Zig, Rust and C++ entries of the same design and measure it there; first port this run: F2 (16 KB blocks) to the Zig base, as a grey branch. Why: Chris, 08:10 NZT; F2 is the largest gain so far and the Zig base is level with the ISPC base.",
-      "id": "run",
-      "what": "standing rule from Chris: port every ISPC keep (clean or grey) to our Zig, Rust and C++ entries of the same design and measure it there; first port this run: F2 (16 KB blocks) to the Zig base, as a grey branch",
-      "why": "Chris, 08:10 NZT; F2 is the largest gain so far and the Zig base is level with the ISPC base"
-    },
     {
       "utc": "2026-10-10T22:16:16Z",
       "level": "info",
@@ -1526,6 +1510,20 @@
       "why": "rebuilt all five here with the Dockerfile flags; every self-test passes; diffs touch only the port's own directory (plus a RULES.md on the grey bases). Pools have spare queue time behind F4, so phase 2 starts early on the fleet as RUN-PLAN allows",
       "instead": "waiting for hc/ispc-ref (it equals 1551635 unless F4 keeps)",
       "expect": "wheels +1% to +6%; grey bases +8% to +15%"
+    },
+    {
+      "utc": "2026-10-11T01:26:00Z",
+      "level": "decision",
+      "text": "s6-wheel-210: reject at the local gate; park the bigger-wheel line. Why: -30% at 1T locally is at the 30% gate and 25 points below the prediction; the agent's split shows the cost is structural (48 short planes multiply per-plane set-up), not a missing tweak, so Zen won't rescue it at 1T and a 6% SMT gain can't cover it. Passed over: sending it to Azure for the all-threads number (would cost two node-runs to confirm a loss).",
+      "id": "s6-wheel-210",
+      "what": "reject at the local gate; park the bigger-wheel line",
+      "why": "-30% at 1T locally is at the 30% gate and 25 points below the prediction; the agent's split shows the cost is structural (48 short planes multiply per-plane set-up), not a missing tweak, so Zen won't rescue it at 1T and a 6% SMT gain can't cover it",
+      "instead": "sending it to Azure for the all-threads number (would cost two node-runs to confirm a loss)"
+    },
+    {
+      "utc": "2026-10-11T01:26:00Z",
+      "level": "info",
+      "text": "Zen 5 pool resize to 4 nodes was refused by the session's permission check; pools stay at 3+3 nodes, queue runs longer."
     }
   ],
   "research": {
