@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T08:44:45Z",
+  "updated_utc": "2026-10-11T08:46:26Z",
   "run": {
     "id": "ap-20261011T0645Z",
     "state": "running",
@@ -1699,10 +1699,11 @@
       "entry": "rust-base",
       "tier": "extra-faithful",
       "kind": "novel",
-      "verdict": "running",
+      "verdict": "rejected",
       "hypothesis": "Rust base: one change in the dense phase, where the Zen 5 profile put the whole gap to mike-barber",
       "plain": "If the Rust base's small-factor pass does less work per word, then it catches up with the fastest Rust entry, because that pass is where it was slower.",
-      "note": "hc/port-rust-base-dense f808f00: factors 17-63 cleared one period at a time with a compile-time [u64;P] mask array (masks stay in registers, as in mike-barber's codegen); was 4-period runs reloading 19-of-31 masks per iteration at P=31. Self-test + cargo test pass. Local -2% vs champion, +7% vs his. Zen 5 + Zen 3 6 rounds"
+      "note": "REVERT on Zen 5 alone (cannot reach +1%; Zen 3 result moot). Masks in registers did not help on Zen 5",
+      "zen5": "-0.4% ± 0.3 1T, -0.3% ± 0.1 4T, -5.5% ± 0.7 16T (0/6)"
     },
     {
       "id": "s1-tables-compact",
@@ -1712,21 +1713,24 @@
       "verdict": "running",
       "hypothesis": "solution_3: read fewer table bytes per pass (patterns without the stored extension, or rotations computed), for 32 KB-L1 machines",
       "plain": "If the tables wheel reads less table data each pass, then it competes less with the sieve for the small fast cache on most machines, because sieve and tables together overflow it.",
-      "note": "hc/solution3-compact b48ee0a: one period stored per pattern, extended per pass in a scratch region (13-17 KB); table bytes read per pass 73.3 KB -> 59.4 KB (-19%), but 61.5 KB of scratch writes per pass. Self-test, Docker stage, sweep 0 bad x3 targets. Local -1% to -5%. Zen 3 (the 32 KB target) + Zen 5 6 rounds against solution_3"
+      "note": "hc/solution3-compact b48ee0a: one period stored per pattern, extended per pass in a scratch region (13-17 KB); table bytes read per pass 73.3 KB -> 59.4 KB (-19%), but 61.5 KB of scratch writes per pass. Self-test, Docker stage, sweep 0 bad x3 targets. Local -1% to -5%. Zen 3 (the 32 KB target) + Zen 5 6 rounds against solution_3",
+      "zen5": "-2.4% ± 1.8 1T, -2.7% ± 2.7 4T",
+      "note_z5": "Zen 5 loses; Zen 3 (the 32 KB target) pending"
     },
     {
       "id": "fold-zen5",
       "entry": "base",
       "tier": "extra-faithful",
       "kind": "novel",
-      "verdict": "running",
+      "verdict": "kept",
       "hypothesis": "Chris: gate fold-1pc's 16-lane dense path on Zen 5 (AMD family 1Ah) as well as one thread per core; 8-lane everywhere else",
       "prediction": "Zen 4 and Intel within ±0.5% of 1551635 at 1T/4T; Zen 5 +7.5% holds",
       "plain": "If the base uses its widest code only on the chip where it helps, then no other chip loses, because the slowdown came from chips that run 512-bit work more slowly.",
-      "note": "hc/fold-zen5 d882ed5: family read from /proc/cpuinfo (vendor AuthenticAMD and cpu family 26; the base stays all-ISPC with C-library calls only); parser tested on family 26/25/Intel/missing file; self-test in auto, FOLD=0, FOLD=1; README sentence added. 6 rounds against 1551635 on D16as_v6 (Zen 4), D16s_v5 (Intel), D16as_v7 (Zen 5)",
+      "note": "KEEP (Chris's gate): Zen 5 holds (+6.8%, in line with +7.1% over 20 rounds), Zen 4 and Intel unchanged (+0.1%, 0.0%). Merged: hc/champion = 216629d (base self-test passes)",
       "zen4": "9V74: +0.1% ± 0.4 1T, +0.1% ± 0.4 4T, +0.1% 16T vs 1551635 (no loss)",
       "intel": "Xeon 8370C: -0.0% ± 0.2 1T, +0.0% ± 0.9 4T, -0.8% ± 0.7 16T vs 1551635 (no loss)",
-      "note_gate": "Zen 4 and Intel now behave as 1551635 at 1T/4T (was -2.7% / -7.1%); Zen 5 check pending"
+      "note_gate": "Zen 4 and Intel now behave as 1551635 at 1T/4T (was -2.7% / -7.1%); Zen 5 check pending",
+      "zen5": "+6.8% ± 0.5 1T, +6.8% ± 0.1 4T, +6.9% 8T, -0.5% 16T vs 1551635 (6/6)"
     },
     {
       "id": "r9-cpp-wheel",
@@ -1768,28 +1772,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T06:57:18Z",
-      "level": "info",
-      "text": "hc/champion 330b3d4 -> 3ad0427: build outputs no longer tracked (.gitignore added; no code change). hc/solution3's solution_1 still carries them; cleaned at the final tag."
-    },
-    {
-      "utc": "2026-10-11T06:57:19Z",
-      "level": "decision",
-      "text": "run: start port agents r9-zig-group (Zig wheel group passes vs ISPC's compiled loop) and r9-rust-wheel-prof (Rust wheel phase split vs ISPC). Why: RUN-PLAN stream 2 gives each language a fixed share: Zig and Rust wheel first, C++ base when a slot frees.",
-      "id": "run",
-      "what": "start port agents r9-zig-group (Zig wheel group passes vs ISPC's compiled loop) and r9-rust-wheel-prof (Rust wheel phase split vs ISPC)",
-      "why": "RUN-PLAN stream 2 gives each language a fixed share: Zig and Rust wheel first, C++ base when a slot frees"
-    },
-    {
-      "utc": "2026-10-11T07:01:51Z",
-      "level": "decision",
-      "text": "r9-rust-wheel-pat: start the Rust pattern-build agent; profile build to Zen 5 for confirmation. Why: the local split puts more than the whole Rust-ISPC gap in pattern building; the idea is ISPC's own (borrowed). Passed over: group passes (second, +8k).",
-      "id": "r9-rust-wheel-pat",
-      "what": "start the Rust pattern-build agent; profile build to Zen 5 for confirmation",
-      "why": "the local split puts more than the whole Rust-ISPC gap in pattern building; the idea is ISPC's own (borrowed)",
-      "instead": "group passes (second, +8k)"
-    },
     {
       "utc": "2026-10-11T07:01:51Z",
       "level": "info",
@@ -2113,6 +2095,26 @@
       "id": "run",
       "what": "no new agent this tick: every language has its three experiments in flight or decided; wait for the wheel group loops, Zig tables, Rust base dense and the fold-zen5 Zen 5 check before choosing the next round",
       "why": "stream 1 step 2 is off (no Zen 3 wheel cliff) and steps 3-5 are running or decided; idle agents cost nothing"
+    },
+    {
+      "utc": "2026-10-11T08:46:26Z",
+      "level": "decision",
+      "text": "fold-zen5: merge the Zen 5 gate into hc/champion (216629d). Why: Chris's three checks all pass: Zen 5 +6.8% at 1T/4T, Zen 4 and Intel unchanged.",
+      "id": "fold-zen5",
+      "what": "merge the Zen 5 gate into hc/champion (216629d)",
+      "why": "Chris's three checks all pass: Zen 5 +6.8% at 1T/4T, Zen 4 and Intel unchanged"
+    },
+    {
+      "utc": "2026-10-11T08:46:26Z",
+      "level": "info",
+      "text": "r9-rust-base-dense rejected.. REVERT on Zen 5 alone (cannot reach +1%; Zen 3 result moot). Masks in registers did not help on Zen 5",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T08:46:26Z",
+      "level": "info",
+      "text": "fold-zen5 kept.. KEEP (Chris's gate): Zen 5 holds (+6.8%, in line with +7.1% over 20 rounds), Zen 4 and Intel unchanged (+0.1%, 0.0%). Merged: hc/champion = 216629d (base self-test passes)",
+      "auto": true
     }
   ],
   "research": {
