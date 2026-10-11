@@ -15,12 +15,12 @@
    - Sparse (larger factors): eight multiples repeat every p bytes, each at a fixed bit. The
      byte offsets and masks are computed per factor; each composite is one byte OR.
 
-   The sieve is a [Bytes] buffer read and written as 64-bit little-endian words or as bytes.
-   The 64-bit accesses go through the compiler's unboxed primitives, so the inner loops do not
-   allocate. *)
+   The sieve is a [Bytes] buffer of 64-bit little-endian words, read and written as 32-bit
+   halves or as bytes. The 32-bit accesses go through the compiler's unboxed primitives, so the
+   inner loops do not allocate. *)
 
-external get64 : Bytes.t -> int -> int64 = "%caml_bytes_get64u"
-external set64 : Bytes.t -> int -> int64 -> unit = "%caml_bytes_set64u"
+external get32 : Bytes.t -> int -> int32 = "%caml_bytes_get32u"
+external set32 : Bytes.t -> int -> int32 -> unit = "%caml_bytes_set32u"
 
 let sieve_size = 1_000_000
 let expected = 78_498
@@ -48,30 +48,35 @@ let create size =
      it, so the rest of the buffer is initialised there. No word is read before it is
      written. *)
   let bits = Bytes.create (nwords * 8) in
-  set64 bits 0 0L;
+  set32 bits 0 0l;
+  set32 bits 4 0l;
   { size; nbits; nwords; bits; pattern = Bytes.create (dense_limit * 32) }
 
 let[@inline always] is_composite s i =
   (Char.code (Bytes.unsafe_get s.bits (i lsr 3)) lsr (i land 7)) land 1 <> 0
 
-(* The word pattern of one run of four periods (4p words) for odd factor p: word t lsr 6 of
-   the run gets bit t land 63 for each multiple p(2j + 1), at bit t = p/2 + jp, j = 0..255.
-   One single-bit OR per composite. *)
+(* The word pattern of one run of four periods (4p 64-bit words, 8p 32-bit words) for odd
+   factor p: 32-bit word t lsr 5 of the run gets bit t land 31 for each multiple p(2j + 1), at
+   bit t = p/2 + jp, j = 0..255. One single-bit OR per composite. *)
 let build_pattern s p =
   let pat = s.pattern in
   Bytes.fill pat 0 (p * 32) '\000';
   for j = 0 to 255 do
     let t = (p lsr 1) + (j * p) in
-    let a = (t lsr 6) * 8 in
-    set64 pat a (Int64.logor (get64 pat a) (Int64.shift_left 1L (t land 63)))
+    let a = (t lsr 5) * 4 in
+    set32 pat a (Int32.logor (get32 pat a) (Int32.shift_left 1l (t land 31)))
   done
 
 (* Dense clearing for odd p < dense_limit. Periods of p words start at word multiples of p;
    clearing starts at the period holding p². The smaller multiples in that period are
    composite too, except p itself, which is restored at the end. The loop walks runs of four
-   periods, two runs and eight words at a time; the last, partial run takes as many words of the pattern as
-   fit. With [init] (the first factor, 3) every word is stored without being loaded, which
-   initialises the buffer. *)
+   periods, two runs and eight 64-bit words at a time; the last, partial run takes as many
+   words of the pattern as fit. With [init] (the first factor, 3) every word is stored without
+   being loaded, which initialises the buffer.
+
+   Every access is a 32-bit load or store, two per 64-bit word. Under the OCaml 5 memory model
+   a 64-bit store to [Bytes] on Arm64 is preceded by a load barrier (dmb ishld), one per store;
+   32-bit stores have none. *)
 let clear_dense s p init =
   build_pattern s p;
   let b = s.bits and pat = s.pattern and n = s.nwords in
@@ -85,61 +90,80 @@ let clear_dense s p init =
       let v = ref 0 in
       while !v < rb do
         let a = q + !v and v0 = !v in
-        set64 b a (get64 pat v0);
-        set64 b (a + 8) (get64 pat (v0 + 8));
-        set64 b (a + 16) (get64 pat (v0 + 16));
-        set64 b (a + 24) (get64 pat (v0 + 24));
+        set32 b a (get32 pat v0);
+        set32 b (a + 4) (get32 pat (v0 + 4));
+        set32 b (a + 8) (get32 pat (v0 + 8));
+        set32 b (a + 12) (get32 pat (v0 + 12));
+        set32 b (a + 16) (get32 pat (v0 + 16));
+        set32 b (a + 20) (get32 pat (v0 + 20));
+        set32 b (a + 24) (get32 pat (v0 + 24));
+        set32 b (a + 28) (get32 pat (v0 + 28));
         v := v0 + 32
       done;
       base := q + rb
     done
   else begin
     (* Two runs per step: each pattern word is loaded once and ORed into the same word of two
-       consecutive runs, eight sieve words a step. *)
+       consecutive runs, eight 64-bit sieve words a step. *)
     for _ = 1 to runs / 2 do
       let q = !base in
       let v = ref 0 in
       while !v < rb do
         let a = q + !v and v0 = !v in
         let a2 = a + rb in
-        let w0 = get64 pat v0 and w1 = get64 pat (v0 + 8)
-        and w2 = get64 pat (v0 + 16) and w3 = get64 pat (v0 + 24) in
-        set64 b a (Int64.logor (get64 b a) w0);
-        set64 b (a + 8) (Int64.logor (get64 b (a + 8)) w1);
-        set64 b (a + 16) (Int64.logor (get64 b (a + 16)) w2);
-        set64 b (a + 24) (Int64.logor (get64 b (a + 24)) w3);
-        set64 b a2 (Int64.logor (get64 b a2) w0);
-        set64 b (a2 + 8) (Int64.logor (get64 b (a2 + 8)) w1);
-        set64 b (a2 + 16) (Int64.logor (get64 b (a2 + 16)) w2);
-        set64 b (a2 + 24) (Int64.logor (get64 b (a2 + 24)) w3);
+        (* Four halves at a time, so the loaded pattern words stay in registers. *)
+        let w0 = get32 pat v0 and w1 = get32 pat (v0 + 4)
+        and w2 = get32 pat (v0 + 8) and w3 = get32 pat (v0 + 12) in
+        set32 b a (Int32.logor (get32 b a) w0);
+        set32 b (a + 4) (Int32.logor (get32 b (a + 4)) w1);
+        set32 b (a + 8) (Int32.logor (get32 b (a + 8)) w2);
+        set32 b (a + 12) (Int32.logor (get32 b (a + 12)) w3);
+        set32 b a2 (Int32.logor (get32 b a2) w0);
+        set32 b (a2 + 4) (Int32.logor (get32 b (a2 + 4)) w1);
+        set32 b (a2 + 8) (Int32.logor (get32 b (a2 + 8)) w2);
+        set32 b (a2 + 12) (Int32.logor (get32 b (a2 + 12)) w3);
+        let w4 = get32 pat (v0 + 16) and w5 = get32 pat (v0 + 20)
+        and w6 = get32 pat (v0 + 24) and w7 = get32 pat (v0 + 28) in
+        set32 b (a + 16) (Int32.logor (get32 b (a + 16)) w4);
+        set32 b (a + 20) (Int32.logor (get32 b (a + 20)) w5);
+        set32 b (a + 24) (Int32.logor (get32 b (a + 24)) w6);
+        set32 b (a + 28) (Int32.logor (get32 b (a + 28)) w7);
+        set32 b (a2 + 16) (Int32.logor (get32 b (a2 + 16)) w4);
+        set32 b (a2 + 20) (Int32.logor (get32 b (a2 + 20)) w5);
+        set32 b (a2 + 24) (Int32.logor (get32 b (a2 + 24)) w6);
+        set32 b (a2 + 28) (Int32.logor (get32 b (a2 + 28)) w7);
         v := v0 + 32
       done;
       base := q + (2 * rb)
     done;
-    (* An odd run left over: one run, four words a step. *)
+    (* An odd run left over: one run, four 64-bit words a step. *)
     if runs land 1 = 1 then begin
       let q = !base in
       let v = ref 0 in
       while !v < rb do
         let a = q + !v and v0 = !v in
-        set64 b a (Int64.logor (get64 b a) (get64 pat v0));
-        set64 b (a + 8) (Int64.logor (get64 b (a + 8)) (get64 pat (v0 + 8)));
-        set64 b (a + 16) (Int64.logor (get64 b (a + 16)) (get64 pat (v0 + 16)));
-        set64 b (a + 24) (Int64.logor (get64 b (a + 24)) (get64 pat (v0 + 24)));
+        set32 b a (Int32.logor (get32 b a) (get32 pat v0));
+        set32 b (a + 4) (Int32.logor (get32 b (a + 4)) (get32 pat (v0 + 4)));
+        set32 b (a + 8) (Int32.logor (get32 b (a + 8)) (get32 pat (v0 + 8)));
+        set32 b (a + 12) (Int32.logor (get32 b (a + 12)) (get32 pat (v0 + 12)));
+        set32 b (a + 16) (Int32.logor (get32 b (a + 16)) (get32 pat (v0 + 16)));
+        set32 b (a + 20) (Int32.logor (get32 b (a + 20)) (get32 pat (v0 + 20)));
+        set32 b (a + 24) (Int32.logor (get32 b (a + 24)) (get32 pat (v0 + 24)));
+        set32 b (a + 28) (Int32.logor (get32 b (a + 28)) (get32 pat (v0 + 28)));
         v := v0 + 32
       done;
       base := q + rb
     end
   end;
-  (* The partial last run: fewer than 4p words. *)
+  (* The partial last run: fewer than 4p words, one 32-bit half at a time. *)
   let q = !base in
   let left = (n * 8) - q in
   let v = ref 0 in
   while !v < left do
     let a = q + !v in
-    let x = if init then 0L else get64 b a in
-    set64 b a (Int64.logor x (get64 pat !v));
-    v := !v + 8
+    let x = if init then 0l else get32 b a in
+    set32 b a (Int32.logor x (get32 pat !v));
+    v := !v + 4
   done;
   (* p itself is prime. *)
   let f = p lsr 1 in
