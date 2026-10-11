@@ -42,3 +42,10 @@ adds at most three new items. Background: `REVIEW-2026-10-10.md`.
 - (ap-20261011T0100Z, from Chris) The local gate only screens: a candidate that fails it locally
   still gets a 3-round Zen 5 screen before it is dropped (AUTOPILOT 2d says "does not go to
   Azure"). Exception worth keeping: a failed self-test still stops it. Update 2d in the workshop.
+
+- (ap-20261011T0100Z) EVENTS.jsonl stopped at 01:11 for 75 minutes: the climber committed
+  status.json directly before running pub.sh, so `autolog.py diff` (HEAD vs working copy) found
+  nothing. Fixed in-run: autolog diffs against the last commit that wrote EVENTS.jsonl, and
+  `autolog.py backfill SINCE` appends a missed span. The climber also silenced pub.sh's output,
+  which hid it. Worth a check in tick.sh: warn when EVENTS.jsonl's last line is older than the
+  newest status.json event.
