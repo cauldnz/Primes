@@ -8,6 +8,14 @@ Autopilot lock: ap-20261011T0100Z 2026-10-11T01:00Z
 **Last updated:** 2026-10-11 10:30 AEST. Living file; earlier versions are in
 `git log -p ispc-dev/STATUS.md`. Replies go in `ispc-dev/NEXT-STEPS.md`.
 
+## Hourly review, run ap-20261011T0100Z (13:30 AEST, 2.5 h in)
+
+- Worked: F1 on both base ports (grey) and the two borrowed build changes (clang for the C++ wheel +16-20%, AVX-512 off for the Rust base +10%); stream 5 profile-first found 23.5% and both halves paid on Zen.
+- Didn't: F4 (all five values lose; 256 is optimal), wheel-210 (−40%), the Cobalt loop-test fix (−1.9% on Zen 5), three local losers confirmed worse on Zen.
+- Protocol: missed the first two hourly reviews (this is the first) and the event log stopped 01:11-02:26 (fixed, backfilled); local gate amended by Chris to always screen on AMD.
+- Spend NZ$4.4 of 30; pools 116 of 128 vCPUs.
+- Next best use: Chris's base 1T target (+4% over Rust on Zen 5): hc-018 full run and fold-1pc are the two candidates; the final scoreboard is queued. Nothing new on the ISPC wheel.
+
 ## Morning report: run ap-20261010T2040Z (06:40 to about 10:30 AEST, 11 October)
 
 Four-hour run from RUN-PLAN.md. Spend about NZ$2.5 of NZ$30 (the page says NZ$3.9; the first

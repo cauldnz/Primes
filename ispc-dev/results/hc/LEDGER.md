@@ -310,3 +310,14 @@ understated the Rust one (+10-15% local, +22% Zen 5).
 −30% → −40%, C++ base clang −15% → −63%, Rust resetter −16% → −42%). The rule cost about 45
 node-minutes and confirmed each drop. The two keeps of the hour are both compiler or flag
 changes copied from the existing entries in each language (clang for C++, AVX-512 off for Rust).
+| s5-starts-ef | 2026-10-11 | wheel | Start offsets: p² once, 8 independent products / 30 (extra-faithful, novel) | +3% to +6% 1T | Zen 3: 114.2k / 962.1k, +1.9% ± 0.6 / +1.7% ± 0.5, 6/6 | Zen 5: 234.8k / 1.72M, +5.5% ± 0.2 / +5.2% ± 0.1, 6/6; Cobalt −1.1% ± 0.1 | passes Zen, fails arm gate: not merged (phase 1 frozen) | `hc/s5-starts-ef` |
+| s5-tables | 2026-10-11 | wheel | Build-time tables: start offsets (p < 10,000) and patterns (p < 1,024) (permitted) | +5% to +15% 1T | Zen 3: 134.9k / 1.10M, +19.8% ± 1.4 / +16.6% ± 0.4, 6/6 | Zen 5: 274.4k / 1.90M, +23.4% ± 0.5 / +17.2% ± 0.1, 6/6 | KEEP pending >20% recheck and Cobalt | `hc/s5-tables` |
+| b1-sparse-last | 2026-10-11 | base | Sparse loop test against the last chunk start (arm64 29 → 28 instr per 8) | Cobalt +1-2% | Zen 3: −0.1% / +0.2% | Zen 5: −1.9% ± 0.1 / −1.5%; Cobalt −0.2% ± 0.4 | REVERT | `hc/b1-sparse-last` |
+| p-cpp-wheel-idea12 (z3b) | 2026-10-11 | cpp-wheel | 12 more Zen 3 rounds | | Zen 3: +1.8% ± 0.8 / +1.4% ± 0.6 (12/12, 11/12) | (Zen 5 +6.2% ± 0.5) | KEEP; re-measured on clang | `hc/port-cpp-wheel-idea12` |
+| p-rust-base-2 | 2026-10-11 | rust-base | Dense/sparse cutoff 128 → 160 | 0 to +1% | | Zen 5: +0.5% ± 0.1 / −2.1% ± 0.6 | REVERT | `hc/port-rust-base-2` |
+| ha-029 / ha-018 / ha-023 | 2026-10-11 | base | history rechecks (Zen 5 screens) | | | 029: −0.4%; 018: +1.2% ± 0.2 1T (3/3, promoted); 023: noisy | 029 REVERT, 018 full run, 023 inconclusive | |
+
+**Stream 5.** The phase profile put start offsets and pattern building at 23.5% of a Zen 5 wheel
+pass. Computing the starts as independent products (extra-faithful) bought +5.5% on Zen 5 and
++1.9% on Zen 3 but cost 1.1% on Cobalt 100; tables built at compile time (permitted) bought
++23% / +20%, nearly the whole 23.5%.
