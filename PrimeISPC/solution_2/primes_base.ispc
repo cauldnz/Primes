@@ -56,6 +56,13 @@ static inline uniform double now() {
     clock_gettime(1, &ts);   // CLOCK_MONOTONIC
     return (uniform double)ts.tv_sec + 1e-9 * (uniform double)ts.tv_nsec;
 }
+// DIAGNOSTIC (arm64): nanoseconds from CLOCK_MONOTONIC instead of ISPC clock(), whose cycle
+// counter is not readable from user space on every arm64 kernel. Compare shares, not counts.
+static inline uniform int64 nsclock() {
+    uniform timespec ts;
+    clock_gettime(1, &ts);
+    return (uniform int64)ts.tv_sec * 1000000000 + (uniform int64)ts.tv_nsec;
+}
 
 #define DENSE_LIMIT 128      // factors below this use the dense routine
 #define VEC_LIMIT 119        // ...and the vector form below this (larger ones exceed LLVM's unroll limit)
@@ -364,7 +371,7 @@ static uniform int64 prof_setup = 0, prof_dense = 0, prof_sparse = 0, prof_scan 
 static uniform int64 prof_destroy = 0, prof_run = 0;
 
 static void run_sieve_prof(uniform Sieve * uniform s) {
-    uniform int64 r0 = clock();
+    uniform int64 r0 = nsclock();
     uniform int q = (uniform int)sqrt((uniform double)s->size);
     while ((uniform int64)(q + 1) * (q + 1) <= s->size) q++;
     while ((uniform int64)q * q > s->size) q--;
@@ -375,13 +382,13 @@ static void run_sieve_prof(uniform Sieve * uniform s) {
         while (i < s->nbits && is_composite_index(s, i)) i++;     // next prime
         factor = 2 * i + 1;
         if (factor > q) break;
-        uniform int64 c0 = clock();
+        uniform int64 c0 = nsclock();
         clear_factor(s, factor);       // on x86 factor 3 also initialises the sieve (dense)
-        uniform int64 c1 = clock();
+        uniform int64 c1 = nsclock();
         if (factor < DENSE_LIMIT) dense += c1 - c0; else sparse += c1 - c0;
         factor += 2;
     }
-    uniform int64 total = clock() - r0;
+    uniform int64 total = nsclock() - r0;
     prof_run += total;
     prof_dense += dense;
     prof_sparse += sparse;
@@ -392,13 +399,13 @@ static void profile_phases() {
     const uniform int64 N = 20000;
     for (uniform int64 k = 0; k < N; k++) {
         uniform Sieve s;
-        uniform int64 t0 = clock();
+        uniform int64 t0 = nsclock();
         sieve_create(&s, SIEVE_SIZE);
-        uniform int64 t1 = clock();
+        uniform int64 t1 = nsclock();
         run_sieve_prof(&s);
-        uniform int64 t2 = clock();
+        uniform int64 t2 = nsclock();
         sieve_destroy(&s);
-        uniform int64 t3 = clock();
+        uniform int64 t3 = nsclock();
         prof_setup += t1 - t0;
         prof_destroy += t3 - t2;
     }
