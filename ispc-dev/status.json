@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T20:44:51Z",
+  "updated_utc": "2026-10-11T20:45:33Z",
   "run": {
     "id": "ap-20261011T1929Z",
     "state": "running",
@@ -2003,12 +2003,6 @@
     {
       "utc": "2026-10-11T12:15:01Z",
       "level": "info",
-      "text": "Run ap-20261011T0645Z is stopped; spend NZ$7.77.",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T12:15:01Z",
-      "level": "info",
       "text": "r9-final done.. hc/champion-tables-r9 57e0792 = hc/champion 216629d + solution_3 (4a42d98) + solution_3.gitignore; built and self-tested locally. Wheel kind: solution_3 (cand) vs solution_1 (champ), ctrl c5 (Rust on Cobalt), ctrl2 dsp. Base kind: 57e0792 vs run start 3ad0427, ctrl Rust. 6 rounds, four chips",
       "auto": true
     },
@@ -2340,6 +2334,16 @@
       "level": "info",
       "text": "ox-003 kept.. Zen 5 +60.5% 1T / +56.2% 4T, Zen 3 +41.4% / +40.2%, Cobalt flat; champion hc/oxcaml-champion cbcd24d",
       "auto": true
+    },
+    {
+      "utc": "2026-10-11T20:45:33Z",
+      "level": "decision",
+      "text": "ox-005: background agent: phase profile of the OxCaml champion (ox-005), then two candidates from cbcd24d: 256-bit OR over two runs per step (ox-006a, borrowed from ocaml-004) and a dense limit sweep 64/96/160/192 (ox-006b). Why: the SIMD copy changed the phase shares, so the next target needs a fresh profile; the two-run step is ahead on Zen 5 in the plain line and ports in a few lines. Passed over: an arm64 investigation (Cobalt is a gate, not a decider, and needs Batch access an agent doesn't have). Expect: two-run +3% to +8%; limit 0% to +5%.",
+      "id": "ox-005",
+      "what": "background agent: phase profile of the OxCaml champion (ox-005), then two candidates from cbcd24d: 256-bit OR over two runs per step (ox-006a, borrowed from ocaml-004) and a dense limit sweep 64/96/160/192 (ox-006b)",
+      "why": "the SIMD copy changed the phase shares, so the next target needs a fresh profile; the two-run step is ahead on Zen 5 in the plain line and ports in a few lines",
+      "instead": "an arm64 investigation (Cobalt is a gate, not a decider, and needs Batch access an agent doesn't have)",
+      "expect": "two-run +3% to +8%; limit 0% to +5%"
     }
   ],
   "research": {
