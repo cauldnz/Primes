@@ -9,6 +9,7 @@
 // planes a block of words at a time; large primes set single bits.
 
 #include <sched.h>
+#include <x86intrin.h>
 
 #include <algorithm>
 #include <array>
@@ -28,6 +29,31 @@
 namespace {
 
 using Word = std::uint64_t;
+
+// DIAGNOSTIC BUILD (hc/diag-cpp-wheel-phases, never merged): TSC cycles per phase, the same
+// split as the ISPC wheel's diagnostic. Each boundary reads the TSC once and charges the time
+// since the previous boundary to one slot, so the slots add up to the whole pass.
+enum {
+    P_SO_DENSE,    // (a) start_bit for group members, all 8 planes
+    P_SO_SPARSE,   // (a) start_bit for sparse primes, all 8 planes
+    P_SO_TILE,     // (a) start_bit for 7, 11 and 13 per plane
+    P_PAT,         // (b) group pattern building (Group::build) for groups of 17+
+    P_TILE_BUILD,  // (d) 7x11 pattern build, tile marked in place, 13's pattern build
+    P_GROUP,       // (c) fused group passes over the 8 planes (+ member bit clear)
+    P_TILE_COPY,   // (d) tile copied along each plane, plus 13's own pass
+    P_SPARSE,      // (e) sparse marks
+    P_SCAN,        // (f) next-prime scan, sqrt, fix-ups
+    P_SETUP,       // (f) alloc/free, count (first pass), deadline check
+    P_TOTAL = 10,
+    P_LAST = 15,
+    P_N = 16
+};
+thread_local std::uint64_t pt[P_N];
+inline void mark(int slot) {
+    const std::uint64_t t = __rdtsc();
+    pt[slot] += t - pt[P_LAST];
+    pt[P_LAST] = t;
+}
 
 // Words per step of the streaming loops. Sixteen words is two AVX-512 or four AVX2 vectors,
 // enough independent loads and stores to keep the core busy.
@@ -119,6 +145,7 @@ public:
     }
 
     void run() {
+        mark(P_SETUP);
         wheel_tile();
 
         // 13 on its own. Afterwards every bit below 17 * 17 is final.
@@ -151,6 +178,7 @@ public:
             }
         }
         if (n > 0) dense_primes(pending, n);
+        mark(P_SCAN);
     }
 
     // Primes up to and including size: clear bits for numbers <= size, plus 2, 3 and 5.
@@ -189,14 +217,18 @@ private:
         const std::size_t t = std::min<std::size_t>(77, nw_);
         constexpr int tile_primes[2] = {7, 11};
         group_->build(tile_primes, 2);
+        mark(P_TILE_BUILD);
         for (int pl = 0; pl < 8; pl++) {
             Word* __restrict w = plane(pl);
-            std::fill_n(w, std::min(t + W - 1, pw_), Word{0});   // the tile and its overrun
             const std::size_t first[G] = {start_bit(7, Res[pl], 1), start_bit(11, Res[pl], 1)};
+            mark(P_SO_TILE);
+            std::fill_n(w, std::min(t + W - 1, pw_), Word{0});   // the tile and its overrun
             apply_group<2>(w, t, *group_, first);
+            mark(P_TILE_BUILD);
             for (std::size_t base = t; base < nw_; base += t)
                 std::memcpy(w + base, w, std::min(t, nw_ - base) * sizeof(Word));
             std::fill(w + nw_, w + pw_, Word{0});                  // padding past the plane
+            mark(P_TILE_COPY);
         }
         plane(0)[0] |= 1;                                             // 1 is not prime
         plane(1)[0] &= ~Word{1};                                   // 7 is prime
@@ -262,10 +294,16 @@ private:
     // Apply a group of primes, from p * p on, to all eight planes.
     void dense_primes(const int* primes, int n) {
         Group& g = *group_;
+        const bool lone = n == 1;   // 13: charged to the tile phases, as ISPC folds it there
+        mark(P_SCAN);
         g.build(primes, n);
-        std::size_t first[G];
+        mark(lone ? P_TILE_BUILD : P_PAT);
+        std::size_t ff[8][G];
+        for (int pl = 0; pl < 8; pl++)
+            for (int j = 0; j < n; j++) ff[pl][j] = start_bit(primes[j], Res[pl], primes[j]);
+        mark(lone ? P_SO_TILE : P_SO_DENSE);
         for (int pl = 0; pl < 8; pl++) {
-            for (int j = 0; j < n; j++) first[j] = start_bit(primes[j], Res[pl], primes[j]);
+            const std::size_t* first = ff[pl];
             if (n == 1) {      // a lone prime (13): skip the fused loop and its empty members
                 apply_one(plane(pl), nw_, g.rows[0], g.period[0], g.tab[0][first[0] % 64],
                           first[0]);
@@ -273,11 +311,12 @@ private:
                 apply(plane(pl), nw_, g, first);
             }
         }
-        if (n == 1) return;
+        if (n == 1) { mark(P_TILE_COPY); return; }
         for (int j = 0; j < n; j++) {                  // apply_group marked each member itself
             const std::size_t m = primes[j] / 30;
             if (m < mbits_) plane(Plane[primes[j] % 30])[m / 64] &= ~(Word{1} << (m % 64));
         }
+        mark(P_GROUP);
     }
 
     // A large prime sets at most one bit per word. S planes advance together in one loop,
@@ -304,12 +343,15 @@ private:
 
     void sparse_prime(std::size_t p) {
         std::size_t first[8], end[8];        // bit indices within the whole buffer
+        mark(P_SCAN);
         for (int pl = 0; pl < 8; pl++) {
             first[pl] = start_bit(unsigned(p), Res[pl], unsigned(p)) + pl * pw_ * 64;
             end[pl] = pl * pw_ * 64 + mbits_;
         }
+        mark(P_SO_SPARSE);
         sparse_streams<4>(bits_.get(), p, first, end);
         sparse_streams<4>(bits_.get(), p, first + 4, end + 4);
+        mark(P_SPARSE);
     }
 
     std::uint64_t size_;
@@ -335,12 +377,17 @@ struct Result {
 
 Result worker(Clock::time_point deadline) {
     Result r;
+    for (int i = 0; i < P_N; i++) pt[i] = 0;
+    const std::uint64_t t0 = __rdtsc();
+    pt[P_LAST] = t0;
     while (Clock::now() < deadline) {
         Sieve s(SieveSize);
         s.run();
         if (r.passes == 0) r.count = s.count();
         r.passes++;
     }
+    mark(P_SETUP);
+    pt[P_TOTAL] = __rdtsc() - t0;
     return r;
 }
 
@@ -423,6 +470,29 @@ int main() {
     const auto elapsed = Clock::now() - start;
     if (r.count != Expected) fail_count();
     report(r.passes, elapsed, 1);
+    {   // DIAGNOSTIC: phase split of the 1-thread run, TSC cycles per pass and share of total
+        const double np = double(r.passes), tot = double(pt[P_TOTAL]);
+        double v[10], sum = 0;
+        for (int i = 0; i < 10; i++) sum += v[i] = double(pt[i]);
+        auto line = [&](const char* name, double c) {
+            std::printf("phase;%s;%f;%f\n", name, c / np, 100.0 * c / tot);
+        };
+        line("start_offsets", v[0] + v[1] + v[2]);
+        line("pattern_build", v[3]);
+        line("group_passes", v[5]);
+        line("tile", v[4] + v[6]);
+        line("sparse_marks", v[7]);
+        line("scan_setup", v[8] + v[9]);
+        std::printf("phase;total;%f;%f\n", tot / np, 100.0 * sum / tot);
+        line("detail.start_offsets_dense", v[0]);
+        line("detail.start_offsets_sparse", v[1]);
+        line("detail.start_offsets_tile", v[2]);
+        line("detail.tile_build", v[4]);
+        line("detail.tile_copy", v[6]);
+        line("detail.scan", v[8]);
+        line("detail.setup_alloc_count", v[9]);
+        std::fflush(stdout);
+    }
 
     // One independent sieve per thread at all, half and a quarter of the available CPUs:
     // where SMT siblings share an L1, fewer threads can complete more passes.
