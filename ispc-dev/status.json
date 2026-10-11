@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T20:21:53Z",
+  "updated_utc": "2026-10-11T20:25:32Z",
   "run": {
     "id": "ap-20261011T1929Z",
     "state": "running",
@@ -1944,6 +1944,17 @@
       "prediction": "0% to +8% at 1T",
       "verdict": "running",
       "commit": "da786ff, c620f30"
+    },
+    {
+      "id": "ox-004",
+      "entry": "oxcaml",
+      "title": "Untagged addressing in hot loops",
+      "tier": "extra-faithful",
+      "kind": "novel",
+      "plain": "If the hot loops count with unboxed machine integers instead of OCaml tagged integers, then each mark and each copied block takes fewer instructions, because the tag shifts disappear.",
+      "prediction": "+5% to +15% at 1T on Zen 5 and Zen 3; Cobalt must build and not lose",
+      "verdict": "running",
+      "commit": "a8f8435"
     }
   ],
   "azure_queue": 0,
@@ -1953,21 +1964,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T10:31:18Z",
-      "level": "decision",
-      "text": "r9-zig-tables-group: KEEP (permitted); hc/zig-champion-tables -> 138e074. Why: over the tables line: Zen 5 4T +1.6% (lower +1.2%), Zen 3 4T +5.1% (lower +3.9%); no loss. Expect: Zig tables wheel now +8% over the ISPC wheel on Zen 5 and +23% on Zen 3 at 1T.",
-      "id": "r9-zig-tables-group",
-      "what": "KEEP (permitted); hc/zig-champion-tables -> 138e074",
-      "why": "over the tables line: Zen 5 4T +1.6% (lower +1.2%), Zen 3 4T +5.1% (lower +3.9%); no loss",
-      "expect": "Zig tables wheel now +8% over the ISPC wheel on Zen 5 and +23% on Zen 3 at 1T"
-    },
-    {
-      "utc": "2026-10-11T10:31:18Z",
-      "level": "info",
-      "text": "r9-zig-tables-group KEEP.. hc/zig-tables-group 138e074: 13 from PAT via patternGroup(7,11,13), tile in a stack scratch, one tile|13 write per plane; self-test native and baseline. Local 1T +2% vs 0886ddf (noise). Zen 5 + Zen 3 6 rounds vs 0886ddf",
-      "auto": true
-    },
     {
       "utc": "2026-10-11T10:37:33Z",
       "level": "decision",
@@ -2296,6 +2292,21 @@
       "utc": "2026-10-11T20:22:06Z",
       "level": "info",
       "text": "ocaml-005 (ocaml-plain) running: ",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T20:25:32Z",
+      "level": "decision",
+      "text": "ox-004: submit ox-004 (a8f8435 vs cbcd24d) on Zen 5, Zen 3 and Cobalt, 5 rounds. Why: rebuilt here, both the amd64 and scalar paths pass PRIMES_TEST=1; diff read: the sparse mark is now one OR of a byte mask into an unaligned 64-bit word (still one operation per composite, inside the chunk because p >= 128), the tail keeps byte ORs; instructions per mark 7.75 to 5.5, locally +11%. Cobalt checks the untested arm64 build. Expect: +5% to +15% at 1T.",
+      "id": "ox-004",
+      "what": "submit ox-004 (a8f8435 vs cbcd24d) on Zen 5, Zen 3 and Cobalt, 5 rounds",
+      "why": "rebuilt here, both the amd64 and scalar paths pass PRIMES_TEST=1; diff read: the sparse mark is now one OR of a byte mask into an unaligned 64-bit word (still one operation per composite, inside the chunk because p >= 128), the tail keeps byte ORs; instructions per mark 7.75 to 5.5, locally +11%. Cobalt checks the untested arm64 build",
+      "expect": "+5% to +15% at 1T"
+    },
+    {
+      "utc": "2026-10-11T20:25:45Z",
+      "level": "info",
+      "text": "ox-004 (oxcaml) running: ",
       "auto": true
     }
   ],
