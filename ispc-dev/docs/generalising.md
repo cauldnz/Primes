@@ -13,7 +13,7 @@ the gaps are from the final scoreboard.
 
 | Language | Experiments decided | Kept | Gap to ISPC at 1T, Zen 5 / Zen 3 | What carried over | What did not |
 |---|---|---|---|---|---|
-| OxCaml base (PrimeOCaml/solution_3) | 16 (+ 6 measurements) | 9 in the champion (one a merge); 1 more kept alone but lost when merged | 0.52 / 0.62 (Cobalt 0.28) | 256-bit dense copy (ISPC hc-002); two runs per step (from the plain line) | the x86 sparse and untagged forms on Arm (−28% on Cobalt); two runs per step on Arm (−0.4%) |
+| OxCaml base (PrimeOCaml/solution_3) | 16 (+ 7 measurements) | 9 in the champion (one a merge); 1 more kept alone but lost when merged | 0.52 / 0.62 (Cobalt 0.28) | 256-bit dense copy (ISPC hc-002); two runs per step (from the plain line) | the x86 sparse and untagged forms on Arm (−28% on Cobalt); two runs per step on Arm (−0.4%) |
 | OCaml base (PrimeOCaml/solution_4) | 6 (+ 2 measurements) | 1 | 0.24 / 0.30 (Cobalt 0.08) | the design itself; two runs per step | GC space overhead from the start (−3.0% ± 3.9 at 1T on Zen 5); 32-bit stores everywhere (−38% on x86 locally); dense limit 64 or 96; an `Int64` Bigarray sieve (about −8%) |
 
 ### Set-up cost
