@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T01:16:12Z",
+  "updated_utc": "2026-10-11T01:21:14Z",
   "run": {
     "id": "ap-20261011T0100Z",
     "state": "running",
@@ -1120,6 +1120,61 @@
       "prediction": "Zen 5 1T -5% to +3%, all threads 0 to +6%; Zen 3 1T -3% to +4%, all threads 0 to +5% (IDEAS.md)",
       "plain": "If the wheel also skips multiples of 7, then the sieve shrinks enough that two copies sharing a core fit better in its fastest cache, because 48 of every 210 numbers are kept instead of 8 of every 30.",
       "note": "agent building hc/wheel-210"
+    },
+    {
+      "id": "p-cpp-wheel-idea12",
+      "entry": "cpp-wheel",
+      "tier": "extra-faithful",
+      "kind": "borrowed",
+      "verdict": "running",
+      "hypothesis": "ISPC wheel IDEAS 12 (fold 13 into the 7x11 tile copy) ported to the C++ wheel",
+      "prediction": "+2% to +6% at 1T (local +6%)",
+      "plain": "If the C++ wheel writes 13's pattern in the same pass as the 7 and 11 tile, then it gets faster, because one sweep over the sieve disappears, as it did in our ISPC wheel.",
+      "note": "hc/port-cpp-wheel-idea12 fdf7ad8 vs hc/port-cpp-wheel; borrowed from our ISPC wheel (3fc54d1); 6 rounds Zen 5 + Zen 3"
+    },
+    {
+      "id": "p-rust-wheel-idea12",
+      "entry": "rust-wheel",
+      "tier": "extra-faithful",
+      "kind": "borrowed",
+      "verdict": "running",
+      "hypothesis": "IDEAS 12 ported to the Rust wheel",
+      "prediction": "0 to +3% at 1T (local +1%)",
+      "plain": "If the Rust wheel writes 13's pattern in the same pass as the 7 and 11 tile, then it gets a little faster, because one sweep over the sieve disappears.",
+      "note": "hc/port-rust-wheel-idea12 25ebdaa; borrowed from our ISPC wheel (3fc54d1). wheel-group32 skipped: the Rust wheel already does 32 words per step; 6 rounds Zen 5 + Zen 3"
+    },
+    {
+      "id": "p-cpp-wheel-group32",
+      "entry": "cpp-wheel",
+      "tier": "extra-faithful",
+      "kind": "borrowed",
+      "verdict": "running",
+      "hypothesis": "ISPC wheel-group32 loop shape (two 16-word blocks per iteration, AVX-512) in the C++ wheel",
+      "prediction": "-1% to +3% (local neutral)",
+      "plain": "If the C++ wheel's grouped pass handles 32 words per loop step on AVX-512, then it gets a little faster, because there is less loop overhead per store, as in our ISPC wheel.",
+      "note": "hc/port-cpp-wheel-group32 f7cf2b8 vs idea12; borrowed from our ISPC wheel (5a68114); 6 rounds Zen 5 + Zen 3"
+    },
+    {
+      "id": "p-cpp-base-f1",
+      "entry": "cpp-base",
+      "tier": "grey",
+      "kind": "borrowed",
+      "verdict": "running",
+      "hypothesis": "F1 (alternate sweep direction per factor) in the C++ base port, grey lineage",
+      "prediction": "+8% to +15% at 1T (ISPC F1 gave +10% to +14%; local +32%, suspicious)",
+      "plain": "If the C++ base sweeps each factor in the opposite direction to the last, then it gets faster, because the end of the sieve just touched is still in cache.",
+      "note": "hc/port-cpp-base-grey a8d379f; grey (rules question open); borrowed from our ISPC F1. Local +32% is over the 20% too-good bar if it holds on Zen; 6 rounds Zen 5 + Zen 3"
+    },
+    {
+      "id": "p-rust-base-f1",
+      "entry": "rust-base",
+      "tier": "grey",
+      "kind": "borrowed",
+      "verdict": "running",
+      "hypothesis": "F1 in the Rust base port, grey lineage",
+      "prediction": "+8% to +15% at 1T",
+      "plain": "If the Rust base sweeps each factor in the opposite direction to the last, then it gets faster, because the end of the sieve just touched is still in cache.",
+      "note": "hc/port-rust-base-grey e46ba0b; grey; borrowed from our ISPC F1; 6 rounds Zen 5 + Zen 3"
     }
   ],
   "azure_queue": 0,
@@ -1129,12 +1184,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T22:04:32Z",
-      "level": "info",
-      "text": "f5-fold revert. Zen 5 D32as_v7, Zen 4 D16as_v5. Zen 5 (D32as_v7): +8.6% at 1T, +8.3% at 8T, +8.2% at 16T, -5.2% +-0.1% at 32T (0/6). Zen 4: +0.1% at 1T, -0.5% at 16T. Fails the target-specific rule (Zen 4 flat) and regresses at full SMT on Zen 5. addr64 alone queued",
-      "auto": true
-    },
     {
       "utc": "2026-10-10T22:05:03Z",
       "level": "decision",
@@ -1467,6 +1516,16 @@
       "why": "s5-wheel-profile reported, freeing an agent slot; stream 6 is phase 1 agent work measured in phase 2. Prediction written to IDEAS.md first. Brief: 40 min, simplest correct version first, odd-size sweep, push hc/wheel-210 only",
       "instead": "mod 2310 (start-offset cost grows 10x for 9% less memory)",
       "expect": "see IDEAS.md stream 6 prediction"
+    },
+    {
+      "utc": "2026-10-11T01:21:14Z",
+      "level": "decision",
+      "text": "run: accept p1-port-keeps' five branches and submit them as port-kind A/B runs on Zen 5 and Zen 3, ISPC ref 1551635 (wheels) or 3a893c1 (grey bases) as ctrl. Why: rebuilt all five here with the Dockerfile flags; every self-test passes; diffs touch only the port's own directory (plus a RULES.md on the grey bases). Pools have spare queue time behind F4, so phase 2 starts early on the fleet as RUN-PLAN allows. Passed over: waiting for hc/ispc-ref (it equals 1551635 unless F4 keeps). Expect: wheels +1% to +6%; grey bases +8% to +15%.",
+      "id": "run",
+      "what": "accept p1-port-keeps' five branches and submit them as port-kind A/B runs on Zen 5 and Zen 3, ISPC ref 1551635 (wheels) or 3a893c1 (grey bases) as ctrl",
+      "why": "rebuilt all five here with the Dockerfile flags; every self-test passes; diffs touch only the port's own directory (plus a RULES.md on the grey bases). Pools have spare queue time behind F4, so phase 2 starts early on the fleet as RUN-PLAN allows",
+      "instead": "waiting for hc/ispc-ref (it equals 1551635 unless F4 keeps)",
+      "expect": "wheels +1% to +6%; grey bases +8% to +15%"
     }
   ],
   "research": {
