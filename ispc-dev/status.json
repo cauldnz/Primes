@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T20:18:26Z",
+  "updated_utc": "2026-10-11T20:18:45Z",
   "run": {
     "id": "ap-20261011T1929Z",
     "state": "running",
@@ -18,7 +18,7 @@
   "current": {
     "id": "ocaml-002",
     "phase": "evaluate",
-    "detail": "rounds running on Zen 5 and Zen 3; Zen 5 warm-up: plain OCaml 29.4k at 1T, ISPC base 128k"
+    "detail": "Zen 5 done (1T -3.0%); Zen 3 running"
   },
   "scoreboard": [
     {
@@ -1934,12 +1934,6 @@
     {
       "utc": "2026-10-11T10:07:03Z",
       "level": "info",
-      "text": "r9-zig-base-wide REVERT.. hc/zig-base-wide 13edc68: dense resetter at twice the step width (VBW = 2 VB) on Zen 5 with one thread per core; PRIMES_WIDE override; self-test on/off. Caveat: Zig 0.13 has no znver5 and never sets evex512 there, so Zen 5 already runs 16-word steps as 256-bit ops; this doubles them. Zen 5 + Zen 3 6 rounds vs a90b985",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T10:07:03Z",
-      "level": "info",
       "text": "r9-rust-wheel-combo KEEP.. hc/port-rust-wheel-combo a8d9f07 (clean merge); self-test 0 wrong. Zen 5 + Zen 3 6 rounds vs df94b47",
       "auto": true
     },
@@ -2276,6 +2270,11 @@
       "why": "sparse is 36% of a pass and unchanged by ox-003; OCaml's tagged ints cost about four extra instructions per mark, and OxCaml's unboxed integer types are the extension most likely to remove them",
       "instead": "porting the two-run dense step to OxCaml (wait for ocaml-004's Azure result first)",
       "expect": "+5% to +15% at 1T"
+    },
+    {
+      "utc": "2026-10-11T20:18:45Z",
+      "level": "info",
+      "text": "ocaml-002 Zen 5: GC space_overhead 1000 from start -3.0% +-3.9% at 1T, -0.8% at 4T, +16% at 16T (recorded only). Plain OCaml 31.6k at 1T: 0.24x our ISPC base (130k), 0.26x Rust (119k), 20x gkpotter faithful (1.6k). 4T scales to 92% per thread. Zen 3 still running."
     }
   ],
   "research": {
