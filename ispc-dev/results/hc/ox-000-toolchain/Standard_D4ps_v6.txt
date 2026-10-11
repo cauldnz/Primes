@@ -5,3 +5,27 @@ BIOS Model name:                         Cobalt 100 None CPU @ 3.4GHz
 AVX-512: no
 kind=oxbuild rounds=1 id=19344024095
 oxbuild start 19:39:59
+#1 DONE 0.1s
+#2 DONE 0.7s
+#3 DONE 0.1s
+#4 DONE 1.0s
+#5 DONE 23.1s
+#6 DONE 0.6s
+#7 DONE 16.0s
+#8 [5/6] RUN start=$(date +%s);     opam switch create 5.2.0+ox --repos ox=git+https://github.com/oxcaml/opam-repository.git,default -q     && echo "switch build seconds: $(( $(date +%s) - start ))" | tee /opt/oxcaml-build-time.txt     && opam clean -a -c -s --logs -q
+#8 604.1 switch build seconds: 604
+#8 DONE 613.2s
+#9 [6/6] RUN ocamlopt -version && ocamlopt -config | grep -E "^(architecture|flambda|version)"
+#9 0.263 5.2.0+ox
+#9 0.278 architecture: arm64
+#9 0.278 flambda: false
+#9 0.278 flambda2: true
+#9 0.278 flambda_backend: true
+#9 DONE 0.3s
+#10 DONE 118.9s
+image build seconds: 775 rc=0
+IMAGE             ID             DISK USAGE   CONTENT SIZE   EXTRA
+oxcaml:5.2.0-ox   f974f8552675       4.77GB          1.2GB        
+-rw-r--r-- 1 root root 1197541267 Oct 11 19:53 /opt/batch/data/tasks/workitems/hc-standard-d4ps-v6/job-1/19344024095/wd/img.tar.zst
+save seconds: 16
+upload http 201
