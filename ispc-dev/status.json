@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T21:25:23Z",
+  "updated_utc": "2026-10-11T21:27:48Z",
   "run": {
     "id": "ap-20261011T1929Z",
     "state": "running",
@@ -2077,6 +2077,18 @@
       "prediction": "Cobalt +10% to +25% at 1T; x86 byte-identical",
       "verdict": "running",
       "commit": "cf08b1c"
+    },
+    {
+      "id": "ox-011",
+      "entry": "oxcaml",
+      "title": "Two runs per step in the x86 untagged dense loop",
+      "tier": "extra-faithful",
+      "kind": "borrowed",
+      "source": "ox-006 / plain ocaml-004",
+      "plain": "If the kept two-run copy is added to the new x86 dense loop, then the two kept gains add up, because they change different parts of the same loop.",
+      "prediction": "+2% to +5% over a4e63af at 1T on Zen",
+      "verdict": "running",
+      "commit": "c99a179"
     }
   ],
   "azure_queue": 0,
@@ -2086,20 +2098,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T20:18:45Z",
-      "level": "info",
-      "text": "ocaml-002 Zen 5: GC space_overhead 1000 from start -3.0% +-3.9% at 1T, -0.8% at 4T, +16% at 16T (recorded only). Plain OCaml 31.6k at 1T: 0.24x our ISPC base (130k), 0.26x Rust (119k), 20x gkpotter faithful (1.6k). 4T scales to 92% per thread. Zen 3 still running."
-    },
-    {
-      "utc": "2026-10-11T20:21:53Z",
-      "level": "decision",
-      "text": "ocaml-004: submit ocaml-004 (0aaa340 vs 0b8d98c) on Zen 5, Zen 3, Cobalt and the limit sweep (64 da786ff, 96 c620f30, each vs 0aaa340) on Zen 5 and Zen 3, 5 rounds. Why: rebuilt all three here, PRIMES_TEST=1 exits 0; diff read: only the pattern copy loop and the limit constant change, marking stays one OR per composite; locally +12% and +19-20%. Expect: ocaml-004 +8-13%; limits 0-8% over it.",
-      "id": "ocaml-004",
-      "what": "submit ocaml-004 (0aaa340 vs 0b8d98c) on Zen 5, Zen 3, Cobalt and the limit sweep (64 da786ff, 96 c620f30, each vs 0aaa340) on Zen 5 and Zen 3, 5 rounds",
-      "why": "rebuilt all three here, PRIMES_TEST=1 exits 0; diff read: only the pattern copy loop and the limit constant change, marking stays one OR per composite; locally +12% and +19-20%",
-      "expect": "ocaml-004 +8-13%; limits 0-8% over it"
-    },
     {
       "utc": "2026-10-11T20:22:06Z",
       "level": "info",
@@ -2440,6 +2438,21 @@
       "utc": "2026-10-11T21:25:16Z",
       "level": "info",
       "text": "Scoreboard, oxcaml base on Zen 3 (EPYC 7763, D16a_v4): 25100 → 29800 at 1T, 95000 → 110700 at 4 threads.",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T21:27:48Z",
+      "level": "decision",
+      "text": "ox-011: submit c99a179 vs a4e63af on Zen 5 and Zen 3; no Cobalt run. Why: rebuilt here, PRIMES_TEST=1 exits 0; amd64/dense.ml only (arm64 byte-identical); 10 to 7.5 instructions per 32 bytes; locally level within noise, which passes the local gate. Expect: +2% to +5%.",
+      "id": "ox-011",
+      "what": "submit c99a179 vs a4e63af on Zen 5 and Zen 3; no Cobalt run",
+      "why": "rebuilt here, PRIMES_TEST=1 exits 0; amd64/dense.ml only (arm64 byte-identical); 10 to 7.5 instructions per 32 bytes; locally level within noise, which passes the local gate",
+      "expect": "+2% to +5%"
+    },
+    {
+      "utc": "2026-10-11T21:27:48Z",
+      "level": "info",
+      "text": "ox-011 (oxcaml) running: ",
       "auto": true
     }
   ],
