@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T22:43:22Z",
+  "updated_utc": "2026-10-11T22:43:43Z",
   "run": {
     "id": "ap-20261011T1929Z",
     "state": "running",
@@ -24,24 +24,24 @@
     {
       "machine": "Zen 5 (EPYC 9V45, D16as_v7)",
       "entry": "oxcaml base",
-      "ours_1t": 69300,
-      "ours_mt": 252500,
+      "ours_1t": 72400,
+      "ours_mt": 260900,
       "rival": "mike-barber Rust",
       "rival_1t": 126300,
       "rival_mt": 471600,
       "threads": 4,
-      "source": "run 10 ox-014 cand (champion 997f71f), same-round medians, 4T in ours_mt"
+      "source": "run 10 ox-017 cand (champion 2d1ae49), same-round medians, 4T in ours_mt"
     },
     {
       "machine": "Zen 3 (EPYC 7763, D16a_v4)",
       "entry": "oxcaml base",
-      "ours_1t": 32400,
-      "ours_mt": 124300,
+      "ours_1t": 37000,
+      "ours_mt": 136700,
       "rival": "mike-barber Rust",
       "rival_1t": 55100,
       "rival_mt": 213800,
       "threads": 4,
-      "source": "run 10 ox-014 cand (champion 997f71f), same-round medians, 4T in ours_mt"
+      "source": "run 10 ox-017 cand (champion 2d1ae49), same-round medians, 4T in ours_mt"
     },
     {
       "machine": "Cobalt 100 (D4ps_v6)",
@@ -52,7 +52,7 @@
       "rival_1t": 42900,
       "rival_mt": 171300,
       "threads": 4,
-      "source": "run 10 ox-014 cand (champion 997f71f), same-round medians, 4T in ours_mt"
+      "source": "run 10 ox-017 cand (champion 2d1ae49), same-round medians, 4T in ours_mt"
     },
     {
       "machine": "Zen 5 (EPYC 9V45, D32as_v7)",
@@ -2159,8 +2159,9 @@
       "kind": "novel",
       "plain": "If the pattern buffer is cleared with wide vector stores and the 256 bits are set with untagged arithmetic, then building each small prime pattern gets cheaper, because the old build used a byte fill and tagged shifts.",
       "prediction": "+1% to +4% over 997f71f at 1T",
-      "verdict": "running",
-      "commit": "2d1ae49"
+      "verdict": "kept",
+      "commit": "2d1ae49",
+      "note": "Zen 5 +3.3% 1T, Zen 3 +7.4%, Cobalt flat; champion 2d1ae49"
     }
   ],
   "azure_queue": 0,
@@ -2170,35 +2171,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T21:25:03Z",
-      "level": "decision",
-      "text": "ox-008: KEEP; hc/oxcaml-champion fast-forwarded to a4e63af. Why: analyze.py KEEP: lower bounds +25.3% Zen 5 (4T) and +12.1% Zen 3 (1T), Cobalt +0.0%. Over 20%: the x86 kernels are ox-004's code, which gave +22%/+16% on other tasks and nodes, so the gain replicates; diff re-read, one OR per composite, tail keeps byte ORs.",
-      "id": "ox-008",
-      "what": "KEEP; hc/oxcaml-champion fast-forwarded to a4e63af",
-      "why": "analyze.py KEEP: lower bounds +25.3% Zen 5 (4T) and +12.1% Zen 3 (1T), Cobalt +0.0%. Over 20%: the x86 kernels are ox-004's code, which gave +22%/+16% on other tasks and nodes, so the gain replicates; diff re-read, one OR per composite, tail keeps byte ORs"
-    },
-    {
-      "utc": "2026-10-11T21:25:03Z",
-      "level": "decision",
-      "text": "ox-006: KEEP on cbcd24d; combine with ox-008 in a new candidate (ox-011, agent) rather than merging. Why: analyze.py KEEP: 4T lower bounds +4.0% Zen 5 and +2.8% Zen 3; both it and ox-008 rewrite amd64/dense.ml, so the combination is a new build that needs its own measurement against a4e63af.",
-      "id": "ox-006",
-      "what": "KEEP on cbcd24d; combine with ox-008 in a new candidate (ox-011, agent) rather than merging",
-      "why": "analyze.py KEEP: 4T lower bounds +4.0% Zen 5 and +2.8% Zen 3; both it and ox-008 rewrite amd64/dense.ml, so the combination is a new build that needs its own measurement against a4e63af"
-    },
-    {
-      "utc": "2026-10-11T21:25:03Z",
-      "level": "decision",
-      "text": "ox-007: REVERT on the Cobalt gate. Why: x86 +28% Zen 3 and +33% Zen 5 at 1T over cbcd24d, but Cobalt -27.6%; ox-009 measures the same form inside the x86-only kernel.",
-      "id": "ox-007",
-      "what": "REVERT on the Cobalt gate",
-      "why": "x86 +28% Zen 3 and +33% Zen 5 at 1T over cbcd24d, but Cobalt -27.6%; ox-009 measures the same form inside the x86-only kernel"
-    },
-    {
-      "utc": "2026-10-11T21:25:03Z",
-      "level": "info",
-      "text": "OxCaml champion now a4e63af: Zen 5 60.5k at 1T (0.44x ISPC base 136.8k, 0.49x Rust 124.1k), Zen 3 29.8k, Cobalt 7.3k."
-    },
     {
       "utc": "2026-10-11T21:25:03Z",
       "level": "info",
@@ -2513,6 +2485,32 @@
       "utc": "2026-10-11T22:32:39Z",
       "level": "info",
       "text": "ox-012 confirmed.. Cobalt: dense copy 561 us/pass = 80% of the pass (Zen 3 AVX: 55 us); sparse 97 us (Zen 3: 85); the Arm gap is the scalar dense copy",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T22:43:43Z",
+      "level": "decision",
+      "text": "ox-017: KEEP; hc/oxcaml-champion fast-forwarded to 2d1ae49. Why: analyze.py KEEP: lower bounds +3.2% Zen 5 (1T) and +4.5% Zen 3 (4T); Cobalt +0.0% at 1T, -0.1% at 4T, so the moved Arm code costs nothing.",
+      "id": "ox-017",
+      "what": "KEEP; hc/oxcaml-champion fast-forwarded to 2d1ae49",
+      "why": "analyze.py KEEP: lower bounds +3.2% Zen 5 (1T) and +4.5% Zen 3 (4T); Cobalt +0.0% at 1T, -0.1% at 4T, so the moved Arm code costs nothing"
+    },
+    {
+      "utc": "2026-10-11T22:43:43Z",
+      "level": "info",
+      "text": "ox-017 kept.. Zen 5 +3.3% 1T, Zen 3 +7.4%, Cobalt flat; champion 2d1ae49",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T22:43:43Z",
+      "level": "info",
+      "text": "Scoreboard, oxcaml base on Zen 5 (EPYC 9V45, D16as_v7): 69300 → 72400 at 1T, 252500 → 260900 at 4 threads.",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T22:43:43Z",
+      "level": "info",
+      "text": "Scoreboard, oxcaml base on Zen 3 (EPYC 7763, D16a_v4): 32400 → 37000 at 1T, 124300 → 136700 at 4 threads.",
       "auto": true
     }
   ],
