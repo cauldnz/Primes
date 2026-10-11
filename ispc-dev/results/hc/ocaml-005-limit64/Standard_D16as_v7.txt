@@ -1,0 +1,26 @@
+Architecture:                            x86_64
+CPU(s):                                  16
+Model name:                              AMD EPYC 9V45 96-Core Processor
+BIOS Model name:                         AMD EPYC 9V45 96-Core Processor                 None CPU @ 2.6GHz
+AVX-512: yes
+kind=ocaml rounds=5 id=20225423170
+build cand
+build champ
+build ctx
+build gk1 (PrimeOCaml/solution_1)
+build gk2 (PrimeOCaml/solution_2)
+self-test cand: 13 ok, 0 bad, exit=0
+self-test champ: 13 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-ocaml-base;33004;5.000079;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ocaml-base;213158;5.007444;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ocaml-base;122485;5.005695;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ
+cauldnz-ocaml-base;32617;5.000109;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ocaml-base;209889;5.003357;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ocaml-base;122174;5.005385;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ2
+cauldnz-ocaml-base;32801;5.000136;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ocaml-base;211948;5.006349;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ocaml-base;121126;5.005425;4;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl
