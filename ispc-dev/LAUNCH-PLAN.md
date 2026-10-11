@@ -5,6 +5,9 @@ gives the next something to link to. Owner in brackets: **C** is Chris, **W** th
 
 ## 0. Finish the climb (today)
 
+- [W] Done 11 October: run ap-20261011T0100Z ended 14:39 AEST. Base +10.44% ± 0.11 over Rust at
+  1T on Zen 5 (330b3d4); not yet checked on a Zen 4 with AVX-512 (`D16as_v6`), which the PR
+  should have first.
 - [W] Run ap-20261011T0100Z ends about 15:00 AEST. Review the morning report; freeze the
   numbers we'll quote: `hc/ispc-ref`, the per-thread table, the port tables.
 - [C] Decide the 4-thread line. The multi-thread table ranks passes per second per thread, and
@@ -53,7 +56,8 @@ F1 or F2 arrives as a small follow-up PR to our own entry.
 
 - [W] Rebuild `hc/ispc-landing` on the upstream `drag-race` branch from the clean champion (plus
   `hc/line-4t` if chosen): `PrimeISPC/solution_1` (wheel) and `PrimeISPC/solution_2` (base) only.
-  One squashed commit, authored with the GitHub no-reply address.
+  One squashed commit, authored with the GitHub no-reply address. Leave out the build outputs
+  (`primes`, `*.o`) that `hc/champion` has tracked since the IDEAS 12 merge.
 - [W] Check against CONTRIBUTING.md line by line:
   - Dockerfile builds from Ubuntu packages only (it does: `apt-get install ispc`); hadolint clean;
   - output tags honest: `algorithm=wheel` and `algorithm=base`, `faithful=yes`, `bits=1`;
