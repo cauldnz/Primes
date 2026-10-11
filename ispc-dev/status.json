@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T03:28:16Z",
+  "updated_utc": "2026-10-11T03:39:10Z",
   "run": {
     "id": "ap-20261011T0100Z",
     "state": "running",
@@ -1375,11 +1375,11 @@
       "entry": "wheel",
       "tier": "extra-faithful",
       "kind": "novel",
-      "verdict": "confirmed",
+      "verdict": "kept",
       "hypothesis": "Cheaper sparse start offsets computed at run time (one division per prime and a residue walk, or the 8 planes vectorised)",
       "prediction": "+3% to +8% at 1T (start offsets are 15.3% on Zen 5)",
       "plain": "If the wheel finds where each large prime starts in all eight planes with one division instead of eight, then a pass gets faster, because that step takes about a seventh of the time now.",
-      "note": "Passes the keep rule on both Zens but fails the arm64 gate (-1.1% on Cobalt). Not merged: phase 1 is frozen at hc/ispc-ref and Chris stopped new ISPC wheel speed work, so the NEON-guarded variant (x86 only, NEON byte-identical) is left for Chris/the workshop. Extra-faithful, novel; +5.5% Zen 5 1T is the largest extra-faithful wheel gain of the run",
+      "note": "KEPT at Chris request (finish it): hc/s5-starts-ef-x86 75191b0 guards start_bits8 off NEON. Proof by --emit-asm with build.sh flags: neon-i32x8 byte-identical to 1551635; sse4-i32x8, avx2-i32x16, avx512skx-x16 byte-identical to s5-starts-ef, so its Zen numbers stand (Zen 5 +5.5% ± 0.2 1T, +5.2% ± 0.1 16T; Zen 3 +1.9% ± 0.6 1T, +1.7% ± 0.5 16T). SSE4-only build: self-test passes, +6% locally vs the champion. Merged: hc/champion = 9f62bd6. hc/ispc-ref stays 1551635 for the ports. Open point for Chris: under the target-specific rule (>=2% where code changes) Zen 3 sits at +1.9%; under the general rule it clears (lower bound +1.3%)",
       "cobalt": "-1.1% ± 0.1 1T, -1.0% 4T (0/5)",
       "note_cobalt": "Cobalt 100 loses 1.1%: a keep would need the change guarded off NEON (target-specific) if Zen gains",
       "zen5": "+5.5% ± 0.2 1T, +5.3% 4T, +5.2% ± 0.1 16T (6/6)",
@@ -1531,24 +1531,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T02:08:12Z",
-      "level": "decision",
-      "text": "run: Cobalt pool (1 node) up; base profile pair on it; 20-round Zen 5 base scoreboard queued; Rust base ideas get the next agent slot ahead of the C++ wheel. Why: Chris's base instructions; Cobalt adds 4 vCPUs (116 of 128); the profile task runs both instrumented builds in one task so their shares are comparable. Passed over: rebalancing Zen 3 down to 2 nodes to speed the Zen 5 queue (13 queued; the scoreboard lands about 03:15, inside the cutoff).",
-      "id": "run",
-      "what": "Cobalt pool (1 node) up; base profile pair on it; 20-round Zen 5 base scoreboard queued; Rust base ideas get the next agent slot ahead of the C++ wheel",
-      "why": "Chris's base instructions; Cobalt adds 4 vCPUs (116 of 128); the profile task runs both instrumented builds in one task so their shares are comparable",
-      "instead": "rebalancing Zen 3 down to 2 nodes to speed the Zen 5 queue (13 queued; the scoreboard lands about 03:15, inside the cutoff)"
-    },
-    {
-      "utc": "2026-10-11T02:09:56Z",
-      "level": "decision",
-      "text": "s5-starts-ef: submit on Zen 5, Zen 3 and Cobalt 100. Why: verified build and self-test here; the diff uses only RES/PLANE (constants of 30), so it stays extra-faithful; the Cobalt gate applies because start_bits8 is shared code. Expect: +3% to +6% at 1T on Zen.",
-      "id": "s5-starts-ef",
-      "what": "submit on Zen 5, Zen 3 and Cobalt 100",
-      "why": "verified build and self-test here; the diff uses only RES/PLANE (constants of 30), so it stays extra-faithful; the Cobalt gate applies because start_bits8 is shared code",
-      "expect": "+3% to +6% at 1T on Zen"
-    },
     {
       "utc": "2026-10-11T02:10:03Z",
       "level": "decision",
@@ -1882,6 +1864,21 @@
       "utc": "2026-10-11T03:27:46Z",
       "level": "info",
       "text": "p-cpp-wheel-clang-idea12 (cpp-wheel) running: IDEAS 12 merged onto the clang C++ wheel champion",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T03:39:10Z",
+      "level": "decision",
+      "text": "s5-starts-ef: keep: guard start_bits8 off NEON and merge into hc/champion (9f62bd6). Why: Chris asked to finish it; the NEON build is byte-identical to the champion, so arm64 cannot lose, and the x86 builds are byte-identical to the measured branch, so no new Azure run is needed. General keep rule: lower bounds +1.3% (Zen 3) and +5.3% (Zen 5). Passed over: re-measuring on Zen (the asm identity makes it redundant).",
+      "id": "s5-starts-ef",
+      "what": "keep: guard start_bits8 off NEON and merge into hc/champion (9f62bd6)",
+      "why": "Chris asked to finish it; the NEON build is byte-identical to the champion, so arm64 cannot lose, and the x86 builds are byte-identical to the measured branch, so no new Azure run is needed. General keep rule: lower bounds +1.3% (Zen 3) and +5.3% (Zen 5)",
+      "instead": "re-measuring on Zen (the asm identity makes it redundant)"
+    },
+    {
+      "utc": "2026-10-11T03:39:10Z",
+      "level": "info",
+      "text": "s5-starts-ef kept.. KEPT at Chris request (finish it): hc/s5-starts-ef-x86 75191b0 guards start_bits8 off NEON. Proof by --emit-asm with build.sh flags: neon-i32x8 byte-identical to 1551635; sse4-i32x8, avx2-i32x16, avx512skx-x16 byte-identical to s5-starts-ef, so its Zen numbers stand (Zen 5 +5.5% ± 0.2 1T, +5.2% ± 0.1 16T; Zen 3 +1.9% ± 0.6 1T, +1.7% ± 0.5 16T). SSE4-only build: self-test passes, +6% locally vs the champion. Merged: hc/champion = 9f62bd6. hc/ispc-ref stays 1551635 for the ports. Open point for Chris: under the target-specific rule (>=2% where code changes) Zen 3 sits at +1.9%; under the general rule it clears (lower bound +1.3%)",
       "auto": true
     }
   ],

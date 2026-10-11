@@ -321,3 +321,11 @@ changes copied from the existing entries in each language (clang for C++, AVX-51
 pass. Computing the starts as independent products (extra-faithful) bought +5.5% on Zen 5 and
 +1.9% on Zen 3 but cost 1.1% on Cobalt 100; tables built at compile time (permitted) bought
 +23% / +20%, nearly the whole 23.5%.
+| s5-starts-ef-x86 | 2026-10-11 | wheel | s5-starts-ef with start_bits8 off NEON (neon asm = 1551635; x86 asm = s5-starts-ef) | as measured | Zen 3: +1.9% ± 0.6 / +1.7% ± 0.5 (carried by asm identity) | Zen 5: +5.5% ± 0.2 / +5.2% ± 0.1 (carried); Cobalt: champion code | **KEEP**, `hc/champion` 9f62bd6 | `hc/s5-starts-ef-x86` 75191b0 |
+
+**s5-starts-ef-x86.** Kept at Chris's request after the arm gate failed. Guarding the two call
+sites leaves the NEON assembly byte-identical to 1551635 and every x86 target's assembly
+byte-identical to the measured s5-starts-ef, so its Zen intervals stand without a new run. SSE4
+self-test passes and SSE4 is +6% locally. Zen 3 is +1.9%: it clears the general rule (lower
+bound +1.3%) but not the 2% that the target-specific rule asks of machines whose code changes;
+flagged for Chris.
