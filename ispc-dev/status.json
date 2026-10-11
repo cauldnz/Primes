@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T02:28:54Z",
+  "updated_utc": "2026-10-11T02:29:59Z",
   "run": {
     "id": "ap-20261011T0100Z",
     "state": "running",
@@ -1427,6 +1427,17 @@
       "prediction": "the gap is in the dense phase (our AVX-512 native build vs his AVX2)",
       "plain": "If we time each step of both Rust bases on the official kind of machine, then we can see which step makes ours slower there, because on the local Intel machine ours is faster in every step.",
       "note": "two 3-round tasks on Zen 5"
+    },
+    {
+      "id": "b2-base-zen5-profile",
+      "entry": "base",
+      "tier": "extra-faithful",
+      "kind": "tuning",
+      "verdict": "running",
+      "hypothesis": "Measurement: ISPC base phase split on Zen 5 at 1T (ns timer build), beside mike-barber profile on Zen 5 (p-rust-base-zprof-mb)",
+      "prediction": "sparse ~60%, dense ~35%",
+      "plain": "If we time each step of our base on the official kind of machine beside the fastest Rust base, then we see which step to speed up to pass it by 4%, because the totals alone do not say where the time goes.",
+      "note": "hc/diag-base-phases-arm 53ea880; 3 rounds"
     }
   ],
   "azure_queue": 0,
@@ -1436,27 +1447,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T00:13:41Z",
-      "level": "info",
-      "text": "Scoreboard, wheel on Zen 3 (EPYC 7763, D16a_v4): 111200 → 112400 at 1T, 932400 → 947700 at 16 threads.",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T01:03:27Z",
-      "level": "info",
-      "text": "Run ap-20261011T0100Z started: phase 1 finishes ISPC (streams 2-5), then phase 2 climbs the ports. Reset meter-state so the first tally doesn't charge last run's nodes (backlog 28)."
-    },
-    {
-      "utc": "2026-10-11T01:07:50Z",
-      "level": "decision",
-      "text": "f4-dense: submit 384/512/640 on Zen 5 and Zen 3, 6 rounds each. Why: RUN-PLAN stream 4 is the only open ISPC tuning item; a default-constant change per branch lets hc-pool run it unchanged. Local gate: self-test only (a one-constant change cannot be 30% slower). Passed over: F6 (needs the 96-vCPU node, not otherwise needed yet). Expect: flat to +2% at 1T.",
-      "id": "f4-dense",
-      "what": "submit 384/512/640 on Zen 5 and Zen 3, 6 rounds each",
-      "why": "RUN-PLAN stream 4 is the only open ISPC tuning item; a default-constant change per branch lets hc-pool run it unchanged. Local gate: self-test only (a one-constant change cannot be 30% slower)",
-      "instead": "F6 (needs the 96-vCPU node, not otherwise needed yet)",
-      "expect": "flat to +2% at 1T"
-    },
     {
       "utc": "2026-10-11T01:08:49Z",
       "level": "decision",
@@ -1821,6 +1811,26 @@
       "utc": "2026-10-11T02:28:54Z",
       "level": "info",
       "text": "p-rust-base-zprof (rust-base) running: Measurement: Zen 5 phase split of our Rust base port (hc/diag-rust-base-port 27f6dff) and of mike-barber (hc/diag-rust-phases-avx512off, his flags), to name the Zen-only 8-11% gap",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T02:29:59Z",
+      "level": "info",
+      "text": "Chris: priorities from what the leaderboard ranks (passes/duration/threads; multi-thread leaders are 4-thread lines, so one core's speed decides). No new ISPC wheel speed experiments (the wheel already leads its real category, danielspaangberg's C, about 3.5x); s5-tables and s5-starts-ef finish and are recorded. Time goes to the ISPC base at 1T on Zen 5: target +4% over mike-barber's Rust (Swift leads him by 2.5% on the official Threadripper). Final scoreboard per thread at 1T and 4T for base and wheel. Keep rule unchanged; ports carry on."
+    },
+    {
+      "utc": "2026-10-11T02:29:59Z",
+      "level": "decision",
+      "text": "run: drop the byte-sparse wheel kernel and any further ISPC wheel work; profile the base on Zen 5 and start an agent on the x86 compiled loops of our base vs mike-barber's for Zen 5, with up to two candidate branches. Why: Chris's new priority: base 1T on Zen 5 against Rust, target +4%; one core's speed is what the leaderboard rewards. Passed over: C++ wheel group32 rerun (ports carry on, but behind base work for nodes).",
+      "id": "run",
+      "what": "drop the byte-sparse wheel kernel and any further ISPC wheel work; profile the base on Zen 5 and start an agent on the x86 compiled loops of our base vs mike-barber's for Zen 5, with up to two candidate branches",
+      "why": "Chris's new priority: base 1T on Zen 5 against Rust, target +4%; one core's speed is what the leaderboard rewards",
+      "instead": "C++ wheel group32 rerun (ports carry on, but behind base work for nodes)"
+    },
+    {
+      "utc": "2026-10-11T02:29:59Z",
+      "level": "info",
+      "text": "b2-base-zen5-profile (base) running: Measurement: ISPC base phase split on Zen 5 at 1T (ns timer build), beside mike-barber profile on Zen 5 (p-rust-base-zprof-mb)",
       "auto": true
     }
   ],
