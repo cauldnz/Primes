@@ -10,7 +10,8 @@
    - Dense (factor below 128): the odd multiples of p repeat with a period of p 64-bit words.
      For each factor the sieve builds the word pattern of four periods (4p words) in its own
      scratch buffer, setting each of their 256 multiples with its own single-bit OR, then ORs
-     the pattern into the sieve one word at a time, four words per loop step.
+     the pattern into the sieve one word at a time. Each loop step covers four words of two
+     consecutive runs, so one load of a pattern word serves two sieve words.
    - Sparse (larger factors): eight multiples repeat every p bytes, each at a fixed bit. The
      byte offsets and masks are computed per factor; each composite is one byte OR.
 
@@ -68,7 +69,7 @@ let build_pattern s p =
 (* Dense clearing for odd p < dense_limit. Periods of p words start at word multiples of p;
    clearing starts at the period holding p². The smaller multiples in that period are
    composite too, except p itself, which is restored at the end. The loop walks runs of four
-   periods, four words at a time; the last, partial run takes as many words of the pattern as
+   periods, two runs and eight words at a time; the last, partial run takes as many words of the pattern as
    fit. With [init] (the first factor, 3) every word is stored without being loaded, which
    initialises the buffer. *)
 let clear_dense s p init =
@@ -92,8 +93,31 @@ let clear_dense s p init =
       done;
       base := q + rb
     done
-  else
-    for _ = 1 to runs do
+  else begin
+    (* Two runs per step: each pattern word is loaded once and ORed into the same word of two
+       consecutive runs, eight sieve words a step. *)
+    for _ = 1 to runs / 2 do
+      let q = !base in
+      let v = ref 0 in
+      while !v < rb do
+        let a = q + !v and v0 = !v in
+        let a2 = a + rb in
+        let w0 = get64 pat v0 and w1 = get64 pat (v0 + 8)
+        and w2 = get64 pat (v0 + 16) and w3 = get64 pat (v0 + 24) in
+        set64 b a (Int64.logor (get64 b a) w0);
+        set64 b (a + 8) (Int64.logor (get64 b (a + 8)) w1);
+        set64 b (a + 16) (Int64.logor (get64 b (a + 16)) w2);
+        set64 b (a + 24) (Int64.logor (get64 b (a + 24)) w3);
+        set64 b a2 (Int64.logor (get64 b a2) w0);
+        set64 b (a2 + 8) (Int64.logor (get64 b (a2 + 8)) w1);
+        set64 b (a2 + 16) (Int64.logor (get64 b (a2 + 16)) w2);
+        set64 b (a2 + 24) (Int64.logor (get64 b (a2 + 24)) w3);
+        v := v0 + 32
+      done;
+      base := q + (2 * rb)
+    done;
+    (* An odd run left over: one run, four words a step. *)
+    if runs land 1 = 1 then begin
       let q = !base in
       let v = ref 0 in
       while !v < rb do
@@ -105,7 +129,8 @@ let clear_dense s p init =
         v := v0 + 32
       done;
       base := q + rb
-    done;
+    end
+  end;
   (* The partial last run: fewer than 4p words. *)
   let q = !base in
   let left = (n * 8) - q in
