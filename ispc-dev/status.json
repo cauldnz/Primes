@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T01:34:23Z",
+  "updated_utc": "2026-10-11T01:37:30Z",
   "run": {
     "id": "ap-20261011T0100Z",
     "state": "running",
@@ -1208,6 +1208,28 @@
       "prediction": "0 to +2% under g++ (local +2%); required for correctness under clang",
       "plain": "If the C++ wheel reads its vectors in a way every compiler accepts at any address, then it stops crashing when built with Clang and runs no slower with GCC, because the old code relied on GCC honouring an alignment hint that Clang ignores.",
       "note": "hc/port-cpp-wheel-ub 2ae55c9 (agent p-cpp-wheel-ub). Root cause primes.cpp:45-47; idea12 and group32 branches carry the same bug"
+    },
+    {
+      "id": "p-rust-base-mb",
+      "entry": "rust-base",
+      "tier": "extra-faithful",
+      "kind": "borrowed",
+      "verdict": "rejected",
+      "hypothesis": "Clear small dense factors one period at a time with masks in registers, as mike-barber extreme_reset does (helper-macros/src/lib.rs:270)",
+      "prediction": "a few % at most",
+      "plain": "If our Rust base clears each small factor one repeat-length at a time, as the fastest Rust entry does, then its masks stay in registers and it gets faster, because it no longer reloads them from memory.",
+      "note": "hc/port-rust-base-mb cee34c1: -15% to -18% locally over 5 pairs; not sent to Azure. Likely unaligned period-offset vectors crossing cache lines. Agent also measured the sparse loop at ~64% of the pass and already at 11 instructions per 8 composites"
+    },
+    {
+      "id": "p-rust-base-noavx512",
+      "entry": "rust-base",
+      "tier": "extra-faithful",
+      "kind": "borrowed",
+      "verdict": "running",
+      "hypothesis": "Build the Rust base with -C target-feature=-avx512f, as mike-barber does",
+      "prediction": "+1% to +5% on Zen 5 (local +3% to +5%); Zen 3 unchanged by construction",
+      "plain": "If the Rust base is built without the widest vector instructions, as the fastest Rust entry is, then it may run faster on chips that have them, because those instructions can lower the clock and do not help this loop.",
+      "note": "hc/port-rust-base-noavx512; target-specific (HILL-CLIMB rule: >=2% where code changes, identical elsewhere); Zen 5 only, 6 rounds"
     }
   ],
   "azure_queue": 0,
@@ -1217,14 +1239,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T22:45:49Z",
-      "level": "decision",
-      "text": "f2-x86: measure hc/f2-x86 20998bc vs champion-grey on Zen 5/3/4, 6 rounds; arm pool deleted (NEON asm identical to champion-grey except the .file name; agent also cmp'd .o). Why: F2-16 failed arm at -2.1%; F2-16 on Zen 4 +10.4% +-0.8 1T, +10.9% 16T (6/6); f2-x86 keeps F1 in the first block, ascends in later blocks.",
-      "id": "f2-x86",
-      "what": "measure hc/f2-x86 20998bc vs champion-grey on Zen 5/3/4, 6 rounds; arm pool deleted (NEON asm identical to champion-grey except the .file name; agent also cmp'd .o)",
-      "why": "F2-16 failed arm at -2.1%; F2-16 on Zen 4 +10.4% +-0.8 1T, +10.9% 16T (6/6); f2-x86 keeps F1 in the first block, ascends in later blocks"
-    },
     {
       "utc": "2026-10-10T22:46:12Z",
       "level": "info",
@@ -1562,6 +1576,16 @@
       "what": "start agent p-zig-wheel: Zig wheel phase split beside ISPC's, then one Zig-specific idea named from it",
       "why": "Zig had no experiment yet this run; equal effort across C++, Rust and Zig (RUN-PLAN). The wheel first because it already leads our ISPC wheel and the plan asks whether it passes it",
       "instead": "Zig base (has F1 on grey already)"
+    },
+    {
+      "utc": "2026-10-11T01:37:30Z",
+      "level": "decision",
+      "text": "p-rust-base-noavx512: reject p-rust-base-mb at the local gate; test mike-barber's -avx512f build flag on Zen 5 only. Why: the period resetter lost 15-18% locally in 5 pairs; the flag is the remaining difference between the two builds, gained 3-5% locally, and leaves the Zen 3 binary unchanged, so Zen 5 alone decides under the target-specific rule. Passed over: a second Rust code idea (the agent found the sparse loop already at the instruction floor). Expect: +1% to +5% Zen 5.",
+      "id": "p-rust-base-noavx512",
+      "what": "reject p-rust-base-mb at the local gate; test mike-barber's -avx512f build flag on Zen 5 only",
+      "why": "the period resetter lost 15-18% locally in 5 pairs; the flag is the remaining difference between the two builds, gained 3-5% locally, and leaves the Zen 3 binary unchanged, so Zen 5 alone decides under the target-specific rule",
+      "instead": "a second Rust code idea (the agent found the sparse loop already at the instruction floor)",
+      "expect": "+1% to +5% Zen 5"
     }
   ],
   "research": {
