@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T04:29:39Z",
+  "updated_utc": "2026-10-11T04:38:33Z",
   "run": {
     "id": "ap-20261011T0100Z",
     "state": "running",
@@ -8,11 +8,11 @@
     "mode_reason": "Chris kicked off a 4-hour run (RUN-PLAN.md: finish and freeze ISPC, then climb the C++, Rust and Zig ports alike); cached Azure login works, no pools up.",
     "started_utc": "2026-10-11T01:00:00Z",
     "time_box_hours": 4,
-    "spend_nzd": 6.16,
+    "spend_nzd": 6.31,
     "spend_cap_nzd": 30,
     "ends_utc": "2026-10-11T05:00:00Z",
-    "background_runs": 1,
-    "last_tick_utc": "2026-10-11T04:27:36Z",
+    "background_runs": 0,
+    "last_tick_utc": "2026-10-11T04:38:33Z",
     "wakeup": "trig_01NDECUGKq35uDndFS5LAECd"
   },
   "current": {
@@ -2052,12 +2052,12 @@
     },
     "climber": {
       "totals": {
-        "calls": 3675,
-        "fresh": 7470,
-        "write": 8559113,
-        "read": 925576019,
-        "output": 1282307,
-        "total": 935424909
+        "calls": 3688,
+        "fresh": 7496,
+        "write": 8581645,
+        "read": 932182781,
+        "output": 1292781,
+        "total": 942064703
       },
       "runs": {
         "ap-20261009T0607Z": {
@@ -2110,14 +2110,14 @@
           "output": 117249
         },
         "between runs": {
-          "calls": 962,
-          "fresh": 1958,
-          "write": 3211310,
-          "read": 200878748,
-          "output": 343431
+          "calls": 975,
+          "fresh": 1984,
+          "write": 3233842,
+          "read": 207485510,
+          "output": 353905
         }
       },
-      "updated_utc": "2026-10-11T04:27:37Z"
+      "updated_utc": "2026-10-11T04:38:34Z"
     }
   }
 }
