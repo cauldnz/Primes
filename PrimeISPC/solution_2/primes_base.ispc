@@ -400,14 +400,54 @@ static void self_test() {
 }
 
 #if defined(ISPC_TARGET_AVX512SKX)
+extern "C" uniform int open(const uniform int8 * uniform path, uniform int flags);
+extern "C" uniform int64 read(uniform int fd, void * uniform buf, uniform int64 n);
+extern "C" uniform int close(uniform int fd);
+
+static uniform bool text_at(const uniform int8 * uniform s, uniform int64 n, uniform int64 i,
+                            const uniform int8 * uniform pat) {
+    for (uniform int k = 0; pat[k] != 0; k++)
+        if (i + k >= n || s[i + k] != pat[k]) return false;
+    return true;
+}
+
+// Zen 5 (AMD family 1Ah = 26), from the first processor block of /proc/cpuinfo. The 16-lane
+// dense routine gains 7.5% at one thread on Zen 5 but loses 2.7% on Zen 4 and 7% on Intel Ice
+// Lake (512-bit ops are double-pumped or lower the clock there), so it is used on Zen 5 only.
+// Anything unreadable counts as "not Zen 5" and keeps the 8-lane code.
+static uniform bool is_zen5() {
+    uniform int8 path[14] = {47,112,114,111,99,47,99,112,117,105,110,102,111,0};     // /proc/cpuinfo
+    uniform int8 amd[13] = {65,117,116,104,101,110,116,105,99,65,77,68,0};          // AuthenticAMD
+    uniform int8 fam[11] = {99,112,117,32,102,97,109,105,108,121,0};                // cpu family
+    uniform int8 buf[8192];
+    uniform int fd = open(path, 0);
+    if (fd < 0) return false;
+    uniform int64 n = read(fd, buf, 8191);
+    close(fd);
+    uniform bool is_amd = false;
+    uniform int family = -1;
+    for (uniform int64 i = 0; i < n; i++) {
+        if (!is_amd && text_at(buf, n, i, amd)) is_amd = true;
+        if (family < 0 && text_at(buf, n, i, fam)) {
+            uniform int64 j = i + 10;
+            while (j < n && (buf[j] == 32 || buf[j] == 9 || buf[j] == 58)) j++;     // spaces, tab, ':'
+            family = 0;
+            while (j < n && buf[j] >= 48 && buf[j] <= 57) { family = family * 10 + (buf[j] - 48); j++; }
+        }
+    }
+    return is_amd && family == 26;
+}
+
 // One-per-core rule for the 16-lane dense routine: a run of n threads counts as one per
 // physical core when n is 1 or at most half the hardware threads (with SMT on, the scheduler
-// then gives each thread a core of its own). PRIMES_FOLD=0 or 1 forces the choice, for tests.
+// then gives each thread a core of its own), and only on Zen 5. PRIMES_FOLD=0 or 1 forces the
+// choice, for tests.
 static uniform int fold_env = -1;
 static uniform int hw_threads = 1;
+static uniform bool zen5 = false;
 static uniform bool x16_for(uniform int n) {
     if (fold_env >= 0) return fold_env != 0;
-    return n == 1 || n * 2 <= hw_threads;
+    return zen5 && (n == 1 || n * 2 <= hw_threads);
 }
 #endif
 
@@ -435,6 +475,7 @@ export uniform int main() {
     uniform int8 n_fold[12] = {80,82,73,77,69,83,95,70,79,76,68,0};    // PRIMES_FOLD
     fold_env = env_int(n_fold, -1);
     hw_threads = clamp(hardware_threads(), 1, 1024);
+    zen5 = is_zen5();
     use_x16 = x16_for(1);                                            // the single-threaded run
 #endif
     uniform int8 n_test[12] = {80,82,73,77,69,83,95,84,69,83,84,0};    // PRIMES_TEST
