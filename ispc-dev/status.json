@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T02:26:03Z",
+  "updated_utc": "2026-10-11T02:27:04Z",
   "run": {
     "id": "ap-20261011T0100Z",
     "state": "running",
@@ -16,9 +16,9 @@
     "wakeup": "trig_015yfXzxi6o1T5qT2EHJqtEE"
   },
   "current": {
-    "id": "f4-dense",
+    "id": "b1-sparse-last",
     "phase": "evaluate",
-    "detail": "6 tasks queued, pools starting (about 8 min start task)"
+    "detail": "Cobalt 100 (deciding), Zen 5 and Zen 3, 6 rounds; also running: base 20-round scoreboard, s5-tables, s5-starts-ef, Rust base x4, F4 128/192, history rechecks"
   },
   "scoreboard": [
     {
@@ -1426,17 +1426,6 @@
   ],
   "events": [
     {
-      "utc": "2026-10-10T23:47:23Z",
-      "level": "info",
-      "text": "zig-f1 KEEP (grey, hc/zig-champion-grey). Zen 5 D16as_v7, Zen 3 vs hc/zig-submission, 6 rounds. Zen 5 +11.7% 1T, +9.2% 16T; Zen 3 +8.7% 1T, +4.3% 16T (6/6)",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T00:13:41Z",
-      "level": "Run ap-20261010T2040Z is stopped. Pools deleted (az batch pool list empty); no autopilot wake-up pending; lock cleared. Kept: IDEAS 12 (hc/champion 1551635), F1 (hc/champion-grey 3a893c1), Zig F1 (hc/zig-champion-grey 72e5b42). Tokens re-counted at shutdown: 2,962 calls, output 1.08M, cache writes 6.96M, cache reads 811.5M (tokens-climber.json)",
-      "text": "decision"
-    },
-    {
       "utc": "2026-10-11T00:13:41Z",
       "level": "info",
       "text": "Run ap-20261010T2040Z is stopped; spend NZ$3.88.",
@@ -1809,6 +1798,17 @@
       "id": "p-rust-base-2",
       "what": "submit the cutoff change and start a diag build of our Rust port for a Zen 5 phase split beside mike-barber's",
       "why": "the local split shows ours cheaper in every phase, so the 8-11% Zen deficit is a Zen effect; only a Zen profile can name it (Chris: three Rust base experiments against him)"
+    },
+    {
+      "utc": "2026-10-11T02:27:04Z",
+      "level": "info",
+      "text": "Log fix: EVENTS.jsonl had stopped at 01:11 because the climber committed status.json before pub.sh, so autolog saw no diff. autolog now diffs against the last commit that wrote the log; 74 events backfilled; current updated. Asked by Chris."
+    },
+    {
+      "utc": "2026-10-11T02:27:04Z",
+      "level": "info",
+      "text": "b1-sparse-last: evaluate. Cobalt 100 (deciding), Zen 5 and Zen 3, 6 rounds; also running: base 20-round scoreboard, s5-tables, s5-starts-ef, Rust base x4, F4 128/192, history rechecks",
+      "auto": true
     }
   ],
   "research": {
