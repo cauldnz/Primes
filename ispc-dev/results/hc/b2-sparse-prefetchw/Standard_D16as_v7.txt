@@ -1,0 +1,68 @@
+Architecture:                            x86_64
+CPU(s):                                  16
+Model name:                              AMD EPYC 9V45 96-Core Processor
+BIOS Model name:                         AMD EPYC 9V45 96-Core Processor                 None CPU @ 2.6GHz
+AVX-512: yes
+kind=base rounds=6 id=02480429916
+build cand
+build champ
+self-test cand: 13 ok, 0 bad, exit=0
+self-test champ: 13 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-ispc-base;122765;5.000045;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;897150;5.000202;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;869884;5.000107;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;458339;5.000057;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ
+cauldnz-ispc-base;129488;5.000008;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;1010166;5.000187;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;918109;5.000091;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;483577;5.000039;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ2
+cauldnz-ispc-base;129465;5.000037;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;1010761;5.000201;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;917303;5.000134;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;484082;5.000051;4;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl
+mike-barber_bit-extreme-hybrid;125865;5.0000123978;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;470801;5.0000905991;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;891224;5.0001673698;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;874600;5.0004310608;16;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl2
+davepl_array_optimized;90753;5.00016;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;712184;5.00105;16;algorithm=base,faithful=yes,bits=1
+== round 1 cand
+cauldnz-ispc-base;122718;5.000024;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;895886;5.000206;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;869194;5.000097;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;457870;5.000067;4;algorithm=base,faithful=yes,bits=1
+== round 1 champ2
+cauldnz-ispc-base;129491;5.000022;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;1012136;5.000195;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;918907;5.000100;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;483738;5.000061;4;algorithm=base,faithful=yes,bits=1
+== round 1 ctrl2
+davepl_array_optimized;91680;5.00017;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;711958;5.00071;16;algorithm=base,faithful=yes,bits=1
+== round 1 champ
+cauldnz-ispc-base;129266;5.000019;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;1010018;5.000196;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;910572;5.000095;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;483845;5.000062;4;algorithm=base,faithful=yes,bits=1
+== round 1 ctrl
+mike-barber_bit-extreme-hybrid;125866;5.0000333786;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;470757;5.0000581741;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;889943;5.0001850128;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;875741;5.0002975464;16;algorithm=base,faithful=yes,bits=1
+== round 2 ctrl
+mike-barber_bit-extreme-hybrid;125911;5.0000295639;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;470439;5.0001049042;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;890715;5.0001492500;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;875297;5.0003690720;16;algorithm=base,faithful=yes,bits=1
+== round 2 cand
+cauldnz-ispc-base;122752;5.000016;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;897372;5.000205;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;868162;5.000106;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;457848;5.000051;4;algorithm=base,faithful=yes,bits=1
+== round 2 ctrl2
+davepl_array_optimized;91816;5.00014;1;algorithm=base,faithful=yes,bits=1
