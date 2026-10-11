@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T04:12:42Z",
+  "updated_utc": "2026-10-11T04:13:36Z",
   "run": {
     "id": "ap-20261011T0100Z",
     "state": "running",
@@ -1521,10 +1521,10 @@
       "entry": "both",
       "tier": "extra-faithful",
       "kind": "tuning",
-      "verdict": "running",
+      "verdict": "confirmed",
       "hypothesis": "Phase 1 final scoreboard at hc/ispc-ref = 1551635: base and wheel on Zen 5, Zen 3, Zen 4, per thread at 1T and 4T, with rivals",
       "plain": "If we run both our entries beside the best rivals on three kinds of AMD machine, then we have a fixed reference for the ports and the morning report, because nothing in ISPC changes after this.",
-      "note": "base Zen 5 20 rounds (sb-base-z5-20); base Zen 3/Zen 4 and wheel Zen 5/Zen 3/Zen 4 6 rounds (sb-base, sb-wheel); hc/ispc-ref pushed"
+      "note": "Scoreboard at 1551635 (6 rounds; base Zen 5 is the 20-round run). Per thread, passes/s/thread, ours vs rivals. WHEEL Zen 5: 1T 44,424, 4T 44,119 (C wheel 27,833 / 25,398; danielspaangberg 14,059 at 1T). WHEEL Zen 3: 1T 22,547, 4T 22,500 (C 13,048 / 12,980; dsp 7,572). BASE Zen 3: 1T 11,202, 4T 11,215 vs mike-barber 10,507 / 10,520 (+6.6% / +6.6%), davepl 7,350. The 'Zen 4' D16as_v5 node came up as an EPYC 7763 (Zen 3): no Zen 4 numbers this run; its base and wheel rows repeat Zen 3 (base +6.7% vs Rust, wheel +73% vs C)"
     },
     {
       "id": "p-cpp-wheel-clang-idea12",
@@ -1535,7 +1535,9 @@
       "hypothesis": "IDEAS 12 merged onto the clang C++ wheel champion",
       "prediction": "+1% to +6% (as on g++)",
       "plain": "If the faster Clang build of the C++ wheel also writes 13 in the same pass as the tile, then it gains as the GCC build did, because the saved sweep does not depend on the compiler.",
-      "note": "hc/port-cpp-wheel-clang-idea12 547221c; both compilers pass PRIMES_TEST=1; Zen 5 + Zen 3 6 rounds"
+      "note": "hc/port-cpp-wheel-clang-idea12 547221c; both compilers pass PRIMES_TEST=1; Zen 5 + Zen 3 6 rounds",
+      "zen5": "+1.3% ± 0.5 1T, +1.9% ± 0.3 16T (6/6)",
+      "note_z5": "Zen 3 pending; the clang C++ wheel with IDEAS 12 is 1.7% ahead of our ISPC reference wheel at 16T on Zen 5, 7.9% behind at 1T"
     }
   ],
   "azure_queue": 0,
@@ -1545,17 +1547,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T02:28:54Z",
-      "level": "info",
-      "text": "p-rust-base-zprof (rust-base) running: Measurement: Zen 5 phase split of our Rust base port (hc/diag-rust-base-port 27f6dff) and of mike-barber (hc/diag-rust-phases-avx512off, his flags), to name the Zen-only 8-11% gap",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T02:29:59Z",
-      "level": "info",
-      "text": "Chris: priorities from what the leaderboard ranks (passes/duration/threads; multi-thread leaders are 4-thread lines, so one core's speed decides). No new ISPC wheel speed experiments (the wheel already leads its real category, danielspaangberg's C, about 3.5x); s5-tables and s5-starts-ef finish and are recorded. Time goes to the ISPC base at 1T on Zen 5: target +4% over mike-barber's Rust (Swift leads him by 2.5% on the official Threadripper). Final scoreboard per thread at 1T and 4T for base and wheel. Keep rule unchanged; ports carry on."
-    },
     {
       "utc": "2026-10-11T02:29:59Z",
       "level": "decision",
@@ -1880,6 +1871,20 @@
       "utc": "2026-10-11T03:57:49Z",
       "level": "info",
       "text": "b2-base-fold-1pc kept.. KEEP under the target-specific rule (sse4/avx2/NEON byte-identical; +7.5% on the AVX-512 machine). Merged: hc/champion = 330b3d4. vs mike-barber in the same rounds: +10.5% at 1T. Rules: each composite still sets its own bit before the word OR. Zen 4 run (D16as_v5) only covers the unchanged AVX2 path; a Zen 4 AVX-512 (D16as_v6) check is for next run. 20-round Zen 5 scoreboard of 330b3d4 queued",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T04:13:36Z",
+      "level": "decision",
+      "text": "run: cancel the two Zen 4 rechecks and take the Zen 4 and Cobalt pools down. Why: the D16as_v5 node is an EPYC 7763 (Zen 3) this time, where both changes leave the code unchanged; Cobalt has no work left. Only the 20-round base scoreboard (Zen 5) and the C++ IDEAS 12 Zen 3 run remain.",
+      "id": "run",
+      "what": "cancel the two Zen 4 rechecks and take the Zen 4 and Cobalt pools down",
+      "why": "the D16as_v5 node is an EPYC 7763 (Zen 3) this time, where both changes leave the code unchanged; Cobalt has no work left. Only the 20-round base scoreboard (Zen 5) and the C++ IDEAS 12 Zen 3 run remain"
+    },
+    {
+      "utc": "2026-10-11T04:13:36Z",
+      "level": "info",
+      "text": "sb-ispc-ref confirmed.. Scoreboard at 1551635 (6 rounds; base Zen 5 is the 20-round run). Per thread, passes/s/thread, ours vs rivals. WHEEL Zen 5: 1T 44,424, 4T 44,119 (C wheel 27,833 / 25,398; danielspaangberg 14,059 at 1T). WHEEL Zen 3: 1T 22,547, 4T 22,500 (C 13,048 / 12,980; dsp 7,572). BASE Zen 3: 1T 11,202, 4T 11,215 vs mike-barber 10,507 / 10,520 (+6.6% / +6.6%), davepl 7,350. The 'Zen 4' D16as_v5 node came up as an EPYC 7763 (Zen 3): no Zen 4 numbers this run; its base and wheel rows repeat Zen 3 (base +6.7% vs Rust, wheel +73% vs C)",
       "auto": true
     }
   ],
