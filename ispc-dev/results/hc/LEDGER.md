@@ -298,3 +298,15 @@ replaces. 192 and 128 queued to find the optimum's other side.
 −14% to +9% against mike-barber's entry at 1T on Zen 5 and to −0.6% on Zen 3; the C++ base port
 beats davepl's by 67% on Zen 5. Local runs overstated the C++ gain (+32% local, +16% Zen 5) and
 understated the Rust one (+10-15% local, +22% Zen 5).
+| p-cpp-wheel-ub | 2026-10-11 | cpp-wheel | Alignment fix: memcpy vector loads/stores (clang ignored aligned(8) on a using alias and faulted) | 0 to +2% | Zen 3: +0.0% ± 0.6 / +1.0% ± 0.6 | Zen 5: +1.1% ± 0.5 / +0.5% ± 0.2 | KEEP (correctness fix, no regression) | `hc/port-cpp-wheel-ub` |
+| p-cpp-wheel-clang | 2026-10-11 | cpp-wheel | Build the C++ wheel with clang++ (as the existing C++ entries do), on the fix | +5% to +18% | Zen 3: 122.3k / 989.5k, +20.5% ± 1.1 / +12.9% ± 0.6, 6/6 | Zen 5: 186.3k / 1.57M, +16.2% ± 3.0 / +19.5% ± 0.9, 6/6 | KEEP (Zen 3 >20% recheck queued) | `hc/port-cpp-wheel-champion` |
+| p-rust-base-noavx512 | 2026-10-11 | rust-base | Build with -C target-feature=-avx512f, as mike-barber does (target-specific) | +1% to +5% Zen 5 | Zen 3: code unchanged | Zen 5: 123.6k / 959.0k, +10.0% ± 0.4 / +18.5% ± 0.5, 6/6 | KEEP | `hc/port-rust-base-champion` |
+| s6-wheel-210 | 2026-10-11 | wheel | mod-210 wheel, 48 planes, run-time starts | Zen 5 1T −5% to +3% | | Zen 5 screen: −39.5% / −35.1% (3 rounds) | REVERT | `hc/wheel-210` |
+| p-cpp-base-clang | 2026-10-11 | cpp-base | Build the C++ base with clang++ | −3% to +5% | | Zen 5 screen: −62.6% / −60.3% | REVERT | `hc/port-cpp-base-clang` |
+| p-rust-base-mb | 2026-10-11 | rust-base | Per-period dense resetter, masks in registers (mike-barber's extreme_reset) | a few % | | Zen 5 screen: −42.3% / −37.0% | REVERT | `hc/port-rust-base-mb` |
+| b1-cobalt-profile | 2026-10-11 | base | ISPC base vs mike-barber phase split on Cobalt 100 | gap in sparse | Cobalt (ns/pass): ours dense 34.7k, sparse 89.2k, scan 5.3k; Rust 33.4k, 90.1k, 6.7k | | measurement: gap in dense (~1% of a pass) + sparse loop test | `hc/diag-base-phases-arm`, `hc/b1-arm-asm` |
+
+**Screens per Chris's rule.** All three local losers lost more on Zen 5 than locally (wheel-210
+−30% → −40%, C++ base clang −15% → −63%, Rust resetter −16% → −42%). The rule cost about 45
+node-minutes and confirmed each drop. The two keeps of the hour are both compiler or flag
+changes copied from the existing entries in each language (clang for C++, AVX-512 off for Rust).
