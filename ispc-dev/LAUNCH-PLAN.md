@@ -119,3 +119,13 @@ On the day the ISPC PR opens, in this order:
 
 Keep the claims to what's measured and per-thread where it matters; the Arm gap and the grey
 question go in plainly, not in footnotes.
+
+## 7. After launch: two more languages (Chris, 11 October 18:45)
+
+In this order, each a dedicated climb with the same bench (backlog items for each):
+1. **OxCaml**: a faithful one-bit base sieve, then a wheel, against gkpotter's `PrimeOCaml`
+   entries and mike-barber's Rust. A real candidate for upstream as a `PrimeOCaml` solution.
+2. **cursed**: after the ISPC PR has merged. Issue first to ask whether the maintainers would
+   consider it; then, if they're open to it, a PR in Gen Z slang with a plain-English summary on
+   top.
+
