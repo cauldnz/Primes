@@ -1,0 +1,69 @@
+Architecture:                            x86_64
+CPU(s):                                  16
+Model name:                              AMD EPYC 9V45 96-Core Processor
+BIOS Model name:                         AMD EPYC 9V45 96-Core Processor                 None CPU @ 2.6GHz
+AVX-512: yes
+kind=zig rounds=3 id=0148497359
+build cand
+build champ
+build ctx
+self-test cand: 0 ok, 0 bad, exit=0
+self-test champ: 0 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-zig-wheel;205612;5.000019;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;1514027;5.000564;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;1524154;5.000297;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;821168;5.000143;4;algorithm=wheel,faithful=yes,bits=1
+== round warmup champ
+cauldnz-zig-wheel;217638;5.000029;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;1608265;5.000581;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;1608416;5.000295;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;866935;5.000120;4;algorithm=wheel,faithful=yes,bits=1
+== round warmup champ2
+cauldnz-zig-wheel;217449;5.000028;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;1620755;5.000573;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;1608493;5.000297;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;869341;5.000128;4;algorithm=wheel,faithful=yes,bits=1
+== round warmup ctrl
+cauldnz-ispc;221527;5.000018;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1630428;5.000167;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1626131;5.000088;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;882213;5.000056;4;algorithm=wheel,faithful=yes,bits=1
+== round warmup ctrl2
+rogiervandam_extend_epar;1222497;5.000030;16;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;959614;5.000020;8;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;507397;5.000011;4;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;276705;5.000029;2;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend;138884;5.000017;1;algorithm=other,faithful=yes,bits=1
+== round 1 ctrl
+cauldnz-ispc;221477;5.000019;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1630295;5.000192;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1629514;5.000096;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;879565;5.000048;4;algorithm=wheel,faithful=yes,bits=1
+== round 1 cand
+cauldnz-zig-wheel;205570;5.000033;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;1513223;5.000580;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;1524275;5.000253;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;824034;5.000141;4;algorithm=wheel,faithful=yes,bits=1
+== round 1 ctrl2
+rogiervandam_extend_epar;1159391;5.000038;16;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;964087;5.000006;8;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;508647;5.000017;4;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;276468;5.000001;2;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend;138901;5.000031;1;algorithm=other,faithful=yes,bits=1
+== round 1 champ
+cauldnz-zig-wheel;217143;5.000026;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;1615900;5.000570;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;1609053;5.000306;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;868720;5.000137;4;algorithm=wheel,faithful=yes,bits=1
+== round 1 champ2
+cauldnz-zig-wheel;217174;5.000034;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;1609574;5.000575;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;1606881;5.000279;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;869270;5.000131;4;algorithm=wheel,faithful=yes,bits=1
+== round 2 cand
+cauldnz-zig-wheel;206350;5.000030;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;1513477;5.000590;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;1525161;5.000289;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-zig-wheel;823091;5.000117;4;algorithm=wheel,faithful=yes,bits=1
+== round 2 champ2

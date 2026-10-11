@@ -1,0 +1,72 @@
+Architecture:                            aarch64
+CPU(s):                                  4
+Model name:                              Neoverse-N2
+BIOS Model name:                         Cobalt 100 None CPU @ 3.4GHz
+AVX-512: no
+kind=wheel rounds=5 id=02094614564
+build cand
+build champ
+self-test cand: 8 ok, 0 bad, exit=0
+self-test champ: 8 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-ispc;100012;5.000049;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;400957;5.000138;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;200666;5.000070;2;algorithm=wheel,faithful=yes,bits=1
+== round warmup champ
+cauldnz-ispc;101344;5.000008;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;405115;5.000109;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;202698;5.000084;2;algorithm=wheel,faithful=yes,bits=1
+== round warmup champ2
+cauldnz-ispc;101193;5.000046;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;404350;5.000113;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;202820;5.000123;2;algorithm=wheel,faithful=yes,bits=1
+== round warmup ctrl
+mike-barber_bit-extreme-hybrid;42843;5.0000009537;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;85779;5.0001378059;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;171360;5.0001974106;4;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl2
+danielspaangberg_5760of30030_owrb;42930;5.000078;1;algorithm=wheel,faithful=yes,bits=1
+danielspaangberg_5760of30030_epar;169776;5.000411;4;algorithm=wheel,faithful=yes,bits=1
+== round 1 champ2
+cauldnz-ispc;101396;5.000042;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;405360;5.000121;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;202866;5.000089;2;algorithm=wheel,faithful=yes,bits=1
+== round 1 ctrl2
+danielspaangberg_5760of30030_owrb;42488;5.000117;1;algorithm=wheel,faithful=yes,bits=1
+danielspaangberg_5760of30030_epar;169552;5.000402;4;algorithm=wheel,faithful=yes,bits=1
+== round 1 champ
+cauldnz-ispc;101334;5.000029;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;405242;5.000104;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;202789;5.000062;2;algorithm=wheel,faithful=yes,bits=1
+== round 1 cand
+cauldnz-ispc;100194;5.000024;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;400545;5.000117;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;200616;5.000137;2;algorithm=wheel,faithful=yes,bits=1
+== round 1 ctrl
+mike-barber_bit-extreme-hybrid;42846;5.0000686646;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;85743;5.0002031326;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;171399;5.0001335144;4;algorithm=base,faithful=yes,bits=1
+== round 2 champ
+cauldnz-ispc;101357;5.000040;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;404297;5.000122;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;202859;5.000157;2;algorithm=wheel,faithful=yes,bits=1
+== round 2 champ2
+cauldnz-ispc;101289;5.000048;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;405271;5.000116;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;202815;5.000071;2;algorithm=wheel,faithful=yes,bits=1
+== round 2 ctrl2
+danielspaangberg_5760of30030_owrb;42916;5.000105;1;algorithm=wheel,faithful=yes,bits=1
+danielspaangberg_5760of30030_epar;169516;5.000479;4;algorithm=wheel,faithful=yes,bits=1
+== round 2 cand
+cauldnz-ispc;100284;5.000002;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;400884;5.000108;4;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;200648;5.000136;2;algorithm=wheel,faithful=yes,bits=1
+== round 2 ctrl
+mike-barber_bit-extreme-hybrid;42847;5.0000596046;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;85783;5.0002007484;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;171420;5.0001668930;4;algorithm=base,faithful=yes,bits=1
+== round 3 ctrl
+mike-barber_bit-extreme-hybrid;42917;5.0000028610;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;85750;5.0001482964;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;171371;5.0001564026;4;algorithm=base,faithful=yes,bits=1
+== round 3 cand
