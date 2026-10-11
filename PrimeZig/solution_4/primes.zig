@@ -250,11 +250,17 @@ fn startBit(p: u32, R: u32, kmin: u32) usize {
 fn buildPattern(pat: []u64, tab: *[64]u16, p: usize) usize {
     var L = p;
     while (L < VW) L += p;
-    @memset(pat[0..p], 0);
+    // Build each word in a register and store it once: no clearing pass and no
+    // read-modify-write chain through memory.
     var j: usize = 0;
-    while (j < p * 64) : (j += p) {
-        pat[j >> 6] |= @as(u64, 1) << @intCast(j & 63);
-        tab[j & 63] = @intCast(j >> 6);
+    for (0..p) |k| {
+        var w: u64 = 0;
+        const end = (k + 1) * 64;
+        while (j < end) : (j += p) {
+            w |= @as(u64, 1) << @intCast(j & 63);
+            tab[j & 63] = @intCast(k);
+        }
+        pat[k] = w;
     }
     for (p..L + VW) |k| pat[k] = pat[k - p];
     return L;
