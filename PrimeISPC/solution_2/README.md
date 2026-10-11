@@ -45,7 +45,7 @@ The multi-threaded runs start one pthread per thread, each running its own sieve
 
 ### Portability
 
-On x86-64 the binary carries SSE4, AVX2 and AVX-512 code (`sse4-i32x4,avx2-i32x8,avx512skx-x8`), and ISPC's dispatcher picks the path at start-up. Wider gangs (`avx2-i32x16`, `avx512skx-x16`) stopped the compiler folding the dense masks and ran far slower. On arm64 it compiles for NEON.
+On x86-64 the binary carries SSE4, AVX2 and AVX-512 code (`sse4-i32x4,avx2-i32x8,avx512skx-x8`), and ISPC's dispatcher picks the path at start-up. The binary also links a second copy of the dense routine, built from the same source with `-DFOLD16` for `avx512skx-x16`, in which each lane walks only the composites of its own word, so the compiler still folds the masks and each OR covers eight words in one 512-bit instruction. The AVX-512 path uses that copy when each sieve thread has a physical core to itself, taken to be the single-threaded run and runs with at most half the hardware threads, and the 8-lane code otherwise, because two SMT siblings issuing 512-bit ORs on one core ran slower. On arm64 it compiles for NEON.
 
 ## How this was built
 
@@ -68,7 +68,7 @@ sh build.sh
 ./primes
 ```
 
-`PRIMES_TEST=1 ./primes` checks the prime count for every power of ten from 10 to 10⁸ and some edge cases, prints the results and exits non-zero on any mismatch. `ISPC_TARGETS`, set for `build.sh` or as a Docker build argument, overrides the compile targets.
+`PRIMES_TEST=1 ./primes` checks the prime count for every power of ten from 10 to 10⁸ and some edge cases, prints the results and exits non-zero on any mismatch; on AVX-512 machines `PRIMES_FOLD=0` or `PRIMES_FOLD=1` forces the 8-lane or 16-lane dense code, so both can be tested. `ISPC_TARGETS`, set for `build.sh` or as a Docker build argument, overrides the compile targets.
 
 ## Output
 

@@ -135,12 +135,25 @@ static inline void clear_dense_vec(uniform uint64 * uniform w, uniform int nword
         for (uniform int kb = 0; kb < programCount * P; kb += programCount) {
             const int k = kb + programIndex;                        // word of the block
             uint64 x = INIT ? 0 : w[c + k];                          // INIT: first factor, no load
+#if defined(FOLD16)
+            // The block starts at a multiple of P bits, so the composites in word k sit at bits
+            // b0, b0 + P, b0 + 2P, ... below 64, where b0 = (P/2 - 64k) mod P. Each lane walks
+            // the composites of its own word: about 64/P iterations, not 64 * programCount / P,
+            // which keeps the unrolled code small enough for LLVM to fold the masks with 16 lanes.
+            const int b0 = (P / 2 + P - (64 * k) % P) % P;
+            #pragma unroll
+            for (uniform int i = 0; i <= 64 / P; i++) {
+                const int b = b0 + i * P;
+                x |= (b < 64) ? ((uint64)1) << b : 0;                // one composite
+            }
+#else
             const uniform int n0 = (64 * kb - P / 2) / P;          // first composite near these words
             #pragma unroll
             for (uniform int i = 0; i < 64 * programCount / P + 2; i++) {
                 const uniform int t = P / 2 + (n0 + i) * P;
                 x |= ((t >> 6) == k) ? ((uniform uint64)1) << (t & 63) : 0;   // one composite
             }
+#endif
             w[c + k] = x;
         }
     }
@@ -242,12 +255,43 @@ static void clear_sparse(uniform Sieve * uniform s, uniform int p) {
                      else clear_dense(s->bits, s->nwords, P); break;
 #endif
 
+#if defined(FOLD16)
+// FOLD16: build.sh compiles this file a second time with -DFOLD16 for avx512skx-x16 only. That
+// object holds just this function, the dense vector routine for factors below VEC_LIMIT with
+// 16 lanes, so each OR and store covers eight words in one 512-bit instruction. The driver
+// below is left out of it.
+#define DV(P) case P: clear_dense_vec(w, nwords, P, P == 3); break;
+export void clear_dense_x16(uniform uint64 * uniform w, uniform int nwords, uniform int p) {
+    unmasked {
+        switch (p) {
+            DV(3)   DV(5)   DV(7)   DV(9)   DV(11)  DV(13)  DV(15)  DV(17)  DV(19)  DV(21)
+            DV(23)  DV(25)  DV(27)  DV(29)  DV(31)  DV(33)  DV(35)  DV(37)  DV(39)  DV(41)
+            DV(43)  DV(45)  DV(47)  DV(49)  DV(51)  DV(53)  DV(55)  DV(57)  DV(59)  DV(61)
+            DV(63)  DV(65)  DV(67)  DV(69)  DV(71)  DV(73)  DV(75)  DV(77)  DV(79)  DV(81)
+            DV(83)  DV(85)  DV(87)  DV(89)  DV(91)  DV(93)  DV(95)  DV(97)  DV(99)  DV(101)
+            DV(103) DV(105) DV(107) DV(109) DV(111) DV(113) DV(115) DV(117)
+        }
+    }
+}
+#else
+
+#if defined(ISPC_TARGET_AVX512SKX)
+// The 8-lane AVX-512 path can hand dense factors to the 16-lane routine above (built from this
+// file with -DFOLD16). 16 lanes win when each sieve thread has a core to itself and lose when
+// two SMT siblings share one, so main() sets this per run.
+extern "C" void clear_dense_x16(uniform uint64 * uniform w, uniform int nwords, uniform int p);
+static uniform bool use_x16 = false;
+#endif
+
 // Clear all odd multiples of factor p.
 static void clear_factor(uniform Sieve * uniform s, uniform int p) {
     // clear_factor isn't inlined, so ISPC would compile it for an unknown execution mask and
     // mask every vector load and store in the dense code. Callers run with all lanes on.
     unmasked {
         if (p >= DENSE_LIMIT) { clear_sparse(s, p); return; }
+#if defined(ISPC_TARGET_AVX512SKX)
+        if (use_x16 && p < VEC_LIMIT) { clear_dense_x16(s->bits, s->nwords, p); return; }
+#endif
         switch (p) {
             D(3)   D(5)   D(7)   D(9)   D(11)  D(13)  D(15)  D(17)  D(19)  D(21)  D(23)  D(25)
             D(27)  D(29)  D(31)  D(33)  D(35)  D(37)  D(39)  D(41)  D(43)  D(45)  D(47)  D(49)
@@ -355,8 +399,23 @@ static void self_test() {
     exit(bad);
 }
 
+#if defined(ISPC_TARGET_AVX512SKX)
+// One-per-core rule for the 16-lane dense routine: a run of n threads counts as one per
+// physical core when n is 1 or at most half the hardware threads (with SMT on, the scheduler
+// then gives each thread a core of its own). PRIMES_FOLD=0 or 1 forces the choice, for tests.
+static uniform int fold_env = -1;
+static uniform int hw_threads = 1;
+static uniform bool x16_for(uniform int n) {
+    if (fold_env >= 0) return fold_env != 0;
+    return n == 1 || n * 2 <= hw_threads;
+}
+#endif
+
 static void run_threads(uniform Job * uniform jobs, uniform int64 * uniform tids, uniform int n) {
     uniform double start = now();
+#if defined(ISPC_TARGET_AVX512SKX)
+    use_x16 = x16_for(n);
+#endif
     for (uniform int t = 0; t < n; t++) {
         jobs[t].deadline = start + RUN_SECONDS;
         pthread_create(&tids[t], NULL, (void * uniform)worker, &jobs[t]);
@@ -372,6 +431,12 @@ static void run_threads(uniform Job * uniform jobs, uniform int64 * uniform tids
 }
 
 export uniform int main() {
+#if defined(ISPC_TARGET_AVX512SKX)
+    uniform int8 n_fold[12] = {80,82,73,77,69,83,95,70,79,76,68,0};    // PRIMES_FOLD
+    fold_env = env_int(n_fold, -1);
+    hw_threads = clamp(hardware_threads(), 1, 1024);
+    use_x16 = x16_for(1);                                            // the single-threaded run
+#endif
     uniform int8 n_test[12] = {80,82,73,77,69,83,95,84,69,83,84,0};    // PRIMES_TEST
     if (env_int(n_test, 0) != 0) self_test();
 
@@ -391,3 +456,4 @@ export uniform int main() {
         run_threads(jobs, tids, n);
     return 0;
 }
+#endif // FOLD16
