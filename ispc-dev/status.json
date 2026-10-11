@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T07:33:44Z",
+  "updated_utc": "2026-10-11T07:34:26Z",
   "run": {
     "id": "ap-20261011T0645Z",
     "state": "running",
@@ -1677,6 +1677,26 @@
       "prediction": "+8% to +13% at 1T on Zen 5 and Zen 3 (last run +12.7% / +10.2% on 1551635)",
       "plain": "If the base sweeps each factor in the opposite direction to the last, then the end it just touched is still in cache, because a factor sweep leaves its last stretch of the sieve hot.",
       "note": "hc/f1-on-330b3d4 2f6864f (conflict with fold-1pc resolved: the 16-lane dense path always sweeps up); self-test passes both paths; never merged; Zen 5 + Zen 3 6 rounds"
+    },
+    {
+      "id": "r9-rust-base-dense",
+      "entry": "rust-base",
+      "tier": "extra-faithful",
+      "kind": "novel",
+      "verdict": "running",
+      "hypothesis": "Rust base: one change in the dense phase, where the Zen 5 profile put the whole gap to mike-barber",
+      "plain": "If the Rust base's small-factor pass does less work per word, then it catches up with the fastest Rust entry, because that pass is where it was slower.",
+      "note": "agent building hc/port-rust-base-dense"
+    },
+    {
+      "id": "s1-tables-compact",
+      "entry": "wheel-tables",
+      "tier": "permitted",
+      "kind": "permitted",
+      "verdict": "running",
+      "hypothesis": "solution_3: read fewer table bytes per pass (patterns without the stored extension, or rotations computed), for 32 KB-L1 machines",
+      "plain": "If the tables wheel reads less table data each pass, then it competes less with the sieve for the small fast cache on most machines, because sieve and tables together overflow it.",
+      "note": "agent building hc/solution3-compact"
     }
   ],
   "azure_queue": 0,
@@ -1686,24 +1706,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T03:42:21Z",
-      "level": "info",
-      "text": "s5-zig-wheel-profile confirmed.. Zen 5 (rerun, 2 rounds, TSC cycles per pass): group passes 25.5k (41.7%), sparse 20.9k (34.2%), start offsets 5.2k (8.5%), group build 5.0k (8.2%), scan+setup 3.2k (5.2%), tile 1.3k (2.2%); total 61.2k vs ISPC champion 1551635 68k. Zig is ahead in sparse marks (-13%) and start offsets (-50%), behind in group passes (+13%)",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T03:42:21Z",
-      "level": "info",
-      "text": "sb-base-z5-20 confirmed.. WIN at 1T on Zen 5 (interval well clear of zero), 0.9 points short of Chris's +4% target. A/A (README-only copy): +0.03% at 1T",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T03:42:21Z",
-      "level": "info",
-      "text": "b2-sparse-prefetchw rejected.. Zen's prefetchers already cover the sparse stream; explicit prefetchw costs issue slots",
-      "auto": true
-    },
     {
       "utc": "2026-10-11T03:42:21Z",
       "level": "info",
@@ -2023,6 +2025,26 @@
       "what": "submit the generic dense loop on Zen 5, Zen 3 and Cobalt",
       "why": "the code-size finding is large (3x L1i on x86) and local Xeon results have misled before; Cobalt included because the NEON code changes (and it is the planned Cobalt idea)",
       "expect": "Zen 3 -2% to +3%; Cobalt 0 to +2%"
+    },
+    {
+      "utc": "2026-10-11T07:34:26Z",
+      "level": "decision",
+      "text": "run: start agents r9-rust-base-dense (Rust's share: dense phase per the Zen 5 profile) and s1-tables-compact (stream 1 step 3). Why: both slots free; neither depends on the size-cliff result; the wheel candidates of step 2 wait for it.",
+      "id": "run",
+      "what": "start agents r9-rust-base-dense (Rust's share: dense phase per the Zen 5 profile) and s1-tables-compact (stream 1 step 3)",
+      "why": "both slots free; neither depends on the size-cliff result; the wheel candidates of step 2 wait for it"
+    },
+    {
+      "utc": "2026-10-11T07:34:26Z",
+      "level": "info",
+      "text": "r9-rust-base-dense (rust-base) running: Rust base: one change in the dense phase, where the Zen 5 profile put the whole gap to mike-barber",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T07:34:26Z",
+      "level": "info",
+      "text": "s1-tables-compact (wheel-tables) running: solution_3: read fewer table bytes per pass (patterns without the stored extension, or rotations computed), for 32 KB-L1 machines",
+      "auto": true
     }
   ],
   "research": {
