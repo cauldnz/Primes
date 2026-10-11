@@ -176,3 +176,18 @@ cauldnz-cpp-wheel;1660119;5.000174;16;algorithm=wheel,faithful=yes,bits=1
 cauldnz-cpp-wheel;1507703;5.000080;8;algorithm=wheel,faithful=yes,bits=1
 cauldnz-cpp-wheel;813464;5.000050;4;algorithm=wheel,faithful=yes,bits=1
 == round 6 ctrl2
+rogiervandam_extend_epar;1228601;5.000024;16;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;971076;5.000021;8;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;506005;5.000019;4;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;277129;5.000010;2;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend;139201;5.000019;1;algorithm=other,faithful=yes,bits=1
+== round 6 ctrl
+cauldnz-ispc;222709;5.000007;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1632466;5.000178;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1622597;5.000086;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;883036;5.000059;4;algorithm=wheel,faithful=yes,bits=1
+== round 6 champ
+cauldnz-cpp-wheel;202040;5.000022;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-cpp-wheel;1624425;5.000224;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-cpp-wheel;1496506;5.000084;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-cpp-wheel;807816;5.000050;4;algorithm=wheel,faithful=yes,bits=1
