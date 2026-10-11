@@ -134,6 +134,9 @@ static inline void clear_dense_vec(uniform uint64 * uniform w, uniform int nword
         #pragma unroll
         for (uniform int kb = 0; kb < programCount * P; kb += programCount) {
             const int k = kb + programIndex;                        // word of the block
+            // The sieve is larger than L1, so every factor's pass streams it in from L2: ask
+            // for the line 64 words ahead with write intent before it is needed. A hint only.
+            if (!INIT) prefetchw_l1(w + c + kb + 64);
             uint64 x = INIT ? 0 : w[c + k];                          // INIT: first factor, no load
             const uniform int n0 = (64 * kb - P / 2) / P;          // first composite near these words
             #pragma unroll
