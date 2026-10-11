@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T09:18:46Z",
+  "updated_utc": "2026-10-11T09:21:14Z",
   "run": {
     "id": "ap-20261011T0645Z",
     "state": "running",
@@ -1741,22 +1741,27 @@
       "entry": "cpp-wheel",
       "tier": "extra-faithful",
       "kind": "borrowed",
-      "verdict": "running",
+      "verdict": "REVERT",
       "hypothesis": "C++ wheel: group-loop rows read through one base pointer with per-member wrap limits (ISPC's shape), removing per-row pointer spills",
       "prediction": "+1% to +4% at 1T",
       "plain": "If the C++ wheel reads all its pattern rows from one place, then it stops shuffling pointers in and out of memory in its busiest loop, because that is what the faster ISPC loop does.",
-      "note": "hc/port-cpp-wheel-r9 e0ca8df; local phase split: group passes C++ 64.0k vs ISPC 60.6k (the losing phase); self-test and sweep match; steady local pairs +1% to +7%. Zen 5 + Zen 3 6 rounds"
+      "note": "hc/port-cpp-wheel-r9 e0ca8df; local phase split: group passes C++ 64.0k vs ISPC 60.6k (the losing phase); self-test and sweep match; steady local pairs +1% to +7%. Zen 5 + Zen 3 6 rounds",
+      "zen5": "+7.0% ± 1.9 1T, +7.7% ± 0.5 4T (6/6)",
+      "zen3": "-2.2% ± 0.8 1T, -2.8% ± 0.5 4T (0/6)",
+      "note_v": "wins on Zen 5, loses on Zen 3; no chip gate fits a code-shape change"
     },
     {
       "id": "r9-rust-wheel-group",
       "entry": "rust-wheel",
       "tier": "extra-faithful",
       "kind": "novel",
-      "verdict": "running",
+      "verdict": "KEEP",
       "hypothesis": "Rust wheel group loop: hoist bounds checks out of the loop (asserts before, raw pointers inside); 170 -> 93 instructions per 32 words on Zen 5, ORs fuse into vpternlog",
       "prediction": "+5% to +10% at 1T (group passes 28.9k of 75.9k cycles)",
       "plain": "If the Rust wheel checks its array bounds once before its busiest loop instead of every step, then the loop gets much shorter, because the checks were forcing values out of registers.",
-      "note": "hc/port-rust-wheel-group 47d9afd; self-test incl. sweep (DENSE_MAX 17/1024) 0 wrong; local median 1.14x over 11 noisy pairs. Zen 5 + Zen 3 6 rounds"
+      "note": "hc/port-rust-wheel-group 47d9afd; self-test incl. sweep (DENSE_MAX 17/1024) 0 wrong; local median 1.14x over 11 noisy pairs. Zen 5 + Zen 3 6 rounds",
+      "zen5": "+13.1% ± 1.4 1T, +16.9% ± 1.4 4T, +6.5% 16T (6/6)",
+      "zen3": "+6.1% ± 3.2 1T, +3.2% ± 2.5 4T, +5.3% 16T (6/6)"
     },
     {
       "id": "r9-zig-tables",
@@ -1773,9 +1778,20 @@
       "entry": "zig-base",
       "tier": "faithful",
       "kind": "borrowed",
-      "verdict": "building",
+      "verdict": "running",
       "hypothesis": "Zig base: 16 lanes per dense step on Zen 5 only (fold-1pc gate)",
-      "plain": "If the Zig base marks small factors 1024 bits at a time on Zen 5, as the ISPC base does, then it gains a few percent there, because Zen 5 runs 512-bit operations at full width."
+      "plain": "If the Zig base marks small factors 1024 bits at a time on Zen 5, as the ISPC base does, then it gains a few percent there, because Zen 5 runs 512-bit operations at full width.",
+      "note": "hc/zig-base-wide 13edc68: dense resetter at twice the step width (VBW = 2 VB) on Zen 5 with one thread per core; PRIMES_WIDE override; self-test on/off. Caveat: Zig 0.13 has no znver5 and never sets evex512 there, so Zen 5 already runs 16-word steps as 256-bit ops; this doubles them. Zen 5 + Zen 3 6 rounds vs a90b985"
+    },
+    {
+      "id": "r9-rust-wheel-combo",
+      "entry": "rust-wheel",
+      "tier": "extra-faithful",
+      "kind": "novel",
+      "verdict": "running",
+      "hypothesis": "Rust wheel: group-loop bounds hoist (47d9afd) on top of the pattern fix (df94b47)",
+      "plain": "If both kept Rust wheel changes go in together, their gains add, because they speed up different phases.",
+      "note": "hc/port-rust-wheel-combo a8d9f07 (clean merge); self-test 0 wrong. Zen 5 + Zen 3 6 rounds vs df94b47"
     }
   ],
   "azure_queue": 0,
@@ -1785,47 +1801,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T07:07:58Z",
-      "level": "info",
-      "text": "r9-zig-wheel-group (zig-wheel) running: Zig wheel: write each plane once as tile | 13-pattern instead of a tile copy plus a separate 13 group pass (ISPC IDEAS 12 shape)",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T07:08:24Z",
-      "level": "decision",
-      "text": "r9-zig-base: start the Zig base agent. Why: RUN-PLAN stream 2: Zig's share continues with its base after the wheel.",
-      "id": "r9-zig-base",
-      "what": "start the Zig base agent",
-      "why": "RUN-PLAN stream 2: Zig's share continues with its base after the wheel"
-    },
-    {
-      "utc": "2026-10-11T07:08:24Z",
-      "level": "info",
-      "text": "r9-zig-base (zig-base) running: Zig base: compiled dense/sparse paths against the ISPC base, then one change on the biggest difference",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T07:12:53Z",
-      "level": "warn",
-      "text": "fold-1pc AVX-512 check: Zen 4 (9V74) -2.7% and Intel Ice Lake (8370C) -7.1% at 1T and 4T; reported to Chris, not fixed this run. Official runners other than the Zen 5 Threadripper don't run the 16-lane path."
-    },
-    {
-      "utc": "2026-10-11T07:12:53Z",
-      "level": "info",
-      "text": "p0-fold-avx512 confirmed.. REPORTED, not fixed (RUN-PLAN): the 16-lane path helps only Zen 5 (+7.5%). None of the official runners except the Zen 5 Threadripper has AVX-512 (EPYC VM AVX2-only, i7-9750H, Celeron, Pi 4), so their code is byte-identical; a Zen 4 or Ice Lake machine would lose 3% / 7%. Fix options for Chris: gate the 16-lane choice on a CPUID family check (Zen 5 only) or drop it",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T07:16:29Z",
-      "level": "decision",
-      "text": "r9-cpp-base: submit on Zen 5 only. Why: the change is behind __AVX512F__, so Zen 3's native build is unchanged; Cascade Lake's local loss is the known 512-bit downclock, and Zen 5 is the machine it targets. Passed over: Zen 4 / Ice Lake check (fold-1pc showed AVX-512 losses there; same caveat would apply). Expect: +2% to +5% at 1T on Zen 5.",
-      "id": "r9-cpp-base",
-      "what": "submit on Zen 5 only",
-      "why": "the change is behind __AVX512F__, so Zen 3's native build is unchanged; Cascade Lake's local loss is the known 512-bit downclock, and Zen 5 is the machine it targets",
-      "instead": "Zen 4 / Ice Lake check (fold-1pc showed AVX-512 losses there; same caveat would apply)",
-      "expect": "+2% to +5% at 1T on Zen 5"
-    },
     {
       "utc": "2026-10-11T07:16:56Z",
       "level": "decision",
@@ -2133,6 +2108,49 @@
       "utc": "2026-10-11T09:01:07Z",
       "level": "info",
       "text": "r9-zig-base-wide (zig-base) building: Zig base: 16 lanes per dense step on Zen 5 only (fold-1pc gate)",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T09:21:14Z",
+      "level": "decision",
+      "text": "r9-cpp-wheel: REVERT; hc/port-cpp-wheel-champion stays at bf7619a. Why: per-thread rule: Zen 3 loses 2.2% at 1T and 2.8% at 4T although Zen 5 gains 7.7% at 4T. Passed over: a Zen 5 gate (not a lane-width change, so nothing to gate cleanly).",
+      "id": "r9-cpp-wheel",
+      "what": "REVERT; hc/port-cpp-wheel-champion stays at bf7619a",
+      "why": "per-thread rule: Zen 3 loses 2.2% at 1T and 2.8% at 4T although Zen 5 gains 7.7% at 4T",
+      "instead": "a Zen 5 gate (not a lane-width change, so nothing to gate cleanly)"
+    },
+    {
+      "utc": "2026-10-11T09:21:14Z",
+      "level": "decision",
+      "text": "r9-rust-wheel-group: KEEP; combine with the pattern fix (df94b47) as hc/port-rust-wheel-combo a8d9f07 and measure against df94b47. Why: lower bound above +1% on both deciders (Zen 5 4T +15.5%, Zen 3 1T +2.9%); both changes were measured against 72932c7, so the combination needs its own rounds. Passed over: taking either alone. Expect: +10% to +17% on Zen 5 over df94b47.",
+      "id": "r9-rust-wheel-group",
+      "what": "KEEP; combine with the pattern fix (df94b47) as hc/port-rust-wheel-combo a8d9f07 and measure against df94b47",
+      "why": "lower bound above +1% on both deciders (Zen 5 4T +15.5%, Zen 3 1T +2.9%); both changes were measured against 72932c7, so the combination needs its own rounds",
+      "instead": "taking either alone",
+      "expect": "+10% to +17% on Zen 5 over df94b47"
+    },
+    {
+      "utc": "2026-10-11T09:21:15Z",
+      "level": "info",
+      "text": "r9-cpp-wheel REVERT.. hc/port-cpp-wheel-r9 e0ca8df; local phase split: group passes C++ 64.0k vs ISPC 60.6k (the losing phase); self-test and sweep match; steady local pairs +1% to +7%. Zen 5 + Zen 3 6 rounds",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T09:21:15Z",
+      "level": "info",
+      "text": "r9-rust-wheel-group KEEP.. hc/port-rust-wheel-group 47d9afd; self-test incl. sweep (DENSE_MAX 17/1024) 0 wrong; local median 1.14x over 11 noisy pairs. Zen 5 + Zen 3 6 rounds",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T09:21:15Z",
+      "level": "info",
+      "text": "r9-zig-base-wide running.. hc/zig-base-wide 13edc68: dense resetter at twice the step width (VBW = 2 VB) on Zen 5 with one thread per core; PRIMES_WIDE override; self-test on/off. Caveat: Zig 0.13 has no znver5 and never sets evex512 there, so Zen 5 already runs 16-word steps as 256-bit ops; this doubles them. Zen 5 + Zen 3 6 rounds vs a90b985",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T09:21:15Z",
+      "level": "info",
+      "text": "r9-rust-wheel-combo (rust-wheel) running: Rust wheel: group-loop bounds hoist (47d9afd) on top of the pattern fix (df94b47)",
       "auto": true
     }
   ],
