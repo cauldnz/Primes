@@ -8,6 +8,14 @@ Autopilot lock: ap-20261011T0645Z 2026-10-11T06:45Z
 **Last updated:** 2026-10-11 14:45 AEST. Living file; earlier versions are in
 `git log -p ispc-dev/STATUS.md`. Replies go in `ispc-dev/NEXT-STEPS.md`.
 
+## Hourly review, run ap-20261011T0645Z (18:45 AEST, 2 h in)
+
+- Worked: phase 0 done in 75 minutes (verdict line, 4T line, solution_3, AVX-512 check, clean champion); the size cliff answered stream 1's question (no wheel cliff on Zen 3; base L1 worth 22-28% on Zen 5); Chris's Zen 5 gate for fold-1pc (+6.8% Zen 5, no loss on Zen 4 or Intel); ports: Rust wheel pattern +9%, C++ base wide +6% (Zen 5 gate), Zig base +1.3%.
+- Didn't: generic dense loop (-11% Cobalt, -10.5% Zen 5), Rust base dense (flat), C++ wheel IDEAS 12 re-decided under the new rule (revert); solution_3 compact losing on Zen 5 so far.
+- Protocol: per-thread rule applied throughout; every local loser screened on AMD; one reverted edit caught before push; hourly review 1 of 2 written late (this one).
+- Spend NZ$3.2 of 25; 5 pools, Zen 4/Intel/Cobalt idle at 0 nodes.
+- Next best use: finish the port rounds (C++/Rust wheel group loops, Zig 13-fold Zen 3, Zig tables), then the final scoreboard and hc/ispc-final tags from 5h15.
+
 ## Morning report: run ap-20261011T0100Z (11:00 to 15:00 AEST, 11 October)
 
 Four-hour run from RUN-PLAN.md, from a cleared conversation, with Chris steering in the session
