@@ -1,18 +1,17 @@
-(* Sparse clearing, x86-64 version: one 64-bit word OR per composite, with untagged offsets.
+(* Sparse clearing, x86-64 version: one 16-bit OR per composite, with untagged offsets.
    build.sh uses this on x86-64 only. On Arm Neoverse N2 this form was 28% slower than the
    byte OR in scalar/sparse.ml, so other architectures keep that one. *)
 
-(* 64-bit accesses with the offset and the word as untagged 64-bit integers (int64#).
-   flambda2 removes the boxes in the helpers below. *)
-external get64x : Bytes.t -> int64# -> int64# = "%caml_bytes_get64u#_indexed_by_int64#"
-external set64x : Bytes.t -> int64# -> int64# -> unit = "%caml_bytes_set64u#_indexed_by_int64#"
+(* 16-bit accesses with the offset as an untagged 64-bit integer (int64#); the 16-bit value
+   itself is a tagged int. flambda2 removes the boxes in the helpers below. *)
+external get16x : Bytes.t -> int64# -> int = "%caml_bytes_get16u_indexed_by_int64#"
+external set16x : Bytes.t -> int64# -> int -> unit = "%caml_bytes_set16u_indexed_by_int64#"
 external box : int64# -> int64 = "%box_int64"
 external unbox : int64 -> int64# = "%unbox_int64"
 
 let[@inline always] u x = unbox (Int64.of_int x)
 let[@inline always] add_u x y = unbox (Int64.add (box x) (box y))
 let[@inline always] lt_u x y = Int64.compare (box x) (box y) < 0
-let[@inline always] or_u x y = unbox (Int64.logor (box x) (box y))
 
 (* The partial last chunk of the sparse clearing, starting at byte [a]: one byte OR per
    composite, stopping at the first offset past the end. A separate function, so that clear
@@ -38,11 +37,11 @@ let[@inline never] sparse_tail b p a nbytes =
    eight masks.
 
    In the whole chunks each composite is one OR of its single-bit mask into the unaligned
-   64-bit word that starts at its byte: the mask sits in the low byte (little-endian), so the
-   other seven bytes are ORed with zero and do not change. The word stays inside the chunk:
-   o_k <= 15p/16, and p >= 128 gives o_k + 8 <= p. Offsets and the chunk start are untagged
-   64-bit integers (int64#), so a composite is an add, a load, an OR with a constant and a
-   store. OCaml has no byte access indexed by an untagged integer; with tagged ints a byte OR
+   16-bit value that starts at its byte: the mask sits in the low byte (little-endian), so the
+   other byte is ORed with zero and does not change. The value stays inside the chunk:
+   o_k <= 15p/16, and p >= 128 gives o_k + 2 <= p. Offsets and the chunk start are untagged
+   64-bit integers (int64#), so a composite is an add, a load, a retag, an OR with a
+   constant, an untag and a store (the 64-bit word form needs no retag). OCaml has no byte access indexed by an untagged integer; with tagged ints a byte OR
    costs seven instructions (tag shifts on the index and on the byte). The partial last chunk
    (sparse_tail) uses plain byte ORs, so nothing is touched past the end of the sieve. *)
 let clear b nbytes p =
@@ -60,7 +59,7 @@ let clear b nbytes p =
   let o4 = u !o4 and o5 = u !o5 and o6 = u !o6 and o7 = u !o7 in
   let[@inline always] markw a o m =
     let i = add_u a o in
-    set64x b i (or_u (get64x b i) (u m))
+    set16x b i (get16x b i lor m)
   in
   let s0 = p * p / 2 / 8 / p * p in
   let chunks = (nbytes - s0) / p in
