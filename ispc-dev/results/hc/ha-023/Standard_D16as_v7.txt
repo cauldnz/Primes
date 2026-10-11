@@ -73,3 +73,30 @@ cauldnz-ispc-base;484917;5.000068;4;algorithm=base,faithful=yes,bits=1
 davepl_array_optimized;87351;5.00014;1;algorithm=base,faithful=yes,bits=1
 davepl_array_optimized;710305;5.00068;16;algorithm=base,faithful=yes,bits=1
 == round 2 ctrl
+mike-barber_bit-extreme-hybrid;119463;5.0000233650;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;464173;5.0001120567;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;889797;5.0002169609;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;872150;5.0005559921;16;algorithm=base,faithful=yes,bits=1
+== round 3 ctrl
+mike-barber_bit-extreme-hybrid;119268;5.0000042915;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;463107;5.0001063347;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;878639;5.0002446175;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;856968;5.0005855560;16;algorithm=base,faithful=yes,bits=1
+== round 3 champ2
+cauldnz-ispc-base;122521;5.000009;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;994497;5.000248;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;905061;5.000149;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;476660;5.000093;4;algorithm=base,faithful=yes,bits=1
+== round 3 cand
+cauldnz-ispc-base;126060;5.000038;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;1016173;5.000277;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;916333;5.000136;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;484450;5.000081;4;algorithm=base,faithful=yes,bits=1
+== round 3 champ
+cauldnz-ispc-base;129164;5.000005;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;1013066;5.000248;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;909219;5.000133;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;475491;5.000100;4;algorithm=base,faithful=yes,bits=1
+== round 3 ctrl2
+davepl_array_optimized;91318;5.00017;1;algorithm=base,faithful=yes,bits=1
+davepl_array_optimized;696319;5.00047;16;algorithm=base,faithful=yes,bits=1
