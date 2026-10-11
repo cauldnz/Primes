@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T01:26:00Z",
+  "updated_utc": "2026-10-11T01:29:07Z",
   "run": {
     "id": "ap-20261011T0100Z",
     "state": "running",
@@ -1175,6 +1175,28 @@
       "prediction": "+8% to +15% at 1T",
       "plain": "If the Rust base sweeps each factor in the opposite direction to the last, then it gets faster, because the end of the sieve just touched is still in cache.",
       "note": "hc/port-rust-base-grey e46ba0b; grey; borrowed from our ISPC F1; 6 rounds Zen 5 + Zen 3"
+    },
+    {
+      "id": "p-cpp-base-clang",
+      "entry": "cpp-base",
+      "tier": "extra-faithful",
+      "kind": "borrowed",
+      "verdict": "rejected",
+      "hypothesis": "Build the C++ base with clang++ as davepl (PrimeCPP/solution_5) does, instead of g++",
+      "prediction": "-3% to +5%",
+      "plain": "If the C++ base is compiled with the compiler the existing C++ entries use, then it may run faster, because the two compilers lay out the hot loops differently.",
+      "note": "local screen, 2 interleaved pairs at 1T: g++ 50.5k/51.1k, clang 18 42.8k/43.9k (-15%). Not sent to Azure: a 15% local loss on a code-generation change is not something Zen reverses often enough to spend two node-runs on"
+    },
+    {
+      "id": "p-cpp-wheel-clang",
+      "entry": "cpp-wheel",
+      "tier": "extra-faithful",
+      "kind": "borrowed",
+      "verdict": "inconclusive",
+      "hypothesis": "Build the C++ wheel with clang++ instead of g++",
+      "prediction": "-3% to +5%",
+      "plain": "If the C++ wheel is compiled with the compiler the existing C++ entries use, then it may run faster, because the two compilers lay out the hot loops differently.",
+      "note": "clang 18 build segfaults in PRIMES_TEST=1 (g++ build passes): undefined behaviour in the port. Agent p-cpp-wheel-ub is finding it"
     }
   ],
   "azure_queue": 0,
@@ -1184,28 +1206,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T22:16:16Z",
-      "level": "info",
-      "text": "f1-on-f2 (base (grey)) running: F1 alternation on top of F2 blocking (dense alternates; sparse alternates inside each block): little expected once sparse is blocked",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T22:19:46Z",
-      "level": "decision",
-      "text": "f1-alternate: KEEP on grey: hc/champion-grey fast-forwarded 5a68114 -> 206ef99 (self-test 0). Why: Zen 5 +12.7% +-0.3 1T, +12.6% 32T; Zen 3 +10.2% 1T, +5.3% 16T; Zen 4 +9.3% +-0.5 1T, +6.4% 16T (6/6); arm -0.4% +-0.3 (inside the 1% gate).",
-      "id": "f1-alternate",
-      "what": "KEEP on grey: hc/champion-grey fast-forwarded 5a68114 -> 206ef99 (self-test 0)",
-      "why": "Zen 5 +12.7% +-0.3 1T, +12.6% 32T; Zen 3 +10.2% 1T, +5.3% 16T; Zen 4 +9.3% +-0.5 1T, +6.4% 16T (6/6); arm -0.4% +-0.3 (inside the 1% gate)"
-    },
-    {
-      "utc": "2026-10-10T22:19:46Z",
-      "level": "decision",
-      "text": "wheel-f1: REVERT. Why: Zen 5 D32: -7.0% 1T, -7.5% 32T, 0/6; the wheel's sparse pass gains nothing from a reversed sweep.",
-      "id": "wheel-f1",
-      "what": "REVERT",
-      "why": "Zen 5 D32: -7.0% 1T, -7.5% 32T, 0/6; the wheel's sparse pass gains nothing from a reversed sweep"
-    },
     {
       "utc": "2026-10-10T22:19:46Z",
       "level": "decision",
@@ -1524,6 +1524,30 @@
       "utc": "2026-10-11T01:26:00Z",
       "level": "info",
       "text": "Zen 5 pool resize to 4 nodes was refused by the session's permission check; pools stay at 3+3 nodes, queue runs longer."
+    },
+    {
+      "utc": "2026-10-11T01:28:46Z",
+      "level": "decision",
+      "text": "p-cpp-wheel-clang: start agent p-cpp-wheel-ub: find and fix the undefined behaviour that makes the clang build of the C++ wheel segfault, then re-measure clang against g++ locally. Why: a port that only works under one compiler is a correctness bug in a would-be submission, and the clang comparison is RUN-PLAN's first C++ wheel idea. Brief: sanitizers under both compilers, minimal fix on hc/port-cpp-wheel-ub from hc/port-cpp-wheel, 30 min. Expect: a fix that is speed-neutral under g++.",
+      "id": "p-cpp-wheel-clang",
+      "what": "start agent p-cpp-wheel-ub: find and fix the undefined behaviour that makes the clang build of the C++ wheel segfault, then re-measure clang against g++ locally",
+      "why": "a port that only works under one compiler is a correctness bug in a would-be submission, and the clang comparison is RUN-PLAN's first C++ wheel idea. Brief: sanitizers under both compilers, minimal fix on hc/port-cpp-wheel-ub from hc/port-cpp-wheel, 30 min",
+      "expect": "a fix that is speed-neutral under g++"
+    },
+    {
+      "utc": "2026-10-11T01:29:07Z",
+      "level": "decision",
+      "text": "run: start agent p-rust-base-mb: one idea from mike-barber's Rust base that ours lacks, clean tier, profile-named before coding. Why: RUN-PLAN stream 1 step 3 puts the Rust base side-by-side first; Rust and C++ each have their own experiments queued, Zig has none yet, so Zig is next once a slot frees. Passed over: Zig wheel tables via comptime (permitted lineage, phase 2 after the s5 profile). Expect: +2% to +6% at 1T.",
+      "id": "run",
+      "what": "start agent p-rust-base-mb: one idea from mike-barber's Rust base that ours lacks, clean tier, profile-named before coding",
+      "why": "RUN-PLAN stream 1 step 3 puts the Rust base side-by-side first; Rust and C++ each have their own experiments queued, Zig has none yet, so Zig is next once a slot frees",
+      "instead": "Zig wheel tables via comptime (permitted lineage, phase 2 after the s5 profile)",
+      "expect": "+2% to +6% at 1T"
+    },
+    {
+      "utc": "2026-10-11T01:29:07Z",
+      "level": "info",
+      "text": "Agents: s6-wheel-210 rejected locally (-30%); p-cpp-wheel-ub (clang segfault) and p-rust-base-mb running. 19 tasks open."
     }
   ],
   "research": {
