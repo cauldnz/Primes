@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T07:28:11Z",
+  "updated_utc": "2026-10-11T07:29:14Z",
   "run": {
     "id": "ap-20261011T0645Z",
     "state": "running",
@@ -1527,11 +1527,11 @@
       "entry": "cpp-wheel",
       "tier": "extra-faithful",
       "kind": "borrowed",
-      "verdict": "kept",
+      "verdict": "rejected",
       "hypothesis": "IDEAS 12 merged onto the clang C++ wheel champion",
       "prediction": "+1% to +6% (as on g++)",
       "plain": "If the faster Clang build of the C++ wheel also writes 13 in the same pass as the tile, then it gains as the GCC build did, because the saved sweep does not depend on the compiler.",
-      "note": "KEEP: hc/port-cpp-wheel-champion = 547221c (alignment fix + clang + IDEAS 12). Against our ISPC reference wheel: Zen 3 +9.3% 1T, +6.3% 16T; Zen 5 -7.9% 1T, +1.7% 16T. Arm not measured for the ports (the port bench runs on x86 only)",
+      "note": "re-decided in run 9 under the per-thread rule: REVERT (see p-cpp-wheel-clang-idea12-r9)",
       "zen5": "+1.3% ± 0.5 1T, +1.9% ± 0.3 16T (6/6)",
       "note_z5": "Zen 3 pending; the clang C++ wheel with IDEAS 12 is 1.7% ahead of our ISPC reference wheel at 16T on Zen 5, 7.9% behind at 1T",
       "zen3": "+1.1% ± 0.8 1T, +1.9% ± 0.7 16T (6/6)"
@@ -1568,7 +1568,9 @@
       "hypothesis": "Report exactly 4 threads when the thread loop didn't and the machine has more than 4 (hc/line-4t 365991b)",
       "prediction": "no existing line moves (±0.5%); the 6-CPU run shows a 4-thread line",
       "plain": "If each entry also reports a run with exactly four threads, then it shows up where the leaderboard's multi-thread leaders do, because they all report four threads.",
-      "note": "Zen 5 6 rounds per entry (16 vCPU: the loop already prints 4); a 2-round base run with docker --cpuset-cpus=0-5 shows the new line firing"
+      "note": "Zen 5 6 rounds per entry (16 vCPU: the loop already prints 4); a 2-round base run with docker --cpuset-cpus=0-5 shows the new line firing",
+      "zen5_wheel": "1T +0.2% ± 0.3, 4T +0.0% ± 0.3, 8T +0.1%, 16T +1.5% ± 0.1 (6 rounds)",
+      "note_wheel": "no 1T/4T line moves; base run and the 6-CPU run pending"
     },
     {
       "id": "size-cliff",
@@ -1586,9 +1588,11 @@
       "entry": "cpp-wheel",
       "tier": "extra-faithful",
       "kind": "borrowed",
-      "verdict": "running",
+      "verdict": "rejected",
       "hypothesis": "More rounds for the C++ wheel IDEAS 12 on clang under the per-thread rule",
-      "note": "backtest: kept on 16T last run, straddles at 1T/4T; 10 rounds Zen 5 + Zen 3"
+      "note": "REVERT under the per-thread rule: means at about +1.0%, lower bounds +0.7-0.8% at 1T/4T after 16 rounds; cannot clear +1%. Reverted on hc/port-cpp-wheel-champion (bf7619a = 3c98356 code). The run-8 KEEP was decided on 16T (old rule)",
+      "zen5": "10 rounds: +1.0% ± 0.2 1T, +1.0% ± 0.2 4T, +2.2% ± 0.3 16T (10/10)",
+      "zen3": "+1.2% ± 0.5 1T, +0.7% ± 0.5 4T, +1.8% ± 0.2 16T"
     },
     {
       "id": "p0-solution3",
@@ -1682,27 +1686,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T03:27:46Z",
-      "level": "info",
-      "text": "p-cpp-wheel-clang-idea12 (cpp-wheel) running: IDEAS 12 merged onto the clang C++ wheel champion",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T03:39:10Z",
-      "level": "decision",
-      "text": "s5-starts-ef: keep: guard start_bits8 off NEON and merge into hc/champion (9f62bd6). Why: Chris asked to finish it; the NEON build is byte-identical to the champion, so arm64 cannot lose, and the x86 builds are byte-identical to the measured branch, so no new Azure run is needed. General keep rule: lower bounds +1.3% (Zen 3) and +5.3% (Zen 5). Passed over: re-measuring on Zen (the asm identity makes it redundant).",
-      "id": "s5-starts-ef",
-      "what": "keep: guard start_bits8 off NEON and merge into hc/champion (9f62bd6)",
-      "why": "Chris asked to finish it; the NEON build is byte-identical to the champion, so arm64 cannot lose, and the x86 builds are byte-identical to the measured branch, so no new Azure run is needed. General keep rule: lower bounds +1.3% (Zen 3) and +5.3% (Zen 5)",
-      "instead": "re-measuring on Zen (the asm identity makes it redundant)"
-    },
-    {
-      "utc": "2026-10-11T03:39:10Z",
-      "level": "info",
-      "text": "s5-starts-ef kept.. KEPT at Chris request (finish it): hc/s5-starts-ef-x86 75191b0 guards start_bits8 off NEON. Proof by --emit-asm with build.sh flags: neon-i32x8 byte-identical to 1551635; sse4-i32x8, avx2-i32x16, avx512skx-x16 byte-identical to s5-starts-ef, so its Zen numbers stand (Zen 5 +5.5% ± 0.2 1T, +5.2% ± 0.1 16T; Zen 3 +1.9% ± 0.6 1T, +1.7% ± 0.5 16T). SSE4-only build: self-test passes, +6% locally vs the champion. Merged: hc/champion = 9f62bd6. hc/ispc-ref stays 1551635 for the ports. Open point for Chris: under the target-specific rule (>=2% where code changes) Zen 3 sits at +1.9%; under the general rule it clears (lower bound +1.3%)",
-      "auto": true
-    },
     {
       "utc": "2026-10-11T03:42:21Z",
       "level": "decision",
@@ -2018,6 +2001,27 @@
       "utc": "2026-10-11T07:25:02Z",
       "level": "info",
       "text": "s1-f1-grey (base) running: F1 (alternate sweep direction per factor) on the code we would submit (3ad0427), for the upstream issue only",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T07:29:14Z",
+      "level": "decision",
+      "text": "p-cpp-wheel-clang-idea12-r9: revert IDEAS 12 from the C++ wheel champion. Why: per-thread rule: 16 rounds put 1T/4T at +1.0% ± 0.2 (Zen 5) and +1.2% ± 0.5 / +0.7% (Zen 3); at those means no round count lifts the lower bound past +1%. The +2% at 16T is recorded only. Passed over: 20 rounds.",
+      "id": "p-cpp-wheel-clang-idea12-r9",
+      "what": "revert IDEAS 12 from the C++ wheel champion",
+      "why": "per-thread rule: 16 rounds put 1T/4T at +1.0% ± 0.2 (Zen 5) and +1.2% ± 0.5 / +0.7% (Zen 3); at those means no round count lifts the lower bound past +1%. The +2% at 16T is recorded only",
+      "instead": "20 rounds"
+    },
+    {
+      "utc": "2026-10-11T07:29:14Z",
+      "level": "info",
+      "text": "p-cpp-wheel-clang-idea12 rejected.. re-decided in run 9 under the per-thread rule: REVERT (see p-cpp-wheel-clang-idea12-r9)",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T07:29:14Z",
+      "level": "info",
+      "text": "p-cpp-wheel-clang-idea12-r9 rejected.. REVERT under the per-thread rule: means at about +1.0%, lower bounds +0.7-0.8% at 1T/4T after 16 rounds; cannot clear +1%. Reverted on hc/port-cpp-wheel-champion (bf7619a = 3c98356 code). The run-8 KEEP was decided on 16T (old rule)",
       "auto": true
     }
   ],
