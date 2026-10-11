@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T21:41:59Z",
+  "updated_utc": "2026-10-11T21:48:58Z",
   "run": {
     "id": "ap-20261011T1929Z",
     "state": "running",
@@ -2101,6 +2101,18 @@
       "plain": "If we time each phase on an Arm machine, then we learn why OxCaml is six times behind Rust there, because two guesses at the Arm loops have not moved it.",
       "verdict": "running",
       "commit": "d4f0a7c"
+    },
+    {
+      "id": "ox-013",
+      "entry": "oxcaml",
+      "title": "Sparse OR width 16/32 bits (x86)",
+      "tier": "extra-faithful",
+      "kind": "novel",
+      "plain": "If each sparse mark writes 2 or 4 bytes instead of 8, then fewer writes straddle a cache line, because shorter writes cross line boundaries less often.",
+      "prediction": "0% to +5%",
+      "verdict": "rejected",
+      "commit": "c9c9cf3",
+      "note": "local: 32-bit -5.8%, 16-bit -7.0%; the narrower primitives cost 2 extra instructions per composite in OxCaml"
     }
   ],
   "azure_queue": 0,
@@ -2110,18 +2122,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T20:44:51Z",
-      "level": "info",
-      "text": "ox-002 confirmed.. measurement: Zen 5 -4.1% 1T, Zen 3 +8.4%, Cobalt +163% (7.3k vs 2.8k)",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T20:44:51Z",
-      "level": "info",
-      "text": "ox-003 kept.. Zen 5 +60.5% 1T / +56.2% 4T, Zen 3 +41.4% / +40.2%, Cobalt flat; champion hc/oxcaml-champion cbcd24d",
-      "auto": true
-    },
     {
       "utc": "2026-10-11T20:45:33Z",
       "level": "decision",
@@ -2471,6 +2471,20 @@
       "what": "background agent: 16-bit (and 32-bit if available) sparse ORs in the x86 kernel instead of unaligned 64-bit",
       "why": "sparse is still 46% of an x86 pass (ox-012 local); an unaligned 8-byte access crosses a cache line for 7 of 64 start bytes, a 2-byte one for 1 of 64",
       "expect": "0% to +5% at 1T"
+    },
+    {
+      "utc": "2026-10-11T21:48:58Z",
+      "level": "decision",
+      "text": "ox-013: reject at the local gate; not sent to Azure. Why: both narrower forms lost 6-7% locally in all three rounds; OxCaml's 16-bit primitive returns a tagged int and its int32 constant isn't folded into the OR, so each composite costs 6.9 instructions vs 4.9; the cache-line saving doesn't cover that.",
+      "id": "ox-013",
+      "what": "reject at the local gate; not sent to Azure",
+      "why": "both narrower forms lost 6-7% locally in all three rounds; OxCaml's 16-bit primitive returns a tagged int and its int32 constant isn't folded into the OR, so each composite costs 6.9 instructions vs 4.9; the cache-line saving doesn't cover that"
+    },
+    {
+      "utc": "2026-10-11T21:48:58Z",
+      "level": "info",
+      "text": "ox-013 (oxcaml) rejected: ",
+      "auto": true
     }
   ],
   "research": {
