@@ -51,6 +51,41 @@ fn start_bit(p: u32, r: u32, kmin: u32) -> usize {
     ((u64::from(p) * k - u64::from(r)) / 30) as usize
 }
 
+// DIAGNOSTIC BUILD (hc/diag-rust-wheel-phases, never merged): TSC cycles per phase, the same
+// slots as the ISPC wheel's diagnostic. Each boundary reads the TSC once and charges the time
+// since the previous boundary to one slot, so the slots add up to the whole run.
+const P_SO_DENSE: usize = 0; // (a) start_bit for group members, all 8 planes
+const P_SO_SPARSE: usize = 1; // (a) start_bit for sparse primes, all 8 planes
+const P_SO_TILE: usize = 2; // (a) start_bit for 7, 11 per plane
+const P_PAT: usize = 3; // (b) group pattern building (build_group)
+const P_TILE_BUILD: usize = 4; // (d) 7x11 tile into scratch
+const P_GROUP: usize = 5; // (c) fused group passes over the 8 planes (+ member bit clear)
+const P_TILE_COPY: usize = 6; // (d) tile written to each plane
+const P_SPARSE: usize = 7; // (e) sparse marks
+const P_SCAN: usize = 8; // (f) next-prime scan, sqrt, fix-ups
+const P_SETUP: usize = 9; // (f) alloc/free, count (first pass), deadline check
+const P_TOTAL: usize = 10; // TSC over the whole 1-thread loop
+const P_LAST: usize = 15; // previous boundary's TSC
+const P_N: usize = 16;
+
+#[inline(always)]
+fn tsc() -> u64 {
+    #[cfg(target_arch = "x86_64")]
+    // SAFETY: rdtsc has no preconditions.
+    unsafe {
+        core::arch::x86_64::_rdtsc()
+    }
+    #[cfg(not(target_arch = "x86_64"))]
+    0
+}
+
+#[inline(always)]
+fn mark(pt: &mut [u64; P_N], slot: usize) {
+    let t = tsc();
+    pt[slot] += t.wrapping_sub(pt[P_LAST]);
+    pt[P_LAST] = t;
+}
+
 /// One group member's word pattern, held in `Sieve::rows`.
 #[derive(Clone, Copy)]
 struct Pattern {
@@ -165,6 +200,8 @@ struct Sieve {
     /// Pattern rows for the current group, and where each member's row starts.
     rows: Vec<u64>,
     group: [Pattern; G],
+    /// DIAGNOSTIC: phase counters, moved in and out of each pass by the worker.
+    pt: [u64; P_N],
 }
 
 impl Sieve {
@@ -184,6 +221,7 @@ impl Sieve {
             base: 0,
             rows: Vec::with_capacity(G * (dense_max as usize + 2 * VW)),
             group: [Pattern::EMPTY; G],
+            pt: [0; P_N],
         }
     }
 
@@ -237,22 +275,29 @@ impl Sieve {
 
     /// Applies a group of primes, from p*p on, to all eight planes.
     fn dense_primes(&mut self, primes: &[u32]) {
+        mark(&mut self.pt, P_SCAN);
         self.build_group(primes);
-        let mut b = [0usize; G];
+        mark(&mut self.pt, P_PAT);
+        let mut bb = [[0usize; G]; 8];
         for (pl, &r) in RES.iter().enumerate() {
-            for (bj, &p) in b.iter_mut().zip(primes) {
+            for (bj, &p) in bb[pl].iter_mut().zip(primes) {
                 *bj = start_bit(p, r, p);
             }
+        }
+        mark(&mut self.pt, P_SO_DENSE);
+        for (pl, b) in bb.iter().enumerate() {
             self.apply(pl, self.nw, &b[..primes.len()]);
         }
         for &p in primes {
             self.clear_bit(p); // each member marked itself
         }
+        mark(&mut self.pt, P_GROUP);
     }
 
     /// Large primes set at most one bit per word. All eight planes advance together, giving
     /// eight independent read-modify-write streams per round.
     fn sparse_prime(&mut self, p: u32) {
+        mark(&mut self.pt, P_SCAN);
         let (nbits, pw, step) = (self.mbits, self.pw, p as usize);
         let words = &mut self.words[self.base..];
         let mut i = [0usize; 8]; // bit index in the whole set of planes
@@ -262,6 +307,7 @@ impl Sieve {
             hi = hi.max(sb);
             *ip = sb + pl * pw * 64;
         }
+        mark(&mut self.pt, P_SO_SPARSE);
         // rounds in which all eight streams are still inside their planes
         let rounds = if hi < nbits {
             (nbits - 1 - hi) / step + 1
@@ -284,10 +330,12 @@ impl Sieve {
                 words[x >> 6] |= 1 << (x & 63);
             }
         }
+        mark(&mut self.pt, P_SPARSE);
     }
 
     fn run(&mut self) {
         let (nw, pw) = (self.nw, self.pw);
+        mark(&mut self.pt, P_SETUP);
 
         // Phase 1: the wheel tile. Multiples of 7 and 11 repeat every 77 words in every plane,
         // so mark one period, starting from 7 and 11 themselves to keep it periodic, and copy
@@ -299,8 +347,10 @@ impl Sieve {
         self.base = pad;
         let mut tile = [0u64; TILE + VW];
         for &r in &RES {
-            tile.fill(0);
+            mark(&mut self.pt, P_TILE_BUILD);
             let b = [start_bit(7, r, 1), start_bit(11, r, 1)];
+            mark(&mut self.pt, P_SO_TILE);
+            tile.fill(0);
             apply_group::<2>(
                 &mut tile,
                 t,
@@ -308,6 +358,7 @@ impl Sieve {
                 self.group[..2].try_into().unwrap(),
                 &b,
             );
+            mark(&mut self.pt, P_TILE_BUILD);
             let mut left = nw;
             while left > 0 {
                 let n = left.min(t);
@@ -315,6 +366,7 @@ impl Sieve {
                 left -= n;
             }
             self.words.resize(self.words.len() + pw - nw, 0);
+            mark(&mut self.pt, P_TILE_COPY);
         }
         self.plane_mut(0)[0] |= 1; // 1 is not prime
         self.clear_bit(7);
@@ -354,6 +406,7 @@ impl Sieve {
         if n > 0 {
             self.dense_primes(&grp[..n]);
         }
+        mark(&mut self.pt, P_SCAN);
     }
 
     /// Primes up to and including the size: unmarked bits for numbers <= size, plus 2, 3 and 5.
@@ -384,18 +437,49 @@ fn sieve_count(size: u64, dense_max: u32) -> usize {
 }
 
 /// Passes completed before the deadline, and the prime count from the first pass.
-fn worker(deadline: Instant, dense_max: u32) -> (u64, usize) {
+fn worker(deadline: Instant, dense_max: u32) -> (u64, usize, [u64; P_N]) {
     let mut passes = 0;
     let mut count = 0;
+    let mut pt = [0u64; P_N];
+    let t0 = tsc();
+    pt[P_LAST] = t0;
     while Instant::now() < deadline {
         let mut sieve = Sieve::new(SIEVE_SIZE, dense_max);
+        sieve.pt = pt;
         sieve.run();
         if passes == 0 {
             count = sieve.count_primes();
         }
+        pt = sieve.pt;
+        drop(sieve);
         passes += 1;
     }
-    (passes, count)
+    mark(&mut pt, P_SETUP);
+    pt[P_TOTAL] = tsc().wrapping_sub(t0);
+    (passes, count, pt)
+}
+
+/// DIAGNOSTIC: phase split of the 1-thread run, TSC cycles per pass and share of total.
+fn print_phases(passes: u64, pt: &[u64; P_N]) {
+    let np = passes as f64;
+    let tot = pt[P_TOTAL] as f64;
+    let v: Vec<f64> = pt[..10].iter().map(|&x| x as f64).collect();
+    let sum: f64 = v.iter().sum();
+    let line = |name: &str, x: f64| println!("phase;{name};{:.1};{:.2}", x / np, 100.0 * x / tot);
+    line("start_offsets", v[0] + v[1] + v[2]);
+    line("pattern_build", v[3]);
+    line("group_passes", v[5]);
+    line("tile", v[4] + v[6]);
+    line("sparse_marks", v[7]);
+    line("scan_setup", v[8] + v[9]);
+    println!("phase;total;{:.1};{:.2}", tot / np, 100.0 * sum / tot);
+    line("detail.start_offsets_dense", v[0]);
+    line("detail.start_offsets_sparse", v[1]);
+    line("detail.start_offsets_tile", v[2]);
+    line("detail.tile_build", v[4]);
+    line("detail.tile_copy", v[6]);
+    line("detail.scan", v[8]);
+    line("detail.setup_alloc_count", v[9]);
 }
 
 /// One timed run on `threads` threads, each running its own sieves. Returns false if any thread
@@ -403,7 +487,7 @@ fn worker(deadline: Instant, dense_max: u32) -> (u64, usize) {
 fn timed_run(threads: usize, dense_max: u32) -> bool {
     let start = Instant::now();
     let deadline = start + RUN_TIME;
-    let results: Vec<(u64, usize)> = if threads == 1 {
+    let results: Vec<(u64, usize, [u64; P_N])> = if threads == 1 {
         vec![worker(deadline, dense_max)]
     } else {
         thread::scope(|s| {
@@ -414,12 +498,15 @@ fn timed_run(threads: usize, dense_max: u32) -> bool {
         })
     };
     let elapsed = start.elapsed().as_secs_f64();
-    if results.iter().any(|&(_, count)| count != EXPECTED) {
+    if results.iter().any(|&(_, count, _)| count != EXPECTED) {
         eprintln!("ERROR: wrong prime count");
         return false;
     }
-    let passes: u64 = results.iter().map(|&(p, _)| p).sum();
+    let passes: u64 = results.iter().map(|&(p, _, _)| p).sum();
     println!("{LABEL};{passes};{elapsed:.6};{threads};{TAGS}");
+    if threads == 1 {
+        print_phases(passes, &results[0].2);
+    }
     true
 }
 
