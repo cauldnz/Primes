@@ -131,8 +131,8 @@ id	pool	size	kind	outdir	submitted	state
 0148497359	hc-standard-d16as-v7	Standard_D16as_v7	zig	ispc-dev/results/hc/p-zig-wheel-direct-pattern	2026-10-11T01:48:59Z	open
 01490611370	hc-standard-d16as-v7	Standard_D16as_v7	zig	ispc-dev/results/hc/s5-zig-wheel-profile	2026-10-11T01:49:59Z	open
 01545324895	hc-standard-d16as-v7	Standard_D16as_v7	base	ispc-dev/results/hc/ha-029-base	2026-10-11T01:55:03Z	open
-01550926249	hc-standard-d16as-v7	Standard_D16as_v7	wheel	ispc-dev/results/hc/ha-029-wheel	2026-10-11T01:56:01Z	open
-01560730248	hc-standard-d16as-v7	Standard_D16as_v7	wheel	ispc-dev/results/hc/ha-030	2026-10-11T01:57:43Z	open
+01550926249	hc-standard-d16as-v7	Standard_D16as_v7	wheel	ispc-dev/results/hc/ha-029-wheel	2026-10-11T01:56:01Z	cancelled
+01560730248	hc-standard-d16as-v7	Standard_D16as_v7	wheel	ispc-dev/results/hc/ha-030	2026-10-11T01:57:43Z	cancelled
 01575010361	hc-standard-d16a-v4	Standard_D16a_v4	base	ispc-dev/results/hc/ha-f5-addr64	2026-10-11T01:57:59Z	open
 0158075965	hc-standard-d16as-v7	Standard_D16as_v7	base	ispc-dev/results/hc/ha-018	2026-10-11T01:58:16Z	open
 01582317677	hc-standard-d16as-v7	Standard_D16as_v7	base	ispc-dev/results/hc/ha-023	2026-10-11T01:59:14Z	open

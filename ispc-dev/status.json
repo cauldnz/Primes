@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T02:29:59Z",
+  "updated_utc": "2026-10-11T02:30:36Z",
   "run": {
     "id": "ap-20261011T0100Z",
     "state": "running",
@@ -1305,18 +1305,18 @@
       "hypothesis": "Recheck: ISPC 1.28 on Ubuntu 26.04 (hc-029), on the current champion",
       "prediction": "base +2% on Zen 5; wheel flat",
       "plain": "If the entries build with the newer compiler on the newer OS, then the base may gain a little, because the earlier short run showed +2.4% before later changes.",
-      "note": "history audit row 2; hc/029-ubuntu-2604-on-1551635; Zen 5 3-round screens, base and wheel"
+      "note": "wheel half cancelled before it started (Chris: no new ISPC wheel speed work); base half still queued"
     },
     {
       "id": "ha-030",
       "entry": "wheel",
       "tier": "extra-faithful",
       "kind": "tuning",
-      "verdict": "running",
+      "verdict": "inconclusive",
       "hypothesis": "Recheck: wheel pattern scratch 1024 -> 256 words (hc-030), which also shortens the row stride to 2,560 B (IDEAS 14, 4K aliasing)",
       "prediction": "0 to +2%",
       "plain": "If the wheel's pattern scratch rows are shorter, then the grouped pass may run faster, because rows 8.7 KB apart can alias in the cache and 2.5 KB apart cannot.",
-      "note": "history audit row 3; caps PRIMES_DENSE_MAX at 256; Zen 5 3-round screen"
+      "note": "cancelled before it started: Chris stopped new ISPC wheel speed experiments (base 1T on Zen 5 takes the nodes)"
     },
     {
       "id": "ha-f5-addr64",
@@ -1447,21 +1447,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T01:08:49Z",
-      "level": "decision",
-      "text": "run: start two agents: p1-port-keeps (C++/Rust wheel ports get IDEAS 12 and wheel-group32; base ports get F1 on grey branches) and s5-wheel-profile (TSC phase split of the ISPC wheel, start offsets and pattern building separated). Why: RUN-PLAN phase 1 has agents do stream 1 step 1 and the stream 5 profile while the fleet runs F4; both are local work over a tick's budget. Briefs: one change per branch, self-test and 5 s local gate, push only own hc/ branches, 30-35 min limit. Passed over: stream 6 wheel-210 agent (starts when one of these reports; at most two agents). Expect: branches ready to submit by about 01:45Z.",
-      "id": "run",
-      "what": "start two agents: p1-port-keeps (C++/Rust wheel ports get IDEAS 12 and wheel-group32; base ports get F1 on grey branches) and s5-wheel-profile (TSC phase split of the ISPC wheel, start offsets and pattern building separated)",
-      "why": "RUN-PLAN phase 1 has agents do stream 1 step 1 and the stream 5 profile while the fleet runs F4; both are local work over a tick's budget. Briefs: one change per branch, self-test and 5 s local gate, push only own hc/ branches, 30-35 min limit",
-      "instead": "stream 6 wheel-210 agent (starts when one of these reports; at most two agents)",
-      "expect": "branches ready to submit by about 01:45Z"
-    },
-    {
-      "utc": "2026-10-11T01:08:49Z",
-      "level": "info",
-      "text": "Agents started: p1-port-keeps, s5-wheel-profile. F4 sweep queued (6 tasks)."
-    },
     {
       "utc": "2026-10-11T01:10:56Z",
       "level": "decision",
@@ -1831,6 +1816,20 @@
       "utc": "2026-10-11T02:29:59Z",
       "level": "info",
       "text": "b2-base-zen5-profile (base) running: Measurement: ISPC base phase split on Zen 5 at 1T (ns timer build), beside mike-barber profile on Zen 5 (p-rust-base-zprof-mb)",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T02:30:36Z",
+      "level": "decision",
+      "text": "run: cancel the two queued, not-started ISPC wheel rechecks (ha-030, ha-029 wheel half); let F4 128/192 (already running), s5-tables and s5-starts-ef finish. Why: Chris: start no new ISPC wheel speed experiments; freeing two Zen 5 slots moves the base work up the queue.",
+      "id": "run",
+      "what": "cancel the two queued, not-started ISPC wheel rechecks (ha-030, ha-029 wheel half); let F4 128/192 (already running), s5-tables and s5-starts-ef finish",
+      "why": "Chris: start no new ISPC wheel speed experiments; freeing two Zen 5 slots moves the base work up the queue"
+    },
+    {
+      "utc": "2026-10-11T02:30:36Z",
+      "level": "warn",
+      "text": "ha-030 inconclusive.. cancelled before it started: Chris stopped new ISPC wheel speed experiments (base 1T on Zen 5 takes the nodes)",
       "auto": true
     }
   ],
