@@ -130,6 +130,23 @@ static inline uniform int start_bit(uniform int p, uniform int R, uniform int km
     return (uniform int)((up * k - uR) / 30);
 }
 
+// First bit index of p's multiples from p*p on, in all 8 planes: b[pl] for plane RES[pl].
+// The 8 smallest multipliers k >= p coprime to 30 are p plus the wheel offsets from p's own
+// residue, and each product p*k lands in a different plane, at bit p*k / 30. The 8 products are
+// independent, so this is 8 parallel multiply-by-reciprocal divisions with no remainder chains.
+static inline void start_bits8(uniform int p, uniform int * uniform b) {
+    uniform unsigned int up = p;
+    uniform unsigned int pp = up * up;
+    uniform int j = PLANE[up % 30];
+    for (uniform int i = 0; i < 8; i++) {
+        uniform int x = j + i;
+        uniform unsigned int off = RES[x & 7] + (x >= 8 ? 30 : 0) - RES[j];
+        uniform unsigned int n = pp + up * off;
+        uniform unsigned int q = n / 30;
+        b[PLANE[n - 30 * q]] = (uniform int)q;
+    }
+}
+
 // Base pattern for p: a bit at every j = 0 (mod p) across one period of p words, extended to
 // L + STEP words. L is a multiple of p that is >= STEP, so advancing the phase by up to STEP
 // needs only one conditional subtract.
@@ -252,9 +269,17 @@ static void apply_group(uniform uint64 * uniform w, uniform int nw,
 static void dense_primes(uniform Sieve * uniform s, const uniform int * uniform primes,
                          uniform int n) {
     build_group(s->grp, primes, n);
+#if defined(ISPC_TARGET_NEON)   // start_bits8 cost 1.1% on Cobalt 100: NEON keeps start_bit
     uniform int b[G];
     for (uniform int pl = 0; pl < 8; pl++) {
         for (uniform int j = 0; j < n; j++) b[j] = start_bit(primes[j], RES[pl], primes[j]);
+#else
+    uniform int bb[G][8];
+    for (uniform int j = 0; j < n; j++) start_bits8(primes[j], bb[j]);
+    uniform int b[G];
+    for (uniform int pl = 0; pl < 8; pl++) {
+        for (uniform int j = 0; j < n; j++) b[j] = bb[j][pl];
+#endif
         if (n == 1) {      // a lone prime: skip the fused loop and its G-1 empty patterns
             apply_range(s->bits + pl * s->pw, s->grp->pp[0], s->grp->L[0],
                         s->grp->tab[0][b[0] & 63], b[0], s->nw);
@@ -277,11 +302,20 @@ static void sparse_prime(uniform Sieve * uniform s, uniform int p) {
     uniform uint64 * uniform base = s->bits;
     uniform int64 i[8];                            // 64-bit, so no sign extension per OR
     uniform int hi = 0;
+#if defined(ISPC_TARGET_NEON)
     for (uniform int pl = 0; pl < 8; pl++) {
         uniform int sb = start_bit(p, RES[pl], p);
         hi = max(hi, sb);
         i[pl] = sb + (uniform int64)pl * pw * 64;  // bit index within the whole buffer
     }
+#else
+    uniform int sb[8];
+    start_bits8(p, sb);
+    for (uniform int pl = 0; pl < 8; pl++) {
+        hi = max(hi, sb[pl]);
+        i[pl] = sb[pl] + (uniform int64)pl * pw * 64;  // bit index within the whole buffer
+    }
+#endif
     // rounds in which all 8 streams are still inside their plane
     uniform int rounds = (hi < nbits) ? (nbits - 1 - hi) / p + 1 : 0;
     const uniform int64 lim = i[0] + (uniform int64)rounds * p;   // bounds stream 0; no counter
