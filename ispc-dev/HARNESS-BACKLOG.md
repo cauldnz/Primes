@@ -38,3 +38,7 @@ adds at most three new items. Background: `REVIEW-2026-10-10.md`.
 | 29 | `hc-pool.sh up` should check the account's low-priority core quota (128) against the nodes other pools hold and name the pool to take down; a pool that cannot allocate sits at 0 nodes with only a resize error | climber, run ap-20261010T2040Z: the 96-vCPU node lost 25 minutes, and F6 with it | open |
 | 30 | `st.py event` should validate its level argument; a misordered call put the event text in `level` | climber, run ap-20261010T2040Z | open |
 | 31 | Each task should print its start and end time, so the morning report measures busy share instead of estimating it from run counts | climber, run ap-20261010T2040Z | open |
+
+- (ap-20261011T0100Z, from Chris) The local gate only screens: a candidate that fails it locally
+  still gets a 3-round Zen 5 screen before it is dropped (AUTOPILOT 2d says "does not go to
+  Azure"). Exception worth keeping: a failed self-test still stops it. Update 2d in the workshop.

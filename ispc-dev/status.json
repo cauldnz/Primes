@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T01:37:30Z",
+  "updated_utc": "2026-10-11T01:40:24Z",
   "run": {
     "id": "ap-20261011T0100Z",
     "state": "running",
@@ -1115,11 +1115,12 @@
       "entry": "wheel",
       "tier": "extra-faithful",
       "kind": "novel",
-      "verdict": "rejected",
+      "verdict": "running",
       "hypothesis": "A mod-210 wheel (48 planes, ~28.6 KB at 1M) with incrementally derived starts beats the mod-30 champion with every thread busy",
       "prediction": "Zen 5 1T -5% to +3%, all threads 0 to +6%; Zen 3 1T -3% to +4%, all threads 0 to +5% (IDEAS.md)",
       "plain": "If the wheel also skips multiples of 7, then the sieve shrinks enough that two copies sharing a core fit better in its fastest cache, because 48 of every 210 numbers are kept instead of 8 of every 30.",
-      "note": "hc/wheel-210 99de3e7: correct (self-test; 6,000 odd sizes on avx512/avx2/sse4, 0 mismatches) but about 30% slower than the champion at 1T locally (58k vs 85k passes, interleaved). Stopped at the local gate, never sent to Azure. Cause: a plane is only 75 words at 1M, so per-group-per-plane set-up (432 apply_group calls per pass) dominates the dense side (~40 us vs the champion whole pass 58 us); the 48-start walk costs ~200 cycles per sparse prime. Prediction (-5% to +3% at 1T) missed. Next shape, if ever: interleave the 48 planes (one 3.6 KB stripe layout) so the dense pass vectorises across planes."
+      "note": "hc/wheel-210 99de3e7: correct (self-test; 6,000 odd sizes on avx512/avx2/sse4, 0 mismatches) but about 30% slower than the champion at 1T locally (58k vs 85k passes, interleaved). Stopped at the local gate, never sent to Azure. Cause: a plane is only 75 words at 1M, so per-group-per-plane set-up (432 apply_group calls per pass) dominates the dense side (~40 us vs the champion whole pass 58 us); the 48-start walk costs ~200 cycles per sparse prime. Prediction (-5% to +3% at 1T) missed. Next shape, if ever: interleave the 48 planes (one 3.6 KB stripe layout) so the dense pass vectorises across planes.",
+      "note_amd": "re-opened on Chris's instruction: 3-round Zen 5 screen"
     },
     {
       "id": "p-cpp-wheel-idea12",
@@ -1181,11 +1182,12 @@
       "entry": "cpp-base",
       "tier": "extra-faithful",
       "kind": "borrowed",
-      "verdict": "rejected",
+      "verdict": "running",
       "hypothesis": "Build the C++ base with clang++ as davepl (PrimeCPP/solution_5) does, instead of g++",
       "prediction": "-3% to +5%",
       "plain": "If the C++ base is compiled with the compiler the existing C++ entries use, then it may run faster, because the two compilers lay out the hot loops differently.",
-      "note": "local screen, 2 interleaved pairs at 1T: g++ 50.5k/51.1k, clang 18 42.8k/43.9k (-15%). Not sent to Azure: a 15% local loss on a code-generation change is not something Zen reverses often enough to spend two node-runs on"
+      "note": "local screen, 2 interleaved pairs at 1T: g++ 50.5k/51.1k, clang 18 42.8k/43.9k (-15%). Not sent to Azure: a 15% local loss on a code-generation change is not something Zen reverses often enough to spend two node-runs on",
+      "note_amd": "re-opened on Chris's instruction: 3-round Zen 5 screen"
     },
     {
       "id": "p-cpp-wheel-clang",
@@ -1214,11 +1216,12 @@
       "entry": "rust-base",
       "tier": "extra-faithful",
       "kind": "borrowed",
-      "verdict": "rejected",
+      "verdict": "running",
       "hypothesis": "Clear small dense factors one period at a time with masks in registers, as mike-barber extreme_reset does (helper-macros/src/lib.rs:270)",
       "prediction": "a few % at most",
       "plain": "If our Rust base clears each small factor one repeat-length at a time, as the fastest Rust entry does, then its masks stay in registers and it gets faster, because it no longer reloads them from memory.",
-      "note": "hc/port-rust-base-mb cee34c1: -15% to -18% locally over 5 pairs; not sent to Azure. Likely unaligned period-offset vectors crossing cache lines. Agent also measured the sparse loop at ~64% of the pass and already at 11 instructions per 8 composites"
+      "note": "hc/port-rust-base-mb cee34c1: -15% to -18% locally over 5 pairs; not sent to Azure. Likely unaligned period-offset vectors crossing cache lines. Agent also measured the sparse loop at ~64% of the pass and already at 11 instructions per 8 composites",
+      "note_amd": "re-opened on Chris's instruction: 3-round Zen 5 screen"
     },
     {
       "id": "p-rust-base-noavx512",
@@ -1239,18 +1242,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T22:46:12Z",
-      "level": "info",
-      "text": "idea12-v2 KEEP (clean, both lineages). Zen 5 D32as_v7. Zen 5 D32as_v7, 12 rounds vs champion 5a68114: +1.6% +-1.1% at 1T (10/12), +2.1% +-0.2% at 8T, +2.2% +-0.2% at 16T, +1.2% +-0.0% at 32T (12/12 each); 1T lower bound 0.5% straddles",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T22:46:12Z",
-      "level": "info",
-      "text": "f1-on-f2 revert: -2.0% at 16T vs F2 alone on Zen 5. Zen 5 D16as_v7 vs hc/f2-block-16, 6 rounds. 3731ced (agent); verified here: PRIMES_TEST 0 at 16 KB and 1 KB; agent: bit-identical to champion-grey for 20,983 sizes at 16 KB and 37 B blocks on avx512/avx2/sse4/NEON. Local 1T -4.6% vs f2-block-16 (noisy)",
-      "auto": true
-    },
     {
       "utc": "2026-10-10T22:46:12Z",
       "level": "info",
@@ -1586,6 +1577,21 @@
       "why": "the period resetter lost 15-18% locally in 5 pairs; the flag is the remaining difference between the two builds, gained 3-5% locally, and leaves the Zen 3 binary unchanged, so Zen 5 alone decides under the target-specific rule",
       "instead": "a second Rust code idea (the agent found the sparse loop already at the instruction floor)",
       "expect": "+1% to +5% Zen 5"
+    },
+    {
+      "utc": "2026-10-11T01:40:24Z",
+      "level": "decision",
+      "text": "run: Chris: nothing is discarded on local results alone; every candidate gets at least a 3-round Zen 5 screen. Re-opened s6-wheel-210, p-cpp-base-clang, p-rust-base-mb as Zen 5 screens. Why: local and Azure deltas have disagreed widely (e.g. F1 and the ports); a 3-round screen costs about 15 node-minutes. Passed over: full 6-round Zen 5 + Zen 3 runs for all three (screen first; promote anything within 3% of the champion). Expect: all three still lose on Zen 5, but by less than locally.",
+      "id": "run",
+      "what": "Chris: nothing is discarded on local results alone; every candidate gets at least a 3-round Zen 5 screen. Re-opened s6-wheel-210, p-cpp-base-clang, p-rust-base-mb as Zen 5 screens",
+      "why": "local and Azure deltas have disagreed widely (e.g. F1 and the ports); a 3-round screen costs about 15 node-minutes",
+      "instead": "full 6-round Zen 5 + Zen 3 runs for all three (screen first; promote anything within 3% of the champion)",
+      "expect": "all three still lose on Zen 5, but by less than locally"
+    },
+    {
+      "utc": "2026-10-11T01:40:24Z",
+      "level": "info",
+      "text": "Rule change from Chris: local losers get a 3-round Zen 5 screen before being dropped. Three re-opened."
     }
   ],
   "research": {

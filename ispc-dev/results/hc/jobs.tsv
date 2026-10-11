@@ -121,3 +121,6 @@ id	pool	size	kind	outdir	submitted	state
 0133289108	hc-standard-d16as-v7	Standard_D16as_v7	port	ispc-dev/results/hc/p-cpp-wheel-clang	2026-10-11T01:33:38Z	open
 01334513067	hc-standard-d16a-v4	Standard_D16a_v4	port	ispc-dev/results/hc/p-cpp-wheel-clang	2026-10-11T01:33:55Z	open
 0137204555	hc-standard-d16as-v7	Standard_D16as_v7	port	ispc-dev/results/hc/p-rust-base-noavx512	2026-10-11T01:37:30Z	open
+0138079137	hc-standard-d16as-v7	Standard_D16as_v7	wheel	ispc-dev/results/hc/s6-wheel-210	2026-10-11T01:38:17Z	open
+01382423069	hc-standard-d16as-v7	Standard_D16as_v7	port	ispc-dev/results/hc/p-cpp-base-clang	2026-10-11T01:39:16Z	open
+01392312707	hc-standard-d16as-v7	Standard_D16as_v7	port	ispc-dev/results/hc/p-rust-base-mb	2026-10-11T01:40:15Z	open
