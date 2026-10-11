@@ -38,6 +38,14 @@ constexpr int G = 6;
 #else
 constexpr int G = 8;
 #endif
+// Words the fused group loop advances per iteration. With AVX-512 it takes two steps, 32
+// words, so each member's phase update is paid once per 32 words. Patterns then have a period
+// of at least GW words and run GW words past it.
+#if defined(__AVX512F__)
+constexpr int GW = 2 * W;
+#else
+constexpr int GW = W;
+#endif
 // A step of W words as one value. GCC's vector extension (also in Clang) splits it into
 // whatever vector registers the target has: two with AVX-512, four with AVX2 or eight with
 // SSE or NEON.
@@ -47,7 +55,7 @@ inline Block load(const Word* p) { return *reinterpret_cast<const Block*>(p); }
 inline void store(Word* p, Block b) { *reinterpret_cast<Block*>(p) = b; }
 
 constexpr int DenseMax = 256;         // primes below this are applied as word patterns
-constexpr int RowWords = DenseMax + 2 * W;   // a pattern's period plus one step, rounded up
+constexpr int RowWords = DenseMax + 2 * GW;  // a pattern's period plus one step, rounded up
 
 constexpr std::array<int, 8> Res = {1, 7, 11, 13, 17, 19, 23, 29};
 // Plane index of n % 30, or -1 when n shares a factor with 30.
@@ -67,7 +75,7 @@ inline std::size_t start_bit(unsigned p, unsigned r, unsigned kmin) {
 
 // Word patterns for a group of up to G primes, built once and shared by all eight planes.
 // Row j holds member j's base pattern: a bit at every multiple of p across one period of p
-// words, extended to L + W words, where the period L is a multiple of p of at least W words.
+// words, extended to L + GW words, where the period L is a multiple of p of at least GW words.
 // Any bit offset of a stride-p pattern is a whole-word rotation of the base pattern, since 64
 // is invertible mod p; tab[j][t] is the rotation that puts a multiple at bit offset t.
 struct Group {
@@ -81,8 +89,8 @@ struct Group {
         for (int j = 0; j < G; j++) {
             Word* row = rows[j];
             if (j >= count) {                    // an unused member: an empty pattern
-                period[j] = W;
-                std::fill_n(row, 2 * W, Word{0});
+                period[j] = GW;
+                std::fill_n(row, 2 * GW, Word{0});
                 continue;
             }
             period[j] = pattern(row, tab[j], primes[j]);
@@ -92,20 +100,20 @@ struct Group {
     // Base pattern for p into row, with its rotation table; returns the period L.
     static std::int64_t pattern(Word* row, std::array<std::int16_t, 64>& tab, int p) {
         int L = p;
-        while (L < W) L += p;
+        while (L < GW) L += p;
         std::fill_n(row, p, Word{0});
         for (int b = 0; b < 64 * p; b += p) {
             row[b >> 6] |= Word{1} << (b & 63);
             tab[b & 63] = std::int16_t(b >> 6);
         }
-        for (int k = p; k < L + W; k++) row[k] = row[k - p];
+        for (int k = p; k < L + GW; k++) row[k] = row[k - p];
         return L;
     }
 };
 
 // Scratch for the wheel phase: one plane's 7x11 period extended by a step, and 13's pattern.
 struct Wheel {
-    alignas(64) Word tile[77 + W];
+    alignas(64) Word tile[77 + GW];
     alignas(64) Word p13[RowWords];
     std::array<std::int16_t, 64> tab13;
 };
@@ -239,7 +247,24 @@ private:
             const std::size_t t = std::size_t(g.tab[j][first[j] % 64]);
             r[j] = t >= back ? t - back : t + period[j] - back;
         }
-        for (std::size_t k = start; k < nw; k += W) {
+        std::size_t k = start;
+        if constexpr (GW > W) {
+            // Two steps per iteration and one phase update per member; the loop below takes
+            // the rest.
+            for (; k + GW <= nw; k += GW) {
+                Block v0 = load(w + k);
+                Block v1 = load(w + k + W);
+                for (int j = 0; j < N; j++) {
+                    v0 |= load(g.rows[j] + r[j]);
+                    v1 |= load(g.rows[j] + r[j] + W);
+                    r[j] += GW;
+                    if (r[j] >= period[j]) r[j] -= period[j];
+                }
+                store(w + k, v0);
+                store(w + k + W, v1);
+            }
+        }
+        for (; k < nw; k += W) {
             Block v = load(w + k);
             for (int j = 0; j < N; j++) {
                 v |= load(g.rows[j] + r[j]);
