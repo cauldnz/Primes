@@ -44,7 +44,11 @@ let[@inline never] sparse_tail b p a nbytes =
    64-bit integers (int64#), so a composite is an add, a load, an OR with a constant and a
    store. OCaml has no byte access indexed by an untagged integer; with tagged ints a byte OR
    costs seven instructions (tag shifts on the index and on the byte). The partial last chunk
-   (sparse_tail) uses plain byte ORs, so nothing is touched past the end of the sieve. *)
+   (sparse_tail) uses plain byte ORs, so nothing is touched past the end of the sieve.
+
+   The loop takes two whole chunks per iteration (sixteen composites, at q + o_k and
+   q + p + o_k), so its add, compare and safepoint poll come once per sixteen ORs; an odd last
+   whole chunk is done on its own before the tail. *)
 let clear b nbytes p =
   let o0 = ref 0 and o1 = ref 0 and o2 = ref 0 and o3 = ref 0
   and o4 = ref 0 and o5 = ref 0 and o6 = ref 0 and o7 = ref 0 in
@@ -65,10 +69,30 @@ let clear b nbytes p =
   let s0 = p * p / 2 / 8 / p * p in
   let chunks = (nbytes - s0) / p in
   let up = u p in
-  let qe = u (s0 + (chunks * p)) in
+  let qe = u (s0 + ((chunks land (-2)) * p)) in
   let mutable q = u s0 in
   while lt_u q qe do
-    markw q o0 1;  (* one composite each *)
+    markw q o0 1;
+    markw q o1 2;
+    markw q o2 4;
+    markw q o3 8;
+    markw q o4 16;
+    markw q o5 32;
+    markw q o6 64;
+    markw q o7 128;
+    let q2 = add_u q up in
+    markw q2 o0 1;
+    markw q2 o1 2;
+    markw q2 o2 4;
+    markw q2 o3 8;
+    markw q2 o4 16;
+    markw q2 o5 32;
+    markw q2 o6 64;
+    markw q2 o7 128;
+    q <- add_u q2 up
+  done;
+  if chunks land 1 = 1 then begin
+    markw q o0 1;
     markw q o1 2;
     markw q o2 4;
     markw q o3 8;
@@ -77,5 +101,5 @@ let clear b nbytes p =
     markw q o6 64;
     markw q o7 128;
     q <- add_u q up
-  done;
+  end;
   sparse_tail b p (Int64.to_int (box q)) nbytes
