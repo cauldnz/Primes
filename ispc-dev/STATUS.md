@@ -4,6 +4,14 @@ Autopilot lock: ap-20261011T1929Z 2026-10-11T19:31Z
 **Last updated:** 2026-10-11 22:00 AEST. Living file; earlier versions are in
 `git log -p ispc-dev/STATUS.md`. Replies go in `ispc-dev/NEXT-STEPS.md`.
 
+## Run 10 hourly review, 08:00 AEST (1.5 h in)
+
+- Worked: OxCaml toolchain built on both architectures in 25 min (switch 347 s Zen 5, 604 s Cobalt); ox-003 SIMD dense copy +60% Zen 5, +41% Zen 3; plain-line ocaml-004 +7%.
+- Didn't: GC tuning (ocaml-002) and dense limit 64 lost at 1T/4T; ox-004 gained 16-22% on x86 but lost 28% on Cobalt, now being split per architecture (ox-008).
+- Protocol: every candidate rebuilt and self-tested here before Azure, diffs read, Cobalt run for shared code; ledger rows and decisions recorded. The first ocaml-kind tasks ran without a profile of OxCaml; fixed by ox-005.
+- Spend NZ$4.61 of NZ$25.
+- Next: sparse is 50% of an OxCaml pass, so ox-007 (loop forms) and ox-008 are the right bets; ox-006 two-run copy on Zen now.
+
 ## Morning report: run ap-20261011T0645Z (16:45 to 22:45 AEST, 11 October)
 
 Six-hour run from RUN-PLAN.md, continuing the previous conversation (no clear). Keep rule: the
