@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T21:17:01Z",
+  "updated_utc": "2026-10-11T21:17:33Z",
   "run": {
     "id": "ap-20261011T1929Z",
     "state": "running",
@@ -2072,11 +2072,6 @@
   ],
   "events": [
     {
-      "utc": "2026-10-11T20:06:59Z",
-      "level": "info",
-      "text": "Waiting on ocaml-002 rounds (Zen 5, Zen 3) and two agents (OxCaml probe, OxCaml port); next tick 20:17 UTC."
-    },
-    {
       "utc": "2026-10-11T20:07:30Z",
       "level": "decision",
       "text": "ox-001: accept the probe; notes into ispc-dev/ocaml/OXCAML-NOTES.md; pass SIMD facts to the port agent. Why: checked the diff: notes, probe sources and short assembly listings only, nothing private. Key for the port: 256-bit OR via caml_avx_vec256_or with %caml_bytes_getu256u, a C stub file for the builtins, AVX2 enabled by default when the compiler is built on an AVX2 machine.",
@@ -2435,6 +2430,16 @@
       "level": "info",
       "text": "ox-009 (oxcaml) running: ",
       "auto": true
+    },
+    {
+      "utc": "2026-10-11T21:17:33Z",
+      "level": "decision",
+      "text": "ox-010: background agent: two-runs-per-step in OxCaml's scalar (Arm) dense loop, borrowed from ocaml-004; decided on Cobalt alone because x86 binaries stay byte-identical. Why: Cobalt is where OxCaml is furthest behind (7.3k vs Rust 42.9k) and the scalar dense copy is 55% of its pass; the same change gave +23% on Cobalt in the plain line. An Arm-only change can't move the Zens, so I apply the target-specific rule and flag the call for Chris. Passed over: untagged int64# scalar dense (part of ox-004, which also carried the losing word OR). Expect: Cobalt +10% to +25%.",
+      "id": "ox-010",
+      "what": "background agent: two-runs-per-step in OxCaml's scalar (Arm) dense loop, borrowed from ocaml-004; decided on Cobalt alone because x86 binaries stay byte-identical",
+      "why": "Cobalt is where OxCaml is furthest behind (7.3k vs Rust 42.9k) and the scalar dense copy is 55% of its pass; the same change gave +23% on Cobalt in the plain line. An Arm-only change can't move the Zens, so I apply the target-specific rule and flag the call for Chris",
+      "instead": "untagged int64# scalar dense (part of ox-004, which also carried the losing word OR)",
+      "expect": "Cobalt +10% to +25%"
     }
   ],
   "research": {
