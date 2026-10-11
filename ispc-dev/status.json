@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T07:58:19Z",
+  "updated_utc": "2026-10-11T08:07:34Z",
   "run": {
     "id": "ap-20261011T0645Z",
     "state": "running",
@@ -1702,6 +1702,39 @@
       "hypothesis": "solution_3: read fewer table bytes per pass (patterns without the stored extension, or rotations computed), for 32 KB-L1 machines",
       "plain": "If the tables wheel reads less table data each pass, then it competes less with the sieve for the small fast cache on most machines, because sieve and tables together overflow it.",
       "note": "hc/solution3-compact b48ee0a: one period stored per pattern, extended per pass in a scratch region (13-17 KB); table bytes read per pass 73.3 KB -> 59.4 KB (-19%), but 61.5 KB of scratch writes per pass. Self-test, Docker stage, sweep 0 bad x3 targets. Local -1% to -5%. Zen 3 (the 32 KB target) + Zen 5 6 rounds against solution_3"
+    },
+    {
+      "id": "fold-zen5",
+      "entry": "base",
+      "tier": "extra-faithful",
+      "kind": "novel",
+      "verdict": "running",
+      "hypothesis": "Chris: gate fold-1pc's 16-lane dense path on Zen 5 (AMD family 1Ah) as well as one thread per core; 8-lane everywhere else",
+      "prediction": "Zen 4 and Intel within ±0.5% of 1551635 at 1T/4T; Zen 5 +7.5% holds",
+      "plain": "If the base uses its widest code only on the chip where it helps, then no other chip loses, because the slowdown came from chips that run 512-bit work more slowly.",
+      "note": "hc/fold-zen5 d882ed5: family read from /proc/cpuinfo (vendor AuthenticAMD and cpu family 26; the base stays all-ISPC with C-library calls only); parser tested on family 26/25/Intel/missing file; self-test in auto, FOLD=0, FOLD=1; README sentence added. 6 rounds against 1551635 on D16as_v6 (Zen 4), D16s_v5 (Intel), D16as_v7 (Zen 5)"
+    },
+    {
+      "id": "r9-cpp-wheel",
+      "entry": "cpp-wheel",
+      "tier": "extra-faithful",
+      "kind": "borrowed",
+      "verdict": "running",
+      "hypothesis": "C++ wheel: group-loop rows read through one base pointer with per-member wrap limits (ISPC's shape), removing per-row pointer spills",
+      "prediction": "+1% to +4% at 1T",
+      "plain": "If the C++ wheel reads all its pattern rows from one place, then it stops shuffling pointers in and out of memory in its busiest loop, because that is what the faster ISPC loop does.",
+      "note": "hc/port-cpp-wheel-r9 e0ca8df; local phase split: group passes C++ 64.0k vs ISPC 60.6k (the losing phase); self-test and sweep match; steady local pairs +1% to +7%. Zen 5 + Zen 3 6 rounds"
+    },
+    {
+      "id": "r9-rust-wheel-group",
+      "entry": "rust-wheel",
+      "tier": "extra-faithful",
+      "kind": "novel",
+      "verdict": "running",
+      "hypothesis": "Rust wheel group loop: hoist bounds checks out of the loop (asserts before, raw pointers inside); 170 -> 93 instructions per 32 words on Zen 5, ORs fuse into vpternlog",
+      "prediction": "+5% to +10% at 1T (group passes 28.9k of 75.9k cycles)",
+      "plain": "If the Rust wheel checks its array bounds once before its busiest loop instead of every step, then the loop gets much shorter, because the checks were forcing values out of registers.",
+      "note": "hc/port-rust-wheel-group 47d9afd; self-test incl. sweep (DENSE_MAX 17/1024) 0 wrong; local median 1.14x over 11 noisy pairs. Zen 5 + Zen 3 6 rounds"
     }
   ],
   "azure_queue": 0,
@@ -1711,33 +1744,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T04:39:34Z",
-      "level": "info",
-      "text": "Run ap-20261011T0100Z stopped: all pools deleted, spend NZ.31. Base 330b3d4 beats mike-barber by 10.44% ± 0.11 at 1T on Zen 5 (20/20). Morning report in STATUS.md, retrospective in RETRO.md."
-    },
-    {
-      "utc": "2026-10-11T04:39:51Z",
-      "level": "warn",
-      "text": "Redacted the Batch account name from an older STATUS.md line (it remains in git history; flagged for Chris)."
-    },
-    {
-      "utc": "2026-10-11T04:39:57Z",
-      "level": "info",
-      "text": "Run ap-20261011T0100Z is stopped; spend NZ$6.31.",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T04:39:57Z",
-      "level": "info",
-      "text": "sb-base-z5-20-new (base) confirmed: Scoreboard: hc/champion 330b3d4 base against mike-barber on Zen 5, 20 paired rounds",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T06:43:57Z",
-      "level": "info",
-      "text": "Run ap-20261011T0645Z started. Keep rule in force: per-thread (HILL-CLIMB.md, Chris 11 Oct 16:50): decide on passes/s/thread at 1T and 4T on Zen 5 and Zen 3 (lower bound >= +1% at 1T or 4T, neither losing 1%+); Intel AVX2 and Cobalt are gates; all-threads recorded, not decided. Azure on the cached login; NZ$25 cap; 6 h; no clear (continues run 8's conversation)."
-    },
     {
       "utc": "2026-10-11T06:43:58Z",
       "level": "info",
@@ -2049,6 +2055,38 @@
       "utc": "2026-10-11T07:58:10Z",
       "level": "info",
       "text": "Phase 0 done: verdict line, 4T line merged (hc/champion 55be5a9), solution_3 kept (hc/champion-tables 4a42d98), fold-1pc AVX-512 losses reported, build outputs off the champion."
+    },
+    {
+      "utc": "2026-10-11T08:07:34Z",
+      "level": "info",
+      "text": "Chris: gate fold-1pc on Zen 5 only (AMD family 1Ah) plus one-thread-per-core; re-check Zen 4, Intel and Zen 5; same gate for r9-cpp-base if kept. Built hc/fold-zen5 d882ed5; three 6-round checks queued."
+    },
+    {
+      "utc": "2026-10-11T08:07:34Z",
+      "level": "decision",
+      "text": "fold-zen5: read the family from /proc/cpuinfo instead of CPUID. Why: ISPC has no cpuid intrinsic and the base is all ISPC with C-library calls only; /proc/cpuinfo keeps that true, and any failure falls back to the 8-lane path. Passed over: a C helper with __get_cpuid (would add a C file to the entry).",
+      "id": "fold-zen5",
+      "what": "read the family from /proc/cpuinfo instead of CPUID",
+      "why": "ISPC has no cpuid intrinsic and the base is all ISPC with C-library calls only; /proc/cpuinfo keeps that true, and any failure falls back to the 8-lane path",
+      "instead": "a C helper with __get_cpuid (would add a C file to the entry)"
+    },
+    {
+      "utc": "2026-10-11T08:07:34Z",
+      "level": "info",
+      "text": "fold-zen5 (base) running: Chris: gate fold-1pc's 16-lane dense path on Zen 5 (AMD family 1Ah) as well as one thread per core; 8-lane everywhere else",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T08:07:34Z",
+      "level": "info",
+      "text": "r9-cpp-wheel (cpp-wheel) running: C++ wheel: group-loop rows read through one base pointer with per-member wrap limits (ISPC's shape), removing per-row pointer spills",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T08:07:34Z",
+      "level": "info",
+      "text": "r9-rust-wheel-group (rust-wheel) running: Rust wheel group loop: hoist bounds checks out of the loop (asserts before, raw pointers inside); 170 -> 93 instructions per 32 words on Zen 5, ORs fuse into vpternlog",
+      "auto": true
     }
   ],
   "research": {
