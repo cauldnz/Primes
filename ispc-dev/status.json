@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T10:06:30Z",
+  "updated_utc": "2026-10-11T10:07:03Z",
   "run": {
     "id": "ap-20261011T0645Z",
     "state": "running",
@@ -1780,20 +1780,24 @@
       "entry": "zig-base",
       "tier": "faithful",
       "kind": "borrowed",
-      "verdict": "running",
+      "verdict": "REVERT",
       "hypothesis": "Zig base: 16 lanes per dense step on Zen 5 only (fold-1pc gate)",
       "plain": "If the Zig base marks small factors 1024 bits at a time on Zen 5, as the ISPC base does, then it gains a few percent there, because Zen 5 runs 512-bit operations at full width.",
-      "note": "hc/zig-base-wide 13edc68: dense resetter at twice the step width (VBW = 2 VB) on Zen 5 with one thread per core; PRIMES_WIDE override; self-test on/off. Caveat: Zig 0.13 has no znver5 and never sets evex512 there, so Zen 5 already runs 16-word steps as 256-bit ops; this doubles them. Zen 5 + Zen 3 6 rounds vs a90b985"
+      "note": "hc/zig-base-wide 13edc68: dense resetter at twice the step width (VBW = 2 VB) on Zen 5 with one thread per core; PRIMES_WIDE override; self-test on/off. Caveat: Zig 0.13 has no znver5 and never sets evex512 there, so Zen 5 already runs 16-word steps as 256-bit ops; this doubles them. Zen 5 + Zen 3 6 rounds vs a90b985",
+      "zen5": "-8.9% ± 0.7 1T, -8.7% ± 1.0 4T (0/6)",
+      "zen3": "-2.0% ± 0.4 1T, -2.1% ± 0.1 4T (0/6, narrow path; code layout)"
     },
     {
       "id": "r9-rust-wheel-combo",
       "entry": "rust-wheel",
       "tier": "extra-faithful",
       "kind": "novel",
-      "verdict": "running",
+      "verdict": "KEEP",
       "hypothesis": "Rust wheel: group-loop bounds hoist (47d9afd) on top of the pattern fix (df94b47)",
       "plain": "If both kept Rust wheel changes go in together, their gains add, because they speed up different phases.",
-      "note": "hc/port-rust-wheel-combo a8d9f07 (clean merge); self-test 0 wrong. Zen 5 + Zen 3 6 rounds vs df94b47"
+      "note": "hc/port-rust-wheel-combo a8d9f07 (clean merge); self-test 0 wrong. Zen 5 + Zen 3 6 rounds vs df94b47",
+      "zen5": "+13.2% ± 2.0 1T, +13.9% ± 0.8 4T, +7.6% 16T (6/6)",
+      "zen3": "+10.1% ± 6.7 1T, +7.6% ± 2.2 4T, +6.9% 16T (6/6)"
     },
     {
       "id": "r9-zig-tables-group",
@@ -1813,35 +1817,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T07:29:14Z",
-      "level": "info",
-      "text": "p-cpp-wheel-clang-idea12-r9 rejected.. REVERT under the per-thread rule: means at about +1.0%, lower bounds +0.7-0.8% at 1T/4T after 16 rounds; cannot clear +1%. Reverted on hc/port-cpp-wheel-champion (bf7619a = 3c98356 code). The run-8 KEEP was decided on 16T (old rule)",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T07:33:44Z",
-      "level": "decision",
-      "text": "s1-base-codesize: submit the generic dense loop on Zen 5, Zen 3 and Cobalt. Why: the code-size finding is large (3x L1i on x86) and local Xeon results have misled before; Cobalt included because the NEON code changes (and it is the planned Cobalt idea). Expect: Zen 3 -2% to +3%; Cobalt 0 to +2%.",
-      "id": "s1-base-codesize",
-      "what": "submit the generic dense loop on Zen 5, Zen 3 and Cobalt",
-      "why": "the code-size finding is large (3x L1i on x86) and local Xeon results have misled before; Cobalt included because the NEON code changes (and it is the planned Cobalt idea)",
-      "expect": "Zen 3 -2% to +3%; Cobalt 0 to +2%"
-    },
-    {
-      "utc": "2026-10-11T07:34:26Z",
-      "level": "decision",
-      "text": "run: start agents r9-rust-base-dense (Rust's share: dense phase per the Zen 5 profile) and s1-tables-compact (stream 1 step 3). Why: both slots free; neither depends on the size-cliff result; the wheel candidates of step 2 wait for it.",
-      "id": "run",
-      "what": "start agents r9-rust-base-dense (Rust's share: dense phase per the Zen 5 profile) and s1-tables-compact (stream 1 step 3)",
-      "why": "both slots free; neither depends on the size-cliff result; the wheel candidates of step 2 wait for it"
-    },
-    {
-      "utc": "2026-10-11T07:34:26Z",
-      "level": "info",
-      "text": "r9-rust-base-dense (rust-base) running: Rust base: one change in the dense phase, where the Zen 5 profile put the whole gap to mike-barber",
-      "auto": true
-    },
     {
       "utc": "2026-10-11T07:34:26Z",
       "level": "info",
@@ -2162,6 +2137,35 @@
       "utc": "2026-10-11T09:54:14Z",
       "level": "info",
       "text": "r9-zig-tables-group running.. hc/zig-tables-group 138e074: 13 from PAT via patternGroup(7,11,13), tile in a stack scratch, one tile|13 write per plane; self-test native and baseline. Local 1T +2% vs 0886ddf (noise). Zen 5 + Zen 3 6 rounds vs 0886ddf",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T10:07:03Z",
+      "level": "decision",
+      "text": "r9-rust-wheel-combo: KEEP; hc/port-rust-wheel-champion -> a8d9f07. Why: over the pattern fix alone: Zen 5 4T +13.9% (lower +13.1%), Zen 3 4T +7.6% (lower +5.3%); the two gains add. Expect: Rust wheel now 5% behind the ISPC wheel on Zen 5 at 1T (was 24%).",
+      "id": "r9-rust-wheel-combo",
+      "what": "KEEP; hc/port-rust-wheel-champion -> a8d9f07",
+      "why": "over the pattern fix alone: Zen 5 4T +13.9% (lower +13.1%), Zen 3 4T +7.6% (lower +5.3%); the two gains add",
+      "expect": "Rust wheel now 5% behind the ISPC wheel on Zen 5 at 1T (was 24%)"
+    },
+    {
+      "utc": "2026-10-11T10:07:03Z",
+      "level": "decision",
+      "text": "r9-zig-base-wide: REVERT. Why: Zen 5 -8.9% 1T: Zig 0.13 emits no 512-bit ops on Zen 5 (no evex512), so the wider step only doubles 256-bit work; Zen 3 -2% from the bigger binary.",
+      "id": "r9-zig-base-wide",
+      "what": "REVERT",
+      "why": "Zen 5 -8.9% 1T: Zig 0.13 emits no 512-bit ops on Zen 5 (no evex512), so the wider step only doubles 256-bit work; Zen 3 -2% from the bigger binary"
+    },
+    {
+      "utc": "2026-10-11T10:07:03Z",
+      "level": "info",
+      "text": "r9-zig-base-wide REVERT.. hc/zig-base-wide 13edc68: dense resetter at twice the step width (VBW = 2 VB) on Zen 5 with one thread per core; PRIMES_WIDE override; self-test on/off. Caveat: Zig 0.13 has no znver5 and never sets evex512 there, so Zen 5 already runs 16-word steps as 256-bit ops; this doubles them. Zen 5 + Zen 3 6 rounds vs a90b985",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T10:07:03Z",
+      "level": "info",
+      "text": "r9-rust-wheel-combo KEEP.. hc/port-rust-wheel-combo a8d9f07 (clean merge); self-test 0 wrong. Zen 5 + Zen 3 6 rounds vs df94b47",
       "auto": true
     }
   ],
