@@ -319,6 +319,97 @@ let print_asm () =
       close_in ic;
       flush stdout
 
+(* ox-020: the inner loop of each Storevar.copy_<name> store variant, from the storevar.s
+   that the Dockerfile keeps, as cauldnz-oxcaml-diag;asm;<name> <line>;0;0. The inner loop
+   is the shortest conditional back edge (to a label defined earlier in the function) spanning
+   at least four lines; at most 40 lines are printed from its label to the branch. *)
+let print_var_asm () =
+  let path = match Sys.getenv_opt "DIAG_VAR_ASM" with Some p -> p | None -> "storevar.s" in
+  let emit name l =
+    let l = String.map (fun c -> if c = ';' then ',' else if c = '\t' then ' ' else c) l in
+    Printf.printf "cauldnz-oxcaml-diag;asm;%s %s;0;0\n" name l
+  in
+  match open_in path with
+  | exception Sys_error _ -> print_endline "cauldnz-oxcaml-diag;asm;(no storevar.s);0;0"
+  | ic ->
+      let starts_with pre l =
+        String.length l >= String.length pre && String.sub l 0 (String.length pre) = pre
+      in
+      let skip t =
+        t = "" || starts_with ".loc" t || starts_with ".cfi" t || starts_with ".file" t
+        || starts_with ".type" t || starts_with ".align" t || starts_with ".p2align" t
+      in
+      (* "camlStorevar__copy_<name>_<n>_<m>_code:" -> Some name *)
+      let fn_name l =
+        let pre = "camlStorevar__copy_" in
+        if starts_with pre l && String.ends_with ~suffix:"_code:" l then
+          let rest = String.sub l (String.length pre) (String.length l - String.length pre) in
+          match String.index_opt rest '_' with Some i -> Some (String.sub rest 0 i) | None -> None
+        else None
+      in
+      let flush_fn name lines =
+        let a = Array.of_list (List.rev lines) in
+        let n = Array.length a in
+        let label_at = Hashtbl.create 16 in
+        Array.iteri
+          (fun i t -> if String.ends_with ~suffix:":" t then
+              Hashtbl.replace label_at (String.sub t 0 (String.length t - 1)) i)
+          a;
+        let best = ref None in
+        for i = 0 to n - 1 do
+          let t = a.(i) in
+          if t <> "" && (t.[0] = 'j' || t.[0] = 'b' || t.[0] = 'c' || t.[0] = 't') then begin
+            let toks =
+              String.split_on_char ' '
+                (String.map (fun c -> if c = '\t' || c = ',' then ' ' else c) t)
+              |> List.filter (( <> ) "")
+            in
+            match List.rev toks with
+            | target :: rest when (match List.rev rest with op :: _ -> op <> "jmp" && op <> "b" | [] -> false) -> (
+                match Hashtbl.find_opt label_at target with
+                | Some j when j < i && i - j >= 4 -> (
+                    match !best with
+                    | Some (bj, bi) when bi - bj <= i - j -> ()
+                    | _ -> best := Some (j, i))
+                | _ -> ())
+            | _ -> ()
+          end
+        done;
+        match !best with
+        | None -> emit name "(no loop found)"
+        | Some (j, i) ->
+            for k = j to min i (j + 39) do emit name a.(k) done;
+            if i > j + 39 then emit name "(truncated)"
+      in
+      let cur = ref None and lines = ref [] in
+      let finish () =
+        (match !cur with Some name -> flush_fn name !lines | None -> ());
+        cur := None;
+        lines := []
+      in
+      (try
+         while true do
+           let t = String.trim (input_line ic) in
+           match fn_name t with
+           | Some name -> finish (); cur := Some name
+           | None ->
+               if !cur <> None then
+                 if starts_with ".size" t then finish ()
+                 else if not (skip t || starts_with ".LcamlStorevar" t) then lines := t :: !lines
+         done
+       with End_of_file -> finish ());
+      close_in ic;
+      flush stdout
+
+(* ox-020: time each store variant copying a 4p-word pattern (p = 13) into a 62.5 KB buffer,
+   1000 copies; ns per copy. A variant whose copy is wrong also prints var_<name>_bad. *)
+let bench_vars () =
+  Storevar.bench ~clock:mono_ns ~pat_words:(4 * 13) ~buf_bytes:64000 ~reps:1000
+    ~report:(fun name ns ok ->
+      Printf.printf "cauldnz-oxcaml-diag;var_%s;%.0f;0;0\n" name ns;
+      if not ok then Printf.printf "cauldnz-oxcaml-diag;var_%s_bad;1;0;0\n" name);
+  flush stdout
+
 let sieve_count size =
   let s = create size in
   run s;
@@ -401,5 +492,7 @@ let () =
   in
   diag passes;
   print_asm ();
+  print_var_asm ();
+  bench_vars ();
   (* One normal one-domain run of the untimed loop. *)
   if not (timed_run 1) then exit 1

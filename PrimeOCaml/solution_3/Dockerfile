@@ -8,13 +8,16 @@ COPY amd64 amd64
 COPY scalar scalar
 RUN sh build.sh
 # ox-018: the assembly of the dense copy module that build.sh picked, with the same flags.
+# ox-020: and of the store variants (scalar/storevar.ml).
 RUN case "$(uname -m)" in x86_64|amd64) d=amd64 ;; *) d=scalar ;; esac \
- && mkdir asm && cp $d/dense.ml asm/ && cd asm && ocamlopt -O3 -unsafe -S -c dense.ml
+ && mkdir asm && cp $d/dense.ml scalar/storevar.ml asm/ && cd asm \
+ && ocamlopt -O3 -unsafe -S -c dense.ml && ocamlopt -O3 -unsafe -S -c storevar.ml
 
 FROM ubuntu:24.04
 
 WORKDIR /app
 COPY --from=build /build/primes primes
 COPY --from=build /build/asm/dense.s dense.s
+COPY --from=build /build/asm/storevar.s storevar.s
 
 ENTRYPOINT [ "./primes" ]
