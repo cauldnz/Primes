@@ -28,6 +28,8 @@ const RUN_NS: u64 = 5 * std.time.ns_per_s;
 // capped at 32 words.
 const NATIVE: usize = std.simd.suggestVectorLength(u64) orelse 1;
 const VB: usize = 2 * NATIVE;
+// The base resetter's wide step, used on Zen 5 only (see use_wide).
+const VBW: usize = 2 * VB;
 const VW: usize = @min(8 * NATIVE, 32);
 
 fn Words(comptime n: usize) type {
@@ -52,14 +54,52 @@ fn isqrt(n: u64) u64 {
 
 const DENSE_LIMIT: usize = 128; // odd factors below this get a dense resetter
 
+// Wide dense step: on Zen 5 the dense resetter works through VBW = 2 * VB words per vector
+// instead of VB (32 words with AVX-512 instead of 16). It ports the author's ISPC base entry,
+// where the 16-lane dense routine gained on Zen 5 with one thread per core but lost on Zen 4
+// and Intel, where 512-bit operations are split in two or lower the clock. So it is used on
+// Zen 5 only, and only when each thread can have a core to itself: one thread, or at most half
+// the hardware threads. Everywhere else the VB path runs unchanged. main() and runEntry() set
+// this before any sieve thread starts. PRIMES_WIDE=0 or 1 forces the choice, for tests.
+var use_wide: bool = false;
+var wide_env: ?bool = null;
+var zen5: bool = false;
+var hw_threads: usize = 1;
+
+fn wideFor(n: usize) bool {
+    if (wide_env) |w| return w;
+    return zen5 and (n == 1 or 2 * n <= hw_threads);
+}
+
+// Zen 5 is AMD family 1Ah (26). Read from the start of /proc/cpuinfo, which holds the first
+// processor's block; anything unreadable counts as "not Zen 5".
+fn isZen5() bool {
+    var buf: [8192]u8 = undefined;
+    const file = std.fs.openFileAbsolute("/proc/cpuinfo", .{}) catch return false;
+    defer file.close();
+    const n = file.readAll(&buf) catch return false;
+    const text = buf[0..n];
+    if (std.mem.indexOf(u8, text, "AuthenticAMD") == null) return false;
+    const at = std.mem.indexOf(u8, text, "cpu family") orelse return false;
+    var i = at + "cpu family".len;
+    while (i < text.len and (text[i] == ' ' or text[i] == '\t' or text[i] == ':')) i += 1;
+    var family: usize = 0;
+    var digits: usize = 0;
+    while (i < text.len and text[i] >= '0' and text[i] <= '9') : (i += 1) {
+        family = family * 10 + (text[i] - '0');
+        digits += 1;
+    }
+    return digits > 0 and family == 26;
+}
+
 // Smallest j >= 0 with P/2 + j*P >= lo: the first multiple at or after bit lo.
 fn firstMultiple(comptime P: usize, comptime lo: usize) usize {
     return if (lo <= P / 2) 0 else (lo - P / 2 + P - 1) / P;
 }
 
-// A vector of VB words with one bit set: bit `off` counted across the whole vector.
-fn laneBit(comptime off: usize) Words(VB) {
-    var a = [_]u64{0} ** VB;
+// A vector of V words with one bit set: bit `off` counted across the whole vector.
+fn laneBit(comptime V: usize, comptime off: usize) Words(V) {
+    var a = [_]u64{0} ** V;
     a[off >> 6] = @as(u64, 1) << (off & 63);
     return a;
 }
@@ -67,27 +107,27 @@ fn laneBit(comptime off: usize) Words(VB) {
 // Dense resetter for a compile-time odd factor P. Bit i stands for 2i+1, so the odd multiples
 // of P sit at bits P/2 + j*P. They repeat every P words, 64 to a period, at the same word and
 // bit offsets, so with P known at compile time every offset and mask is a constant.
-// Each word (or vector of VB words) is loaded once, then each composite in it gets its own
-// single-bit OR, then it is stored. LLVM folds the constant ORs.
+// Each word (or vector of V words, V = VB or VBW) is loaded once, then each composite in it
+// gets its own single-bit OR, then it is stored. LLVM folds the constant ORs.
 // Clearing starts at the period holding P*P; the smaller multiples there are composite too,
 // except P itself, which is restored at the end.
-fn denseReset(comptime P: usize, w: []u64) void {
+fn denseReset(comptime P: usize, comptime V: usize, w: []u64) void {
     @setEvalBranchQuota(100_000);
     const len = w.len;
     const ptr = w.ptr;
     var c: usize = ((P * P / 2) / 64 / P) * P;
 
-    // Blocks of VB periods: P vectors of VB consecutive words.
-    while (c + VB * P <= len) : (c += VB * P) {
+    // Blocks of V periods: P vectors of V consecutive words.
+    while (c + V * P <= len) : (c += V * P) {
         inline for (0..P) |vi| {
-            const lo = 64 * VB * vi; // first bit of this vector within the block
+            const lo = 64 * V * vi; // first bit of this vector within the block
             // 3 is always the first factor, so its pass writes each word without reading it.
-            var x = if (P == 3) @as(Words(VB), @splat(0)) else loadV(VB, ptr + c + VB * vi);
+            var x = if (P == 3) @as(Words(V), @splat(0)) else loadV(V, ptr + c + V * vi);
             comptime var j = firstMultiple(P, lo);
-            inline while (P / 2 + j * P < lo + 64 * VB) : (j += 1) {
-                x |= comptime laneBit(P / 2 + j * P - lo); // one composite
+            inline while (P / 2 + j * P < lo + 64 * V) : (j += 1) {
+                x |= comptime laneBit(V, P / 2 + j * P - lo); // one composite
             }
-            storeV(VB, ptr + c + VB * vi, x);
+            storeV(V, ptr + c + V * vi, x);
         }
     }
     if (P == 3) @memset(w[c..], 0); // words after the last block
@@ -180,7 +220,9 @@ const BaseSieve = struct {
             // so nothing is assumed about which numbers are prime.
             switch (p) {
                 inline 3...DENSE_LIMIT - 1 => |P| {
-                    if (P % 2 == 1) denseReset(P, self.words) else unreachable;
+                    if (P % 2 == 1) {
+                        if (use_wide) denseReset(P, VBW, self.words) else denseReset(P, VB, self.words);
+                    } else unreachable;
                 },
                 else => unreachable,
             }
@@ -513,6 +555,7 @@ fn runEntry(comptime S: type, comptime label: []const u8, comptime tags: []const
     var n: usize = 1;
     var next: usize = nthreads;
     while (true) {
+        use_wide = wideFor(n);
         const start = now();
         if (n == 1) {
             jobs[0] = .{ .start = start };
@@ -553,6 +596,13 @@ fn selfTest(comptime S: type, comptime name: []const u8, sizes: []const u64, exp
 }
 
 pub fn main() !void {
+    if (std.posix.getenv("PRIMES_WIDE")) |v| {
+        if (v.len > 0) wide_env = !std.mem.eql(u8, v, "0");
+    }
+    hw_threads = @min(@max(std.Thread.getCpuCount() catch 1, 1), 1024);
+    zen5 = isZen5();
+    use_wide = wideFor(1);
+
     if (std.posix.getenv("PRIMES_TEST")) |v| {
         if (!std.mem.eql(u8, v, "0") and v.len > 0) {
             const pow10 = [_]u64{ 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000 };
