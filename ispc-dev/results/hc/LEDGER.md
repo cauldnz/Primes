@@ -329,3 +329,14 @@ byte-identical to the measured s5-starts-ef, so its Zen intervals stand without 
 self-test passes and SSE4 is +6% locally. Zen 3 is +1.9%: it clears the general rule (lower
 bound +1.3%) but not the 2% that the target-specific rule asks of machines whose code changes;
 flagged for Chris.
+| sb-base-z5-20 | 2026-10-11 | base | Scoreboard at hc/ispc-ref 1551635: ours / mike-barber Rust, Zen 5, paired per round | tie ±1% | | 1T +3.08% ± 0.12 (20/20); 4T +3.18% ± 0.05 (20/20); per thread 25,993 vs 25,225 (1T), 24,268 vs 23,523 (4T) | WIN | `hc/scoreboard-base` |
+| b2-base-fold-1pc | 2026-10-11 | base | F5 x16 fold for the dense loop only when each thread has a core (n = 1 or 2n ≤ hw threads) | +5% to +8% 1T Zen 5 | code unchanged (AVX2, asm identical) | Zen 5: 139.0k / 1.01M, +7.5% ± 0.1 1T, +7.4% 4T and 8T, −0.3% 16T (6/6) | **KEEP**, `hc/champion` 330b3d4 | `hc/b2-base-fold-1pc` |
+| ha-018-full | 2026-10-11 | base | hc-018 (sparse two chunks a trip) on 1551635 | +1% Zen 5 | Zen 3: +0.7% ± 0.2 / +0.3% ± 0.4 | Zen 5: +1.2% ± 0.3 / +1.4% ± 0.3; Cobalt +0.1% / −0.4% | REVERT (Zen 3 under +1%) | `hc/018-base-sparse-x2-on-1551635` |
+| b2-prefetchw (sparse, dense) | 2026-10-11 | base | prefetchw in the sparse chunk loop / dense loop (x86 only) | 0 to +3% | sparse −3.0% | sparse −5.2% / −11.3%; dense −2.4% | REVERT | `hc/b2-base-*-prefetchw` |
+| s5-tables (verify) | 2026-10-11 | wheel (permitted) | fresh-node recheck and Cobalt | | | Zen 5: +23.6% ± 2.5 / +17.0% ± 1.1; Cobalt +13.7% ± 0.2 | **KEEP**, `hc/champion-tables` 90e81f9 | `hc/s5-tables` |
+
+**Base at one thread on Zen 5.** At hc/ispc-ref the base beat mike-barber's Rust by 3.08% ± 0.12
+over 20 paired rounds. The F5 fold, used only when each thread has a core to itself, adds 7.5%
+there with no change on any other target, which puts the champion about 10.5% ahead at 1T; a
+20-round scoreboard of 330b3d4 is running. hc-018 and both prefetches did not survive Zen 3 or
+Zen 5.
