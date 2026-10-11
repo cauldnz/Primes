@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T22:31:47Z",
+  "updated_utc": "2026-10-11T22:32:39Z",
   "run": {
     "id": "ap-20261011T1929Z",
     "state": "running",
@@ -2100,8 +2100,9 @@
       "tier": "permitted",
       "kind": "permitted",
       "plain": "If we time each phase on an Arm machine, then we learn why OxCaml is six times behind Rust there, because two guesses at the Arm loops have not moved it.",
-      "verdict": "running",
-      "commit": "d4f0a7c"
+      "verdict": "confirmed",
+      "commit": "d4f0a7c",
+      "note": "Cobalt: dense copy 561 us/pass = 80% of the pass (Zen 3 AVX: 55 us); sparse 97 us (Zen 3: 85); the Arm gap is the scalar dense copy"
     },
     {
       "id": "ox-013",
@@ -2169,28 +2170,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T21:17:01Z",
-      "level": "info",
-      "text": "ox-009 (oxcaml) running: ",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T21:17:33Z",
-      "level": "decision",
-      "text": "ox-010: background agent: two-runs-per-step in OxCaml's scalar (Arm) dense loop, borrowed from ocaml-004; decided on Cobalt alone because x86 binaries stay byte-identical. Why: Cobalt is where OxCaml is furthest behind (7.3k vs Rust 42.9k) and the scalar dense copy is 55% of its pass; the same change gave +23% on Cobalt in the plain line. An Arm-only change can't move the Zens, so I apply the target-specific rule and flag the call for Chris. Passed over: untagged int64# scalar dense (part of ox-004, which also carried the losing word OR). Expect: Cobalt +10% to +25%.",
-      "id": "ox-010",
-      "what": "background agent: two-runs-per-step in OxCaml's scalar (Arm) dense loop, borrowed from ocaml-004; decided on Cobalt alone because x86 binaries stay byte-identical",
-      "why": "Cobalt is where OxCaml is furthest behind (7.3k vs Rust 42.9k) and the scalar dense copy is 55% of its pass; the same change gave +23% on Cobalt in the plain line. An Arm-only change can't move the Zens, so I apply the target-specific rule and flag the call for Chris",
-      "instead": "untagged int64# scalar dense (part of ox-004, which also carried the losing word OR)",
-      "expect": "Cobalt +10% to +25%"
-    },
-    {
-      "utc": "2026-10-11T21:20:13Z",
-      "level": "info",
-      "text": "ox-010 (oxcaml) running: ",
-      "auto": true
-    },
     {
       "utc": "2026-10-11T21:25:03Z",
       "level": "decision",
@@ -2515,6 +2494,26 @@
       "utc": "2026-10-11T22:31:23Z",
       "level": "info",
       "text": "Three Cobalt jobs marked LOST by collect (the disk-full node's standalone, diag and ox-017 tasks); diag and ox-017 were resubmitted at 22:21."
+    },
+    {
+      "utc": "2026-10-11T22:32:39Z",
+      "level": "info",
+      "text": "ox-012 Cobalt profile (champion 4f1ba99, scalar kernels): dense copy 561 us per pass (80%), sparse 97 us (14%), pattern build 23 us, total 699 us. Zen 3 for comparison: dense copy 55 us, sparse 85 us. Arm64 OxCaml allows unaligned access (backend/arm64/arch.ml at tag 5.2.0minus-39), so the loads should be single instructions; next, ox-018 checks for allocation and dumps the Arm assembly."
+    },
+    {
+      "utc": "2026-10-11T22:32:39Z",
+      "level": "decision",
+      "text": "ox-018: background agent: diag build that reports words allocated per pass and prints the Arm assembly of the scalar dense loop, run on Cobalt. Why: the Arm dense copy costs 8 cycles a word against about 2 for the same source on x86; the cheapest test of the boxing suspicion is Gc counters plus the compiled loop from the Arm node. Passed over: guessing another Arm loop form.",
+      "id": "ox-018",
+      "what": "background agent: diag build that reports words allocated per pass and prints the Arm assembly of the scalar dense loop, run on Cobalt",
+      "why": "the Arm dense copy costs 8 cycles a word against about 2 for the same source on x86; the cheapest test of the boxing suspicion is Gc counters plus the compiled loop from the Arm node",
+      "instead": "guessing another Arm loop form"
+    },
+    {
+      "utc": "2026-10-11T22:32:39Z",
+      "level": "info",
+      "text": "ox-012 confirmed.. Cobalt: dense copy 561 us/pass = 80% of the pass (Zen 3 AVX: 55 us); sparse 97 us (Zen 3: 85); the Arm gap is the scalar dense copy",
+      "auto": true
     }
   ],
   "research": {
