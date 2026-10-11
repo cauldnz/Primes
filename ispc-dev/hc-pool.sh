@@ -12,7 +12,7 @@
 # Usage (needs SUB, az logged in; run from anywhere in the repo):
 #   hc-pool.sh up <size> [maxnodes=2] [minutes=240]     create the pool (idempotent)
 #   hc-pool.sh run <size> <kind> <cand-ref> <champ-ref> <outdir> [rounds=5]
-#        kind: wheel | base | rust | zig | board. Submits one task and follows it until it completes,
+#        kind: wheel | base | rust | zig | port | board (port: see PORT_DIR in cmd_submit). Submits one task and follows it until it completes,
 #        copying its stdout to <outdir>/<size>.txt as it grows.
 #   hc-pool.sh submit <size> <kind> <cand-ref> <champ-ref> <outdir> [rounds=5]
 #        Same as run, but returns as soon as the task is queued. The task is recorded in
@@ -72,7 +72,7 @@ export DOCKER_BUILDKIT=1
 lscpu | grep -E "Model name|^CPU\(s\)|^Architecture" || true
 grep -q avx512f /proc/cpuinfo && echo "AVX-512: yes" || echo "AVX-512: no"
 echo "kind=$KIND rounds=$ROUNDS id=$ID"
-for d in cand champ ctx; do
+for d in cand champ ctx ctx3; do
   [ -d "$STAGE/$d" ] || continue
   echo "build $d"; docker build -q -t "$d-$ID" "$STAGE/$d" >/dev/null || { echo "!!! build $d failed"; exit 3; }
 done
@@ -81,7 +81,7 @@ if [ -f "$STAGE/builds" ]; then   # board kind: upstream entries, built from the
     echo "build $img ($dir)"; ( cd /root/Primes && docker build -q -t "$img" "$dir" >/dev/null ) || echo "!!! build $img failed"
   done < "$STAGE/builds"
 fi
-cleanup() { docker rmi -f "cand-$ID" "champ-$ID" "ctx-$ID" >/dev/null 2>&1 || true; }
+cleanup() { docker rmi -f "cand-$ID" "champ-$ID" "ctx-$ID" "ctx3-$ID" >/dev/null 2>&1 || true; }
 trap cleanup EXIT
 if [ -n "$SELFTEST" ]; then
   for i in cand champ; do
@@ -192,7 +192,21 @@ cmd_submit() {
            ctx_from "$CTRL_REF" "PrimeISPC/$SOL" "$S/ctx"
            printf '%s\n' "cand|cand-@ID||^cauldnz-zig-$E;" "champ|champ-@ID||^cauldnz-zig-$E;" \
              "champ2|champ-@ID||^cauldnz-zig-$E;" 'ctrl|ctx-@ID||;' > "$S/spec"
-           [ "$E" = base ] && printf '%s\n' 'ctrl2|davepl|dummy -l 1000000 -t 1|^davepl' 'ctrl2|davepl|dummy -l 1000000|^davepl' >> "$S/spec" ;;
+           [ "$E" = base ] && printf '%s\n' 'ctrl2|davepl|dummy -l 1000000 -t 1|^davepl' 'ctrl2|davepl|dummy -l 1000000|^davepl' >> "$S/spec"
+           [ "$E" = wheel ] && [ -n "$X86" ] && echo 'ctrl2|c5||^rogiervandam_extend(_epar)?;' >> "$S/spec" ;;
+    port)  # a port of our design to another language (RUN-PLAN stream 1). PORT_DIR (e.g. PrimeCPP/solution_7),
+           # PORT_FILTER (its label regex), DESIGN wheel|base (ctrl = our ISPC entry of that design at
+           # CTRL_REF), RIVAL rust|davepl|c5 (ctrl2 = the language's best existing entry, or the C wheel).
+           : "${PORT_DIR:?}" "${PORT_FILTER:?}" "${DESIGN:?}" "${RIVAL:?}"
+           ctx_from "$CAND" "$PORT_DIR" "$S/cand"; ctx_from "$CHAMP" "$PORT_DIR" "$S/champ"
+           local ISOL=solution_2; [ "$DESIGN" = wheel ] && ISOL=solution_1
+           ctx_from "$CTRL_REF" "PrimeISPC/$ISOL" "$S/ctx"; SELF=${PORT_SELFTEST-1}
+           printf '%s\n' "cand|cand-@ID||$PORT_FILTER" "champ|champ-@ID||$PORT_FILTER" "champ2|champ-@ID||$PORT_FILTER" 'ctrl|ctx-@ID||;' > "$S/spec"
+           case "$RIVAL" in
+             rust)   echo 'ctrl2|rust|--bits-extreme|^mike-barber_bit-extreme-hybrid;' >> "$S/spec" ;;
+             davepl) printf '%s\n' 'ctrl2|davepl|dummy -l 1000000 -t 1|^davepl' 'ctrl2|davepl|dummy -l 1000000|^davepl' >> "$S/spec" ;;
+             c5)     [ -n "$X86" ] && echo 'ctrl2|c5||^rogiervandam_extend(_epar)?;' >> "$S/spec" ;;
+           esac ;;
     board) # leaderboard check: our two entries (cand = base at CAND, champ = wheel at CHAMP) and
            # the top faithful entries, each run with its image's default command, as the official
            # benchmark does. Summarise with tools/board.py, not analyze.py.
@@ -208,6 +222,9 @@ cmd_submit() {
            [ -n "$X86" ] && echo 'c5|c5||^rogiervandam_extend;' >> "$S/spec" ;;
     *) echo "unknown kind $KIND" >&2; exit 2 ;;
   esac
+  # RIVAL3_REF (wheel or zig wheel): a third control, crishoj's 210-wheel (PrimeZig/solution_5 of upstream PR 1094)
+  if [ -n "${RIVAL3_REF:-}" ]; then ctx_from "$RIVAL3_REF" PrimeZig/solution_5 "$S/ctx3"
+    echo 'ctrl3|ctx3-@ID||^crishoj_wheel' >> "$S/spec"; fi
   if [ "$KIND" != zig ] && diff -rq "$S/cand" "$S/champ" >/dev/null; then echo "!!! candidate equals champion"; exit 1; fi
   { echo "kind=$KIND cand=$(git -C "$REPO" rev-parse --short "$CAND") champ=$(git -C "$REPO" rev-parse --short "$CHAMP") ctrl_ref=$CTRL_REF"; } > "$OUT/$SIZE.meta"
   printf '%s' "$TASK" > "$S/run.sh"

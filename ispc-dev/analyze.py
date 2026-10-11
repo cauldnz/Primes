@@ -42,6 +42,7 @@ def parse(path):
             parts = line.split(";")
             if rnd and rnd != "warmup" and len(parts) == 5 and parts[1].isdigit():
                 rounds[rnd][label][int(parts[3])] = int(parts[1])
+                RATES[path][label][int(parts[3])].append(int(parts[1]) / float(parts[2]) / int(parts[3]))
     return machine, rounds
 
 
@@ -53,6 +54,25 @@ T95 = {1: 12.71, 2: 4.30, 3: 3.18, 4: 2.78, 5: 2.57, 6: 2.45, 7: 2.36, 8: 2.31, 
 THRESH = 0.01      # keep when the 95% interval's lower end clears +1% on both deciding machines
 REGRESS = 0.01     # revert when any machine or thread count loses 1% or more on the mean
 MAX_ROUNDS = 20    # stop adding rounds here
+
+
+# passes per second per thread, per file, label and thread count: the official multi-thread
+# table ranks by this (upstream tools/src/formatters/table.ts).
+RATES = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
+LABELS = ("cand", "champ", "champ2", "ctrl", "ctrl2", "ctrl3")
+
+
+def per_thread_table(path):
+    r = RATES.get(path)
+    if not r:
+        return
+    labs = [l for l in LABELS if l in r and l != "champ2"]
+    ts = sorted({t for l in labs for t in r[l]})
+    print("\nPer thread (passes / s / thread, median over counted rounds; the leaderboard's multi-thread sort key):\n")
+    print("| threads | " + " | ".join(labs) + " |")
+    print("|---|" + "---|" * len(labs))
+    for t in ts:
+        print(f"| {t} | " + " | ".join(f"{statistics.median(r[l][t]):.0f}" if r[l].get(t) else "-" for l in labs) + " |")
 
 
 def ci95(xs):
@@ -81,7 +101,7 @@ def summarise(path):
         series = defaultdict(list)
         ratios = defaultdict(list)
         for r in rounds.values():
-            v = {lab: r[lab].get(t) for lab in ("cand", "champ", "champ2", "ctrl", "ctrl2")}
+            v = {lab: r[lab].get(t) for lab in LABELS}
             for lab, x in v.items():
                 if x:
                     series[lab].append(x)
@@ -93,6 +113,8 @@ def summarise(path):
                 ratios["cand/ctrl"].append(v["cand"] / v["ctrl"])
             if v["cand"] and v["ctrl2"]:
                 ratios["cand/ctrl2"].append(v["cand"] / v["ctrl2"])
+            if v["cand"] and v["ctrl3"]:
+                ratios["cand/ctrl3"].append(v["cand"] / v["ctrl3"])
         out["metrics"][t] = (series, ratios)
     return out
 
@@ -106,8 +128,8 @@ def main(paths):
     noisy = []
     for res in results:
         print(f"\n### {res['machine']}  ({res['rounds']} scored rounds, {res['file']})\n")
-        print("| threads | cand | champ | champ2 | ctrl | ctrl2 | cand/champ median (range) | mean ± 95% CI (SD) | rounds won | A/A spread | cand/ctrl | cand/ctrl2 |")
-        print("|---|---|---|---|---|---|---|---|---|---|---|---|")
+        print("| threads | cand | champ | champ2 | ctrl | ctrl2 | cand/champ median (range) | mean ± 95% CI (SD) | rounds won | A/A spread | cand/ctrl | cand/ctrl2 | ctrl3 | cand/ctrl3 |")
+        print("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|")
         tmax = max(res["metrics"]) if res["metrics"] else 1
         for t, (series, ratios) in sorted(res["metrics"].items()):
             med = {lab: statistics.median(s) for lab, s in series.items() if s}
@@ -127,7 +149,9 @@ def main(paths):
             ctrl = pct(statistics.median(ratios["cand/ctrl"])) if ratios["cand/ctrl"] else "n/a"
             ctrl2 = pct(statistics.median(ratios["cand/ctrl2"])) if ratios["cand/ctrl2"] else "n/a"
             print(f"| {t} | " + " | ".join(kfmt(med[l]) if l in med else "-" for l in ("cand", "champ", "champ2", "ctrl", "ctrl2"))
-                  + f" | {pct(gain)} ({pct(min(cc))} to {pct(max(cc))}) | {ci_txt} | {won}/{len(cc)} | {aa_txt} | {ctrl} | {ctrl2} |")
+                  + f" | {pct(gain)} ({pct(min(cc))} to {pct(max(cc))}) | {ci_txt} | {won}/{len(cc)} | {aa_txt} | {ctrl} | {ctrl2} | "
+                  + (kfmt(med["ctrl3"]) if "ctrl3" in med else "-") + " | "
+                  + (pct(statistics.median(ratios["cand/ctrl3"])) if ratios["cand/ctrl3"] else "n/a") + " |")
             if mu < worst[0]:
                 worst = (mu, f"{res['machine']} {t}T")
             if t in (1, tmax) and hw == hw:
@@ -135,6 +159,7 @@ def main(paths):
                 key = res["machine"]
                 if key not in deciding or cand[0] > deciding[key][0]:
                     deciding[key] = cand
+        per_thread_table(res["file"])
 
     names = " ".join(r["machine"] for r in results)
     need = {"Zen 3": "7763|7V73|Zen 3", "Zen 5": "9V45|9005|Zen 5"}
