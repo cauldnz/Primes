@@ -1,0 +1,14 @@
+Architecture:                            x86_64
+CPU(s):                                  16
+Model name:                              AMD EPYC 9V45 96-Core Processor
+BIOS Model name:                         AMD EPYC 9V45 96-Core Processor                 None CPU @ 2.6GHz
+AVX-512: yes
+kind=ocaml rounds=5 id=22094027519
+oxcaml image loaded in 55 s
+build cand
+build cand seconds: 73
+build champ
+build champ seconds: 4
+build ctx
+build ctx seconds: 45
+build gk1 (PrimeOCaml/solution_1)
