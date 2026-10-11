@@ -105,31 +105,61 @@ record the numbers.
 F4 (`PRIMES_DENSE_MAX` 384, 512, 640, wheel), then F6 (AVX-512 off at 96 threads) if the 96-vCPU
 node is up for something else anyway. Nothing grey this run beyond porting F1.
 
-## Stream 5 (phase 1, profile first): precomputed tables for the wheels
+## How faithful, and whose idea: two labels on every keep
+
+Chris (11 October): try everything the rules permit, but show how far the entries get while
+staying extra-faithful, and make clear where our own ideas bought the gains.
+
+- **Faithfulness tier**, on every experiment (`tier` in status.json and the ledger):
+  - `extra-faithful`: the program computes everything itself, at run time, on every pass; no
+    prime-specific tables built ahead of time. `hc/champion` stays extra-faithful.
+  - `permitted`: allowed by the rules but beyond that, such as precomputed wheel tables. These go
+    on their own lineage, `hc/champion-tables` (branched from `hc/champion`), never on
+    `hc/champion`.
+  - `grey`: a rules question is open (F1, F2): `hc/champion-grey`, as now.
+- **Source of the idea** (`kind`): `novel` (ours; no existing entry we know of does it),
+  `borrowed` (from another entry or language, named), `tuning` (a parameter sweep), `permitted`
+  (a shortcut the rules allow). Say which entry a borrowed idea came from. The morning report
+  totals the gain by kind, so it's clear what our own ideas were worth.
+
+## Stream 5 (phase 1, profile first): precomputed tables for the wheels (`permitted`)
 
 The contest defines a wheel as an algorithm that takes "a (pre)calculated set of prime numbers
 within a certain base number range" and projects it onto the sieve, and the merged Zig wheel
 (`PrimeZig/solution_3`, tagged faithful) builds its tables at compile time. Our ISPC wheel
-recomputes, on every pass, each large prime's first multiple in each of the 8 planes (`start_bit`)
-and each small prime's group pattern.
+recomputes, on every pass, each large prime's first multiple in each of the 8 planes
+(`start_bit`) and each small prime's group pattern.
 
 1. Profile first, one Zen 5 node: TSC split of a wheel pass into start-offset computation, pattern
    building, group passes, tile and sparse marks. Predict before looking: start offsets and
-   pattern building together 5% to 15% of a pass.
-2. Only if they are 5% or more: build the large primes' per-plane start offsets (and, if the
-   profile says so, the small primes' patterns) as static tables generated at build time, with
-   the run-time path kept for any prime beyond the tables, so every sieve size still works and
-   the 5,396-size sweep still passes. Watch L1: tables that evict the sieve can cost more than
-   they save. Tag stays `algorithm=wheel,faithful=yes`; the README says what is precomputed.
-3. The same idea in the Zig wheel uses `comptime`, exactly as `PrimeZig/solution_3` does: a good
-   phase 2 experiment for Zig.
+   pattern building together 5% to 15% of a pass. The profile is useful whatever happens next:
+   it also says what an extra-faithful speed-up of those two jobs is worth.
+2. Only if they are 5% or more: tables generated at build time, with the run-time path kept for
+   any prime beyond them, so every sieve size works and the 5,396-size sweep passes. Watch L1.
+   On `hc/champion-tables` only. The README would say what is precomputed.
+3. In Zig the same thing is `comptime`, as `PrimeZig/solution_3` does: a phase 2 experiment on a
+   Zig tables lineage.
 
-Not this run: a bigger wheel (mod 210 or 2310) so that two SMT siblings' sieves fit one L1. It is
-a redesign; write it up in `IDEAS.md` with a prediction instead.
+## Stream 6 (agent in phase 1, measured in phase 2): a bigger wheel, extra-faithful
+
+Our mod-30 wheel keeps 8 planes, 33KB at one million; two sieves sharing a core overflow Zen 5's
+48KB L1, which is where the wheel loses 4% to 6% with every thread busy. A mod-210 wheel (48
+residues, about 29KB) or mod-2310 (480 residues, about 26KB) shrinks the sieve, and the small
+end of the factor range gets cheaper too.
+
+1. Write the prediction first in `IDEAS.md`: which wheel, the sieve size at one million, and the
+   expected change at one thread and at all threads on Zen 5 and Zen 3.
+2. A background agent builds it as `hc/wheel-210` (or 2310), everything computed at run time,
+   passing the 5,396-size sweep. Prototype in whichever of ISPC or Zig gets there faster; port
+   the winner.
+3. Measure in phase 2 against `hc/champion`. Note crishoj's 210 wheel (PR 1094) was not faster
+   than ours locally, so the design, not the modulus alone, has to carry it.
 
 ## Morning report additions
 
-Lead with stream 1, as a table per design: ISPC, Zig, C++, Rust at the start and end of the run,
+Open with the gain by kind (novel, borrowed, tuning, permitted, grey) for each entry since the
+climb began, from the ledger, so the report says plainly what our own ideas bought. Then
+lead with stream 1, as a table per design: ISPC, Zig, C++, Rust at the start and end of the run,
 one thread and all threads, Zen 5 and Zen 3, with each language's best existing entry beside it.
 Then the generalisation record above, then stream 2's per-thread table, stream 3's numbers, and
 tokens per experiment for this run against the last two.
