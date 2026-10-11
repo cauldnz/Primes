@@ -29,13 +29,15 @@ Bit `m` of plane `R` stands for `30m + R`, for the eight residues `R` coprime to
 
 1. Multiples of 7 and 11 repeat every 77 words in every plane. The program marks one 77-word tile and copies it along each plane.
 2. 13 is applied on its own as a word pattern. After that, every bit below 17² is final, so the program can read candidates from the sieve itself.
-3. Primes below 256 are applied in groups of eight. The program builds each prime's pattern once, then makes one pass over each plane, loading each vector of sieve words once and ORing in all eight patterns. Larger primes set single bits, with all eight planes advancing in one loop.
+3. Primes below 256 are applied in groups of eight. Each prime's pattern comes from a compile-time table (see Faithfulness); the program makes one pass over each plane, loading each vector of sieve words once and ORing in all eight patterns. Larger primes set single bits, with all eight planes advancing in one loop.
 
 The fused loop works in 16 words at a time on SSE2 and NEON and 32 with AVX2 or AVX-512. Each step updates one scalar phase per pattern, and wider steps spread that cost: on the Xeon below, an SSE2 build ran 18% faster with eight words per step than with four, and 16 did no worse than eight.
 
 ### Faithfulness
 
-All of a sieve's state lives in a struct, `BaseSieve` or `WheelSieve`; Zig has no classes, and a struct with methods is the nearest equivalent. For the wheel this includes the pattern scratch space. Every pass creates a new instance, which allocates its buffers at run time, sized from the sieve size, and frees them at the end. Nothing is precomputed or carried from one pass to the next.
+All of a sieve's state lives in a struct, `BaseSieve` or `WheelSieve`; Zig has no classes, and a struct with methods is the nearest equivalent. Every pass creates a new instance, which allocates its buffers at run time, sized from the sieve size, and frees them at the end. Nothing is carried from one pass to the next.
+
+As a wheel may start from "a (pre)calculated set of prime numbers within a certain base number range" (and as `PrimeZig/solution_3` builds its tables with `comptime`), the wheel reads two read-only tables that Zig's `comptime` builds when the program is compiled: for each prime from 13 to 9,973, the first bit at or after `p²` in each of the eight planes, as a 16-bit offset from `p²/30` (19,584 bytes, plus a 5,344-byte index), and for each prime from 7 to 251, its stride-`p` word pattern and the starting rotation for each bit offset (about 70KB with AVX2 or AVX-512), so the program is about 94KB larger. Neither depends on the sieve size, every pass still finds its sieving primes in the sieve itself, and a prime from 10,007 on (needed only above 10,007², just over 10⁸) computes its start bits at run time.
 
 Each thread allocates from its own `std.heap.ArenaAllocator` over page memory and resets it after each pass, so the next pass gets the same pages back, as a thread-caching `malloc` would hand them out. Every sieve writes all of its memory before it reads any. The arena replaced musl's `malloc`, which the Alpine image would otherwise use. With `malloc`, the container ran the base entry at 33,000 passes on one thread against 40,000 with the arena, and the wheel entry finished fewer passes on four threads than on one.
 
@@ -74,7 +76,7 @@ sh build.sh
 ./primes
 ```
 
-`PRIMES_TEST=1 ./primes` checks the prime count for every power of ten from 10 to 10⁸ and for 1, 2, 3, 127 and 16,383, for both algorithms. It writes the results to stderr and exits non-zero on any mismatch.
+`PRIMES_TEST=1 ./primes` checks the prime count for every power of ten from 10 to 10⁸ and for 1, 2, 3, 127 and 16,383, for both algorithms, and 2×10⁸ for the wheel, which exercises the run-time start bits. It writes the results to stderr and exits non-zero on any mismatch.
 
 ## Output
 
