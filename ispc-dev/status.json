@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T07:41:41Z",
+  "updated_utc": "2026-10-11T07:43:48Z",
   "run": {
     "id": "ap-20261011T0645Z",
     "state": "running",
@@ -1564,11 +1564,11 @@
       "entry": "both",
       "tier": "extra-faithful",
       "kind": "novel",
-      "verdict": "running",
+      "verdict": "kept",
       "hypothesis": "Report exactly 4 threads when the thread loop didn't and the machine has more than 4 (hc/line-4t 365991b)",
       "prediction": "no existing line moves (±0.5%); the 6-CPU run shows a 4-thread line",
       "plain": "If each entry also reports a run with exactly four threads, then it shows up where the leaderboard's multi-thread leaders do, because they all report four threads.",
-      "note": "Zen 5 6 rounds per entry (16 vCPU: the loop already prints 4); a 2-round base run with docker --cpuset-cpus=0-5 shows the new line firing",
+      "note": "KEEP: no 1T/4T line moves (wheel +0.2%/+0.0%, base -0.1%/-0.1%, Zen 5 6 rounds); the 6-CPU run prints 6, 3 and the new 4-thread line. Merged: hc/champion = 55be5a9",
       "zen5_wheel": "1T +0.2% ± 0.3, 4T +0.0% ± 0.3, 8T +0.1%, 16T +1.5% ± 0.1 (6 rounds)",
       "note_wheel": "no 1T/4T line moves; base run and the 6-CPU run pending"
     },
@@ -1581,7 +1581,9 @@
       "hypothesis": "Measurement: throughput per number against working set, 16 sizes 250k-2M, both entries, Zen 3, Zen 5, Cobalt",
       "prediction": "see results/hc/size-cliff/README.md (wheel -10% to -20% at 1M on Zen 3, none on Zen 5; base -5% to -15% near 800k on Zen 5)",
       "plain": "If we run both entries at many sieve sizes, then a sudden drop where the sieve stops fitting in the fastest cache shows how much fitting is worth, because every lead so far points to that cache.",
-      "note": "hc/diag-size db6cf2e; 3 rounds"
+      "note": "hc/diag-size db6cf2e; 3 rounds",
+      "cobalt": "wheel flat 500k-1.0M (1.15-1.17 rel. to 250k), -6% by 2M; base 0.68 at 1.0M -> 0.635 at 1.1M (-6.6%, crossing 64 KB) -> 0.52 at 1.3M",
+      "note_cobalt": "prediction 5 (Cobalt: wheel flat to 1.6M, base step at 1.0-1.05M) holds"
     },
     {
       "id": "p-cpp-wheel-clang-idea12-r9",
@@ -1686,7 +1688,7 @@
       "verdict": "running",
       "hypothesis": "Rust base: one change in the dense phase, where the Zen 5 profile put the whole gap to mike-barber",
       "plain": "If the Rust base's small-factor pass does less work per word, then it catches up with the fastest Rust entry, because that pass is where it was slower.",
-      "note": "agent building hc/port-rust-base-dense"
+      "note": "hc/port-rust-base-dense f808f00: factors 17-63 cleared one period at a time with a compile-time [u64;P] mask array (masks stay in registers, as in mike-barber's codegen); was 4-period runs reloading 19-of-31 masks per iteration at P=31. Self-test + cargo test pass. Local -2% vs champion, +7% vs his. Zen 5 + Zen 3 6 rounds"
     },
     {
       "id": "s1-tables-compact",
@@ -1696,7 +1698,7 @@
       "verdict": "running",
       "hypothesis": "solution_3: read fewer table bytes per pass (patterns without the stored extension, or rotations computed), for 32 KB-L1 machines",
       "plain": "If the tables wheel reads less table data each pass, then it competes less with the sieve for the small fast cache on most machines, because sieve and tables together overflow it.",
-      "note": "agent building hc/solution3-compact"
+      "note": "hc/solution3-compact b48ee0a: one period stored per pattern, extended per pass in a scratch region (13-17 KB); table bytes read per pass 73.3 KB -> 59.4 KB (-19%), but 61.5 KB of scratch writes per pass. Self-test, Docker stage, sweep 0 bad x3 targets. Local -1% to -5%. Zen 3 (the 32 KB target) + Zen 5 6 rounds against solution_3"
     }
   ],
   "azure_queue": 0,
@@ -1706,21 +1708,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T03:42:21Z",
-      "level": "info",
-      "text": "b2-dense-prefetchw rejected.. hc/b2-base-dense-prefetchw d3c2435; local -0.7%; Zen 5 3-round screen",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T03:57:49Z",
-      "level": "decision",
-      "text": "b2-base-fold-1pc: keep and merge into hc/champion (330b3d4); queue a 20-round Zen 5 scoreboard of the new base against Rust. Why: +7.5% ± 0.1 on the AVX-512 machine with all other targets byte-identical meets the target-specific rule; it carries Chris's base 1T target from +3.1% to about +10.5% over mike-barber; the scoreboard Chris asked for should show the champion we end on. Expect: about +10.5% ± 0.2 over Rust at 1T.",
-      "id": "b2-base-fold-1pc",
-      "what": "keep and merge into hc/champion (330b3d4); queue a 20-round Zen 5 scoreboard of the new base against Rust",
-      "why": "+7.5% ± 0.1 on the AVX-512 machine with all other targets byte-identical meets the target-specific rule; it carries Chris's base 1T target from +3.1% to about +10.5% over mike-barber; the scoreboard Chris asked for should show the champion we end on",
-      "expect": "about +10.5% ± 0.2 over Rust at 1T"
-    },
     {
       "utc": "2026-10-11T03:57:49Z",
       "level": "decision",
@@ -2044,6 +2031,20 @@
       "utc": "2026-10-11T07:34:26Z",
       "level": "info",
       "text": "s1-tables-compact (wheel-tables) running: solution_3: read fewer table bytes per pass (patterns without the stored extension, or rotations computed), for 32 KB-L1 machines",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T07:43:48Z",
+      "level": "decision",
+      "text": "run: merge the 4T line (hc/champion 55be5a9); queue Rust base dense and solution_3 compact on AMD; Cobalt size cliff read. Why: phase 0 item 1 done; both agent results lost locally but Chris's rule sends them to AMD, and the compact tables target the 32 KB Zen 3.",
+      "id": "run",
+      "what": "merge the 4T line (hc/champion 55be5a9); queue Rust base dense and solution_3 compact on AMD; Cobalt size cliff read",
+      "why": "phase 0 item 1 done; both agent results lost locally but Chris's rule sends them to AMD, and the compact tables target the 32 KB Zen 3"
+    },
+    {
+      "utc": "2026-10-11T07:43:48Z",
+      "level": "info",
+      "text": "p0-line-4t kept.. KEEP: no 1T/4T line moves (wheel +0.2%/+0.0%, base -0.1%/-0.1%, Zen 5 6 rounds); the 6-CPU run prints 6, 3 and the new 4-thread line. Merged: hc/champion = 55be5a9",
       "auto": true
     }
   ],
