@@ -33,10 +33,27 @@ let[@inline] store_runs b pat base runs rb =
   done;
   !base
 
-(* ORs the pattern into the sieve, 32 bytes per step. *)
+(* ORs the pattern into the sieve, 32 bytes per step. Two consecutive runs per pass of the
+   loop: each pattern vector is loaded once and ORed into the same offset of both runs, which
+   are rb bytes apart. Each sieve word still gets its own load, OR and store. With an odd run
+   count the last run takes the one-run loop. *)
 let[@inline] or_runs b pat base runs rb =
   let base = ref base in
-  for _ = 1 to runs do
+  for _ = 1 to runs / 2 do
+    let q = !base in
+    let v = ref 0 in
+    while !v < rb do
+      let v0 = !v in
+      let x = get256 pat v0 in
+      let a = q + v0 in
+      let a2 = a + rb in
+      set256 b a (vor (get256 b a) x);
+      set256 b a2 (vor (get256 b a2) x);
+      v := v0 + 32
+    done;
+    base := q + (2 * rb)
+  done;
+  if runs land 1 = 1 then begin
     let q = !base in
     let v = ref 0 in
     while !v < rb do
@@ -46,5 +63,5 @@ let[@inline] or_runs b pat base runs rb =
       v := v0 + 32
     done;
     base := q + rb
-  done;
+  end;
   !base
