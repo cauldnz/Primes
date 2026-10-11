@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T21:37:41Z",
+  "updated_utc": "2026-10-11T21:38:07Z",
   "run": {
     "id": "ap-20261011T1929Z",
     "state": "running",
@@ -24,24 +24,24 @@
     {
       "machine": "Zen 5 (EPYC 9V45, D16as_v7)",
       "entry": "oxcaml base",
-      "ours_1t": 60500,
-      "ours_mt": 222000,
+      "ours_1t": 64700,
+      "ours_mt": 236700,
       "rival": "mike-barber Rust",
       "rival_1t": 126300,
       "rival_mt": 471600,
       "threads": 4,
-      "source": "run 10 ox-008 cand (champion a4e63af), same-round medians, 4T in ours_mt; Rust 124.1k, ISPC base 136.8k, plain OCaml 32.5k (ocaml-004)"
+      "source": "run 10 ox-009 cand (champion 4f1ba99), same-round medians, 4T in ours_mt; Rust 124.1k, ISPC base 136.8k, plain OCaml 32.5k (ocaml-004)"
     },
     {
       "machine": "Zen 3 (EPYC 7763, D16a_v4)",
       "entry": "oxcaml base",
-      "ours_1t": 29800,
-      "ours_mt": 110700,
+      "ours_1t": 31400,
+      "ours_mt": 120300,
       "rival": "mike-barber Rust",
       "rival_1t": 55100,
       "rival_mt": 213800,
       "threads": 4,
-      "source": "run 10 ox-008 cand (champion a4e63af), same-round medians, 4T in ours_mt; Rust 55.6k, ISPC base 59.9k, plain OCaml 18.0k"
+      "source": "run 10 ox-009 cand (champion 4f1ba99), same-round medians, 4T in ours_mt; Rust 55.6k, ISPC base 59.9k, plain OCaml 18.0k"
     },
     {
       "machine": "Cobalt 100 (D4ps_v6)",
@@ -52,7 +52,7 @@
       "rival_1t": 42900,
       "rival_mt": 171300,
       "threads": 4,
-      "source": "run 10 ox-008 cand (champion a4e63af), same-round medians, 4T in ours_mt; Rust 42.9k, ISPC base 42.2k, plain OCaml 3.4k"
+      "source": "run 10 ox-009 cand (champion 4f1ba99), same-round medians, 4T in ours_mt; Rust 42.9k, ISPC base 42.2k, plain OCaml 3.4k"
     },
     {
       "machine": "Zen 5 (EPYC 9V45, D32as_v7)",
@@ -2063,8 +2063,9 @@
       "kind": "novel",
       "plain": "If the x86 sparse loop takes each chunk marks in bit order, then its masks become constants and fewer values spill out of registers, because only the eight offsets stay live.",
       "prediction": "+5% to +10% over ox-008 at 1T on Zen",
-      "verdict": "running",
-      "commit": "4f1ba99"
+      "verdict": "kept",
+      "commit": "4f1ba99",
+      "note": "Zen 5 +5.8% 1T, Zen 3 +12.6%; champion 4f1ba99"
     },
     {
       "id": "ox-010",
@@ -2075,8 +2076,9 @@
       "source": "plain line ocaml-004",
       "plain": "If the Arm build loads each pattern word once for two runs, then its dense copy gets faster, because the same change gained 23% on Arm in the plain line.",
       "prediction": "Cobalt +10% to +25% at 1T; x86 byte-identical",
-      "verdict": "running",
-      "commit": "cf08b1c"
+      "verdict": "rejected",
+      "commit": "cf08b1c",
+      "note": "Cobalt -0.4% 1T, -0.6% 4T: the Arm dense copy is not what holds OxCaml back on Cobalt"
     },
     {
       "id": "ox-011",
@@ -2098,52 +2100,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T20:22:06Z",
-      "level": "info",
-      "text": "ocaml-005 (ocaml-plain) running: ",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T20:25:32Z",
-      "level": "decision",
-      "text": "ox-004: submit ox-004 (a8f8435 vs cbcd24d) on Zen 5, Zen 3 and Cobalt, 5 rounds. Why: rebuilt here, both the amd64 and scalar paths pass PRIMES_TEST=1; diff read: the sparse mark is now one OR of a byte mask into an unaligned 64-bit word (still one operation per composite, inside the chunk because p >= 128), the tail keeps byte ORs; instructions per mark 7.75 to 5.5, locally +11%. Cobalt checks the untested arm64 build. Expect: +5% to +15% at 1T.",
-      "id": "ox-004",
-      "what": "submit ox-004 (a8f8435 vs cbcd24d) on Zen 5, Zen 3 and Cobalt, 5 rounds",
-      "why": "rebuilt here, both the amd64 and scalar paths pass PRIMES_TEST=1; diff read: the sparse mark is now one OR of a byte mask into an unaligned 64-bit word (still one operation per composite, inside the chunk because p >= 128), the tail keeps byte ORs; instructions per mark 7.75 to 5.5, locally +11%. Cobalt checks the untested arm64 build",
-      "expect": "+5% to +15% at 1T"
-    },
-    {
-      "utc": "2026-10-11T20:25:45Z",
-      "level": "info",
-      "text": "ox-004 (oxcaml) running: ",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T20:31:14Z",
-      "level": "decision",
-      "text": "ocaml-002: REVERT. Why: analyze.py: Zen 5 1T -3.0% +-3.9, Zen 3 flat at 1T and 4T; the gain is only at all threads, which the rule records but doesn't decide.",
-      "id": "ocaml-002",
-      "what": "REVERT",
-      "why": "analyze.py: Zen 5 1T -3.0% +-3.9, Zen 3 flat at 1T and 4T; the gain is only at all threads, which the rule records but doesn't decide"
-    },
-    {
-      "utc": "2026-10-11T20:31:14Z",
-      "level": "info",
-      "text": "ox-002 Zen 5 and Cobalt in: the same source compiled by OxCaml runs -4.1% at 1T on Zen 5 but +163% on Cobalt (7.3k vs 2.8k). Plain OCaml 5.2 on Cobalt is 15x slower than Rust (2.8k vs 42.9k), against 4x on Zen; something in upstream OCaml's arm64 code generation for this loop. Zen 3 still running."
-    },
-    {
-      "utc": "2026-10-11T20:31:14Z",
-      "level": "info",
-      "text": "ocaml-002 rejected.. Zen 5 -3.0% 1T, -0.8% 4T; Zen 3 -0.1%, -0.5%; 16T +16% / +7% recorded only",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T20:31:14Z",
-      "level": "info",
-      "text": "ox-003: evaluate. ox-002 Zen 3, ox-003 all machines, ocaml-004/005, ox-004 queued or running",
-      "auto": true
-    },
     {
       "utc": "2026-10-11T20:44:51Z",
       "level": "decision",
@@ -2456,6 +2412,52 @@
       "id": "ox-standalone",
       "what": "run the standalone Dockerfile (builds the OxCaml switch inside the solution's own build) once on Zen 5 and Cobalt, 1 round, build time logged",
       "why": "submission readiness and the upstream question: without a hosted OxCaml image the submission must build the compiler itself, so we need to know it works end to end and how long it takes per architecture. Harness fix: hc-pool now logs build seconds per image"
+    },
+    {
+      "utc": "2026-10-11T21:38:07Z",
+      "level": "decision",
+      "text": "ox-009: KEEP; hc/oxcaml-champion fast-forwarded to 4f1ba99. Why: analyze.py KEEP: lower bounds +5.6% Zen 5 and +12.4% Zen 3 at 1T, no loss; arm64 binary byte-identical to a4e63af.",
+      "id": "ox-009",
+      "what": "KEEP; hc/oxcaml-champion fast-forwarded to 4f1ba99",
+      "why": "analyze.py KEEP: lower bounds +5.6% Zen 5 and +12.4% Zen 3 at 1T, no loss; arm64 binary byte-identical to a4e63af"
+    },
+    {
+      "utc": "2026-10-11T21:38:07Z",
+      "level": "decision",
+      "text": "ox-010: REVERT. Why: Cobalt -0.4% at 1T: the plain line's +23% on Cobalt didn't carry over, so OxCaml's Arm gap to Rust (7.3k vs 42.9k) is not in the dense copy loop; the next Arm step is a profile on a Cobalt node, not another guess. Passed over: more Arm-only loop changes.",
+      "id": "ox-010",
+      "what": "REVERT",
+      "why": "Cobalt -0.4% at 1T: the plain line's +23% on Cobalt didn't carry over, so OxCaml's Arm gap to Rust (7.3k vs 42.9k) is not in the dense copy loop; the next Arm step is a profile on a Cobalt node, not another guess",
+      "instead": "more Arm-only loop changes"
+    },
+    {
+      "utc": "2026-10-11T21:38:07Z",
+      "level": "info",
+      "text": "OxCaml champion 4f1ba99: Zen 5 64.7k at 1T (0.47x ISPC base 138.8k, 0.51x Rust 126.4k), Zen 3 31.4k (0.56x ISPC, 0.60x Rust), Cobalt 7.3k. From the first OxCaml build (30.3k Zen 5): x2.1."
+    },
+    {
+      "utc": "2026-10-11T21:38:07Z",
+      "level": "info",
+      "text": "ox-009 kept.. Zen 5 +5.8% 1T, Zen 3 +12.6%; champion 4f1ba99",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T21:38:07Z",
+      "level": "info",
+      "text": "ox-010 rejected.. Cobalt -0.4% 1T, -0.6% 4T: the Arm dense copy is not what holds OxCaml back on Cobalt",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T21:38:07Z",
+      "level": "info",
+      "text": "Scoreboard, oxcaml base on Zen 5 (EPYC 9V45, D16as_v7): 60500 → 64700 at 1T, 222000 → 236700 at 4 threads.",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T21:38:07Z",
+      "level": "info",
+      "text": "Scoreboard, oxcaml base on Zen 3 (EPYC 7763, D16a_v4): 29800 → 31400 at 1T, 110700 → 120300 at 4 threads.",
+      "auto": true
     }
   ],
   "research": {
