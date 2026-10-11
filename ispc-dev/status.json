@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T22:30:47Z",
+  "updated_utc": "2026-10-11T22:31:23Z",
   "run": {
     "id": "ap-20261011T1929Z",
     "state": "running",
@@ -2170,30 +2170,6 @@
   ],
   "events": [
     {
-      "utc": "2026-10-11T21:12:39Z",
-      "level": "decision",
-      "text": "ox-009: background agent: ox-007's constant-mask sparse form inside ox-008's x86-only sparse kernel. Why: both ox-004 and ox-007 lose 28% on Cobalt from the word OR, so the only place the form can live is the x86 kernel; this combines two changes, so it waits for ox-008's own verdict before it can be kept. Expect: +5% to +10% over ox-008 at 1T on Zen.",
-      "id": "ox-009",
-      "what": "background agent: ox-007's constant-mask sparse form inside ox-008's x86-only sparse kernel",
-      "why": "both ox-004 and ox-007 lose 28% on Cobalt from the word OR, so the only place the form can live is the x86 kernel; this combines two changes, so it waits for ox-008's own verdict before it can be kept",
-      "expect": "+5% to +10% over ox-008 at 1T on Zen"
-    },
-    {
-      "utc": "2026-10-11T21:12:39Z",
-      "level": "info",
-      "text": "ocaml-005 rejected.. limit 64: Zen 3 -3.1%; limit 96: Zen 5 +1.9%, Zen 3 +0.4% +-1.0; dense limit stays 128",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T21:17:01Z",
-      "level": "decision",
-      "text": "ox-009: submit 4f1ba99 vs a4e63af (ox-008) on Zen 5 and Zen 3; no Cobalt run. Why: rebuilt here, PRIMES_TEST=1 exits 0; diff is amd64/sparse.ml only, which arm64 never compiles (byte-identical arm binary, target-specific rule); 4.9 vs 5.4 instructions per composite, locally +10.7% in 3 of 3 rounds. Measured against ox-008 so each change gets its own verdict. Expect: +5% to +10%.",
-      "id": "ox-009",
-      "what": "submit 4f1ba99 vs a4e63af (ox-008) on Zen 5 and Zen 3; no Cobalt run",
-      "why": "rebuilt here, PRIMES_TEST=1 exits 0; diff is amd64/sparse.ml only, which arm64 never compiles (byte-identical arm binary, target-specific rule); 4.9 vs 5.4 instructions per composite, locally +10.7% in 3 of 3 rounds. Measured against ox-008 so each change gets its own verdict",
-      "expect": "+5% to +10%"
-    },
-    {
       "utc": "2026-10-11T21:17:01Z",
       "level": "info",
       "text": "ox-009 (oxcaml) running: ",
@@ -2518,6 +2494,27 @@
       "level": "info",
       "text": "Scoreboard, oxcaml base on Zen 3 (EPYC 7763, D16a_v4): 31400 → 32400 at 1T, 120300 → 124300 at 4 threads.",
       "auto": true
+    },
+    {
+      "utc": "2026-10-11T22:31:23Z",
+      "level": "decision",
+      "text": "ox-016: more rounds: 8 more on Zen 3 (separate log ox-016-four-runs-z3b). Why: Zen 5 +3.1% (lower bound +2.3%) clears the rule, Zen 3 sits on it: 4T lower bound +1.0%, mean +1.2%; analyze.py estimates about 7 more rounds.",
+      "id": "ox-016",
+      "what": "more rounds: 8 more on Zen 3 (separate log ox-016-four-runs-z3b)",
+      "why": "Zen 5 +3.1% (lower bound +2.3%) clears the rule, Zen 3 sits on it: 4T lower bound +1.0%, mean +1.2%; analyze.py estimates about 7 more rounds"
+    },
+    {
+      "utc": "2026-10-11T22:31:23Z",
+      "level": "decision",
+      "text": "ox-017: hold the KEEP until Cobalt reports. Why: Zen 5 +3.3% (lower bound +3.2%), Zen 3 +8.3% after 3 rounds (4T lower bound +2.9%) pass the rule, but the Arm pattern code moved into scalar/dense.ml, so Cobalt is a gate this time; its run was lost to the DiskFull node and is queued again.",
+      "id": "ox-017",
+      "what": "hold the KEEP until Cobalt reports",
+      "why": "Zen 5 +3.3% (lower bound +3.2%), Zen 3 +8.3% after 3 rounds (4T lower bound +2.9%) pass the rule, but the Arm pattern code moved into scalar/dense.ml, so Cobalt is a gate this time; its run was lost to the DiskFull node and is queued again"
+    },
+    {
+      "utc": "2026-10-11T22:31:23Z",
+      "level": "info",
+      "text": "Three Cobalt jobs marked LOST by collect (the disk-full node's standalone, diag and ox-017 tasks); diag and ox-017 were resubmitted at 22:21."
     }
   ],
   "research": {

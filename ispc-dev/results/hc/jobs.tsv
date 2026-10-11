@@ -290,3 +290,4 @@ id	pool	size	kind	outdir	submitted	state
 2210135430	hc-standard-d4ps-v6	Standard_D4ps_v6	ocaml	ispc-dev/results/hc/ox-017-pattern	2026-10-11T22:10:23Z	lost
 22213519878	hc-standard-d4ps-v6	Standard_D4ps_v6	ocaml	ispc-dev/results/hc/ox-012-diag	2026-10-11T22:21:46Z	open
 2221529669	hc-standard-d4ps-v6	Standard_D4ps_v6	ocaml	ispc-dev/results/hc/ox-017-pattern	2026-10-11T22:22:44Z	open
+22311330674	hc-standard-d16a-v4	Standard_D16a_v4	ocaml	ispc-dev/results/hc/ox-016-four-runs-z3b	2026-10-11T22:31:23Z	open
