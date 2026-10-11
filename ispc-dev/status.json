@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T07:29:24Z",
+  "updated_utc": "2026-10-11T07:33:44Z",
   "run": {
     "id": "ap-20261011T0645Z",
     "state": "running",
@@ -1665,7 +1665,7 @@
       "verdict": "running",
       "hypothesis": "Measure the hot dense/sparse code bytes per target (incl. the x16 copy and NEON); if the dense switch is large, a generic loop for factors 65-127",
       "plain": "If the base small-factor code is too big for the instruction cache, then a smaller general loop for the larger small factors may run faster, because fetching code is not free.",
-      "note": "agent; RUN-PLAN stream 1 step 4 (also the next Cobalt idea)"
+      "note": "Hot dense code per 1M pass: 96-108 KB on x86 (all targets, incl. x16), 48 KB on NEON, against 32 KB L1i; sparse ~3 KB. hc/base-dense-generic ff6e858: one generic dense routine for 65 <= p < 128 (per-pass mask buffer, one OR per composite, 4 vectors per iteration) replaces 32 specialised copies; hot dense code -> 33-37 KB x86, 21 KB NEON. Sweep 0 bad on avx512 x16/x8, avx2, sse4, NEON (qemu). Local -2% to -3%. AMD screen per Chris rule: Zen 5, Zen 3, Cobalt 6 rounds. Side note: on the local Cascade Lake x8 beats x16 at 1T by 8% (known 512-bit downclock)"
     },
     {
       "id": "s1-f1-grey",
@@ -1686,15 +1686,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T03:42:21Z",
-      "level": "decision",
-      "text": "ha-018: add 12 Zen 5 rounds to settle 1T. Why: Chris's target is 1T on Zen 5; 6 rounds give +1.2% ± 0.3 (lower bound 0.9%); Zen 5 nodes are idle now. Expect: 1T settles at +1.2%, lower bound above +1%.",
-      "id": "ha-018",
-      "what": "add 12 Zen 5 rounds to settle 1T",
-      "why": "Chris's target is 1T on Zen 5; 6 rounds give +1.2% ± 0.3 (lower bound 0.9%); Zen 5 nodes are idle now",
-      "expect": "1T settles at +1.2%, lower bound above +1%"
-    },
     {
       "utc": "2026-10-11T03:42:21Z",
       "level": "info",
@@ -2023,6 +2014,15 @@
       "level": "info",
       "text": "p-cpp-wheel-clang-idea12-r9 rejected.. REVERT under the per-thread rule: means at about +1.0%, lower bounds +0.7-0.8% at 1T/4T after 16 rounds; cannot clear +1%. Reverted on hc/port-cpp-wheel-champion (bf7619a = 3c98356 code). The run-8 KEEP was decided on 16T (old rule)",
       "auto": true
+    },
+    {
+      "utc": "2026-10-11T07:33:44Z",
+      "level": "decision",
+      "text": "s1-base-codesize: submit the generic dense loop on Zen 5, Zen 3 and Cobalt. Why: the code-size finding is large (3x L1i on x86) and local Xeon results have misled before; Cobalt included because the NEON code changes (and it is the planned Cobalt idea). Expect: Zen 3 -2% to +3%; Cobalt 0 to +2%.",
+      "id": "s1-base-codesize",
+      "what": "submit the generic dense loop on Zen 5, Zen 3 and Cobalt",
+      "why": "the code-size finding is large (3x L1i on x86) and local Xeon results have misled before; Cobalt included because the NEON code changes (and it is the planned Cobalt idea)",
+      "expect": "Zen 3 -2% to +3%; Cobalt 0 to +2%"
     }
   ],
   "research": {

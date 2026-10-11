@@ -198,3 +198,6 @@ id	pool	size	kind	outdir	submitted	state
 0721117296	hc-standard-d16a-v4	Standard_D16a_v4	zig	ispc-dev/results/hc/r9-zig-base	2026-10-11T07:21:21Z	open
 07242912596	hc-standard-d16as-v7	Standard_D16as_v7	base	ispc-dev/results/hc/s1-f1-grey	2026-10-11T07:24:39Z	open
 07244622395	hc-standard-d16a-v4	Standard_D16a_v4	base	ispc-dev/results/hc/s1-f1-grey	2026-10-11T07:24:54Z	open
+07330410777	hc-standard-d16as-v7	Standard_D16as_v7	base	ispc-dev/results/hc/s1-base-dense-generic	2026-10-11T07:33:13Z	open
+07331928284	hc-standard-d16a-v4	Standard_D16a_v4	base	ispc-dev/results/hc/s1-base-dense-generic	2026-10-11T07:33:28Z	open
+07333530727	hc-standard-d4ps-v6	Standard_D4ps_v6	base	ispc-dev/results/hc/s1-base-dense-generic	2026-10-11T07:33:44Z	open
