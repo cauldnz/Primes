@@ -81,14 +81,31 @@ let[@inline] store_runs b pat base runs rb =
   done;
   Int64.to_int (box a)
 
-(* ORs the pattern into the sieve, 32 bytes per step. Two consecutive runs per pass of the
-   loop: each pattern vector is loaded once and ORed into the same offset of both runs, which
-   are rb bytes apart. Each sieve word still gets its own load, OR and store. With an odd run
-   count the last run takes the one-run loop. *)
+(* ORs the pattern into the sieve, 32 bytes per step. Four consecutive runs per pass of the
+   loop: each pattern vector is loaded once and ORed into the same offset of all four runs,
+   which are rb bytes apart. Each sieve word still gets its own load, OR and store. Leftover
+   runs (runs mod 4) take the two-run loop and then the one-run loop. *)
 let[@inline] or_runs b pat base runs rb =
   let rb = u rb in
   let mutable a = u base in
-  for _ = 1 to runs / 2 do
+  for _ = 1 to runs / 4 do
+    let e = add a rb in
+    let mutable v = #0L in
+    while lt a e do
+      let x = get256 pat v in
+      let a2 = add a rb in
+      let a3 = add a2 rb in
+      let a4 = add a3 rb in
+      set256 b a (vor (get256 b a) x);
+      set256 b a2 (vor (get256 b a2) x);
+      set256 b a3 (vor (get256 b a3) x);
+      set256 b a4 (vor (get256 b a4) x);
+      a <- add a #32L;
+      v <- add v #32L
+    done;
+    a <- add a (add rb (add rb rb))
+  done;
+  if runs land 2 = 2 then begin
     let e = add a rb in
     let mutable v = #0L in
     while lt a e do
@@ -100,7 +117,7 @@ let[@inline] or_runs b pat base runs rb =
       v <- add v #32L
     done;
     a <- add a rb
-  done;
+  end;
   if runs land 1 = 1 then begin
     let e = add a rb in
     let mutable v = #0L in
