@@ -1,165 +1,114 @@
-# Run plan: does the machine carry over? (agreed with Chris, 2026-10-11 10:45)
+# Run plan: size, then a submission-ready finish (draft, 2026-10-11 16:45, for Chris)
 
 Read this after `AUTOPILOT.md`. It sets this run's priorities, time box and end-of-run steps.
 Everything else in the brief, the runbook and `HILL-CLIMB.md` still applies, including the
-"Never without Chris" list. The previous plan is in git history; its results are in the morning
-report of run ap-20261010T2040Z in `STATUS.md`.
+"Never without Chris" list. The previous plan (the ports run) is in git history; its results are
+in the morning report of run ap-20261011T0100Z in `STATUS.md`.
 
 ## Limits
 
-- Time box: 4 hours from the session start. Stop starting experiments at 3h15, so the final
-  scoreboard and shutdown fit in the last 45 minutes.
-- Azure: NZ$30 for the run, no new pools past NZ$25, Spot only, 128 Spot vCPUs in all, at most
-  6 pools. Every pool's deadline is the run's end; take a pool down as soon as its work is done.
-- The 96-vCPU node waited 25 minutes for quota last run (backlog 29). If this run needs it,
-  bring it up first, alone, then build the fleet around it.
-- This run starts from a cleared conversation (Chris runs `/clear` before the kickoff), to test
-  whether a fresh context cuts tokens per experiment. Everything you need is in git. Run
-  `tools/tokens.py --role climber --status` at start-up and at shutdown; `tick.sh` runs it on
-  every tick.
+- Time box: 5 hours from the session start (Chris allows 4 to 6). Stop starting experiments at
+  4h15; the final scoreboard and shutdown take the last 45 minutes.
+- Azure: NZ$20 for the run, no new pools past NZ$16, Spot only, 128 Spot vCPUs, at most 6 pools.
+  Every pool's deadline is the run's end; take a pool down as soon as its work is done.
+- Check the CPU model line of every log against the pool's intended chip before counting it
+  (`D16as_v5` gave both Zen 3 and Zen 4 last run). A run on the wrong chip doesn't count.
+- Start from a cleared conversation, as last run. Write a "Run ... started" event first thing
+  (`st.py`), so the token counter can attribute the run.
+
+## The keep rule for this run
+
+If Chris has approved `drafts/next-keep-rule.md`, it replaces "Acceptance rule" in
+`HILL-CLIMB.md` for this run: decide on passes per second per thread at 1T and at 4T on Zen 5
+and Zen 3, with Intel AVX2 and Cobalt as gates, and all-threads recorded, not decided. If not,
+the old rule stands. Say in the first event which rule is in force.
 
 ## State at the start
 
-- `hc/champion` = `1551635` (clean); `hc/champion-grey` = `3a893c1` (clean + F1). The upstream
-  question on F1 and F2 is drafted for Chris (`drafts/upstream-issue-F1-F2.md`); nothing grey
-  goes near a submission.
-- Zig: `hc/zig-submission` (clean), `hc/zig-champion-grey` = `72e5b42` (Zig base + F1).
-- Ports, written once and never climbed: `hc/port-cpp-base` (PrimeCPP/solution_6),
-  `hc/port-cpp-wheel` (solution_7), `hc/port-rust-wheel` (PrimeRust/solution_8),
-  `hc/port-rust-base` (solution_9). Their last measurements against our ISPC entries, one
-  thread: C++ base −4% Zen 5 / −8% Zen 3; Rust base −14% / −14%; C++ wheel −18% / −9%; Rust wheel
-  −14% / −12%. The Rust base trails mike-barber's Rust by 8% to 11%.
-- None of the ports has today's ISPC keeps (wheel-group32, IDEAS 12) or F1.
+- `hc/champion` = 330b3d4 (base 16-lane dense when a thread has a core; wheel start offsets on
+  x86). Base +10.44% ± 0.11 over mike-barber's Rust at 1T on Zen 5.
+- `hc/champion-tables` = 90e81f9 (wheel with build-time tables, permitted lineage).
+- Port champions: `hc/port-cpp-wheel-champion` 547221c, `hc/port-rust-base-champion`; the rest
+  as in last run's report.
 
-## Order: finish ISPC first, then climb the ports against it
+## Phase 0, first 75 minutes: make the entries submission-ready
 
-**Phase 1, about the first 75 minutes: finish ISPC and freeze it.** Streams 2, 3 and 4 below run
-first, on the fleet. Then run one final ISPC scoreboard, base and wheel, Zen 5, Zen 3 and Zen 4,
-with per-thread columns, and tag the result `hc/ispc-ref` (clean champion). That tag is the
-fixed reference every port is measured against in phase 2, so the port comparisons don't move
-under the run. Meanwhile, background agents do stream 1's local work: port the ISPC keeps into
-each port (step 1 below) and prepare the profiles (step 2). Nothing in phase 1 changes
-`hc/champion` except a keep from F4.
+Chris's decisions of 11 October (`LAUNCH-PLAN.md`, step 0):
 
-**Phase 2, the rest: climb the ports** (stream 1), against `hc/ispc-ref`. If a phase 1 task
-overruns, start phase 2 on the nodes that are free rather than wait.
+1. **4-thread line.** On `hc/line-4t` from `hc/champion`: an output line at exactly 4 threads in
+   both ISPC entries, skipped when the machine has 4 or fewer hardware threads. Existing lines
+   stay. Self-test, 6 rounds on Zen 5 (the 4T line's per-thread figure; no other line moves),
+   merge, one README sentence per entry on why.
+2. **Third entry, `PrimeISPC/solution_3`**, from `hc/champion-tables` plus the 4-thread line.
+   Own output label (`cauldnz-ispc-wheel-tables`), tags `algorithm=wheel,faithful=yes,bits=1`.
+   README words exactly as in `drafts/solution-3-notes.md`, and the one line for solution_1.
+   Self-test, Dockerfile build, the 5,396-size sweep; 6 rounds against solution_1 on Zen 5 and
+   Zen 3. Lives on `hc/champion-tables`, never on `hc/champion`.
+3. **AVX-512 check of fold-1pc**: 6 rounds of base `hc/champion` against 1551635 on
+   `Standard_D16as_v6` (Zen 4, AVX-512) and `Standard_D16s_v5` (Intel Xeon, native targets).
+   1T, 4T and all threads. A loss of 1% or more at 1T or 4T: report, don't fix in this run.
+4. **Clean the champion**: stop tracking build outputs (`primes`, `*.o`) on `hc/champion`.
 
-## Stream 1 (main, phase 2): climb the three ports, the same way in each language
+## Stream 1 (main): size
 
-This run is the test in `docs/generalising.md` of the hill-climber repo: does the machine carry
-over to new code without being rebuilt? Treat the three languages alike.
+Every lead so far comes back to whether the working set fits the first-level data cache:
+32 KB on Zen 3, Zen 4, the i7, the Celeron and the Pi 4; 48 KB on Zen 5; 64 KB on Cobalt. Four of
+the five official runners have 32 KB. The base sieve is 62.5 KB at one million and the base rules
+fix that. The wheel's eight planes are 33.3 KB, just over 32 KB, and each group pass also streams
+its members' patterns (about 12 KB for six primes near 256) while sweeping all eight planes. So
+the wheel probably fits on Zen 5 and spills on every 32 KB machine. This stream finds out, then
+attacks it.
 
-- **Branches.** Each port gets its own champion: `hc/port-<lang>-<design>-champion`, starting at
-  the port branch above. Grey changes (F1) go on `hc/port-<lang>-<design>-grey` only.
-- **Deciding machines and rule.** Zen 5 and Zen 3 decide, as for ISPC; the interval rule from
-  `HILL-CLIMB.md`; Cobalt 100 gate for any change that touches Arm code; Zen 4 recheck for keeps.
-- **Rivals in every round:** our ISPC entry of the same design at `hc/ispc-ref` (the reference ceiling) and the
-  fastest existing entry in the port's language: mike-barber's Rust (`PrimeRust/solution_1`) for
-  the Rust base; davepl's C++ (`PrimeCPP/solution_5`) for the C++ base; for the wheels, which
-  have no rival in their own language, rogiervandam's C wheel.
-- **Equal effort.** Aim for the same number of decided experiments in each of C++, Rust and Zig,
-  about five each, base and wheel together. If one language runs ahead, feed the others first.
-- **Order within each language:**
-  1. Port the ISPC keeps it lacks (the porting rule): for the wheels, wheel-group32's loop shape
-     where the compiler can express it, and IDEAS 12; for the bases, F1 on the grey branch only.
-  2. Profile the port against our ISPC entry on one Zen 5 node, phase by phase, and compare the
-     compiled hot loops (AUTOPILOT 2d). Name the gap before changing anything.
-  3. Then the language's own ideas. For the Rust base, start with the side-by-side against
-     mike-barber's entry (`results/hc/port-rust-base/README.md`): something his code does, ours
-     doesn't, and his is faster. For the C++ wheel, start with the compiler (GCC against Clang,
-     the same flags as the existing C++ entries) and the spill fix the last run found.
-- **Zig:** the Zig wheel already beats our ISPC wheel at one thread on Zen 5 and Intel. Climb it
-  like the others; if it passes the ISPC wheel by the keep rule, say so plainly in the report.
-- **Record, for `docs/generalising.md`:**
-  - set-up cost per language: what had to change in `hc-pool.sh` and the build, self-test and
-    rules checks, with the commits;
-  - per language: experiments decided, keeps, and the gap to our ISPC entry and to the language's
-    best existing entry at the end;
-  - for every experiment, whether the idea was carried over from ISPC, found in the language
-    itself, or came from outside (`st.py decide` and the experiment's `plain` field);
-  - which ISPC keeps helped in each language and which didn't;
-  - node-minutes per language from `jobs.tsv`.
+1. **Measure first: the size cliff.** Run each entry at sieve sizes from 250,000 to 2,000,000
+   (about 12 sizes, closer together around 1M) on Zen 3, Zen 5 and Cobalt, one thread and one
+   per core, 3 rounds. Plot throughput per number (passes × size / 5 s, normalised by
+   n·log log n) against the working set in KB. A step where the working set crosses the L1 size
+   is the prize; its height says what fitting is worth. Predict before running: the wheel drops
+   10% to 20% between 0.9M and 1.1M on Zen 3 and not on Zen 5; the base drops 5% to 15% near
+   0.77M (48 KB) on Zen 5. Write the result to `results/hc/size-cliff/README.md` with the chart
+   data. This also gives the upstream F1/F2 question a clean number for what L1 is worth.
+2. **Only if the wheel shows a cliff on Zen 3**, candidates, extra-faithful, each one change:
+   - *Plane order*: alternate the plane order of successive group passes (0..7, then 7..0), so
+     each pass starts on planes still in L1. This is wheel F1 restricted to the group passes;
+     the earlier wheel F1 was measured on Zen 5 only, where nothing spills. Decide on Zen 3.
+   - *Plane halves*: apply each group to planes 0-3, then rebuild nothing and apply it to 4-7;
+     the patterns stay hot and the live planes halve to 16.7 KB. Check the wheel rules on
+     segmentation first; if in doubt, ask Chris before building.
+   - *Sparse marks plane by plane*: today each large prime advances all eight planes at once
+     (eight streams for parallelism) and so touches all 33 KB. Do one plane at a time, taking
+     the parallelism from several primes instead. Working set one plane, 4.2 KB.
+   - *Trim the touched scratch*: patterns are stored extended by 64 words per member; check
+     whether a 32-word extension (AVX-512 reads two vectors) is enough.
+3. **For `solution_3`**: a pass reads about 60 KB of tables. Measure whether a compact layout
+   (patterns without the 32-word extension, rotations computed) beats it on Zen 3.
+4. **Base code size**: report the bytes of the hot dense and sparse code per target
+   (`objdump`), the x16 copy included. If the dense switch is large, try a generic loop for
+   factors 65 to 127, which is also the next Cobalt idea (no mask reloads).
+5. **Grey, for the issue only**: F1 on top of 330b3d4, Zen 5 and Zen 3, 6 rounds, so the
+   upstream question quotes F1's gain on the code we'd submit. Never merged.
 
-## Stream 2 (phase 1): rank the way the leaderboard ranks
+## Stream 2: ports, with fixed shares
 
-The official multi-thread table sorts by passes per second per thread (`tools/src/formatters/
-table.ts` upstream). mike-barber's Rust reports a 4-thread line, which tops that table; ours
-reports one thread, then all, half and a quarter of the threads.
+Last run equal effort didn't survive a change of priority. This time each language gets a
+fixed share, whatever else happens: one agent slot in turn and at least three decided
+experiments each.
 
-- Add per-thread columns (passes / duration / threads) to `analyze.py` and the scoreboard.
-- Measure, on Zen 5 and Zen 3: our base and wheel at 4 threads against Rust's 4-thread line and
-  the C wheel, per thread. A measurement, not an experiment.
-- Put a 4-thread line on a branch (`hc/line-4t`) for both ISPC entries, built and self-tested,
-  **not merged**: whether our entries report it is Chris's decision.
+- **Zig**: the wheel's group passes are 13% slower than ISPC's (profile of 11 October); start
+  there. Then the Zig base, not climbed since the first runs.
+- **Rust wheel** (24% behind ISPC on Zen 5): profile first, phase by phase against ISPC.
+- **C++ base** (5% behind ISPC on Zen 5): the 16-lane idea from fold-1pc, if the compiler can
+  express it; Clang lost 15% on this code, so check GCC's compiled dense loop first.
+- Record for `docs/generalising.md`: experiments, keeps, gaps, node-minutes per language.
 
-## Stream 3 (phase 1): a new rival wheel
+## Final scoreboard (last 45 minutes)
 
-PR #1094 upstream (crishoj, Zig, `PrimeZig/solution_5`, a 210-wheel) claims about 2.2 times the
-existing Zig wheel. Build it from `pull/1094/head` (Zig 0.17, its own Dockerfile) and add it as a
-second control in one wheel task on Zen 5 and Zen 3, beside our ISPC and Zig wheels: one
-thread and all threads. A measurement only. Its faithfulness is not ours to judge in the run;
-record the numbers.
-
-## Stream 4 (phase 1): ISPC leftovers
-
-F4 (`PRIMES_DENSE_MAX` 384, 512, 640, wheel), then F6 (AVX-512 off at 96 threads) if the 96-vCPU
-node is up for something else anyway. Nothing grey this run beyond porting F1.
-
-## How faithful, and whose idea: two labels on every keep
-
-Chris (11 October): try everything the rules permit, but show how far the entries get while
-staying extra-faithful, and make clear where our own ideas bought the gains.
-
-- **Faithfulness tier**, on every experiment (`tier` in status.json and the ledger):
-  - `extra-faithful`: the program computes everything itself, at run time, on every pass; no
-    prime-specific tables built ahead of time. `hc/champion` stays extra-faithful.
-  - `permitted`: allowed by the rules but beyond that, such as precomputed wheel tables. These go
-    on their own lineage, `hc/champion-tables` (branched from `hc/champion`), never on
-    `hc/champion`.
-  - `grey`: a rules question is open (F1, F2): `hc/champion-grey`, as now.
-- **Source of the idea** (`kind`): `novel` (ours; no existing entry we know of does it),
-  `borrowed` (from another entry or language, named), `tuning` (a parameter sweep), `permitted`
-  (a shortcut the rules allow). Say which entry a borrowed idea came from. The morning report
-  totals the gain by kind, so it's clear what our own ideas were worth.
-
-## Stream 5 (phase 1, profile first): precomputed tables for the wheels (`permitted`)
-
-The contest defines a wheel as an algorithm that takes "a (pre)calculated set of prime numbers
-within a certain base number range" and projects it onto the sieve, and the merged Zig wheel
-(`PrimeZig/solution_3`, tagged faithful) builds its tables at compile time. Our ISPC wheel
-recomputes, on every pass, each large prime's first multiple in each of the 8 planes
-(`start_bit`) and each small prime's group pattern.
-
-1. Profile first, one Zen 5 node: TSC split of a wheel pass into start-offset computation, pattern
-   building, group passes, tile and sparse marks. Predict before looking: start offsets and
-   pattern building together 5% to 15% of a pass. The profile is useful whatever happens next:
-   it also says what an extra-faithful speed-up of those two jobs is worth.
-2. Only if they are 5% or more: tables generated at build time, with the run-time path kept for
-   any prime beyond them, so every sieve size works and the 5,396-size sweep passes. Watch L1.
-   On `hc/champion-tables` only. The README would say what is precomputed.
-3. In Zig the same thing is `comptime`, as `PrimeZig/solution_3` does: a phase 2 experiment on a
-   Zig tables lineage.
-
-## Stream 6 (agent in phase 1, measured in phase 2): a bigger wheel, extra-faithful
-
-Our mod-30 wheel keeps 8 planes, 33KB at one million; two sieves sharing a core overflow Zen 5's
-48KB L1, which is where the wheel loses 4% to 6% with every thread busy. A mod-210 wheel (48
-residues, about 29KB) or mod-2310 (480 residues, about 26KB) shrinks the sieve, and the small
-end of the factor range gets cheaper too.
-
-1. Write the prediction first in `IDEAS.md`: which wheel, the sieve size at one million, and the
-   expected change at one thread and at all threads on Zen 5 and Zen 3.
-2. A background agent builds it as `hc/wheel-210` (or 2310), everything computed at run time,
-   passing the 5,396-size sweep. Prototype in whichever of ISPC or Zig gets there faster; port
-   the winner.
-3. Measure in phase 2 against `hc/champion`. Note crishoj's 210 wheel (PR 1094) was not faster
-   than ours locally, so the design, not the modulus alone, has to carry it.
+Per thread at 1T and 4T, all three ISPC entries, on Zen 5, Zen 3, Zen 4 with AVX-512 and
+Cobalt, with mike-barber's Rust, danielspaangberg's C wheel and rogiervandam's C beside them;
+the ports at 1T. Tag the result `hc/ispc-final` (both lineages: `hc/ispc-final` and
+`hc/ispc-final-tables`). That tag is what the PR is built from.
 
 ## Morning report additions
 
-Open with the gain by kind (novel, borrowed, tuning, permitted, grey) for each entry since the
-climb began, from the ledger, so the report says plainly what our own ideas bought. Then
-lead with stream 1, as a table per design: ISPC, Zig, C++, Rust at the start and end of the run,
-one thread and all threads, Zen 5 and Zen 3, with each language's best existing entry beside it.
-Then the generalisation record above, then stream 2's per-thread table, stream 3's numbers, and
-tokens per experiment for this run against the last two.
+Open with the size cliff chart data and what it says. Then the phase 0 results, stream 1 keeps
+and rejects by kind, the ports table, the final per-thread scoreboard, tokens per experiment for
+this run (main session and background agents separately).
