@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T11:26:40Z",
+  "updated_utc": "2026-10-11T11:27:56Z",
   "run": {
     "id": "ap-20261011T0645Z",
     "state": "running",
@@ -1850,16 +1850,6 @@
   ],
   "events": [
     {
-      "utc": "2026-10-11T07:58:10Z",
-      "level": "info",
-      "text": "Phase 0 done: verdict line, 4T line merged (hc/champion 55be5a9), solution_3 kept (hc/champion-tables 4a42d98), fold-1pc AVX-512 losses reported, build outputs off the champion."
-    },
-    {
-      "utc": "2026-10-11T08:07:34Z",
-      "level": "info",
-      "text": "Chris: gate fold-1pc on Zen 5 only (AMD family 1Ah) plus one-thread-per-core; re-check Zen 4, Intel and Zen 5; same gate for r9-cpp-base if kept. Built hc/fold-zen5 d882ed5; three 6-round checks queued."
-    },
-    {
       "utc": "2026-10-11T08:07:34Z",
       "level": "decision",
       "text": "fold-zen5: read the family from /proc/cpuinfo instead of CPUID. Why: ISPC has no cpuid intrinsic and the base is all ISPC with C-library calls only; /proc/cpuinfo keeps that true, and any failure falls back to the 8-lane path. Passed over: a C helper with __get_cpuid (would add a C file to the entry).",
@@ -2204,6 +2194,19 @@
       "level": "info",
       "text": "r9-final-ports (scoreboard) running: ports at 1T (and 4T) on Zen 5 and Zen 3: each port champion against its run-start version, beside our ISPC entry of the same design (57e0792) and the language rival",
       "auto": true
+    },
+    {
+      "utc": "2026-10-11T11:27:56Z",
+      "level": "decision",
+      "text": "r9-final-refs: hc/ispc-final = 216629d, hc/ispc-final-tables = 57e0792 (as branches). Why: the git proxy refuses tag pushes (HTTP 403); every other hc/* ref is a branch.",
+      "id": "r9-final-refs",
+      "what": "hc/ispc-final = 216629d, hc/ispc-final-tables = 57e0792 (as branches)",
+      "why": "the git proxy refuses tag pushes (HTTP 403); every other hc/* ref is a branch"
+    },
+    {
+      "utc": "2026-10-11T11:27:56Z",
+      "level": "info",
+      "text": "Pools for Zen 4, Cobalt and Intel deleted (their scoreboard work is done)"
     }
   ],
   "research": {
