@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T07:21:21Z",
+  "updated_utc": "2026-10-11T07:25:02Z",
   "run": {
     "id": "ap-20261011T0645Z",
     "state": "running",
@@ -1662,6 +1662,17 @@
       "hypothesis": "Measure the hot dense/sparse code bytes per target (incl. the x16 copy and NEON); if the dense switch is large, a generic loop for factors 65-127",
       "plain": "If the base small-factor code is too big for the instruction cache, then a smaller general loop for the larger small factors may run faster, because fetching code is not free.",
       "note": "agent; RUN-PLAN stream 1 step 4 (also the next Cobalt idea)"
+    },
+    {
+      "id": "s1-f1-grey",
+      "entry": "base",
+      "tier": "grey",
+      "kind": "novel",
+      "verdict": "running",
+      "hypothesis": "F1 (alternate sweep direction per factor) on the code we would submit (3ad0427), for the upstream issue only",
+      "prediction": "+8% to +13% at 1T on Zen 5 and Zen 3 (last run +12.7% / +10.2% on 1551635)",
+      "plain": "If the base sweeps each factor in the opposite direction to the last, then the end it just touched is still in cache, because a factor sweep leaves its last stretch of the sieve hot.",
+      "note": "hc/f1-on-330b3d4 2f6864f (conflict with fold-1pc resolved: the 16-lane dense path always sweeps up); self-test passes both paths; never merged; Zen 5 + Zen 3 6 rounds"
     }
   ],
   "azure_queue": 0,
@@ -1671,18 +1682,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T03:27:46Z",
-      "level": "info",
-      "text": "p-rust-base-zprof confirmed.. Zen 5, TSC ticks per pass (before the AVX-512-off keep): ours dense 45.3k, sparse 60.3k, scan 4.2k, total 109.9k; mike-barber dense 38.5k, sparse 61.5k, scan 4.1k, setup 0.9k, total 104.1k. The gap is the dense phase (+17%); sparse is level. The AVX-512-off keep (+10% at 1T) likely closed most of it: our dense path was 512-bit",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T03:27:46Z",
-      "level": "info",
-      "text": "b2-base-zen5-profile confirmed.. Zen 5, ns per pass (clock_gettime timer, which inflates per-call phases on x86): dense 14.3k (33%), sparse 25.7k (59%), scan 3.6k (8%). Benchmark lines in the same rounds: ours +3.2% over mike-barber at 1T (130.0k vs 126.0k). Not comparable phase by phase with his TSC profile; the bench lines are the reliable part",
-      "auto": true
-    },
     {
       "utc": "2026-10-11T03:27:46Z",
       "level": "info",
@@ -2006,6 +2005,20 @@
       "what": "submit on Zen 5 and Zen 3",
       "why": "Chris's AMD-screen rule; the Zen 5 gap (139k vs 124k) does not show locally, so only Zen can say",
       "expect": "0 to +2%"
+    },
+    {
+      "utc": "2026-10-11T07:25:02Z",
+      "level": "decision",
+      "text": "s1-f1-grey: measure F1 on the champion for the upstream question; grey, never merged. Why: RUN-PLAN stream 1 step 5: the issue should quote F1's gain on the code we'd submit.",
+      "id": "s1-f1-grey",
+      "what": "measure F1 on the champion for the upstream question; grey, never merged",
+      "why": "RUN-PLAN stream 1 step 5: the issue should quote F1's gain on the code we'd submit"
+    },
+    {
+      "utc": "2026-10-11T07:25:02Z",
+      "level": "info",
+      "text": "s1-f1-grey (base) running: F1 (alternate sweep direction per factor) on the code we would submit (3ad0427), for the upstream issue only",
+      "auto": true
     }
   ],
   "research": {
