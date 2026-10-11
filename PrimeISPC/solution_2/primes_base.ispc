@@ -452,8 +452,15 @@ export uniform int main() {
     print("cauldnz-ispc-base;%;%;1;algorithm=base,faithful=yes,bits=1\n", jobs[0].passes, elapsed);
 
     // One independent sieve per thread at all, half and a quarter of the hardware threads.
-    for (uniform int n = nthreads; n >= 2 && n * 4 >= nthreads; n /= 2)
+    uniform bool did4 = false;
+    for (uniform int n = nthreads; n >= 2 && n * 4 >= nthreads; n /= 2) {
         run_threads(jobs, tids, n);
+        did4 = did4 || n == 4;
+    }
+    // The leaderboard sorts multi-thread results by passes per second per thread, and its leaders
+    // report 4 threads, so report 4 too, unless the loop above did or the machine has no more.
+    if (nthreads > 4 && !did4)
+        run_threads(jobs, tids, 4);
     return 0;
 }
 #endif // FOLD16
