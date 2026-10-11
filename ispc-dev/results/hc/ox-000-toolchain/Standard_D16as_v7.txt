@@ -1,0 +1,32 @@
+Architecture:                            x86_64
+CPU(s):                                  16
+Model name:                              AMD EPYC 9V45 96-Core Processor
+BIOS Model name:                         AMD EPYC 9V45 96-Core Processor                 None CPU @ 2.6GHz
+AVX-512: yes
+kind=oxbuild rounds=1 id=19342330712
+oxbuild start 19:41:07
+#1 DONE 0.0s
+#2 DONE 0.7s
+#3 DONE 0.0s
+#4 DONE 0.1s
+#4 DONE 1.4s
+#5 DONE 31.6s
+#6 DONE 0.8s
+#7 DONE 21.3s
+#8 [5/6] RUN start=$(date +%s);     opam switch create 5.2.0+ox --repos ox=git+https://github.com/oxcaml/opam-repository.git,default -q     && echo "switch build seconds: $(( $(date +%s) - start ))" | tee /opt/oxcaml-build-time.txt     && opam clean -a -c -s --logs -q
+#8 347.8 switch build seconds: 347
+#8 DONE 404.1s
+#9 [6/6] RUN ocamlopt -version && ocamlopt -config | grep -E "^(architecture|flambda|version)"
+#9 0.214 5.2.0+ox
+#9 0.225 architecture: amd64
+#9 0.225 flambda: false
+#9 0.225 flambda2: true
+#9 0.225 flambda_backend: true
+#9 DONE 0.3s
+#10 DONE 100.0s
+image build seconds: 561 rc=0
+IMAGE             ID             DISK USAGE   CONTENT SIZE   EXTRA
+oxcaml:5.2.0-ox   0d1b721aa0c6       4.78GB         1.22GB        
+-rw-r--r-- 1 root root 1214786386 Oct 11 19:50 /opt/batch/data/tasks/workitems/hc-standard-d16as-v7/job-1/19342330712/wd/img.tar.zst
+save seconds: 6
+upload http 201

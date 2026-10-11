@@ -1,0 +1,7 @@
+Architecture:                            aarch64
+CPU(s):                                  4
+Model name:                              Neoverse-N2
+BIOS Model name:                         Cobalt 100 None CPU @ 3.4GHz
+AVX-512: no
+kind=oxbuild rounds=1 id=19344024095
+oxbuild start 19:39:59
