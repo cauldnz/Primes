@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T04:27:36Z",
+  "updated_utc": "2026-10-11T04:28:11Z",
   "run": {
     "id": "ap-20261011T0100Z",
     "state": "running",
@@ -1531,13 +1531,14 @@
       "entry": "cpp-wheel",
       "tier": "extra-faithful",
       "kind": "borrowed",
-      "verdict": "running",
+      "verdict": "kept",
       "hypothesis": "IDEAS 12 merged onto the clang C++ wheel champion",
       "prediction": "+1% to +6% (as on g++)",
       "plain": "If the faster Clang build of the C++ wheel also writes 13 in the same pass as the tile, then it gains as the GCC build did, because the saved sweep does not depend on the compiler.",
-      "note": "hc/port-cpp-wheel-clang-idea12 547221c; both compilers pass PRIMES_TEST=1; Zen 5 + Zen 3 6 rounds",
+      "note": "KEEP: hc/port-cpp-wheel-champion = 547221c (alignment fix + clang + IDEAS 12). Against our ISPC reference wheel: Zen 3 +9.3% 1T, +6.3% 16T; Zen 5 -7.9% 1T, +1.7% 16T. Arm not measured for the ports (the port bench runs on x86 only)",
       "zen5": "+1.3% ± 0.5 1T, +1.9% ± 0.3 16T (6/6)",
-      "note_z5": "Zen 3 pending; the clang C++ wheel with IDEAS 12 is 1.7% ahead of our ISPC reference wheel at 16T on Zen 5, 7.9% behind at 1T"
+      "note_z5": "Zen 3 pending; the clang C++ wheel with IDEAS 12 is 1.7% ahead of our ISPC reference wheel at 16T on Zen 5, 7.9% behind at 1T",
+      "zen3": "+1.1% ± 0.8 1T, +1.9% ± 0.7 16T (6/6)"
     }
   ],
   "azure_queue": 0,
@@ -1547,21 +1548,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T02:29:59Z",
-      "level": "decision",
-      "text": "run: drop the byte-sparse wheel kernel and any further ISPC wheel work; profile the base on Zen 5 and start an agent on the x86 compiled loops of our base vs mike-barber's for Zen 5, with up to two candidate branches. Why: Chris's new priority: base 1T on Zen 5 against Rust, target +4%; one core's speed is what the leaderboard rewards. Passed over: C++ wheel group32 rerun (ports carry on, but behind base work for nodes).",
-      "id": "run",
-      "what": "drop the byte-sparse wheel kernel and any further ISPC wheel work; profile the base on Zen 5 and start an agent on the x86 compiled loops of our base vs mike-barber's for Zen 5, with up to two candidate branches",
-      "why": "Chris's new priority: base 1T on Zen 5 against Rust, target +4%; one core's speed is what the leaderboard rewards",
-      "instead": "C++ wheel group32 rerun (ports carry on, but behind base work for nodes)"
-    },
-    {
-      "utc": "2026-10-11T02:29:59Z",
-      "level": "info",
-      "text": "b2-base-zen5-profile (base) running: Measurement: ISPC base phase split on Zen 5 at 1T (ns timer build), beside mike-barber profile on Zen 5 (p-rust-base-zprof-mb)",
-      "auto": true
-    },
     {
       "utc": "2026-10-11T02:30:36Z",
       "level": "decision",
@@ -1885,6 +1871,20 @@
       "utc": "2026-10-11T04:13:36Z",
       "level": "info",
       "text": "sb-ispc-ref confirmed.. Scoreboard at 1551635 (6 rounds; base Zen 5 is the 20-round run). Per thread, passes/s/thread, ours vs rivals. WHEEL Zen 5: 1T 44,424, 4T 44,119 (C wheel 27,833 / 25,398; danielspaangberg 14,059 at 1T). WHEEL Zen 3: 1T 22,547, 4T 22,500 (C 13,048 / 12,980; dsp 7,572). BASE Zen 3: 1T 11,202, 4T 11,215 vs mike-barber 10,507 / 10,520 (+6.6% / +6.6%), davepl 7,350. The 'Zen 4' D16as_v5 node came up as an EPYC 7763 (Zen 3): no Zen 4 numbers this run; its base and wheel rows repeat Zen 3 (base +6.7% vs Rust, wheel +73% vs C)",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T04:28:11Z",
+      "level": "decision",
+      "text": "p-cpp-wheel-clang-idea12: keep: advance hc/port-cpp-wheel-champion to 547221c; take the Zen 3 pool down. Why: 16T clears +1% on both Zens with every round won; no other work remains for Zen 3.",
+      "id": "p-cpp-wheel-clang-idea12",
+      "what": "keep: advance hc/port-cpp-wheel-champion to 547221c; take the Zen 3 pool down",
+      "why": "16T clears +1% on both Zens with every round won; no other work remains for Zen 3"
+    },
+    {
+      "utc": "2026-10-11T04:28:11Z",
+      "level": "info",
+      "text": "p-cpp-wheel-clang-idea12 kept.. KEEP: hc/port-cpp-wheel-champion = 547221c (alignment fix + clang + IDEAS 12). Against our ISPC reference wheel: Zen 3 +9.3% 1T, +6.3% 16T; Zen 5 -7.9% 1T, +1.7% 16T. Arm not measured for the ports (the port bench runs on x86 only)",
       "auto": true
     }
   ],
