@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T07:16:29Z",
+  "updated_utc": "2026-10-11T07:16:56Z",
   "run": {
     "id": "ap-20261011T0645Z",
     "state": "running",
@@ -1652,6 +1652,16 @@
       "hypothesis": "Zig base: compiled dense/sparse paths against the ISPC base, then one change on the biggest difference",
       "plain": "If the Zig base gets the part of the ISPC base that differs most, then it closes some of its 10% gap, because the two do the same work otherwise.",
       "note": "agent building hc/zig-base-r9"
+    },
+    {
+      "id": "s1-base-codesize",
+      "entry": "base",
+      "tier": "extra-faithful",
+      "kind": "novel",
+      "verdict": "running",
+      "hypothesis": "Measure the hot dense/sparse code bytes per target (incl. the x16 copy and NEON); if the dense switch is large, a generic loop for factors 65-127",
+      "plain": "If the base small-factor code is too big for the instruction cache, then a smaller general loop for the larger small factors may run faster, because fetching code is not free.",
+      "note": "agent; RUN-PLAN stream 1 step 4 (also the next Cobalt idea)"
     }
   ],
   "azure_queue": 0,
@@ -1661,18 +1671,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T03:27:46Z",
-      "level": "info",
-      "text": "s5-starts-ef confirmed.. Passes the keep rule on both Zens but fails the arm64 gate (-1.1% on Cobalt). Not merged: phase 1 is frozen at hc/ispc-ref and Chris stopped new ISPC wheel speed work, so the NEON-guarded variant (x86 only, NEON byte-identical) is left for Chris/the workshop. Extra-faithful, novel; +5.5% Zen 5 1T is the largest extra-faithful wheel gain of the run",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T03:27:46Z",
-      "level": "info",
-      "text": "p-rust-base-2 rejected.. cutoff 160 loses at 16T",
-      "auto": true
-    },
     {
       "utc": "2026-10-11T03:27:46Z",
       "level": "info",
@@ -1991,6 +1989,20 @@
       "why": "the change is behind __AVX512F__, so Zen 3's native build is unchanged; Cascade Lake's local loss is the known 512-bit downclock, and Zen 5 is the machine it targets",
       "instead": "Zen 4 / Ice Lake check (fold-1pc showed AVX-512 losses there; same caveat would apply)",
       "expect": "+2% to +5% at 1T on Zen 5"
+    },
+    {
+      "utc": "2026-10-11T07:16:56Z",
+      "level": "decision",
+      "text": "s1-base-codesize: start the base code-size agent while the size cliff runs. Why: stream 1 step 4 needs no cliff result; the wheel candidates wait for it (they depend on a Zen 3 cliff).",
+      "id": "s1-base-codesize",
+      "what": "start the base code-size agent while the size cliff runs",
+      "why": "stream 1 step 4 needs no cliff result; the wheel candidates wait for it (they depend on a Zen 3 cliff)"
+    },
+    {
+      "utc": "2026-10-11T07:16:56Z",
+      "level": "info",
+      "text": "s1-base-codesize (base) running: Measure the hot dense/sparse code bytes per target (incl. the x16 copy and NEON); if the dense switch is large, a generic loop for factors 65-127",
+      "auto": true
     }
   ],
   "research": {
