@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T20:45:41Z",
+  "updated_utc": "2026-10-11T20:52:48Z",
   "run": {
     "id": "ap-20261011T1929Z",
     "state": "running",
@@ -1991,6 +1991,29 @@
       "prediction": "+5% to +15% at 1T on Zen 5 and Zen 3; Cobalt must build and not lose",
       "verdict": "running",
       "commit": "a8f8435"
+    },
+    {
+      "id": "ox-005",
+      "entry": "oxcaml",
+      "title": "Profile of the OxCaml champion",
+      "tier": "permitted",
+      "kind": "permitted",
+      "plain": "If we time each phase again after the vector copy, then we know the new biggest target, because the copy changed the shares.",
+      "verdict": "confirmed",
+      "commit": "09704bd",
+      "note": "sparse 50%, dense copy 35%, pattern build 9%; dense limit flat 96-160"
+    },
+    {
+      "id": "ox-006",
+      "entry": "oxcaml",
+      "title": "256-bit OR over two runs per step",
+      "tier": "extra-faithful",
+      "kind": "borrowed",
+      "source": "plain line ocaml-004",
+      "plain": "If each loaded pattern vector is ORed into two runs of the sieve, then the dense copy does fewer loads, because one load serves two stores.",
+      "prediction": "+3% to +8% at 1T on Zen 5 and Zen 3",
+      "verdict": "running",
+      "commit": "2ef6a1d"
     }
   ],
   "azure_queue": 0,
@@ -2000,31 +2023,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T12:15:01Z",
-      "level": "info",
-      "text": "r9-final done.. hc/champion-tables-r9 57e0792 = hc/champion 216629d + solution_3 (4a42d98) + solution_3.gitignore; built and self-tested locally. Wheel kind: solution_3 (cand) vs solution_1 (champ), ctrl c5 (Rust on Cobalt), ctrl2 dsp. Base kind: 57e0792 vs run start 3ad0427, ctrl Rust. 6 rounds, four chips",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T12:15:01Z",
-      "level": "info",
-      "text": "r9-final-ports done.. C++ wheel bf7619a vs 547221c (idea12, reverted), C++ base 558a949 vs 3045246, Rust wheel a8d9f07 vs 72932c7, Rust base b6b35f0 vs b1e49eb (AVX-512 on), Zig 8ba3386 vs 2de555d (base and wheel). 6 rounds each",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T19:30:12Z",
-      "level": "info",
-      "text": "Run ap-20261011T1929Z started (run 10, the OxCaml climb, RUN-PLAN a6fec38). Time box 6 h to 2026-10-12 01:29 UTC; stop starting experiments at 00:44 UTC. Keep rule as run 9: per thread at 1T and 4T on Zen 5 and Zen 3, Intel AVX2 and Cobalt as gates, all-threads recorded only. ISPC entries frozen; ISPC builds appear only as controls."
-    },
-    {
-      "utc": "2026-10-11T19:36:29Z",
-      "level": "decision",
-      "text": "run: opam.ocaml.org reachable from the container (HTTP 200); build OxCaml on Batch for the bench image and locally for compile checks. Why: RUN-PLAN phase 0 says build locally too when the site is reachable; local builds give fast compile checks while Batch builds the image the bench loads.",
-      "id": "run",
-      "what": "opam.ocaml.org reachable from the container (HTTP 200); build OxCaml on Batch for the bench image and locally for compile checks",
-      "why": "RUN-PLAN phase 0 says build locally too when the site is reachable; local builds give fast compile checks while Batch builds the image the bench loads"
-    },
     {
       "utc": "2026-10-11T19:36:29Z",
       "level": "decision",
@@ -2344,6 +2342,34 @@
       "why": "the SIMD copy changed the phase shares, so the next target needs a fresh profile; the two-run step is ahead on Zen 5 in the plain line and ports in a few lines",
       "instead": "an arm64 investigation (Cobalt is a gate, not a decider, and needs Batch access an agent doesn't have)",
       "expect": "two-run +3% to +8%; limit 0% to +5%"
+    },
+    {
+      "utc": "2026-10-11T20:52:48Z",
+      "level": "decision",
+      "text": "ox-006: submit two-runs (2ef6a1d vs cbcd24d) on Zen 5 and Zen 3; no Cobalt run; park the OxCaml dense limit. Why: rebuilt here, PRIMES_TEST=1 exits 0; diff is amd64/dense.ml only, which arm64 never compiles, so the Cobalt binary is byte-identical (target-specific rule). Limit 96 was +1.3% locally, inside noise, and the diag sweep was flat 96-160; the plain line's 64/96 runs will say whether a limit is worth Zen time. Passed over: limit 96 on Zen. Expect: +3% to +8%.",
+      "id": "ox-006",
+      "what": "submit two-runs (2ef6a1d vs cbcd24d) on Zen 5 and Zen 3; no Cobalt run; park the OxCaml dense limit",
+      "why": "rebuilt here, PRIMES_TEST=1 exits 0; diff is amd64/dense.ml only, which arm64 never compiles, so the Cobalt binary is byte-identical (target-specific rule). Limit 96 was +1.3% locally, inside noise, and the diag sweep was flat 96-160; the plain line's 64/96 runs will say whether a limit is worth Zen time",
+      "instead": "limit 96 on Zen",
+      "expect": "+3% to +8%"
+    },
+    {
+      "utc": "2026-10-11T20:52:48Z",
+      "level": "info",
+      "text": "ox-005 (oxcaml) confirmed: ",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T20:52:48Z",
+      "level": "info",
+      "text": "ox-006 (oxcaml) running: ",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T20:52:48Z",
+      "level": "info",
+      "text": "ocaml-004: evaluate. ocaml-004 Zen 3, limit sweep, ox-004 running; ox-005/006 agent working",
+      "auto": true
     }
   ],
   "research": {

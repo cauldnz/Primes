@@ -993,6 +993,11 @@ Earlier entries:
 
 ## Where the cycles go
 
+**Run 10, OxCaml champion cbcd24d (ox-005, 2026-10-12 07:50 AEST).** rdtsc cycles a pass at 1T,
+shared container Xeon: sparse 250k (50%), dense copy 180k (35%, 0.79 cycles per word with
+256-bit vectors), dense pattern build 44k (9%), setup 7k, scan 6k. Sparse is now the largest
+phase (2.0 cycles per mark). Dense limit flat from 96 to 160, worse at 64 and at 192 and above.
+
 **Run 10, plain OCaml base (ocaml-003, 2026-10-12 07:20 AEST).** rdtsc cycles a pass at 1T on the
 shared 4-vCPU Xeon in the container (not Zen), from `results/hc/ocaml-003-profile/`:
 
