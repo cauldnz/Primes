@@ -13,8 +13,10 @@ in the morning report of run ap-20261011T0100Z in `STATUS.md`.
   Every pool's deadline is the run's end; take a pool down as soon as its work is done.
 - Check the CPU model line of every log against the pool's intended chip before counting it
   (`D16as_v5` gave both Zen 3 and Zen 4 last run). A run on the wrong chip doesn't count.
-- Start from a cleared conversation, as last run. Write a "Run ... started" event first thing
-  (`st.py`), so the token counter can attribute the run.
+- This run continues the last run's conversation (Chris, 16:41: no clear), so its tokens per
+  experiment are a check on what clearing bought. Write a "Run ... started" event first thing
+  (`st.py`), so the token counter can attribute the run, and report main-session and
+  background-agent tokens separately.
 
 ## The keep rule for this run
 
