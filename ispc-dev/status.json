@@ -1,19 +1,19 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T12:15:01Z",
+  "updated_utc": "2026-10-11T19:30:12Z",
   "run": {
-    "id": "ap-20261011T0645Z",
-    "state": "stopped",
+    "id": "ap-20261011T1929Z",
+    "state": "running",
     "mode": "azure",
-    "mode_reason": "Chris started run 9 in the same conversation (RUN-PLAN 16:50: size stream, submission-ready phase 0, fixed port shares). Azure via the container's cached service-principal login (the env secret was not used); Batch account and group set inline for this session.",
-    "started_utc": "2026-10-11T06:45:00Z",
+    "mode_reason": "Run 10 (OxCaml). Azure via the container's cached login; Batch account and group set inline for this session.",
+    "started_utc": "2026-10-11T19:29:00Z",
     "time_box_hours": 6,
-    "spend_nzd": 7.77,
+    "spend_nzd": 0,
     "spend_cap_nzd": 25,
-    "ends_utc": "2026-10-11T12:45:00Z",
+    "ends_utc": "2026-10-12T01:29:00Z",
     "background_runs": 0,
     "last_tick_utc": "2026-10-11T12:14:23Z",
-    "wakeup": "trig_01JrwhqJ8ZScryUEjaNohNQm"
+    "wakeup": null
   },
   "current": null,
   "scoreboard": [
@@ -1850,14 +1850,6 @@
   ],
   "events": [
     {
-      "utc": "2026-10-11T08:08:02Z",
-      "level": "decision",
-      "text": "r9-zig-tables: start the Zig tables agent. Why: Zig's fixed share: third experiment; the comptime precedent is in Zig itself, and our tables entry gained 17-19%.",
-      "id": "r9-zig-tables",
-      "what": "start the Zig tables agent",
-      "why": "Zig's fixed share: third experiment; the comptime precedent is in Zig itself, and our tables entry gained 17-19%"
-    },
-    {
       "utc": "2026-10-11T08:08:03Z",
       "level": "info",
       "text": "r9-zig-tables (zig-wheel) running: Zig wheel: start offsets (and patterns if simple) as comptime tables, run-time fallback beyond them",
@@ -2203,6 +2195,11 @@
       "level": "info",
       "text": "r9-final-ports done.. C++ wheel bf7619a vs 547221c (idea12, reverted), C++ base 558a949 vs 3045246, Rust wheel a8d9f07 vs 72932c7, Rust base b6b35f0 vs b1e49eb (AVX-512 on), Zig 8ba3386 vs 2de555d (base and wheel). 6 rounds each",
       "auto": true
+    },
+    {
+      "utc": "2026-10-11T19:30:12Z",
+      "level": "info",
+      "text": "Run ap-20261011T1929Z started (run 10, the OxCaml climb, RUN-PLAN a6fec38). Time box 6 h to 2026-10-12 01:29 UTC; stop starting experiments at 00:44 UTC. Keep rule as run 9: per thread at 1T and 4T on Zen 5 and Zen 3, Intel AVX2 and Cobalt as gates, all-threads recorded only. ISPC entries frozen; ISPC builds appear only as controls."
     }
   ],
   "research": {
