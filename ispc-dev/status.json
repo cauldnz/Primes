@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T20:16:15Z",
+  "updated_utc": "2026-10-11T20:16:59Z",
   "run": {
     "id": "ap-20261011T1929Z",
     "state": "running",
@@ -1933,23 +1933,6 @@
   "events": [
     {
       "utc": "2026-10-11T10:07:03Z",
-      "level": "decision",
-      "text": "r9-rust-wheel-combo: KEEP; hc/port-rust-wheel-champion -> a8d9f07. Why: over the pattern fix alone: Zen 5 4T +13.9% (lower +13.1%), Zen 3 4T +7.6% (lower +5.3%); the two gains add. Expect: Rust wheel now 5% behind the ISPC wheel on Zen 5 at 1T (was 24%).",
-      "id": "r9-rust-wheel-combo",
-      "what": "KEEP; hc/port-rust-wheel-champion -> a8d9f07",
-      "why": "over the pattern fix alone: Zen 5 4T +13.9% (lower +13.1%), Zen 3 4T +7.6% (lower +5.3%); the two gains add",
-      "expect": "Rust wheel now 5% behind the ISPC wheel on Zen 5 at 1T (was 24%)"
-    },
-    {
-      "utc": "2026-10-11T10:07:03Z",
-      "level": "decision",
-      "text": "r9-zig-base-wide: REVERT. Why: Zen 5 -8.9% 1T: Zig 0.13 emits no 512-bit ops on Zen 5 (no evex512), so the wider step only doubles 256-bit work; Zen 3 -2% from the bigger binary.",
-      "id": "r9-zig-base-wide",
-      "what": "REVERT",
-      "why": "Zen 5 -8.9% 1T: Zig 0.13 emits no 512-bit ops on Zen 5 (no evex512), so the wider step only doubles 256-bit work; Zen 3 -2% from the bigger binary"
-    },
-    {
-      "utc": "2026-10-11T10:07:03Z",
       "level": "info",
       "text": "r9-zig-base-wide REVERT.. hc/zig-base-wide 13edc68: dense resetter at twice the step width (VBW = 2 VB) on Zen 5 with one thread per core; PRIMES_WIDE override; self-test on/off. Caveat: Zig 0.13 has no znver5 and never sets evex512 there, so Zen 5 already runs 16-word steps as 256-bit ops; this doubles them. Zen 5 + Zen 3 6 rounds vs a90b985",
       "auto": true
@@ -2273,6 +2256,26 @@
       "level": "info",
       "text": "ocaml-003 (ocaml-plain) confirmed: ",
       "auto": true
+    },
+    {
+      "utc": "2026-10-11T20:16:59Z",
+      "level": "decision",
+      "text": "ocaml-004: background agent: plain OCaml dense OR over two runs per step (ocaml-004), then dense limit 64 and 96 on top (ocaml-005). Why: the profile's change 1 measured +17% on the dense loop locally, and the dense loop is 54% of a pass; the limit sweep is its change 3, tuned after the loop gets cheaper. Passed over: Bigarray word indexing for plain OCaml (unmeasured, GC risk). Expect: ocaml-004 +8% to +13% at 1T; limit 0% to +8%.",
+      "id": "ocaml-004",
+      "what": "background agent: plain OCaml dense OR over two runs per step (ocaml-004), then dense limit 64 and 96 on top (ocaml-005)",
+      "why": "the profile's change 1 measured +17% on the dense loop locally, and the dense loop is 54% of a pass; the limit sweep is its change 3, tuned after the loop gets cheaper",
+      "instead": "Bigarray word indexing for plain OCaml (unmeasured, GC risk)",
+      "expect": "ocaml-004 +8% to +13% at 1T; limit 0% to +8%"
+    },
+    {
+      "utc": "2026-10-11T20:16:59Z",
+      "level": "decision",
+      "text": "ox-004: background agent: untagged index arithmetic in the OxCaml sparse and vector dense loops (ox-004, on ox-003). Why: sparse is 36% of a pass and unchanged by ox-003; OCaml's tagged ints cost about four extra instructions per mark, and OxCaml's unboxed integer types are the extension most likely to remove them. Passed over: porting the two-run dense step to OxCaml (wait for ocaml-004's Azure result first). Expect: +5% to +15% at 1T.",
+      "id": "ox-004",
+      "what": "background agent: untagged index arithmetic in the OxCaml sparse and vector dense loops (ox-004, on ox-003)",
+      "why": "sparse is 36% of a pass and unchanged by ox-003; OCaml's tagged ints cost about four extra instructions per mark, and OxCaml's unboxed integer types are the extension most likely to remove them",
+      "instead": "porting the two-run dense step to OxCaml (wait for ocaml-004's Azure result first)",
+      "expect": "+5% to +15% at 1T"
     }
   ],
   "research": {
