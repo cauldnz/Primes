@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T07:07:58Z",
+  "updated_utc": "2026-10-11T07:08:24Z",
   "run": {
     "id": "ap-20261011T0645Z",
     "state": "running",
@@ -1640,6 +1640,16 @@
       "prediction": "0 to +4% at 1T (the extra 13 pass is ~2.9k of 61k cycles on Zen 5)",
       "plain": "If the Zig wheel marks 13 while it copies the 7-and-11 tile, then it saves a whole pass over the sieve, because the ISPC wheel does it that way.",
       "note": "hc/zig-wheel-group 022e479; agent: Zig group loop already equals ISPC per member (13.1 vs 14.3 instr/member/step); self-test 26/26 native and SSE2; local neutral to -2.6% (3 of 4 pairs). AMD screen per Chris rule: Zen 5 + Zen 3 6 rounds"
+    },
+    {
+      "id": "r9-zig-base",
+      "entry": "zig-base",
+      "tier": "extra-faithful",
+      "kind": "borrowed",
+      "verdict": "running",
+      "hypothesis": "Zig base: compiled dense/sparse paths against the ISPC base, then one change on the biggest difference",
+      "plain": "If the Zig base gets the part of the ISPC base that differs most, then it closes some of its 10% gap, because the two do the same work otherwise.",
+      "note": "agent building hc/zig-base-r9"
     }
   ],
   "azure_queue": 0,
@@ -1649,22 +1659,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T03:11:36Z",
-      "level": "decision",
-      "text": "run: phase 1 freeze: hc/ispc-ref = 1551635 (no ISPC keep this run); scoreboard queued on Zen 5, Zen 3 and a new 1-node Zen 4 pool; Zen 3 max 3 -> 2 and Cobalt 2 -> 1 to stay at 116 of 128 vCPUs; fold-1pc submitted on Zen 5 and Zen 4. Why: RUN-PLAN's phase 1 scoreboard and Zen 4 rechecks for the keeps (Rust AVX-512 off); fold-1pc is the base 1T candidate Chris's +4% target needs; the local -9% is Cascade Lake's 512-bit penalty, not Zen. Passed over: a D16as_v6 node for a real Zen 4 AVX-512 check of fold-1pc (no vCPU room). Expect: fold-1pc Zen 5 1T +5% to +8%.",
-      "id": "run",
-      "what": "phase 1 freeze: hc/ispc-ref = 1551635 (no ISPC keep this run); scoreboard queued on Zen 5, Zen 3 and a new 1-node Zen 4 pool; Zen 3 max 3 -> 2 and Cobalt 2 -> 1 to stay at 116 of 128 vCPUs; fold-1pc submitted on Zen 5 and Zen 4",
-      "why": "RUN-PLAN's phase 1 scoreboard and Zen 4 rechecks for the keeps (Rust AVX-512 off); fold-1pc is the base 1T candidate Chris's +4% target needs; the local -9% is Cascade Lake's 512-bit penalty, not Zen",
-      "instead": "a D16as_v6 node for a real Zen 4 AVX-512 check of fold-1pc (no vCPU room)",
-      "expect": "fold-1pc Zen 5 1T +5% to +8%"
-    },
-    {
-      "utc": "2026-10-11T03:11:36Z",
-      "level": "info",
-      "text": "sb-ispc-ref (both) running: Phase 1 final scoreboard at hc/ispc-ref = 1551635: base and wheel on Zen 5, Zen 3, Zen 4, per thread at 1T and 4T, with rivals",
-      "auto": true
-    },
     {
       "utc": "2026-10-11T03:27:46Z",
       "level": "decision",
@@ -1983,6 +1977,20 @@
       "utc": "2026-10-11T07:07:58Z",
       "level": "info",
       "text": "r9-zig-wheel-group (zig-wheel) running: Zig wheel: write each plane once as tile | 13-pattern instead of a tile copy plus a separate 13 group pass (ISPC IDEAS 12 shape)",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T07:08:24Z",
+      "level": "decision",
+      "text": "r9-zig-base: start the Zig base agent. Why: RUN-PLAN stream 2: Zig's share continues with its base after the wheel.",
+      "id": "r9-zig-base",
+      "what": "start the Zig base agent",
+      "why": "RUN-PLAN stream 2: Zig's share continues with its base after the wheel"
+    },
+    {
+      "utc": "2026-10-11T07:08:24Z",
+      "level": "info",
+      "text": "r9-zig-base (zig-base) running: Zig base: compiled dense/sparse paths against the ISPC base, then one change on the biggest difference",
       "auto": true
     }
   ],
