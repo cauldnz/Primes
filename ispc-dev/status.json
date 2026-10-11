@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T02:08:12Z",
+  "updated_utc": "2026-10-11T02:10:03Z",
   "run": {
     "id": "ap-20261011T0100Z",
     "state": "running",
@@ -1353,7 +1353,7 @@
       "hypothesis": "Cheaper sparse start offsets computed at run time (one division per prime and a residue walk, or the 8 planes vectorised)",
       "prediction": "+3% to +8% at 1T (start offsets are 15.3% on Zen 5)",
       "plain": "If the wheel finds where each large prime starts in all eight planes with one division instead of eight, then a pass gets faster, because that step takes about a seventh of the time now.",
-      "note": "agent building hc/s5-starts-ef from hc/champion"
+      "note": "hc/s5-starts-ef 71bda5d: start_bits8 computes p^2 once and the 8 starts as independent products divided by the constant 30 (a multiply); used for sparse primes and dense members. Self-test passes here; agent: 5,300 odd sizes x 3 targets, 0 mismatches; local 1T +1% to +9.5% (4 pairs); start-offset phase 12.2% -> 7.5% locally. Zen 5 + Zen 3 6 rounds, Cobalt 5 rounds (shared code)"
     },
     {
       "id": "s5-tables",
@@ -1387,6 +1387,17 @@
       "prediction": "a tie within ±1% at 1T",
       "plain": "If we run our base and the fastest Rust base side by side twenty times on the official runner type, then we know whether ours wins, ties or loses at one thread, because one or two runs cannot tell a 1% difference from noise.",
       "note": "cand hc/scoreboard-base = 1551635 with a README-only change"
+    },
+    {
+      "id": "p-rust-base-2",
+      "entry": "rust-base",
+      "tier": "extra-faithful",
+      "kind": "borrowed",
+      "verdict": "running",
+      "hypothesis": "Phase split of our Rust base vs mike-barber locally, then one change on the phase where ours costs more",
+      "prediction": "+2% to +6% at 1T",
+      "plain": "If we time each step of our Rust base beside the fastest Rust entry, then the step where ours is slower tells us what to change, because the sparse loops already match instruction for instruction.",
+      "note": "agent building hc/port-rust-base-2"
     }
   ],
   "azure_queue": 0,
@@ -1396,18 +1407,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T23:08:09Z",
-      "level": "info",
-      "text": "f6-no512 (wheel and base) running: IDEAS F6: AVX-512 target off may hold a higher all-core clock at 96T; expect -2% to +4% at 96T",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T23:15:09Z",
-      "level": "info",
-      "text": "zig-f1 (Zig base (port, grey)) running: F1 ported to the Zig base",
-      "auto": true
-    },
     {
       "utc": "2026-10-10T23:15:09Z",
       "level": "warn",
@@ -1760,6 +1759,24 @@
       "what": "Cobalt pool (1 node) up; base profile pair on it; 20-round Zen 5 base scoreboard queued; Rust base ideas get the next agent slot ahead of the C++ wheel",
       "why": "Chris's base instructions; Cobalt adds 4 vCPUs (116 of 128); the profile task runs both instrumented builds in one task so their shares are comparable",
       "instead": "rebalancing Zen 3 down to 2 nodes to speed the Zen 5 queue (13 queued; the scoreboard lands about 03:15, inside the cutoff)"
+    },
+    {
+      "utc": "2026-10-11T02:09:56Z",
+      "level": "decision",
+      "text": "s5-starts-ef: submit on Zen 5, Zen 3 and Cobalt 100. Why: verified build and self-test here; the diff uses only RES/PLANE (constants of 30), so it stays extra-faithful; the Cobalt gate applies because start_bits8 is shared code. Expect: +3% to +6% at 1T on Zen.",
+      "id": "s5-starts-ef",
+      "what": "submit on Zen 5, Zen 3 and Cobalt 100",
+      "why": "verified build and self-test here; the diff uses only RES/PLANE (constants of 30), so it stays extra-faithful; the Cobalt gate applies because start_bits8 is shared code",
+      "expect": "+3% to +6% at 1T on Zen"
+    },
+    {
+      "utc": "2026-10-11T02:10:03Z",
+      "level": "decision",
+      "text": "p-rust-base-2: start a second Rust base idea agent ahead of any C++ wheel work. Why: Chris: at least three Rust base experiments against mike-barber; the two already on Azure are a build flag and a borrowed resetter that lost locally, so a phase-guided clean idea is next. Passed over: byte sparse kernel for the ISPC wheel (history audit row 6).",
+      "id": "p-rust-base-2",
+      "what": "start a second Rust base idea agent ahead of any C++ wheel work",
+      "why": "Chris: at least three Rust base experiments against mike-barber; the two already on Azure are a build flag and a borrowed resetter that lost locally, so a phase-guided clean idea is next",
+      "instead": "byte sparse kernel for the ISPC wheel (history audit row 6)"
     }
   ],
   "research": {
