@@ -1,0 +1,194 @@
+Architecture:                            aarch64
+CPU(s):                                  4
+Model name:                              Neoverse-N2
+BIOS Model name:                         Cobalt 100 None CPU @ 3.4GHz
+AVX-512: no
+kind=ocaml rounds=1 id=2235059536
+build cand
+build cand seconds: 3
+build champ
+build champ seconds: 1
+build ctx
+build ctx seconds: 0
+build gk1 (PrimeOCaml/solution_1)
+build gk2 (PrimeOCaml/solution_2)
+self-test cand: 13 ok, 0 bad, exit=0
+self-test champ: 13 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-oxcaml-diag;setup;1116.8;0.16;0
+cauldnz-oxcaml-diag;dense_pattern;22812.6;3.26;0
+cauldnz-oxcaml-diag;dense_copy;561462.4;80.28;0
+cauldnz-oxcaml-diag;sparse;97019.1;13.87;0
+cauldnz-oxcaml-diag;scan;99.7;0.01;0
+cauldnz-oxcaml-diag;total;699341.3;100.00;0
+cauldnz-oxcaml-diag;minor_words_per_pass;6.0;0;0
+cauldnz-oxcaml-diag;major_words_per_pass;8373.4;0;0
+cauldnz-oxcaml-diag;asm;camlDense__store_runs_0_2_code:;0;0
+cauldnz-oxcaml-diag;asm;.LcamlDense__store_runs_0_2_code:;0;0
+cauldnz-oxcaml-diag;asm; orr x5, xzr, x0;0;0
+cauldnz-oxcaml-diag;asm; orr x0, xzr, x2;0;0
+cauldnz-oxcaml-diag;asm; subs xzr, x3, #3;0;0
+cauldnz-oxcaml-diag;asm; b.lt .L162;0;0
+cauldnz-oxcaml-diag;asm; sub sp, sp, #16;0;0
+cauldnz-oxcaml-diag;asm; str lr, [sp, #8];0;0
+cauldnz-oxcaml-diag;asm; sbfm x2, x3, #1, #63;0;0
+cauldnz-oxcaml-diag;asm; orr x3, xzr, #1;0;0
+cauldnz-oxcaml-diag;asm;.L115:;0;0
+cauldnz-oxcaml-diag;asm; orr x6, xzr, #1;0;0
+cauldnz-oxcaml-diag;asm; subs xzr, x6, x4;0;0
+cauldnz-oxcaml-diag;asm; b.ge .L150;0;0
+cauldnz-oxcaml-diag;asm;.L119:;0;0
+cauldnz-oxcaml-diag;asm; add x7, x0, x6;0;0
+cauldnz-oxcaml-diag;asm; sub x7, x7, #1;0;0
+cauldnz-oxcaml-diag;asm; add x8, x5, x7, asr #1;0;0
+cauldnz-oxcaml-diag;asm; add x9, x1, x6, asr #1;0;0
+cauldnz-oxcaml-diag;asm; ldr x9, [x9, #0];0;0
+cauldnz-oxcaml-diag;asm; dmb ishld;0;0
+cauldnz-oxcaml-diag;asm; str x9, [x8, #0];0;0
+cauldnz-oxcaml-diag;asm; add x8, x7, #16;0;0
+cauldnz-oxcaml-diag;asm; add x8, x5, x8, asr #1;0;0
+cauldnz-oxcaml-diag;asm; add x9, x6, #16;0;0
+cauldnz-oxcaml-diag;asm; add x9, x1, x9, asr #1;0;0
+cauldnz-oxcaml-diag;asm; ldr x9, [x9, #0];0;0
+cauldnz-oxcaml-diag;asm; dmb ishld;0;0
+cauldnz-oxcaml-diag;asm; str x9, [x8, #0];0;0
+cauldnz-oxcaml-diag;asm; add x8, x7, #32;0;0
+cauldnz-oxcaml-diag;asm; add x8, x5, x8, asr #1;0;0
+cauldnz-oxcaml-diag;asm; add x9, x6, #32;0;0
+cauldnz-oxcaml-diag;asm; add x9, x1, x9, asr #1;0;0
+cauldnz-oxcaml-diag;asm; ldr x9, [x9, #0];0;0
+cauldnz-oxcaml-diag;asm; dmb ishld;0;0
+cauldnz-oxcaml-diag;asm; str x9, [x8, #0];0;0
+cauldnz-oxcaml-diag;asm; add x7, x7, #48;0;0
+cauldnz-oxcaml-diag;asm; add x7, x5, x7, asr #1;0;0
+cauldnz-oxcaml-diag;asm; add x8, x6, #48;0;0
+cauldnz-oxcaml-diag;asm; add x8, x1, x8, asr #1;0;0
+cauldnz-oxcaml-diag;asm; ldr x8, [x8, #0];0;0
+cauldnz-oxcaml-diag;asm; dmb ishld;0;0
+cauldnz-oxcaml-diag;asm; str x8, [x7, #0];0;0
+cauldnz-oxcaml-diag;asm; add x6, x6, #64;0;0
+cauldnz-oxcaml-diag;asm; ldr x16, [x28, #0];0;0
+cauldnz-oxcaml-diag;asm; subs xzr, x27, x16;0;0
+cauldnz-oxcaml-diag;asm; b.ls .L172;0;0
+cauldnz-oxcaml-diag;asm;.L173:;0;0
+cauldnz-oxcaml-diag;asm; subs xzr, x6, x4;0;0
+cauldnz-oxcaml-diag;asm; b.lt .L119;0;0
+cauldnz-oxcaml-diag;asm;.L150:;0;0
+cauldnz-oxcaml-diag;asm; add x0, x0, x4;0;0
+cauldnz-oxcaml-diag;asm; sub x0, x0, #1;0;0
+cauldnz-oxcaml-diag;asm; add x3, x3, #1;0;0
+cauldnz-oxcaml-diag;asm; subs xzr, x3, x2;0;0
+cauldnz-oxcaml-diag;asm; b.gt .L157;0;0
+cauldnz-oxcaml-diag;asm; ldr x16, [x28, #0];0;0
+cauldnz-oxcaml-diag;asm; subs xzr, x27, x16;0;0
+cauldnz-oxcaml-diag;asm; b.ls .L175;0;0
+cauldnz-oxcaml-diag;asm;.L176:;0;0
+cauldnz-oxcaml-diag;asm; b .L115;0;0
+cauldnz-oxcaml-diag;asm;.L157:;0;0
+cauldnz-oxcaml-diag;asm; ldr lr, [sp, #8];0;0
+cauldnz-oxcaml-diag;asm; add sp, sp, #16;0;0
+cauldnz-oxcaml-diag;asm; ret;0;0
+cauldnz-oxcaml-diag;asm;.L162:;0;0
+cauldnz-oxcaml-diag;asm; ret;0;0
+cauldnz-oxcaml-diag;asm;.L175:;0;0
+cauldnz-oxcaml-diag;asm; bl caml_call_gc;0;0
+cauldnz-oxcaml-diag;asm;.L174:;0;0
+cauldnz-oxcaml-diag;asm; b .L176;0;0
+cauldnz-oxcaml-diag;asm;.L172:;0;0
+cauldnz-oxcaml-diag;asm; bl caml_call_gc;0;0
+cauldnz-oxcaml-diag;asm;.L171:;0;0
+cauldnz-oxcaml-diag;asm; b .L173;0;0
+cauldnz-oxcaml-diag;asm;camlDense__or_runs_1_3_code:;0;0
+cauldnz-oxcaml-diag;asm;.LcamlDense__or_runs_1_3_code:;0;0
+cauldnz-oxcaml-diag;asm; orr x5, xzr, x0;0;0
+cauldnz-oxcaml-diag;asm; orr x0, xzr, x2;0;0
+cauldnz-oxcaml-diag;asm; subs xzr, x3, #3;0;0
+cauldnz-oxcaml-diag;asm; b.lt .L255;0;0
+cauldnz-oxcaml-diag;asm; sub sp, sp, #16;0;0
+cauldnz-oxcaml-diag;asm; str lr, [sp, #8];0;0
+cauldnz-oxcaml-diag;asm; sbfm x2, x3, #1, #63;0;0
+cauldnz-oxcaml-diag;asm; orr x3, xzr, #1;0;0
+cauldnz-oxcaml-diag;asm;.L192:;0;0
+cauldnz-oxcaml-diag;asm; orr x6, xzr, #1;0;0
+cauldnz-oxcaml-diag;asm; subs xzr, x6, x4;0;0
+cauldnz-oxcaml-diag;asm; b.ge .L243;0;0
+cauldnz-oxcaml-diag;asm;.L196:;0;0
+cauldnz-oxcaml-diag;asm; add x7, x0, x6;0;0
+cauldnz-oxcaml-diag;asm; sub x7, x7, #1;0;0
+cauldnz-oxcaml-diag;asm; sbfm x8, x7, #1, #63;0;0
+cauldnz-oxcaml-diag;asm; add x8, x5, x8;0;0
+cauldnz-oxcaml-diag;asm; add x9, x1, x6, asr #1;0;0
+cauldnz-oxcaml-diag;asm; ldr x9, [x9, #0];0;0
+cauldnz-oxcaml-diag;asm; ldr x10, [x8, #0];0;0
+cauldnz-oxcaml-diag;asm; orr x9, x10, x9;0;0
+cauldnz-oxcaml-diag;asm; dmb ishld;0;0
+cauldnz-oxcaml-diag;asm; str x9, [x8, #0];0;0
+cauldnz-oxcaml-diag;asm; add x8, x7, #16;0;0
+cauldnz-oxcaml-diag;asm; sbfm x8, x8, #1, #63;0;0
+cauldnz-oxcaml-diag;asm; add x8, x5, x8;0;0
+cauldnz-oxcaml-diag;asm; add x9, x6, #16;0;0
+cauldnz-oxcaml-diag;asm; add x9, x1, x9, asr #1;0;0
+cauldnz-oxcaml-diag;asm; ldr x9, [x9, #0];0;0
+cauldnz-oxcaml-diag;asm; ldr x10, [x8, #0];0;0
+cauldnz-oxcaml-diag;asm; orr x9, x10, x9;0;0
+cauldnz-oxcaml-diag;asm; dmb ishld;0;0
+cauldnz-oxcaml-diag;asm; str x9, [x8, #0];0;0
+cauldnz-oxcaml-diag;asm; add x8, x7, #32;0;0
+cauldnz-oxcaml-diag;asm; sbfm x8, x8, #1, #63;0;0
+cauldnz-oxcaml-diag;asm; add x8, x5, x8;0;0
+cauldnz-oxcaml-diag;asm; add x9, x6, #32;0;0
+cauldnz-oxcaml-diag;asm; add x9, x1, x9, asr #1;0;0
+cauldnz-oxcaml-diag;asm; ldr x9, [x9, #0];0;0
+cauldnz-oxcaml-diag;asm; ldr x10, [x8, #0];0;0
+cauldnz-oxcaml-diag;asm; orr x9, x10, x9;0;0
+cauldnz-oxcaml-diag;asm; dmb ishld;0;0
+cauldnz-oxcaml-diag;asm; str x9, [x8, #0];0;0
+cauldnz-oxcaml-diag;asm; add x7, x7, #48;0;0
+cauldnz-oxcaml-diag;asm; sbfm x7, x7, #1, #63;0;0
+cauldnz-oxcaml-diag;asm; add x7, x5, x7;0;0
+cauldnz-oxcaml-diag;asm; add x8, x6, #48;0;0
+cauldnz-oxcaml-diag;asm; add x8, x1, x8, asr #1;0;0
+cauldnz-oxcaml-diag;asm; ldr x8, [x8, #0];0;0
+cauldnz-oxcaml-diag;asm; ldr x9, [x7, #0];0;0
+cauldnz-oxcaml-diag;asm; orr x8, x9, x8;0;0
+cauldnz-oxcaml-diag;asm; dmb ishld;0;0
+cauldnz-oxcaml-diag;asm; str x8, [x7, #0];0;0
+cauldnz-oxcaml-diag;asm; add x6, x6, #64;0;0
+cauldnz-oxcaml-diag;asm; ldr x16, [x28, #0];0;0
+cauldnz-oxcaml-diag;asm; subs xzr, x27, x16;0;0
+cauldnz-oxcaml-diag;asm; b.ls .L265;0;0
+cauldnz-oxcaml-diag;asm;.L266:;0;0
+cauldnz-oxcaml-diag;asm; subs xzr, x6, x4;0;0
+cauldnz-oxcaml-diag;asm; b.lt .L196;0;0
+cauldnz-oxcaml-diag;asm;.L243:;0;0
+cauldnz-oxcaml-diag;asm; add x0, x0, x4;0;0
+cauldnz-oxcaml-diag;asm; sub x0, x0, #1;0;0
+cauldnz-oxcaml-diag;asm; add x3, x3, #1;0;0
+cauldnz-oxcaml-diag;asm; subs xzr, x3, x2;0;0
+cauldnz-oxcaml-diag;asm; b.gt .L250;0;0
+cauldnz-oxcaml-diag;asm; ldr x16, [x28, #0];0;0
+cauldnz-oxcaml-diag;asm; subs xzr, x27, x16;0;0
+cauldnz-oxcaml-diag;asm; b.ls .L268;0;0
+cauldnz-oxcaml-diag;asm;.L269:;0;0
+cauldnz-oxcaml-diag;asm; b .L192;0;0
+cauldnz-oxcaml-diag;asm;.L250:;0;0
+cauldnz-oxcaml-diag;asm; ldr lr, [sp, #8];0;0
+cauldnz-oxcaml-diag;asm; add sp, sp, #16;0;0
+cauldnz-oxcaml-diag;asm; ret;0;0
+cauldnz-oxcaml-diag;asm;.L255:;0;0
+cauldnz-oxcaml-diag;asm; ret;0;0
+cauldnz-oxcaml-diag;asm;.L268:;0;0
+cauldnz-oxcaml-diag;asm; bl caml_call_gc;0;0
+cauldnz-oxcaml-diag;asm;  (truncated);0;0
+cauldnz-oxcaml-base;7300;5.000190;1;algorithm=base,faithful=yes,bits=1
+== round warmup champ
+cauldnz-oxcaml-base;7299;5.000325;1;algorithm=base,faithful=yes,bits=1
+cauldnz-oxcaml-base;27024;5.000822;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ2
+cauldnz-oxcaml-base;7300;5.000481;1;algorithm=base,faithful=yes,bits=1
+cauldnz-oxcaml-base;26818;5.000901;4;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl
+cauldnz-ispc-base;42161;5.000065;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;168112;5.000121;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;84166;5.000195;2;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl2

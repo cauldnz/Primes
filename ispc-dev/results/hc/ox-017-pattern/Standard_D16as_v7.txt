@@ -156,3 +156,18 @@ cauldnz-ispc-base;1006786;5.000186;16;algorithm=base,faithful=yes,bits=1
 cauldnz-ispc-base;983365;5.000082;8;algorithm=base,faithful=yes,bits=1
 cauldnz-ispc-base;520377;5.000050;4;algorithm=base,faithful=yes,bits=1
 == round 5 champ2
+cauldnz-oxcaml-base;70101;5.000061;1;algorithm=base,faithful=yes,bits=1
+cauldnz-oxcaml-base;367143;5.005272;16;algorithm=base,faithful=yes,bits=1
+cauldnz-oxcaml-base;253861;5.000403;4;algorithm=base,faithful=yes,bits=1
+== round 5 gk2
+gkpotter-unfaithful;1771;5.000306;1;algorithm=base,faithful=no
+== round 5 ctrl3
+gkpotter-faithful;1586;5.001344;1;algorithm=base,faithful=yes
+== round 5 champ
+cauldnz-oxcaml-base;69932;5.000022;1;algorithm=base,faithful=yes,bits=1
+cauldnz-oxcaml-base;368705;5.005112;16;algorithm=base,faithful=yes,bits=1
+cauldnz-oxcaml-base;252742;5.000375;4;algorithm=base,faithful=yes,bits=1
+== round 5 cand
+cauldnz-oxcaml-base;72266;5.000023;1;algorithm=base,faithful=yes,bits=1
+cauldnz-oxcaml-base;392596;5.002028;16;algorithm=base,faithful=yes,bits=1
+cauldnz-oxcaml-base;261962;5.000302;4;algorithm=base,faithful=yes,bits=1
