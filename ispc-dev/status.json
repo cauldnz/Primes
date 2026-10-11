@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T10:07:03Z",
+  "updated_utc": "2026-10-11T10:09:28Z",
   "run": {
     "id": "ap-20261011T0645Z",
     "state": "running",
@@ -1808,6 +1808,16 @@
       "hypothesis": "Zig tables line plus the one-pass tile|13 write (022e479)",
       "plain": "If the tables wheel also writes 7, 11 and 13 in one pass per plane, it gains the ~2% the faithful line got, because the passes are separate.",
       "note": "hc/zig-tables-group 138e074: 13 from PAT via patternGroup(7,11,13), tile in a stack scratch, one tile|13 write per plane; self-test native and baseline. Local 1T +2% vs 0886ddf (noise). Zen 5 + Zen 3 6 rounds vs 0886ddf"
+    },
+    {
+      "id": "r9-zig-evex512",
+      "entry": "zig",
+      "tier": "extra-faithful",
+      "kind": "tuning",
+      "verdict": "running",
+      "hypothesis": "Zig on Zen 5: build with -mcpu=native+evex512 (Zig 0.13 has no znver5, so native emits no zmm)",
+      "plain": "If the Zig build is told Zen 5 may use 512-bit instructions, the base and wheel get the wider operations ISPC and C++ already gain from there.",
+      "note": "hc/zig-zen5-evex512 66c0cce on hc/zig-champion-r9 8ba3386: build.sh gate (AuthenticAMD, family 26, avx512f, ZIG_CPU unset); off Zen 5 the build is byte-identical (target-specific rule: Zen 5 only). Local evex512 build self-test 0 wrong. Base and wheel, Zen 5 6 rounds each"
     }
   ],
   "azure_queue": 0,
@@ -1817,20 +1827,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T07:34:26Z",
-      "level": "info",
-      "text": "s1-tables-compact (wheel-tables) running: solution_3: read fewer table bytes per pass (patterns without the stored extension, or rotations computed), for 32 KB-L1 machines",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T07:43:48Z",
-      "level": "decision",
-      "text": "run: merge the 4T line (hc/champion 55be5a9); queue Rust base dense and solution_3 compact on AMD; Cobalt size cliff read. Why: phase 0 item 1 done; both agent results lost locally but Chris's rule sends them to AMD, and the compact tables target the 32 KB Zen 3.",
-      "id": "run",
-      "what": "merge the 4T line (hc/champion 55be5a9); queue Rust base dense and solution_3 compact on AMD; Cobalt size cliff read",
-      "why": "phase 0 item 1 done; both agent results lost locally but Chris's rule sends them to AMD, and the compact tables target the 32 KB Zen 3"
-    },
     {
       "utc": "2026-10-11T07:43:48Z",
       "level": "info",
@@ -2166,6 +2162,21 @@
       "utc": "2026-10-11T10:07:03Z",
       "level": "info",
       "text": "r9-rust-wheel-combo KEEP.. hc/port-rust-wheel-combo a8d9f07 (clean merge); self-test 0 wrong. Zen 5 + Zen 3 6 rounds vs df94b47",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T10:09:28Z",
+      "level": "decision",
+      "text": "r9-zig-evex512: start: Zig evex512 build flag on Zen 5, base and wheel. Why: the Zig base wide revert showed Zig 0.13 emits no 512-bit code on Zen 5; one build flag tests whether that is worth the 5-15% ISPC and C++ get there. Expect: base +3% to +8%, wheel 0 to +5% on Zen 5.",
+      "id": "r9-zig-evex512",
+      "what": "start: Zig evex512 build flag on Zen 5, base and wheel",
+      "why": "the Zig base wide revert showed Zig 0.13 emits no 512-bit code on Zen 5; one build flag tests whether that is worth the 5-15% ISPC and C++ get there",
+      "expect": "base +3% to +8%, wheel 0 to +5% on Zen 5"
+    },
+    {
+      "utc": "2026-10-11T10:09:28Z",
+      "level": "info",
+      "text": "r9-zig-evex512 (zig) running: Zig on Zen 5: build with -mcpu=native+evex512 (Zig 0.13 has no znver5, so native emits no zmm)",
       "auto": true
     }
   ],
