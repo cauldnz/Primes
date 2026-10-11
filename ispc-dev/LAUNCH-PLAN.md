@@ -10,10 +10,17 @@ gives the next something to link to. Owner in brackets: **C** is Chris, **W** th
   should have first.
 - [W] Run ap-20261011T0100Z ends about 15:00 AEST. Review the morning report; freeze the
   numbers we'll quote: `hc/ispc-ref`, the per-thread table, the port tables.
-- [C] Decide the 4-thread line. The multi-thread table ranks passes per second per thread, and
-  every faithful base leader there is a 4-thread line (2-thread on the Celeron and Pi), so
-  without one our entries rank below all of them (sessions 9746-9750, re-ranked 11 October). If
-  yes, the climber merges `hc/line-4t` into `hc/champion` before the landing branch is rebuilt.
+- **Decided 11 October, 15:45 (Chris):**
+  - **4-thread line: yes**, both entries. The climber builds `hc/line-4t` (a line at exactly 4
+    threads, skipped on machines with 4 or fewer), self-tests and measures it, then merges it
+    into `hc/champion` before the landing branch is rebuilt. README: one sentence on why.
+  - **Zen 4 and Intel AVX-512 check of fold-1pc: yes, before the PR** (`D16as_v6`, `D16s_v5`).
+    If it loses there, use the 16-lane loop on Zen 5 only, or say so in the README.
+  - **Tables wheel: kept off upstream.** `hc/champion-tables` stays a documented branch; a
+    separate entry can be reconsidered after the main PR merges.
+  - **Batch names in history: leave them now** and say so in the hill-climber README's security
+    notes; retire the account (new account and group with neutral names, old ones deleted)
+    after launch, when the next climb needs a quota request anyway (backlog).
 
 ## 1. The rules question goes with the PR, not before it
 
@@ -45,10 +52,9 @@ F1 or F2 arrives as a small follow-up PR to our own entry.
 - **No keys, secrets, subscription or tenant IDs** in any of our commits.
 - **The Batch account and resource group names are in old history** (29 and 22 mentions, mostly
   on early `hc/*` branches and in `ispc-dev` before the 10 October clean-up). They aren't secrets,
-  and nothing can be reached with them alone, but they break our own rule. Options: leave them
-  (they've been public since 9 October); delete the old `hc/0xx` branches that carry them
-  (keeping their code reachable through the ledger's commit hashes); or rewrite history. I'd
-  delete the branches and leave `ispc-dev` history alone. [C] to choose.
+  and nothing can be reached with them alone, but they break our own rule. Chris, 11 October: leave
+  them for now (deleting branches is partial and breaks ledger links; rewriting breaks every
+  link), and retire the account and group after launch.
 - **56 commits carry a personal email address as author.** Already public; the PR commits will
   use the GitHub no-reply address.
 
