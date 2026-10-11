@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T19:51:58Z",
+  "updated_utc": "2026-10-11T19:52:20Z",
   "run": {
     "id": "ap-20261011T1929Z",
     "state": "running",
@@ -13,7 +13,7 @@
     "ends_utc": "2026-10-12T01:29:00Z",
     "background_runs": 1,
     "last_tick_utc": "2026-10-11T19:51:31Z",
-    "wakeup": "trig_01MqZURtmDsqsjz8ccLSs8Qo"
+    "wakeup": "trig_01PjEugYDNG5q5bpWCnQCtcz"
   },
   "current": {
     "id": "ox-000",
@@ -1875,12 +1875,6 @@
   ],
   "events": [
     {
-      "utc": "2026-10-11T08:46:26Z",
-      "level": "info",
-      "text": "fold-zen5 kept.. KEEP (Chris's gate): Zen 5 holds (+6.8%, in line with +7.1% over 20 rounds), Zen 4 and Intel unchanged (+0.1%, 0.0%). Merged: hc/champion = 216629d (base self-test passes)",
-      "auto": true
-    },
-    {
       "utc": "2026-10-11T09:00:23Z",
       "level": "decision",
       "text": "s1-tables-compact: REVERT; solution_3 stays at 4a42d98. Why: loses on both deciders (Zen 5 -2.4%/-2.7%, Zen 3 -0.5%/-0.6%, -4.7% at 16T); the per-pass scratch writes cost more than the 19% fewer table bytes save. Passed over: more rounds (no route to +1%).",
@@ -2227,6 +2221,11 @@
       "utc": "2026-10-11T19:51:58Z",
       "level": "info",
       "text": "ox-000 amd64: OxCaml 5.2.0+ox switch built in 347 s on Zen 5 (EPYC 9V45, 16 vCPU); whole image 561 s; 4.78 GB image, 1.21 GB zstd, uploaded. flambda2 on. The plan expected 30 min or more. arm64 build on Cobalt started 19:40."
+    },
+    {
+      "utc": "2026-10-11T19:52:20Z",
+      "level": "info",
+      "text": "Waiting on the arm64 toolchain build and both agents; next tick 20:05 UTC."
     }
   ],
   "research": {
