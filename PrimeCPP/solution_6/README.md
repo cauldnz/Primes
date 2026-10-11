@@ -44,6 +44,14 @@ clearing routines follow mike-barber's Rust solution
   nothing about which numbers are prime beyond 2 being the only even one. Clearing starts at
   the period that holds `p²`; the smaller multiples in that period are composite too, and only
   `p` itself is restored afterwards.
+- **Factors 65 to 127, wide.** Here some words of a period hold no multiple, and GCC's
+  vectorisation of the period falls back to 128-bit and scalar ORs. On AVX-512 targets, when
+  each sieve thread has a core to itself (one thread, or at most half the CPUs),
+  `dense_wide<P>` is used instead: eight periods make `8p` words, split into `p` blocks of
+  eight. Each of a block's eight lanes builds its own word's mask, one single-bit OR per
+  composite, and the block gets one 512-bit OR and store. The word offsets are compile-time
+  constants, so the masks fold to constants. The GCC vector extension
+  (`vector_size(64)`) expresses this; there are still no intrinsics.
 - **Factors of 128 and above.** The same idea over bytes: eight multiples repeat every `p`
   bytes, each at a fixed bit position. Their byte offsets are computed once per factor and a
   pointer walks over the `p`-byte chunks, so each composite costs one OR instruction. The
