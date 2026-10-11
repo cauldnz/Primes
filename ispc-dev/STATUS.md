@@ -71,7 +71,9 @@ as a lower bound).
 ### Waiting for Chris
 
 - ox-021 was decided on Cobalt alone (target-specific rule; x86 binaries identical). Agree?
-- Final refs: `hc/oxcaml-final` and `hc/ocaml-final` (README results filled, cold-read).
+- Final refs: `hc/oxcaml-final` (ec2d8e5) and `hc/ocaml-final` (e966e49): README results filled;
+  a cold read found two substance points and some wording, listed in
+  `results/hc/r10-final/COLD-READ.md`, not yet applied.
 - Which Dockerfile a submission should carry for OxCaml (standalone build vs a hosted image).
 
 ### Three best next experiments
