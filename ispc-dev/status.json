@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T08:32:08Z",
+  "updated_utc": "2026-10-11T08:32:55Z",
   "run": {
     "id": "ap-20261011T0645Z",
     "state": "running",
@@ -13,7 +13,7 @@
     "ends_utc": "2026-10-11T12:45:00Z",
     "background_runs": 14,
     "last_tick_utc": "2026-10-11T08:31:34Z",
-    "wakeup": "trig_01L9ZYNWKdW2qz1ffzm5c3HH"
+    "wakeup": "trig_017y69CmXQcbWwNwBSufD9sv"
   },
   "current": null,
   "scoreboard": [
@@ -1677,7 +1677,9 @@
       "hypothesis": "Measure the hot dense/sparse code bytes per target (incl. the x16 copy and NEON); if the dense switch is large, a generic loop for factors 65-127",
       "plain": "If the base small-factor code is too big for the instruction cache, then a smaller general loop for the larger small factors may run faster, because fetching code is not free.",
       "note": "REVERT: the generic dense loop fails the Cobalt gate by 11%. Hot dense code is still 3x L1i on x86 (finding stands); per-pass mask buffer + loop overhead cost more than the i-cache saves",
-      "cobalt": "-11.0% ± 0.4 1T, -11.0% ± 0.1 4T (0/6)"
+      "cobalt": "-11.0% ± 0.4 1T, -11.0% ± 0.1 4T (0/6)",
+      "zen5": "-10.5% ± 0.3 1T, -10.5% 4T, -14.0% 16T (0/6)",
+      "note_zen5": "Zen 5 confirms: the specialised copies win despite 3x L1i; instruction fetch is not the base limit"
     },
     {
       "id": "s1-f1-grey",
@@ -1766,12 +1768,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T06:56:32Z",
-      "level": "info",
-      "text": "p0-solution3 (wheel-tables) running: Third entry PrimeISPC/solution_3 (tables wheel, label cauldnz-ispc-wheel-tables, README words from drafts/solution-3-notes.md, 4T line) against solution_1 at 330b3d4",
-      "auto": true
-    },
     {
       "utc": "2026-10-11T06:57:18Z",
       "level": "info",
@@ -2109,6 +2105,14 @@
       "level": "info",
       "text": "s1-f1-grey confirmed.. GREY measurement for the upstream issue, never merged: F1 on the code we'd submit (3ad0427). vs mike-barber at 1T: Zen 5 +24.8%, Zen 3 +17.4%. With the size-cliff number (base L1 worth 22-28% on Zen 5 at 1M), the issue can quote both",
       "auto": true
+    },
+    {
+      "utc": "2026-10-11T08:32:55Z",
+      "level": "decision",
+      "text": "run: no new agent this tick: every language has its three experiments in flight or decided; wait for the wheel group loops, Zig tables, Rust base dense and the fold-zen5 Zen 5 check before choosing the next round. Why: stream 1 step 2 is off (no Zen 3 wheel cliff) and steps 3-5 are running or decided; idle agents cost nothing.",
+      "id": "run",
+      "what": "no new agent this tick: every language has its three experiments in flight or decided; wait for the wheel group loops, Zig tables, Rust base dense and the fold-zen5 Zen 5 check before choosing the next round",
+      "why": "stream 1 step 2 is off (no Zen 3 wheel cliff) and steps 3-5 are running or decided; idle agents cost nothing"
     }
   ],
   "research": {
