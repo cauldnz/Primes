@@ -7,15 +7,22 @@ gives the next something to link to. Owner in brackets: **C** is Chris, **W** th
 
 - [W] Run ap-20261011T0100Z ends about 15:00 AEST. Review the morning report; freeze the
   numbers we'll quote: `hc/ispc-ref`, the per-thread table, the port tables.
-- [C] Decide the 4-thread line (the per-thread ranking). If yes, the climber merges `hc/line-4t`
-  into `hc/champion` before the landing branch is rebuilt.
+- [C] Decide the 4-thread line. The multi-thread table ranks passes per second per thread, and
+  every faithful base leader there is a 4-thread line (2-thread on the Celeron and Pi), so
+  without one our entries rank below all of them (sessions 9746-9750, re-ranked 11 October). If
+  yes, the climber merges `hc/line-4t` into `hc/champion` before the landing branch is rebuilt.
 
-## 1. Ask the rules question (day 1)
+## 1. The rules question goes with the PR, not before it
 
-- [C] File the F1/F2 issue upstream (`drafts/upstream-issue-F1-F2.md`, two cold reads done).
-  Nothing grey goes in any PR until it's answered; the PRs stand on the clean champion.
-- [C] Optional: the PR 1094 comment (`drafts/pr-1094-comment.md`). Post it after the issue, or
-  not at all.
+Decided 11 October, 12:10. An issue filed before any code is upstream asks about an entry that
+doesn't exist yet and may sit unanswered; a grey-only PR mixes ISPC's language eligibility with
+the rules question and turns a refusal into a "no" without reasons. So the issue
+(`drafts/upstream-issue-F1-F2.md`) is filed on the day the clean ISPC PR opens, and the two link
+to each other (step 4). Nothing grey goes in any PR until it's answered; if the answer is yes,
+F1 or F2 arrives as a small follow-up PR to our own entry.
+
+- [C] Optional: the PR 1094 comment (`drafts/pr-1094-comment.md`). Post it after our PR and the
+  issue, or not at all.
 
 ## 2. The hill-climber repo goes public (day 1-2)
 
@@ -58,10 +65,21 @@ gives the next something to link to. Owner in brackets: **C** is Chris, **W** th
     (hc-026);
   - every performance claim reproducible from the Dockerfile.
 - [W] PR text from `PR-DESCRIPTION.md`, refreshed: what the entries are, the numbers against the
-  fastest entry in each category per thread and total, and one line linking the climb map as
-  "how it was built". The PR is about the code; the machine is a link, not the pitch.
+  fastest entry in each category per thread (the leaderboard's measure: one thread, and the
+  4-thread line in the multi-thread table), and one line linking the climb map as "how it was
+  built". The PR is about the code; the machine is a link, not the pitch. Name the real category
+  leaders: for the wheel, danielspaangberg's `PrimeC/solution_2` (rogiervandam's `PrimeC/
+  solution_5` extend is tagged `other`); for the base, Swift on the Threadripper and
+  mike-barber's Rust elsewhere.
 - [W] Cold read seeded with CONTRIBUTING.md, the README and two recent merged PRs, then a second.
-- [C] Open the PR.
+  The issue gets its own cold read seeded with the PR text.
+- [C] On the day, in this order:
+  1. Open the PR. Its description carries a placeholder line: "Two questions about the base
+     rules are in #N. Nothing in this PR depends on them."
+  2. File the F1/F2 issue a few minutes later; its first line names the PR.
+  3. Edit the PR description to fill in #N.
+  All three before Dave's thread (step 6), so anyone clicking through finds the question
+  already asked.
 
 ## 5. The ports (after the ISPC PR is in review)
 
@@ -78,7 +96,7 @@ From this run's results, one PR each, each with its own cold read:
 
 On the day the ISPC PR opens, in this order:
 1. The climb map live and public, README current.
-2. The PR open, linking the map.
+2. The PR open, linking the map, and the F1/F2 issue filed and cross-linked (step 4).
 3. [C] Reply in Dave's thread: the teaser image, two lines, links to the PR and the map.
 4. [C] A longer post: how the bench works, what the agents got wrong, what it cost. The map and
    `docs/how-it-works.md` are the source; a cold read before it goes out.

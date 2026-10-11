@@ -1,6 +1,8 @@
 **Title:** Base algorithm: two questions on clearing order
 
-Two questions about the base rules, asked before I submit. I'll follow whatever you decide:
+Two questions about the base rules, for the base entry in #PR. That PR doesn't depend on the
+answers: as submitted it uses the plain upward loop. If either change is allowed, I'll send it
+as a small follow-up PR. I'll follow whatever you decide:
 
 | Q1 | Q2 | What gets submitted as base |
 |---|---|---|
@@ -10,7 +12,7 @@ Two questions about the base rules, asked before I submit. I'll follow whatever 
 
 Anything ruled out stays out of the base entry.
 
-**The entry.** An ISPC base sieve (`PrimeISPC/solution_2`, not yet submitted), tagged
+**The entry.** An ISPC base sieve (`PrimeISPC/solution_2`, in #PR), tagged
 `algorithm=base,faithful=yes,bits=1`: one bit per odd number, factors found by scanning the sieve,
 each multiple cleared by its own single-bit OR, stepping 2 × factor. It reports one thread and
 several multi-thread lines, one independent sieve per thread.
@@ -54,7 +56,7 @@ Is the version above base on the same footing as those?
 
 ### Context
 
-Code: [alternating](https://github.com/cauldnz/Primes/tree/hc/f1-alternate/PrimeISPC/solution_2)
+The entry as submitted is in #PR. Each change on top of it: [alternating](https://github.com/cauldnz/Primes/tree/hc/f1-alternate/PrimeISPC/solution_2)
 and [blocked](https://github.com/cauldnz/Primes/tree/hc/f2-block-16/PrimeISPC/solution_2), in
 `primes_base.ispc`. Each is worth about 10% at one thread on AMD Zen 3 to 5, which is why I'd
 like a ruling rather than guess either way.
