@@ -242,13 +242,6 @@ let timed_run threads =
   let results =
     if threads = 1 then [ worker deadline ]
     else begin
-      (* Each pass allocates a 62.5KB sieve and drops it, while almost nothing stays live. With
-         the default space overhead (80) the major GC finishes a cycle every few passes, and
-         each cycle stops every domain. Raising it to 1,000 for the multi-domain runs makes
-         cycles rare: on a shared 4-vCPU container the 4-domain run went from 15,000-17,000
-         passes to 18,000-25,000. The one-domain run keeps the default; with 1,000 it was about
-         10% slower, as each new sieve lands in memory that is no longer in cache. *)
-      Gc.set { (Gc.get ()) with space_overhead = 1000 };
       List.init threads (fun _ -> Domain.spawn (fun () -> worker deadline))
       |> List.map Domain.join
     end
@@ -294,6 +287,10 @@ let test_requested () =
       && (let n = int_of_string v in n <> 0 && n <= 0xFFFF_FFFF)
 
 let () =
+  (* Each pass allocates a 62.5KB sieve and drops it, while almost nothing stays live. With the
+     default space overhead (80) the major GC finishes a cycle every few passes, and each cycle
+     stops every domain. 1,000 makes cycles rare. *)
+  Gc.set { (Gc.get ()) with space_overhead = 1000 };
   if test_requested () then exit (if self_test () then 0 else 1);
   (* One domain, then all hardware threads, then exactly four when there are more than four. *)
   let hw = max 1 (Domain.recommended_domain_count ()) in
