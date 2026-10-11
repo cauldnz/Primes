@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T09:43:13Z",
+  "updated_utc": "2026-10-11T09:45:38Z",
   "run": {
     "id": "ap-20261011T0645Z",
     "state": "running",
@@ -1654,7 +1654,7 @@
       "hypothesis": "Zig wheel: write each plane once as tile | 13-pattern instead of a tile copy plus a separate 13 group pass (ISPC IDEAS 12 shape)",
       "prediction": "0 to +4% at 1T (the extra 13 pass is ~2.9k of 61k cycles on Zen 5)",
       "plain": "If the Zig wheel marks 13 while it copies the 7-and-11 tile, then it saves a whole pass over the sieve, because the ISPC wheel does it that way.",
-      "note": "MORE ROUNDS: Zen 5 clears; Zen 3 1T straddles (lower +0.9%): 8 more Zen 3 rounds (r9-zig-wheel-group-z3b)",
+      "note": "hc/zig-wheel-group 022e479: 7x11 tile in scratch, each plane written once as tile|13. Zen 5 cleared at 6 rounds; Zen 3 needed 8 more (r9-zig-wheel-group-z3b) and cleared: 4T lower bound +1.1%. Merged into hc/zig-champion-r9 8ba3386",
       "zen5": "+1.8% ± 0.3 1T, +1.7% ± 0.5 4T (6/6)",
       "zen3": "+2.4% ± 1.8 1T, +2.7% ± 1.6 4T, +2.4% 16T (8 rounds)"
     },

@@ -8,6 +8,14 @@ Autopilot lock: ap-20261011T0645Z 2026-10-11T06:45Z
 **Last updated:** 2026-10-11 14:45 AEST. Living file; earlier versions are in
 `git log -p ispc-dev/STATUS.md`. Replies go in `ispc-dev/NEXT-STEPS.md`.
 
+## Hourly review, run ap-20261011T0645Z (19:45 AEST, 3 h in)
+
+- Worked: Rust wheel group loop +16.9% Zen 5 4T / +6.1% Zen 3 1T (combined with the pattern fix, measuring); Zig wheel group +1.8% / +2.7%; Zig comptime tables +15.9% / +14.1% (permitted, ahead of the ISPC wheel at 1T on both chips); C++ base Zen 5 gate confirmed (+6.1%).
+- Didn't: C++ wheel r9 (+7.7% Zen 5 but -2.8% Zen 3: revert, no clean gate); solution_3 compact tables (-2.4% Zen 5, -0.6% Zen 3).
+- Protocol: every port has three or more decided experiments (fixed shares met); per-thread rule throughout; logs, ledger and dashboard published every tick; this review on time.
+- Spend NZ$4.4 of 25; Zen 4/Intel/Cobalt pools idle at 0 nodes.
+- Next best use: Rust wheel combo and Zig base wide (running), Zig tables+group (building); stop new work 12:00Z, then the final scoreboard.
+
 ## Hourly review, run ap-20261011T0645Z (18:45 AEST, 2 h in)
 
 - Worked: phase 0 done in 75 minutes (verdict line, 4T line, solution_3, AVX-512 check, clean champion); the size cliff answered stream 1's question (no wheel cliff on Zen 3; base L1 worth 22-28% on Zen 5); Chris's Zen 5 gate for fold-1pc (+6.8% Zen 5, no loss on Zen 4 or Intel); ports: Rust wheel pattern +9%, C++ base wide +6% (Zen 5 gate), Zig base +1.3%.
