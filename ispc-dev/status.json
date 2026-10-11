@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T23:19:37Z",
+  "updated_utc": "2026-10-11T23:20:49Z",
   "run": {
     "id": "ap-20261011T1929Z",
     "state": "running",
@@ -16,9 +16,9 @@
     "wakeup": "trig_0195tm4uovBomMQnsJwwUU7R"
   },
   "current": {
-    "id": "ocaml-004",
+    "id": "r10-final",
     "phase": "evaluate",
-    "detail": "ocaml-004 Zen 3, limit sweep, ox-004 running; ox-005/006 agent working"
+    "detail": "final scoreboard: Zen 5 and Zen 3, 6 rounds; Cobalt waits for ox-021"
   },
   "scoreboard": [
     {
@@ -2148,9 +2148,9 @@
       "kind": "novel",
       "plain": "If each loaded pattern vector is ORed into four runs instead of two, then the dense copy loads even less, because one load now serves four stores.",
       "prediction": "+0% to +4% over 997f71f at 1T",
-      "verdict": "kept",
+      "verdict": "rejected",
       "commit": "af2adaf",
-      "note": "Zen 5 +3.1% 1T, Zen 3 +1.3% 4T (lower bound +1.1% over 8 rounds); merged with ox-017 as ox-019"
+      "note": "kept alone vs 997f71f (+3.1% Zen 5, +1.3% Zen 3 4T) but the merge with ox-017 (ox-019) lost 1.2% at 4T on Zen 3; not in the champion"
     },
     {
       "id": "ox-017",
@@ -2209,6 +2209,18 @@
       "verdict": "rejected",
       "commit": "e7e8016",
       "note": "local gate: x86 -38%; would need an Arm-only source file"
+    },
+    {
+      "id": "ox-019",
+      "entry": "oxcaml",
+      "title": "Merge four-run copy with the pattern-build change",
+      "tier": "extra-faithful",
+      "kind": "tuning",
+      "plain": "If the four-run copy is added on top of the cheaper pattern build, then both gains should add, because they change different functions.",
+      "prediction": "+1% to +4%",
+      "verdict": "rejected",
+      "commit": "4dc5560",
+      "note": "Zen 5 +4.2%, Zen 3 -0.7% 1T / -1.2% 4T: REVERT"
     }
   ],
   "azure_queue": 0,
@@ -2218,35 +2230,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T21:38:07Z",
-      "level": "info",
-      "text": "OxCaml champion 4f1ba99: Zen 5 64.7k at 1T (0.47x ISPC base 138.8k, 0.51x Rust 126.4k), Zen 3 31.4k (0.56x ISPC, 0.60x Rust), Cobalt 7.3k. From the first OxCaml build (30.3k Zen 5): x2.1."
-    },
-    {
-      "utc": "2026-10-11T21:38:07Z",
-      "level": "info",
-      "text": "ox-009 kept.. Zen 5 +5.8% 1T, Zen 3 +12.6%; champion 4f1ba99",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T21:38:07Z",
-      "level": "info",
-      "text": "ox-010 rejected.. Cobalt -0.4% 1T, -0.6% 4T: the Arm dense copy is not what holds OxCaml back on Cobalt",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T21:38:07Z",
-      "level": "info",
-      "text": "Scoreboard, oxcaml base on Zen 5 (EPYC 9V45, D16as_v7): 60500 → 64700 at 1T, 222000 → 236700 at 4 threads.",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T21:38:07Z",
-      "level": "info",
-      "text": "Scoreboard, oxcaml base on Zen 3 (EPYC 7763, D16a_v4): 29800 → 31400 at 1T, 110700 → 120300 at 4 threads.",
-      "auto": true
-    },
     {
       "utc": "2026-10-11T21:38:39Z",
       "level": "decision",
@@ -2561,6 +2544,40 @@
       "utc": "2026-10-11T23:13:42Z",
       "level": "info",
       "text": "ocaml-007 (ocaml-plain) rejected: ",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T23:20:48Z",
+      "level": "decision",
+      "text": "ox-019: REVERT; champion stays 2d1ae49; four runs per step is out. Why: the merge loses 1.2% at 4T on Zen 3 (the rule's 1% loss line) while Zen 5 gains 4.2%; ox-016 alone only cleared Zen 3 by 0.1 point, so the two changes don't add on Zen 3.",
+      "id": "ox-019",
+      "what": "REVERT; champion stays 2d1ae49; four runs per step is out",
+      "why": "the merge loses 1.2% at 4T on Zen 3 (the rule's 1% loss line) while Zen 5 gains 4.2%; ox-016 alone only cleared Zen 3 by 0.1 point, so the two changes don't add on Zen 3"
+    },
+    {
+      "utc": "2026-10-11T23:20:49Z",
+      "level": "decision",
+      "text": "run: start the final Zen scoreboard now (r10-final: OxCaml 2d1ae49 vs plain 0aaa340, all controls, 6 rounds on Zen 5 and Zen 3); Cobalt final after ox-021. Why: x86 champions are fixed: the only open experiment (ox-021) changes Arm code only, so starting now keeps the last 45 minutes for the write-up.",
+      "id": "run",
+      "what": "start the final Zen scoreboard now (r10-final: OxCaml 2d1ae49 vs plain 0aaa340, all controls, 6 rounds on Zen 5 and Zen 3); Cobalt final after ox-021",
+      "why": "x86 champions are fixed: the only open experiment (ox-021) changes Arm code only, so starting now keeps the last 45 minutes for the write-up"
+    },
+    {
+      "utc": "2026-10-11T23:20:49Z",
+      "level": "info",
+      "text": "ox-016 rejected.. kept alone vs 997f71f (+3.1% Zen 5, +1.3% Zen 3 4T) but the merge with ox-017 (ox-019) lost 1.2% at 4T on Zen 3; not in the champion",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T23:20:49Z",
+      "level": "info",
+      "text": "ox-019 (oxcaml) rejected: ",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T23:20:49Z",
+      "level": "info",
+      "text": "r10-final: evaluate. final scoreboard: Zen 5 and Zen 3, 6 rounds; Cobalt waits for ox-021",
       "auto": true
     }
   ],
