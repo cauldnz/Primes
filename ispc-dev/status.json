@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T19:52:20Z",
+  "updated_utc": "2026-10-11T20:00:12Z",
   "run": {
     "id": "ap-20261011T1929Z",
     "state": "running",
@@ -16,9 +16,9 @@
     "wakeup": "trig_01PjEugYDNG5q5bpWCnQCtcz"
   },
   "current": {
-    "id": "ox-000",
-    "phase": "implement",
-    "detail": "toolchain builds on Batch (Zen 5, Cobalt); two local agents: OxCaml probe, plain OCaml port"
+    "id": "ocaml-002",
+    "phase": "evaluate",
+    "detail": "5 rounds on Zen 5 and Zen 3"
   },
   "scoreboard": [
     {
@@ -1863,8 +1863,20 @@
       "kind": "borrowed",
       "source": "our ISPC base and its Rust port",
       "plain": "If we write our base sieve design in ordinary OCaml, then we have a fair control for what the OxCaml extensions add, because the design is the same and only the language features differ.",
+      "verdict": "confirmed",
+      "note": "self-test passes (rebuilt by the loop); local 1T 14-16k vs gkpotter faithful 0.7k on the shared container; hot loops allocation-free; GC stops all domains at 4T",
+      "commit": "0b8d98c"
+    },
+    {
+      "id": "ocaml-002",
+      "entry": "ocaml-plain",
+      "title": "GC space overhead 1000 from start",
+      "tier": "extra-faithful",
+      "kind": "tuning",
+      "plain": "If the garbage collector waits much longer between cycles, then four threads run faster, because each cycle stops every thread while it works.",
+      "prediction": "1T -5% to -10%, 4T +10% to +40%",
       "verdict": "running",
-      "note": "agent writing PrimeOCaml/solution_4"
+      "commit": "662c2d4"
     }
   ],
   "azure_queue": 0,
@@ -1874,55 +1886,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T09:00:23Z",
-      "level": "decision",
-      "text": "s1-tables-compact: REVERT; solution_3 stays at 4a42d98. Why: loses on both deciders (Zen 5 -2.4%/-2.7%, Zen 3 -0.5%/-0.6%, -4.7% at 16T); the per-pass scratch writes cost more than the 19% fewer table bytes save. Passed over: more rounds (no route to +1%).",
-      "id": "s1-tables-compact",
-      "what": "REVERT; solution_3 stays at 4a42d98",
-      "why": "loses on both deciders (Zen 5 -2.4%/-2.7%, Zen 3 -0.5%/-0.6%, -4.7% at 16T); the per-pass scratch writes cost more than the 19% fewer table bytes save",
-      "instead": "more rounds (no route to +1%)"
-    },
-    {
-      "utc": "2026-10-11T09:00:23Z",
-      "level": "decision",
-      "text": "r9-cpp-base-zen5: gate confirmed; hc/port-cpp-base-champion stays at 558a949. Why: the gated build on Zen 5 matches the ungated wide build (+0.4%/+0.3%) and beats the previous champion by +6.1% 1T / +5.6% 4T; other chips take the unchanged 8-lane path. Passed over: more Zen 5 rounds (the check is identity, not a new effect).",
-      "id": "r9-cpp-base-zen5",
-      "what": "gate confirmed; hc/port-cpp-base-champion stays at 558a949",
-      "why": "the gated build on Zen 5 matches the ungated wide build (+0.4%/+0.3%) and beats the previous champion by +6.1% 1T / +5.6% 4T; other chips take the unchanged 8-lane path",
-      "instead": "more Zen 5 rounds (the check is identity, not a new effect)"
-    },
-    {
-      "utc": "2026-10-11T09:01:07Z",
-      "level": "decision",
-      "text": "r9-zig-base-wide: start agent: Zig base 16-lane dense path gated on Zen 5. Why: Zig's turn in the fixed shares; the same change gained +6.8% in ISPC and +6.1% in C++ on Zen 5; Zen 5 slots idle. Passed over: a second Zig wheel idea (waits on the group result). Expect: +2% to +6% on Zen 5, unchanged elsewhere.",
-      "id": "r9-zig-base-wide",
-      "what": "start agent: Zig base 16-lane dense path gated on Zen 5",
-      "why": "Zig's turn in the fixed shares; the same change gained +6.8% in ISPC and +6.1% in C++ on Zen 5; Zen 5 slots idle",
-      "instead": "a second Zig wheel idea (waits on the group result)",
-      "expect": "+2% to +6% on Zen 5, unchanged elsewhere"
-    },
-    {
-      "utc": "2026-10-11T09:01:07Z",
-      "level": "info",
-      "text": "s1-tables-compact REVERT.. hc/solution3-compact b48ee0a: one period stored per pattern, extended per pass in a scratch region (13-17 KB); table bytes read per pass 73.3 KB -> 59.4 KB (-19%), but 61.5 KB of scratch writes per pass. Self-test, Docker stage, sweep 0 bad x3 targets. Local -1% to -5%. Zen 3 (the 32 KB target) + Zen 5 6 rounds against solution_3",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T09:01:07Z",
-      "level": "info",
-      "text": "r9-zig-base-wide (zig-base) building: Zig base: 16 lanes per dense step on Zen 5 only (fold-1pc gate)",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T09:21:14Z",
-      "level": "decision",
-      "text": "r9-cpp-wheel: REVERT; hc/port-cpp-wheel-champion stays at bf7619a. Why: per-thread rule: Zen 3 loses 2.2% at 1T and 2.8% at 4T although Zen 5 gains 7.7% at 4T. Passed over: a Zen 5 gate (not a lane-width change, so nothing to gate cleanly).",
-      "id": "r9-cpp-wheel",
-      "what": "REVERT; hc/port-cpp-wheel-champion stays at bf7619a",
-      "why": "per-thread rule: Zen 3 loses 2.2% at 1T and 2.8% at 4T although Zen 5 gains 7.7% at 4T",
-      "instead": "a Zen 5 gate (not a lane-width change, so nothing to gate cleanly)"
-    },
     {
       "utc": "2026-10-11T09:21:14Z",
       "level": "decision",
@@ -2226,6 +2189,50 @@
       "utc": "2026-10-11T19:52:20Z",
       "level": "info",
       "text": "Waiting on the arm64 toolchain build and both agents; next tick 20:05 UTC."
+    },
+    {
+      "utc": "2026-10-11T20:00:12Z",
+      "level": "decision",
+      "text": "ocaml-001: accept the plain OCaml port as the control line (hc/ocaml-plain-base 0b8d98c). Why: rebuilt here, PRIMES_TEST=1 exits 0; read the code: one OR per composite, pattern scratch in the per-pass sieve record, nothing kept across passes, odd-only next-prime scan.",
+      "id": "ocaml-001",
+      "what": "accept the plain OCaml port as the control line (hc/ocaml-plain-base 0b8d98c)",
+      "why": "rebuilt here, PRIMES_TEST=1 exits 0; read the code: one OR per composite, pattern scratch in the per-pass sieve record, nothing kept across passes, odd-only next-prime scan"
+    },
+    {
+      "utc": "2026-10-11T20:00:12Z",
+      "level": "decision",
+      "text": "ocaml-002: first Azure measurement: GC space_overhead 1000 from program start (662c2d4) against the shipped setting (1000 only before multi-domain runs), Zen 5 and Zen 3, 5 rounds. Why: the agent found 4T limited by major-GC stop-the-world cycles and couldn't settle the two settings on the shared container; this round also gives the first numbers against gkpotter, Rust and the ISPC base. Expect: 1T -5% to -10%, 4T +10% to +40%.",
+      "id": "ocaml-002",
+      "what": "first Azure measurement: GC space_overhead 1000 from program start (662c2d4) against the shipped setting (1000 only before multi-domain runs), Zen 5 and Zen 3, 5 rounds",
+      "why": "the agent found 4T limited by major-GC stop-the-world cycles and couldn't settle the two settings on the shared container; this round also gives the first numbers against gkpotter, Rust and the ISPC base",
+      "expect": "1T -5% to -10%, 4T +10% to +40%"
+    },
+    {
+      "utc": "2026-10-11T20:00:12Z",
+      "level": "decision",
+      "text": "ox-002: background agent: OxCaml solution_3 in two steps, the plain code compiled by OxCaml (hc/ox-002-port), then SIMD dense and unboxed types (hc/ox-003-ext). Why: separates what the compiler alone gives from what the extensions give, which is the gap the plan asks for. Expect: ox-002 within +-10% of plain; ox-003 +10% to +30% at 1T on x86.",
+      "id": "ox-002",
+      "what": "background agent: OxCaml solution_3 in two steps, the plain code compiled by OxCaml (hc/ox-002-port), then SIMD dense and unboxed types (hc/ox-003-ext)",
+      "why": "separates what the compiler alone gives from what the extensions give, which is the gap the plan asks for",
+      "expect": "ox-002 within +-10% of plain; ox-003 +10% to +30% at 1T on x86"
+    },
+    {
+      "utc": "2026-10-11T20:00:12Z",
+      "level": "info",
+      "text": "ocaml-001 confirmed.. self-test passes (rebuilt by the loop); local 1T 14-16k vs gkpotter faithful 0.7k on the shared container; hot loops allocation-free; GC stops all domains at 4T",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T20:00:12Z",
+      "level": "info",
+      "text": "ocaml-002 (ocaml-plain) running: ",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T20:00:12Z",
+      "level": "info",
+      "text": "ocaml-002: evaluate. 5 rounds on Zen 5 and Zen 3",
+      "auto": true
     }
   ],
   "research": {
