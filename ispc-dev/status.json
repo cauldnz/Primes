@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T23:45:45Z",
+  "updated_utc": "2026-10-11T23:47:18Z",
   "run": {
     "id": "ap-20261011T1929Z",
     "state": "running",
@@ -8,40 +8,36 @@
     "mode_reason": "Run 10 (OxCaml). Azure via the container's cached login; Batch account and group set inline for this session.",
     "started_utc": "2026-10-11T19:29:00Z",
     "time_box_hours": 6,
-    "spend_nzd": 7.71,
+    "spend_nzd": 7.72,
     "spend_cap_nzd": 25,
     "ends_utc": "2026-10-12T01:29:00Z",
     "background_runs": 0,
     "last_tick_utc": "2026-10-11T23:45:45Z",
     "wakeup": "trig_01CtkkFtrQALo2QBp5wn6FRR"
   },
-  "current": {
-    "id": "r10-final",
-    "phase": "evaluate",
-    "detail": "final scoreboard: Zen 5, Zen 3 running; Cobalt submitted (champion 37e493e)"
-  },
+  "current": null,
   "scoreboard": [
     {
       "machine": "Zen 5 (EPYC 9V45, D16as_v7)",
       "entry": "oxcaml base",
-      "ours_1t": 72400,
-      "ours_mt": 260900,
+      "ours_1t": 72200,
+      "ours_mt": 261500,
       "rival": "mike-barber Rust",
       "rival_1t": 126300,
-      "rival_mt": 471600,
+      "rival_mt": 471800,
       "threads": 4,
-      "source": "run 10 ox-017 cand (champion 2d1ae49), same-round medians, 4T in ours_mt"
+      "source": "run 10 final (results/hc/r10-final, 6 rounds, same-round medians; 4T in ours_mt/rival_mt); plain OCaml 32.9k/121.0k, ISPC base 138.9k, gkpotter 1.6k"
     },
     {
       "machine": "Zen 3 (EPYC 7763, D16a_v4)",
       "entry": "oxcaml base",
-      "ours_1t": 37000,
-      "ours_mt": 136700,
+      "ours_1t": 37200,
+      "ours_mt": 137000,
       "rival": "mike-barber Rust",
-      "rival_1t": 55100,
-      "rival_mt": 213800,
+      "rival_1t": 56500,
+      "rival_mt": 220000,
       "threads": 4,
-      "source": "run 10 ox-017 cand (champion 2d1ae49), same-round medians, 4T in ours_mt"
+      "source": "run 10 final (results/hc/r10-final, 6 rounds, same-round medians; 4T in ours_mt/rival_mt); plain OCaml 18.2k/69.0k, ISPC base 60.0k, gkpotter 0.8k"
     },
     {
       "machine": "Cobalt 100 (D4ps_v6)",
@@ -52,7 +48,7 @@
       "rival_1t": 42900,
       "rival_mt": 171300,
       "threads": 4,
-      "source": "run 10 ox-021 cand (champion 37e493e), same-round medians, 4T in ours_mt"
+      "source": "run 10 final (results/hc/r10-final, 6 rounds, same-round medians; 4T in ours_mt/rival_mt); plain OCaml 3.4k/13.1k, ISPC base 42.1k, gkpotter 0.6k"
     },
     {
       "machine": "Zen 5 (EPYC 9V45, D32as_v7)",
@@ -2222,6 +2218,16 @@
       "verdict": "rejected",
       "commit": "4dc5560",
       "note": "Zen 5 +4.2%, Zen 3 -0.7% 1T / -1.2% 4T: REVERT"
+    },
+    {
+      "id": "r10-final",
+      "entry": "both",
+      "title": "Final scoreboard",
+      "tier": "permitted",
+      "kind": "permitted",
+      "plain": "If every entry runs in the same rounds on each machine, then the comparison is fair, because each node and moment affects them all alike.",
+      "verdict": "confirmed",
+      "note": "OxCaml 72.2k Zen 5 1T (2.19x plain OCaml, 0.52x ISPC base, 44x gkpotter); Cobalt 11.8k (3.45x plain)"
     }
   ],
   "azure_queue": 0,
@@ -2231,33 +2237,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T21:48:58Z",
-      "level": "decision",
-      "text": "ox-013: reject at the local gate; not sent to Azure. Why: both narrower forms lost 6-7% locally in all three rounds; OxCaml's 16-bit primitive returns a tagged int and its int32 constant isn't folded into the OR, so each composite costs 6.9 instructions vs 4.9; the cache-line saving doesn't cover that.",
-      "id": "ox-013",
-      "what": "reject at the local gate; not sent to Azure",
-      "why": "both narrower forms lost 6-7% locally in all three rounds; OxCaml's 16-bit primitive returns a tagged int and its int32 constant isn't folded into the OR, so each composite costs 6.9 instructions vs 4.9; the cache-line saving doesn't cover that"
-    },
-    {
-      "utc": "2026-10-11T21:48:58Z",
-      "level": "info",
-      "text": "ox-013 (oxcaml) rejected: ",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T21:51:28Z",
-      "level": "decision",
-      "text": "ox-011: KEEP; confirm the combination with ox-009 (ox-014, merge 997f71f) against the champion 4f1ba99 on Zen 5 and Zen 3 before moving the champion. Why: analyze.py KEEP vs a4e63af (lower bounds +6.3% Zen 5, +3.9% Zen 3 at 1T). Both kept changes branch from a4e63af and touch different files (dense.ml vs sparse.ml), so the merge is clean; the protocol combines winners only with a measurement.",
-      "id": "ox-011",
-      "what": "KEEP; confirm the combination with ox-009 (ox-014, merge 997f71f) against the champion 4f1ba99 on Zen 5 and Zen 3 before moving the champion",
-      "why": "analyze.py KEEP vs a4e63af (lower bounds +6.3% Zen 5, +3.9% Zen 3 at 1T). Both kept changes branch from a4e63af and touch different files (dense.ml vs sparse.ml), so the merge is clean; the protocol combines winners only with a measurement"
-    },
-    {
-      "utc": "2026-10-11T21:51:28Z",
-      "level": "info",
-      "text": "Standalone Dockerfile (builds the OxCaml switch inside the solution build): works on Zen 5, image build 458 s, self-test passes. Cobalt still running."
-    },
     {
       "utc": "2026-10-11T21:51:28Z",
       "level": "info",
@@ -2575,6 +2554,29 @@
       "utc": "2026-10-11T23:32:57Z",
       "level": "info",
       "text": "Scoreboard, oxcaml base on Cobalt 100 (D4ps_v6): 7300 → 11800 at 1T, 27000 → 41900 at 4 threads.",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T23:47:18Z",
+      "level": "info",
+      "text": "Final scoreboard in (results/hc/r10-final). OxCaml at 1T: Zen 5 72.2k, Zen 3 37.2k, Cobalt 11.8k; plain OCaml 32.9k, 18.2k, 3.4k. All pools taken down at 23:47 UTC. Spend NZ$7.72."
+    },
+    {
+      "utc": "2026-10-11T23:47:18Z",
+      "level": "info",
+      "text": "r10-final (both) confirmed: ",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T23:47:18Z",
+      "level": "info",
+      "text": "Scoreboard, oxcaml base on Zen 5 (EPYC 9V45, D16as_v7): 72400 → 72200 at 1T, 260900 → 261500 at 4 threads.",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T23:47:18Z",
+      "level": "info",
+      "text": "Scoreboard, oxcaml base on Zen 3 (EPYC 7763, D16a_v4): 37000 → 37200 at 1T, 136700 → 137000 at 4 threads.",
       "auto": true
     }
   ],
