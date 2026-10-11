@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T07:12:30Z",
+  "updated_utc": "2026-10-11T07:12:53Z",
   "run": {
     "id": "ap-20261011T0645Z",
     "state": "running",
@@ -1551,11 +1551,13 @@
       "entry": "base",
       "tier": "extra-faithful",
       "kind": "novel",
-      "verdict": "running",
+      "verdict": "confirmed",
       "hypothesis": "AVX-512 check of fold-1pc (330b3d4 vs 1551635) on Zen 4 with AVX-512 (D16as_v6) and Intel Xeon (D16s_v5)",
       "prediction": "Zen 4 0 to +5% at 1T/4T (512-bit ops double-pumped); Intel -5% to +5% (Cascade Lake lost 9% locally)",
       "plain": "If the 16-lane base code runs on the other chips that have the widest vector instructions, then we learn whether it helps or hurts there, because it was only measured on Zen 5.",
-      "note": "6 rounds each; a 1T/4T loss of 1% or more is reported, not fixed, this run"
+      "note": "REPORTED, not fixed (RUN-PLAN): the 16-lane path helps only Zen 5 (+7.5%). None of the official runners except the Zen 5 Threadripper has AVX-512 (EPYC VM AVX2-only, i7-9750H, Celeron, Pi 4), so their code is byte-identical; a Zen 4 or Ice Lake machine would lose 3% / 7%. Fix options for Chris: gate the 16-lane choice on a CPUID family check (Zen 5 only) or drop it",
+      "zen4": "EPYC 9V74 (AVX-512): -2.7% ± 0.2 1T, -2.7% ± 0.3 4T, -0.1% 16T (0/6)",
+      "intel": "Xeon 8370C (Ice Lake, AVX-512): -7.1% ± 0.1 1T, -7.1% ± 0.1 4T, 0.0% 16T (0/6)"
     },
     {
       "id": "p0-line-4t",
@@ -1659,24 +1661,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T03:27:46Z",
-      "level": "decision",
-      "text": "s5-starts-ef: record as passing on Zen but failing the arm gate; not merged. Why: Cobalt -1.1% breaks 'no loss of 1% or more anywhere'; the fix (guard it off NEON) would be a new ISPC wheel experiment, which Chris stopped, and phase 1 is frozen at hc/ispc-ref. Passed over: a NEON-guarded variant now.",
-      "id": "s5-starts-ef",
-      "what": "record as passing on Zen but failing the arm gate; not merged",
-      "why": "Cobalt -1.1% breaks 'no loss of 1% or more anywhere'; the fix (guard it off NEON) would be a new ISPC wheel experiment, which Chris stopped, and phase 1 is frozen at hc/ispc-ref",
-      "instead": "a NEON-guarded variant now"
-    },
-    {
-      "utc": "2026-10-11T03:27:46Z",
-      "level": "decision",
-      "text": "s5-tables: recheck on a fresh Zen 5 node and run the Cobalt gate before merging into hc/champion-tables. Why: +23.4% on Zen 5 is over the 20% bar; tables change shared code, so the arm gate applies. Expect: Zen 5 within 2% of +23%; Cobalt positive (start offsets dominate there too).",
-      "id": "s5-tables",
-      "what": "recheck on a fresh Zen 5 node and run the Cobalt gate before merging into hc/champion-tables",
-      "why": "+23.4% on Zen 5 is over the 20% bar; tables change shared code, so the arm gate applies",
-      "expect": "Zen 5 within 2% of +23%; Cobalt positive (start offsets dominate there too)"
-    },
     {
       "utc": "2026-10-11T03:27:46Z",
       "level": "info",
@@ -1991,6 +1975,17 @@
       "utc": "2026-10-11T07:08:24Z",
       "level": "info",
       "text": "r9-zig-base (zig-base) running: Zig base: compiled dense/sparse paths against the ISPC base, then one change on the biggest difference",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T07:12:53Z",
+      "level": "warn",
+      "text": "fold-1pc AVX-512 check: Zen 4 (9V74) -2.7% and Intel Ice Lake (8370C) -7.1% at 1T and 4T; reported to Chris, not fixed this run. Official runners other than the Zen 5 Threadripper don't run the 16-lane path."
+    },
+    {
+      "utc": "2026-10-11T07:12:53Z",
+      "level": "info",
+      "text": "p0-fold-avx512 confirmed.. REPORTED, not fixed (RUN-PLAN): the 16-lane path helps only Zen 5 (+7.5%). None of the official runners except the Zen 5 Threadripper has AVX-512 (EPYC VM AVX2-only, i7-9750H, Celeron, Pi 4), so their code is byte-identical; a Zen 4 or Ice Lake machine would lose 3% / 7%. Fix options for Chris: gate the 16-lane choice on a CPUID family check (Zen 5 only) or drop it",
       "auto": true
     }
   ],
