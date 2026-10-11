@@ -8,8 +8,8 @@
 //! This is the design of the author's ISPC base entry (PrimeISPC/solution_2), which in turn
 //! follows mike-barber's Rust (PrimeRust/solution_1) and GordonBGood's Chapel solutions:
 //!
-//! * Dense (factor below 128): the odd multiples of p repeat with a period of p 64-bit words.
-//!   The resetter is instantiated for every odd factor below 128 with the factor as a const
+//! * Dense (factor below 160): the odd multiples of p repeat with a period of p 64-bit words.
+//!   The resetter is instantiated for every odd factor below 160 with the factor as a const
 //!   generic, works on runs of four periods (4p words, p vectors of four words) and ORs one
 //!   compile-time mask vector into each `[u64; 4]`.
 //! * Sparse (larger factors): eight multiples repeat every p bytes, each at a fixed bit. The
@@ -28,8 +28,12 @@ const RUN_TIME: Duration = Duration::from_secs(5);
 const LABEL: &str = "cauldnz-rust-base";
 const TAGS: &str = "algorithm=base,faithful=yes,bits=1";
 
-/// Factors below this use the dense resetter, larger ones the sparse one.
-const DENSE_LIMIT: usize = 128;
+/// Factors below this use the dense resetter, larger ones the sparse one. A dense pass costs about
+/// the same whatever the factor (it streams the whole sieve), while a sparse pass costs one OR per
+/// composite, so the sparse pass gets cheaper as p grows. Swept locally over 64 to 256 in one
+/// thread: 128 to 192 are within noise of each other; 160 won 7 of 10 interleaved pairs against
+/// 128 (about +1% median). mike-barber's entry switches at 129.
+const DENSE_LIMIT: usize = 160;
 
 /// All of one sieve's state. A new one is created, and its buffer allocated, for every pass.
 struct Sieve {
@@ -122,8 +126,9 @@ impl Sieve {
                 };
             }
             dense!(5 7 9 11 13 15 17 19 21 23 25 27 29 31 33 35 37 39 41 43 45 47 49 51 53 55 57
-                   59 61 63 65 67 69 71 73 75 77 79 81 83 85 87 89 91 93 95 97 99 101 103 105
-                   107 109 111 113 115 117 119 121 123 125 127);
+                   59 61 63 65 67 69 71 73 75 77 79 81 83 85 87 89 91 93 95 97 99 101 103 105 107
+                   109 111 113 115 117 119 121 123 125 127 129 131 133 135 137 139 141 143 145
+                   147 149 151 153 155 157 159);
         }
     }
 
@@ -229,7 +234,7 @@ impl<const E: usize> SparseMasks<E> {
     };
 }
 
-/// Sparse clearing over bytes for an odd factor p >= 128 with p mod 16 = E. Chunks of p bytes
+/// Sparse clearing over bytes for an odd factor p >= DENSE_LIMIT with p mod 16 = E. Chunks of p bytes
 /// start at byte multiples of p; in each, the eight multiples sit at fixed byte offsets.
 ///
 /// # Safety
