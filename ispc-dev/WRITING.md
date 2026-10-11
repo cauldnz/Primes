@@ -31,6 +31,13 @@ the Economist: short words, active voice, specific numbers, no salesmanship.
   transformative, pivotal, crucial, key (as an adjective), journey, landscape, comprehensive,
   powerful, innovative.
 
+## A stranger reads it first
+
+Anything written for people outside the run (a README, PR or issue text, the climb map, a post)
+gets a cold read before it goes public: a fresh agent that didn't write it, seeded only with what
+its intended reader would have read first. For our PR, that is the contest's README,
+CONTRIBUTING.md and the category rules. The rule and the brief to copy are in `READER-REVIEW.md`.
+
 ## The repo is public
 
 Everything here is public, history included. See AUTOPILOT.md section 7a for what never goes in.

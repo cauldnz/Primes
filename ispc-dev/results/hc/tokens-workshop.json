@@ -1,0 +1,114 @@
+{
+ "kinds": {
+  "fresh": "new input",
+  "output": "output",
+  "read": "cache reads",
+  "write": "cache writes"
+ },
+ "role": "workshop",
+ "runs": {
+  "ap-20261009T2033Z": {
+   "main": {
+    "calls": 85,
+    "first": "2026-10-09T22:33:46Z",
+    "fresh": 170,
+    "last": "2026-10-09T23:50:53Z",
+    "models": {
+     "claude-opus-5-5": 85
+    },
+    "output": 65929,
+    "read": 18587453,
+    "write": 210501
+   }
+  },
+  "ap-20261010T0715Z": {
+   "main": {
+    "calls": 13,
+    "first": "2026-10-10T10:51:22Z",
+    "fresh": 26,
+    "last": "2026-10-10T11:54:59Z",
+    "models": {
+     "claude-fable-5-1": 13
+    },
+    "output": 6066,
+    "read": 2321895,
+    "write": 155940
+   },
+   "sub-agents": {
+    "calls": 29,
+    "first": "2026-10-10T08:25:50Z",
+    "fresh": 58,
+    "last": "2026-10-10T08:35:39Z",
+    "models": {
+     "claude-opus-5-5": 29
+    },
+    "output": 1368,
+    "read": 2706597,
+    "write": 111542
+   }
+  },
+  "ap-20261010T2040Z": {
+   "main": {
+    "calls": 161,
+    "first": "2026-10-10T20:44:37Z",
+    "fresh": 324,
+    "last": "2026-10-10T23:22:13Z",
+    "models": {
+     "<synthetic>": 1,
+     "claude-opus-5-5": 160
+    },
+    "output": 180110,
+    "read": 66869810,
+    "write": 396712
+   },
+   "sub-agents": {
+    "calls": 8,
+    "first": "2026-10-10T22:24:51Z",
+    "fresh": 16,
+    "last": "2026-10-10T22:25:51Z",
+    "models": {
+     "claude-opus-5-5": 8
+    },
+    "output": 514,
+    "read": 571163,
+    "write": 101797
+   }
+  },
+  "between runs": {
+   "main": {
+    "calls": 72,
+    "first": "2026-10-09T23:58:55Z",
+    "fresh": 146,
+    "last": "2026-10-11T00:25:32Z",
+    "models": {
+     "claude-fable-5-1": 5,
+     "claude-opus-5-5": 67
+    },
+    "output": 62776,
+    "read": 27322360,
+    "write": 344093
+   },
+   "sub-agents": {
+    "calls": 68,
+    "first": "2026-10-10T00:18:28Z",
+    "fresh": 136,
+    "last": "2026-10-10T07:05:52Z",
+    "models": {
+     "claude-opus-5-5": 68
+    },
+    "output": 3173,
+    "read": 10073502,
+    "write": 442189
+   }
+  }
+ },
+ "totals": {
+  "calls": 436,
+  "fresh": 876,
+  "output": 319936,
+  "read": 128452780,
+  "total": 130536366,
+  "write": 1762774
+ },
+ "updated_utc": "2026-10-11T00:25:39Z"
+}

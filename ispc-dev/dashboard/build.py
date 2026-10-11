@@ -147,6 +147,36 @@ document.querySelectorAll('time[data-utc]').forEach(t=>{{const d=new Date(t.data
 </script></body></html>
 """
 
+def mtok(n):
+    n = n or 0
+    return f"{n/1e6:.1f}M" if n >= 1e6 else f"{n/1e3:.0f}k" if n >= 1e3 else str(n)
+
+def tokens(t):
+    """Model tokens by role and run, from tools/tokens.py. Cache reads are cheap and dominate,
+    so they are shown apart from new input, cache writes and output."""
+    if not t:
+        return ""
+    head = ('<tr><th>Run</th><th class="r">Calls</th><th class="r">Output</th>'
+            '<th class="r">New + cache writes</th><th class="r">Cache reads</th></tr>')
+    parts = []
+    for role in ("climber", "workshop"):
+        r = t.get(role)
+        if not r:
+            continue
+        rows = "".join(
+            f'<tr><td>{e(run)}</td><td class="r">{b["calls"]}</td><td class="r">{mtok(b["output"])}</td>'
+            f'<td class="r">{mtok(b["fresh"] + b["write"])}</td><td class="r">{mtok(b["read"])}</td></tr>'
+            for run, b in sorted(r.get("runs", {}).items()))
+        tt = r.get("totals", {})
+        parts.append(
+            f'<h3 style="margin:12px 0 4px;font-size:15px">{e(role.title())}: {mtok(tt.get("total"))} tokens, '
+            f'{tt.get("calls", 0)} calls</h3>'
+            f'<div style="overflow-x:auto"><table class="tok">{head}{rows}</table></div>')
+    return ('<section class="card"><h2>Model tokens</h2>'
+            '<p class="sub">From the sessions\' own transcripts. Cache reads are the conversation re-read on '
+            'every call and cost about a tenth of new input; output and cache writes are the expensive part.</p>'
+            + "".join(parts) + '</section>')
+
 def build(s):
     run = s.get("run", {})
     state = (run.get("state") or "idle").lower()
@@ -195,6 +225,7 @@ td.m{{white-space:nowrap}} td.m b{{font-size:13px;margin-left:6px}} .up b{{color
 .log time{{color:var(--muted);margin-right:8px;font-variant-numeric:tabular-nums}} .log .warn{{color:var(--warn)}} .log .error{{color:var(--down)}} .log .decision{{border-left:3px solid var(--accent);padding-left:8px}}
 .next li{{padding:4px 0}} .next li::before{{content:"→ ";color:var(--muted)}}
 .btn{{display:inline-block;padding:8px 14px;border-radius:8px;border:1px solid var(--accent);color:var(--accent);text-decoration:none;font-weight:600;font-size:14px}}
+.tok{{border-collapse:collapse;font-size:13px;width:100%}} .tok th,.tok td{{padding:4px 6px;border-bottom:1px solid var(--line);text-align:left}} .tok .r{{text-align:right;font-variant-numeric:tabular-nums}}
 footer{{color:var(--muted);font-size:12px;text-align:center;margin:18px 0 8px}}
 </style></head><body><main>
 <header class="card">
@@ -218,6 +249,7 @@ footer{{color:var(--muted);font-size:12px;text-align:center;margin:18px 0 8px}}
 {experiments(s.get("experiments", []))}
 {research(s.get("research"))}
 <section class="card"><h2>Next up</h2><ul class="next">{nxt}</ul></section>
+{tokens(s.get("tokens"))}
 {events(s.get("events", []))}
 <footer>Generated from ispc-dev/status.json on cauldnz/Primes. Refreshes every 2 minutes.</footer>
 </main>

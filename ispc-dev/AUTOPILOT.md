@@ -248,6 +248,8 @@ Keep `status.json` current:
   `null` between experiments.
 - `scoreboard`: champion and rival medians per machine. Update it only from accepted Azure
   results, and say where each number came from in `source`.
+- `plain` on each experiment: the hypothesis in one sentence a newcomer could follow, written
+  as "If ..., then ..., because ...", with no ids, flags or abbreviations. The climb map shows it.
 - `experiments`: one entry per experiment, with `verdict` set to `running`, `kept`, `rejected`,
   `queued` (local winner waiting for Zen), `confirmed` or `inconclusive`, the deltas and a short
   note.

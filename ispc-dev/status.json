@@ -1518,5 +1518,117 @@
       "Wheel: sparse loop 52%, fused groups 35%, tile and 13 12% (perf, Zen 5).",
       "Azure D-series exposes no hardware PMU counters; perf used cpu-clock sampling."
     ]
+  },
+  "tokens": {
+    "workshop": {
+      "totals": {
+        "calls": 436,
+        "fresh": 876,
+        "write": 1762774,
+        "read": 128452780,
+        "output": 319936,
+        "total": 130536366
+      },
+      "runs": {
+        "ap-20261010T0715Z": {
+          "calls": 42,
+          "fresh": 84,
+          "write": 267482,
+          "read": 5028492,
+          "output": 7434
+        },
+        "between runs": {
+          "calls": 140,
+          "fresh": 282,
+          "write": 786282,
+          "read": 37395862,
+          "output": 65949
+        },
+        "ap-20261010T2040Z": {
+          "calls": 169,
+          "fresh": 340,
+          "write": 498509,
+          "read": 67440973,
+          "output": 180624
+        },
+        "ap-20261009T2033Z": {
+          "calls": 85,
+          "fresh": 170,
+          "write": 210501,
+          "read": 18587453,
+          "output": 65929
+        }
+      },
+      "updated_utc": "2026-10-11T00:25:39Z"
+    },
+    "climber": {
+      "totals": {
+        "calls": 2964,
+        "fresh": 6018,
+        "write": 6985239,
+        "read": 812057227,
+        "output": 1083735,
+        "total": 820132219
+      },
+      "runs": {
+        "ap-20261009T0607Z": {
+          "calls": 420,
+          "fresh": 840,
+          "write": 607302,
+          "read": 129805461,
+          "output": 232596
+        },
+        "ap-20261009T1112Z": {
+          "calls": 386,
+          "fresh": 772,
+          "write": 967956,
+          "read": 155263947,
+          "output": 148171
+        },
+        "ap-20261009T1349Z": {
+          "calls": 161,
+          "fresh": 322,
+          "write": 206306,
+          "read": 27414097,
+          "output": 81031
+        },
+        "ap-20261009T2033Z": {
+          "calls": 146,
+          "fresh": 292,
+          "write": 194683,
+          "read": 66410851,
+          "output": 108158
+        },
+        "ap-20261010T0140Z": {
+          "calls": 369,
+          "fresh": 766,
+          "write": 825137,
+          "read": 88338875,
+          "output": 99351
+        },
+        "ap-20261010T0715Z": {
+          "calls": 682,
+          "fresh": 1388,
+          "write": 1285648,
+          "read": 153512052,
+          "output": 152320
+        },
+        "ap-20261010T2040Z": {
+          "calls": 549,
+          "fresh": 1132,
+          "write": 1260771,
+          "read": 103951988,
+          "output": 117249
+        },
+        "between runs": {
+          "calls": 251,
+          "fresh": 506,
+          "write": 1637436,
+          "read": 87359956,
+          "output": 144859
+        }
+      },
+      "updated_utc": "2026-10-11T00:25:39Z"
+    }
   }
 }

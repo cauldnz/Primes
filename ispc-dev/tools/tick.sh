@@ -33,6 +33,7 @@ PY
 OPEN=$(awk -F'\t' 'NR > 1 && $7 == "open"' ispc-dev/results/hc/jobs.tsv 2>/dev/null | wc -l)
 python3 "$T/st.py" set run.background_runs "$OPEN" >/dev/null
 python3 "$T/st.py" set run.last_tick_utc "\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"" >/dev/null
+python3 "$T/tokens.py" --role climber --status 2>/dev/null | sed 's/^/tokens: /' || true
 bash "$T/pub.sh" "Tick" >/dev/null 2>&1 || echo "tick: publish failed; retry with tools/pub.sh"
 echo "== open jobs: $OPEN"
 awk -F'\t' 'NR > 1 && $7 == "open" { print "  " $1, $3, $4, "->", $5 }' ispc-dev/results/hc/jobs.tsv 2>/dev/null
