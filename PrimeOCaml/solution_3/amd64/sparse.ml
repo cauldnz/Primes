@@ -31,55 +31,51 @@ let[@inline never] sparse_tail b p a nbytes =
 
 (* Sparse clearing over bytes for odd p >= 128 on the sieve [b] of [nbytes] bytes. Chunks of
    p bytes start at byte multiples of p; in each, the eight multiples p(2j + 1), j = 0..7, sit
-   at fixed byte offsets o_j = (p/2 + jp) / 8 with fixed single-bit masks.
+   at fixed byte offsets (p/2 + jp) / 8 and fixed bits (p/2 + jp) land 7. As p is odd, the
+   eight bits are all different, so each bit k of a byte holds exactly one of the eight. The
+   loop takes them in order of their bit, with byte offset o_k for bit k, and the mask of each
+   is the constant 1 lsl k. Only the eight offsets are live in the loop, not eight offsets and
+   eight masks.
 
    In the whole chunks each composite is one OR of its single-bit mask into the unaligned
    64-bit word that starts at its byte: the mask sits in the low byte (little-endian), so the
    other seven bytes are ORed with zero and do not change. The word stays inside the chunk:
-   o_7 <= 15p/16, and p >= 128 gives o_7 + 8 <= p. Offsets, masks and the chunk start are
-   untagged 64-bit integers (int64#), so a composite is an add, a load, an OR and a store. OCaml
-   has no byte access indexed by an untagged integer; with tagged ints a byte OR costs seven
-   instructions (tag shifts on the index and on the byte). The partial last chunk (sparse_tail)
-   uses plain byte ORs, so nothing is touched past the end of the sieve. *)
+   o_k <= 15p/16, and p >= 128 gives o_k + 8 <= p. Offsets and the chunk start are untagged
+   64-bit integers (int64#), so a composite is an add, a load, an OR with a constant and a
+   store. OCaml has no byte access indexed by an untagged integer; with tagged ints a byte OR
+   costs seven instructions (tag shifts on the index and on the byte). The partial last chunk
+   (sparse_tail) uses plain byte ORs, so nothing is touched past the end of the sieve. *)
 let clear b nbytes p =
-  let h = p lsr 1 in
-  let o0 = h lsr 3 and m0 = 1 lsl (h land 7) in
-  let t = h + p in
-  let o1 = t lsr 3 and m1 = 1 lsl (t land 7) in
-  let t = t + p in
-  let o2 = t lsr 3 and m2 = 1 lsl (t land 7) in
-  let t = t + p in
-  let o3 = t lsr 3 and m3 = 1 lsl (t land 7) in
-  let t = t + p in
-  let o4 = t lsr 3 and m4 = 1 lsl (t land 7) in
-  let t = t + p in
-  let o5 = t lsr 3 and m5 = 1 lsl (t land 7) in
-  let t = t + p in
-  let o6 = t lsr 3 and m6 = 1 lsl (t land 7) in
-  let t = t + p in
-  let o7 = t lsr 3 and m7 = 1 lsl (t land 7) in
-  let s0 = p * p / 2 / 8 / p * p in
-  let chunks = (nbytes - s0) / p in
+  let o0 = ref 0 and o1 = ref 0 and o2 = ref 0 and o3 = ref 0
+  and o4 = ref 0 and o5 = ref 0 and o6 = ref 0 and o7 = ref 0 in
+  let t = ref (p lsr 1) in
+  for _ = 0 to 7 do
+    let o = !t lsr 3 in
+    (match !t land 7 with
+     | 0 -> o0 := o | 1 -> o1 := o | 2 -> o2 := o | 3 -> o3 := o
+     | 4 -> o4 := o | 5 -> o5 := o | 6 -> o6 := o | _ -> o7 := o);
+    t := !t + p
+  done;
+  let o0 = u !o0 and o1 = u !o1 and o2 = u !o2 and o3 = u !o3 in
+  let o4 = u !o4 and o5 = u !o5 and o6 = u !o6 and o7 = u !o7 in
   let[@inline always] markw a o m =
     let i = add_u a o in
-    set64x b i (or_u (get64x b i) m)
+    set64x b i (or_u (get64x b i) (u m))
   in
-  let uo0 = u o0 and um0 = u m0 and uo1 = u o1 and um1 = u m1 in
-  let uo2 = u o2 and um2 = u m2 and uo3 = u o3 and um3 = u m3 in
-  let uo4 = u o4 and um4 = u m4 and uo5 = u o5 and um5 = u m5 in
-  let uo6 = u o6 and um6 = u m6 and uo7 = u o7 and um7 = u m7 in
+  let s0 = p * p / 2 / 8 / p * p in
+  let chunks = (nbytes - s0) / p in
   let up = u p in
   let qe = u (s0 + (chunks * p)) in
   let mutable q = u s0 in
   while lt_u q qe do
-    markw q uo0 um0;  (* one composite each *)
-    markw q uo1 um1;
-    markw q uo2 um2;
-    markw q uo3 um3;
-    markw q uo4 um4;
-    markw q uo5 um5;
-    markw q uo6 um6;
-    markw q uo7 um7;
+    markw q o0 1;  (* one composite each *)
+    markw q o1 2;
+    markw q o2 4;
+    markw q o3 8;
+    markw q o4 16;
+    markw q o5 32;
+    markw q o6 64;
+    markw q o7 128;
     q <- add_u q up
   done;
   sparse_tail b p (Int64.to_int (box q)) nbytes
