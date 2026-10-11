@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T22:17:05Z",
+  "updated_utc": "2026-10-11T22:18:32Z",
   "run": {
     "id": "ap-20261011T1929Z",
     "state": "running",
@@ -24,24 +24,24 @@
     {
       "machine": "Zen 5 (EPYC 9V45, D16as_v7)",
       "entry": "oxcaml base",
-      "ours_1t": 64700,
-      "ours_mt": 236700,
+      "ours_1t": 69300,
+      "ours_mt": 252500,
       "rival": "mike-barber Rust",
       "rival_1t": 126300,
       "rival_mt": 471600,
       "threads": 4,
-      "source": "run 10 ox-009 cand (champion 4f1ba99), same-round medians, 4T in ours_mt; Rust 124.1k, ISPC base 136.8k, plain OCaml 32.5k (ocaml-004)"
+      "source": "run 10 ox-014 cand (champion 997f71f), same-round medians, 4T in ours_mt"
     },
     {
       "machine": "Zen 3 (EPYC 7763, D16a_v4)",
       "entry": "oxcaml base",
-      "ours_1t": 31400,
-      "ours_mt": 120300,
+      "ours_1t": 32400,
+      "ours_mt": 124300,
       "rival": "mike-barber Rust",
       "rival_1t": 55100,
       "rival_mt": 213800,
       "threads": 4,
-      "source": "run 10 ox-009 cand (champion 4f1ba99), same-round medians, 4T in ours_mt; Rust 55.6k, ISPC base 59.9k, plain OCaml 18.0k"
+      "source": "run 10 ox-014 cand (champion 997f71f), same-round medians, 4T in ours_mt"
     },
     {
       "machine": "Cobalt 100 (D4ps_v6)",
@@ -52,7 +52,7 @@
       "rival_1t": 42900,
       "rival_mt": 171300,
       "threads": 4,
-      "source": "run 10 ox-009 cand (champion 4f1ba99), same-round medians, 4T in ours_mt; Rust 42.9k, ISPC base 42.2k, plain OCaml 3.4k"
+      "source": "run 10 ox-014 cand (champion 997f71f), same-round medians, 4T in ours_mt"
     },
     {
       "machine": "Zen 5 (EPYC 9V45, D32as_v7)",
@@ -2123,8 +2123,9 @@
       "kind": "tuning",
       "plain": "If the two kept changes, one to the dense loop and one to the sparse loop, are put together, then their gains should add, because they touch different loops.",
       "prediction": "+4% to +8% over 4f1ba99 at 1T on Zen",
-      "verdict": "running",
-      "commit": "997f71f"
+      "verdict": "kept",
+      "commit": "997f71f",
+      "note": "Zen 5 +7.7% 1T, Zen 3 +4.2%; champion 997f71f"
     },
     {
       "id": "ox-015",
@@ -2168,49 +2169,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T21:04:37Z",
-      "level": "decision",
-      "text": "ox-008: submit a4e63af vs cbcd24d on Zen 5, Zen 3 and Cobalt. Why: rebuilt here, PRIMES_TEST=1 exits 0; the agent's assembly compare shows the scalar kernels match cbcd24d apart from moved field loads at the call site, so the arm64 binary is not byte-identical and still gets a Cobalt run; x86 kernels match ox-004. Expect: x86 as ox-004; Cobalt within 1%.",
-      "id": "ox-008",
-      "what": "submit a4e63af vs cbcd24d on Zen 5, Zen 3 and Cobalt",
-      "why": "rebuilt here, PRIMES_TEST=1 exits 0; the agent's assembly compare shows the scalar kernels match cbcd24d apart from moved field loads at the call site, so the arm64 binary is not byte-identical and still gets a Cobalt run; x86 kernels match ox-004",
-      "expect": "x86 as ox-004; Cobalt within 1%"
-    },
-    {
-      "utc": "2026-10-11T21:04:37Z",
-      "level": "info",
-      "text": "ox-008 (oxcaml) running: ",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T21:09:08Z",
-      "level": "decision",
-      "text": "ocaml-006: reject at the local gate; not sent to Azure. Why: 8% slower at 1T locally over 6 rounds; the dense saving (8.5 to 7 instr/word) is eaten by data-pointer reloads and a slower sparse loop, and the only fast byte view is an Obj.magic cast, which a reviewer would question.",
-      "id": "ocaml-006",
-      "what": "reject at the local gate; not sent to Azure",
-      "why": "8% slower at 1T locally over 6 rounds; the dense saving (8.5 to 7 instr/word) is eaten by data-pointer reloads and a slower sparse loop, and the only fast byte view is an Obj.magic cast, which a reviewer would question"
-    },
-    {
-      "utc": "2026-10-11T21:09:08Z",
-      "level": "info",
-      "text": "ocaml-006 (ocaml-plain) rejected: ",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T21:12:38Z",
-      "level": "decision",
-      "text": "ocaml-005: REVERT limit 96 without more rounds; dense limit stays 128. Why: analyze.py asks for more rounds, but Zen 3's mean is +0.4% +-1.0 after 5 rounds, so its lower bound reaching +1% would need the mean to more than double; three experiments on the plain dense loop (004 kept, 005 x2 lost) say the line has moved past it. Passed over: 15 more Zen 3 rounds (about 20 node-minutes).",
-      "id": "ocaml-005",
-      "what": "REVERT limit 96 without more rounds; dense limit stays 128",
-      "why": "analyze.py asks for more rounds, but Zen 3's mean is +0.4% +-1.0 after 5 rounds, so its lower bound reaching +1% would need the mean to more than double; three experiments on the plain dense loop (004 kept, 005 x2 lost) say the line has moved past it",
-      "instead": "15 more Zen 3 rounds (about 20 node-minutes)"
-    },
-    {
-      "utc": "2026-10-11T21:12:39Z",
-      "level": "info",
-      "text": "ox-007 Cobalt: -27.6% at 1T, the same loss as ox-004. The 64-bit-word OR in the sparse loop is what costs Arm. ox-007's form goes into the x86-only kernel as ox-009 (on ox-008)."
-    },
     {
       "utc": "2026-10-11T21:12:39Z",
       "level": "decision",
@@ -2520,6 +2478,45 @@
       "utc": "2026-10-11T22:10:30Z",
       "level": "info",
       "text": "ox-017 (oxcaml) running: ",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T22:18:31Z",
+      "level": "decision",
+      "text": "ox-014: KEEP; hc/oxcaml-champion fast-forwarded to 997f71f. Why: analyze.py KEEP: lower bounds +6.7% Zen 5 (4T) and +3.7% Zen 3 (1T); gains add as predicted (+7.5%/+4.8% for ox-011 alone).",
+      "id": "ox-014",
+      "what": "KEEP; hc/oxcaml-champion fast-forwarded to 997f71f",
+      "why": "analyze.py KEEP: lower bounds +6.7% Zen 5 (4T) and +3.7% Zen 3 (1T); gains add as predicted (+7.5%/+4.8% for ox-011 alone)"
+    },
+    {
+      "utc": "2026-10-11T22:18:32Z",
+      "level": "warn",
+      "text": "Cobalt node unusable since 21:38 UTC: DiskFull. The standalone Dockerfile (builds the whole OxCaml switch beside the cached 4.8 GB image and the controls) filled the D4ps_v6 disk. The classifier refused deleting the node, so the Cobalt pool was taken down with hc-pool.sh and brought back up; ox-012 diag and ox-017 Cobalt resubmitted; the Cobalt standalone build is not retried (oxbuild already timed the switch there: 604 s). Lost: about 40 Cobalt node-minutes."
+    },
+    {
+      "utc": "2026-10-11T22:18:32Z",
+      "level": "decision",
+      "text": "ox-standalone: don't retry the standalone build on Cobalt. Why: it filled the node's disk; its question (does the standalone Dockerfile work, how long) is answered on Zen 5 (458 s, self-test passes), and the Cobalt switch build time is known from ox-000 (604 s switch, 775 s image).",
+      "id": "ox-standalone",
+      "what": "don't retry the standalone build on Cobalt",
+      "why": "it filled the node's disk; its question (does the standalone Dockerfile work, how long) is answered on Zen 5 (458 s, self-test passes), and the Cobalt switch build time is known from ox-000 (604 s switch, 775 s image)"
+    },
+    {
+      "utc": "2026-10-11T22:18:32Z",
+      "level": "info",
+      "text": "ox-014 kept.. Zen 5 +7.7% 1T, Zen 3 +4.2%; champion 997f71f",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T22:18:32Z",
+      "level": "info",
+      "text": "Scoreboard, oxcaml base on Zen 5 (EPYC 9V45, D16as_v7): 64700 → 69300 at 1T, 236700 → 252500 at 4 threads.",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T22:18:32Z",
+      "level": "info",
+      "text": "Scoreboard, oxcaml base on Zen 3 (EPYC 7763, D16a_v4): 31400 → 32400 at 1T, 120300 → 124300 at 4 threads.",
       "auto": true
     }
   ],
