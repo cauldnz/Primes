@@ -28,10 +28,32 @@ let[@inline] store_runs b pat base runs rb =
   done;
   !base
 
-(* ORs the pattern into the sieve, four words per step. *)
+(* ORs the pattern into the sieve. Two runs per step: each pattern word is loaded once and ORed
+   into the same word of two consecutive runs, eight sieve words a step. An odd run left over
+   goes through the one-run loop, four words a step. *)
 let[@inline] or_runs b pat base runs rb =
   let base = ref base in
-  for _ = 1 to runs do
+  for _ = 1 to runs / 2 do
+    let q = !base in
+    let v = ref 0 in
+    while !v < rb do
+      let a = q + !v and v0 = !v in
+      let a2 = a + rb in
+      let w0 = get64 pat v0 and w1 = get64 pat (v0 + 8)
+      and w2 = get64 pat (v0 + 16) and w3 = get64 pat (v0 + 24) in
+      set64 b a (Int64.logor (get64 b a) w0);
+      set64 b (a + 8) (Int64.logor (get64 b (a + 8)) w1);
+      set64 b (a + 16) (Int64.logor (get64 b (a + 16)) w2);
+      set64 b (a + 24) (Int64.logor (get64 b (a + 24)) w3);
+      set64 b a2 (Int64.logor (get64 b a2) w0);
+      set64 b (a2 + 8) (Int64.logor (get64 b (a2 + 8)) w1);
+      set64 b (a2 + 16) (Int64.logor (get64 b (a2 + 16)) w2);
+      set64 b (a2 + 24) (Int64.logor (get64 b (a2 + 24)) w3);
+      v := v0 + 32
+    done;
+    base := q + (2 * rb)
+  done;
+  if runs land 1 = 1 then begin
     let q = !base in
     let v = ref 0 in
     while !v < rb do
@@ -43,5 +65,5 @@ let[@inline] or_runs b pat base runs rb =
       v := v0 + 32
     done;
     base := q + rb
-  done;
+  end;
   !base
