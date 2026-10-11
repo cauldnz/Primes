@@ -221,7 +221,6 @@ const BaseSieve = struct {
 // =========================================================================================
 
 const G: usize = 8; // primes fused into one pass over a plane
-const MAXPAT: usize = 1024; // longest pattern period, in words
 const DENSE_MAX: u32 = 256; // primes below this are applied as word patterns
 
 const RES = [8]u32{ 1, 7, 11, 13, 17, 19, 23, 29 };
@@ -230,11 +229,12 @@ const PLANE = [30]i8{ -1, 0, -1, -1, -1, -1, -1, 1, -1, -1, -1, 2, -1, 3, -1, -1
 // multiplicative inverse mod 30, for residues coprime to 30
 const INV30 = [30]u32{ 0, 1, 0, 0, 0, 0, 0, 13, 0, 0, 0, 11, 0, 7, 0, 0, 0, 23, 0, 19, 0, 0, 0, 17, 0, 0, 0, 0, 0, 29 };
 
-// Word patterns for a group of up to G primes, built once and shared by all 8 planes.
+// Word patterns for a group of up to G primes, shared by all 8 planes. They point into the
+// read-only pattern table built at compile time (PAT below).
 const Group = struct {
     L: [G]usize, // pattern period in words: a multiple of p, at least VW
-    tab: [G][64]u16, // starting phase for each bit offset
-    buf: [G][MAXPAT + 64]u64, // the patterns, extended by VW words past L
+    tab: [G]*const [64]u16, // starting phase for each bit offset
+    buf: [G][*]const u64, // the patterns, extended by VW words past L
 };
 
 // First bit in plane R of a multiple p*k with k >= kmin.
@@ -247,9 +247,15 @@ fn startBit(p: u32, R: u32, kmin: u32) usize {
 // One period of p's stride-p pattern, extended to L + VW words. Any bit offset of the pattern
 // is a whole-word rotation of it, since 64 is invertible mod p; tab[t] is the word whose bit t
 // is set, which is the starting phase for offset t.
-fn buildPattern(pat: []u64, tab: *[64]u16, p: usize) usize {
+// Run only at compile time, to fill PAT.
+fn patLen(p: usize) usize {
     var L = p;
     while (L < VW) L += p;
+    return L;
+}
+
+fn buildPattern(pat: []u64, tab: *[64]u16, p: usize) usize {
+    const L = patLen(p);
     @memset(pat[0..p], 0);
     var j: usize = 0;
     while (j < p * 64) : (j += p) {
@@ -258,6 +264,111 @@ fn buildPattern(pat: []u64, tab: *[64]u16, p: usize) usize {
     }
     for (p..L + VW) |k| pat[k] = pat[k - p];
     return L;
+}
+
+// Trial division, run only at compile time to choose which numbers get table entries.
+fn ctIsPrime(n: u32) bool {
+    if (n < 2) return false;
+    var d: u32 = 2;
+    while (d * d <= n) : (d += 1) if (n % d == 0) return false;
+    return true;
+}
+
+// Read-only tables built at compile time. None depends on the sieve size, and every pass
+// still finds its sieving primes in the sieve itself; the tables only replace arithmetic each
+// pass would otherwise repeat for a prime it has found.
+//
+// PAT: the word pattern of every prime from 7 below DENSE_MAX (the primes ever applied as
+// patterns, whatever the sieve size), as buildPattern makes it, all in one flat array.
+const PAT = blk: {
+    @setEvalBranchQuota(2_000_000);
+    var np: usize = 0;
+    var words: usize = 0;
+    for (7..DENSE_MAX) |p| {
+        if (!ctIsPrime(p)) continue;
+        np += 1;
+        words += patLen(p) + VW;
+    }
+    var buf: [words]u64 = undefined;
+    var tab: [np][64]u16 = undefined;
+    var L: [np]usize = undefined;
+    var off: [np]usize = undefined;
+    var idx = [_]u8{0} ** (DENSE_MAX / 2); // pattern index of p, by p / 2
+    var i: usize = 0;
+    var o: usize = 0;
+    for (7..DENSE_MAX) |p| {
+        if (!ctIsPrime(p)) continue;
+        L[i] = buildPattern(buf[o..], &tab[i], p);
+        off[i] = o;
+        idx[p / 2] = i;
+        o += L[i] + VW;
+        i += 1;
+    }
+    const fbuf = buf;
+    const ftab = tab;
+    const fL = L;
+    const foff = off;
+    const fidx = idx;
+    break :blk .{ .buf = fbuf, .tab = ftab, .L = fL, .off = foff, .idx = fidx };
+};
+const PAT_BUF = PAT.buf;
+const PAT_TAB = PAT.tab;
+const PAT_L = PAT.L;
+const PAT_OFF = PAT.off;
+const PAT_IDX = PAT.idx;
+
+// START: for each prime p from 13 below START_LIMIT, the first bit at or after p*p in each of
+// the 8 planes, as an offset from p*p/30 (less than p, so 16 bits). START_RANK maps a
+// number coprime to 30 to its prime's row. Primes from START_LIMIT on (needed only above
+// 10,007^2, just over 10^8) compute their start bits at run time.
+const START_LIMIT: u32 = 10_000; // sqrt(10^8)
+
+inline fn wheelIndex(n: u32) usize {
+    return (n / 30) * 8 + @as(usize, @intCast(PLANE[n % 30]));
+}
+
+const START = blk: {
+    @setEvalBranchQuota(20_000_000);
+    var np: usize = 0;
+    for (13..START_LIMIT) |p| {
+        if (ctIsPrime(p)) np += 1;
+    }
+    var off: [np][8]u16 = undefined;
+    var rank = [_]u16{0} ** ((START_LIMIT / 30 + 1) * 8);
+    var i: usize = 0;
+    for (13..START_LIMIT) |p| {
+        if (!ctIsPrime(p)) continue;
+        for (0..8) |pl| off[i][pl] = startBit(p, RES[pl], p) - p * p / 30;
+        rank[wheelIndex(p)] = i;
+        i += 1;
+    }
+    const foff = off;
+    const frank = rank;
+    break :blk .{ .off = foff, .rank = frank };
+};
+const START_OFF = START.off;
+const START_RANK = START.rank;
+
+// The first bit at or after p*p in each plane, for a prime p >= 13.
+inline fn startBits(p: u32, out: *[8]usize) void {
+    if (p < START_LIMIT) {
+        const o = &START_OFF[START_RANK[wheelIndex(p)]];
+        const base: usize = p * p / 30;
+        inline for (0..8) |pl| out[pl] = base + o[pl];
+    } else {
+        inline for (0..8) |pl| out[pl] = startBit(p, RES[pl], p);
+    }
+}
+
+fn patternGroup(primes: []const u32) Group {
+    var g: Group = undefined;
+    for (primes, 0..) |p, j| {
+        const i = PAT_IDX[p / 2];
+        g.L[j] = PAT_L[i];
+        g.tab[j] = &PAT_TAB[i];
+        g.buf[j] = PAT_BUF[PAT_OFF[i]..].ptr;
+    }
+    return g;
 }
 
 // OR the N patterns of a group into words [start, nw) of one plane, where start is the first
@@ -272,7 +383,7 @@ fn applyGroup(comptime N: usize, w: [*]u64, nw: usize, g: *const Group, b: []con
     var L: [N]usize = undefined;
     inline for (0..N) |j| {
         L[j] = g.L[j];
-        pp[j] = &g.buf[j];
+        pp[j] = g.buf[j];
         const back = ((b[j] >> 6) - start) % L[j];
         const t: usize = g.tab[j][b[j] & 63];
         r[j] = if (t >= back) t - back else t + L[j] - back;
@@ -301,20 +412,17 @@ const WheelSieve = struct {
     nw: usize, // words used per plane
     pw: usize, // plane stride in words
     bits: []align(64) u64, // the 8 bit-planes, pw words apart; a set bit means composite
-    grp: *Group, // pattern scratch
 
     fn init(alloc: Allocator, size: u64) !WheelSieve {
         const mbits: usize = @intCast(size / 30 + 1);
         const nw = (mbits + 63) / 64;
         const pw = (nw + VW - 1 + 7) & ~@as(usize, 7); // room for the last vector to overrun
         const bits = try alloc.alignedAlloc(u64, 64, 8 * pw);
-        const grp = try alloc.create(Group);
         for (0..8) |pl| @memset(bits[pl * pw + nw .. (pl + 1) * pw], 0);
-        return .{ .alloc = alloc, .size = size, .mbits = mbits, .nw = nw, .pw = pw, .bits = bits, .grp = grp };
+        return .{ .alloc = alloc, .size = size, .mbits = mbits, .nw = nw, .pw = pw, .bits = bits };
     }
 
     fn deinit(self: *WheelSieve) void {
-        self.alloc.destroy(self.grp);
         self.alloc.free(self.bits);
     }
 
@@ -322,24 +430,22 @@ const WheelSieve = struct {
         return self.bits.ptr + pl * self.pw;
     }
 
-    fn buildGroup(self: *WheelSieve, primes: []const u32) void {
-        for (primes, 0..) |p, j| self.grp.L[j] = buildPattern(&self.grp.buf[j], &self.grp.tab[j], p);
-    }
-
-    fn apply(self: *WheelSieve, w: [*]u64, nw: usize, b: []const usize) void {
+    fn apply(w: [*]u64, nw: usize, g: *const Group, b: []const usize) void {
         switch (b.len) {
-            inline 1...G => |N| applyGroup(N, w, nw, self.grp, b),
+            inline 1...G => |N| applyGroup(N, w, nw, g, b),
             else => unreachable,
         }
     }
 
     // Apply a group of primes, from p*p on, to all 8 planes.
     fn densePrimes(self: *WheelSieve, primes: []const u32) void {
-        self.buildGroup(primes);
+        const g = patternGroup(primes);
+        var sb: [G][8]usize = undefined;
+        for (primes, 0..) |p, j| startBits(p, &sb[j]);
         var b: [G]usize = undefined;
         for (0..8) |pl| {
-            for (primes, 0..) |p, j| b[j] = startBit(p, RES[pl], p);
-            self.apply(self.plane(pl), self.nw, b[0..primes.len]);
+            for (0..primes.len) |j| b[j] = sb[j][pl];
+            apply(self.plane(pl), self.nw, &g, b[0..primes.len]);
         }
         for (primes) |p| { // each member marked itself
             const m = p / 30;
@@ -356,11 +462,11 @@ const WheelSieve = struct {
         const nbits = self.mbits;
         const base = self.bits.ptr;
         var i: [8]usize = undefined;
+        startBits(p, &i);
         var hi: usize = 0;
         for (0..8) |pl| {
-            const sb = startBit(p, RES[pl], p);
-            hi = @max(hi, sb);
-            i[pl] = sb + pl * self.pw * 64; // bit index in the whole buffer
+            hi = @max(hi, i[pl]);
+            i[pl] += pl * self.pw * 64; // bit index in the whole buffer
         }
         var rounds: usize = if (hi < nbits) (nbits - 1 - hi) / p + 1 else 0;
         while (rounds > 0) : (rounds -= 1) {
@@ -390,12 +496,12 @@ const WheelSieve = struct {
         // it along the plane. 7 and 11 are then unmarked.
         const t = @min(77, nw);
         const tp = [2]u32{ 7, 11 };
-        self.buildGroup(&tp);
+        const tg = patternGroup(&tp);
         for (0..8) |pl| {
             const w = self.plane(pl);
             @memset(w[0..t], 0);
             const tb = [2]usize{ startBit(7, RES[pl], 1), startBit(11, RES[pl], 1) };
-            applyGroup(2, w, t, self.grp, &tb);
+            applyGroup(2, w, t, &tg, &tb);
             var base: usize = t;
             while (base < nw) : (base += t) {
                 const n = @min(t, nw - base);
@@ -558,6 +664,10 @@ pub fn main() !void {
             ok = selfTest(BaseSieve, "base", &edge, &edge_expect) and ok;
             ok = selfTest(WheelSieve, "wheel", &pow10, &pow10_expect) and ok;
             ok = selfTest(WheelSieve, "wheel", &edge, &edge_expect) and ok;
+            // Primes from 10,007 on take the wheel's run-time start-bit path, not its table.
+            const big = [_]u64{200_000_000};
+            const big_expect = [_]usize{11_078_937};
+            ok = selfTest(WheelSieve, "wheel", &big, &big_expect) and ok;
             std.process.exit(if (ok) 0 else 1);
         }
     }
