@@ -105,6 +105,28 @@ record the numbers.
 F4 (`PRIMES_DENSE_MAX` 384, 512, 640, wheel), then F6 (AVX-512 off at 96 threads) if the 96-vCPU
 node is up for something else anyway. Nothing grey this run beyond porting F1.
 
+## Stream 5 (phase 1, profile first): precomputed tables for the wheels
+
+The contest defines a wheel as an algorithm that takes "a (pre)calculated set of prime numbers
+within a certain base number range" and projects it onto the sieve, and the merged Zig wheel
+(`PrimeZig/solution_3`, tagged faithful) builds its tables at compile time. Our ISPC wheel
+recomputes, on every pass, each large prime's first multiple in each of the 8 planes (`start_bit`)
+and each small prime's group pattern.
+
+1. Profile first, one Zen 5 node: TSC split of a wheel pass into start-offset computation, pattern
+   building, group passes, tile and sparse marks. Predict before looking: start offsets and
+   pattern building together 5% to 15% of a pass.
+2. Only if they are 5% or more: build the large primes' per-plane start offsets (and, if the
+   profile says so, the small primes' patterns) as static tables generated at build time, with
+   the run-time path kept for any prime beyond the tables, so every sieve size still works and
+   the 5,396-size sweep still passes. Watch L1: tables that evict the sieve can cost more than
+   they save. Tag stays `algorithm=wheel,faithful=yes`; the README says what is precomputed.
+3. The same idea in the Zig wheel uses `comptime`, exactly as `PrimeZig/solution_3` does: a good
+   phase 2 experiment for Zig.
+
+Not this run: a bigger wheel (mod 210 or 2310) so that two SMT siblings' sieves fit one L1. It is
+a redesign; write it up in `IDEAS.md` with a prediction instead.
+
 ## Morning report additions
 
 Lead with stream 1, as a table per design: ISPC, Zig, C++, Rust at the start and end of the run,
