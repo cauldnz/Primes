@@ -15,6 +15,36 @@
 const std = @import("std");
 
 const Allocator = std.mem.Allocator;
+const builtin = @import("builtin");
+
+// DIAGNOSTIC BUILD (hc/diag-zig-wheel-phases-2, never merged): TSC cycles per wheel phase.
+// 0 start offsets, 1 group pattern build, 2 group passes, 3 tile build + copy, 4 sparse marks,
+// 5 whole pass (init + run + deinit); scan + set-up is the remainder. NI counts timed intervals.
+var PT = [_]u64{0} ** 8;
+var NI: u64 = 0;
+var NIC = [_]u64{0} ** 8;
+inline fn cycles() u64 {
+    if (builtin.cpu.arch == .x86_64) {
+        var lo: u32 = undefined;
+        var hi: u32 = undefined;
+        asm volatile ("rdtsc"
+            : [lo] "={eax}" (lo),
+              [hi] "={edx}" (hi),
+        );
+        return (@as(u64, hi) << 32) | lo;
+    } else {
+        return asm volatile ("mrs %[r], cntvct_el0"
+            : [r] "=r" (-> u64),
+        );
+    }
+}
+inline fn tick(i: usize, a: u64) u64 {
+    const b = cycles();
+    PT[i] += b - a;
+    NI += 1;
+    NIC[i] += 1;
+    return b;
+}
 
 const SIEVE_SIZE: u64 = 1_000_000;
 const EXPECTED: usize = 78498;
@@ -335,12 +365,18 @@ const WheelSieve = struct {
 
     // Apply a group of primes, from p*p on, to all 8 planes.
     fn densePrimes(self: *WheelSieve, primes: []const u32) void {
+        var t0 = cycles();
         self.buildGroup(primes);
-        var b: [G]usize = undefined;
+        t0 = tick(1, t0);
+        var bb: [8][G]usize = undefined;
         for (0..8) |pl| {
-            for (primes, 0..) |p, j| b[j] = startBit(p, RES[pl], p);
-            self.apply(self.plane(pl), self.nw, b[0..primes.len]);
+            for (primes, 0..) |p, j| bb[pl][j] = startBit(p, RES[pl], p);
         }
+        t0 = tick(0, t0);
+        for (0..8) |pl| {
+            self.apply(self.plane(pl), self.nw, bb[pl][0..primes.len]);
+        }
+        _ = tick(2, t0);
         for (primes) |p| { // each member marked itself
             const m = p / 30;
             if (m < self.mbits) {
@@ -355,6 +391,7 @@ const WheelSieve = struct {
     fn sparsePrime(self: *WheelSieve, p: u32) void {
         const nbits = self.mbits;
         const base = self.bits.ptr;
+        var t0 = cycles();
         var i: [8]usize = undefined;
         var hi: usize = 0;
         for (0..8) |pl| {
@@ -363,6 +400,7 @@ const WheelSieve = struct {
             i[pl] = sb + pl * self.pw * 64; // bit index in the whole buffer
         }
         var rounds: usize = if (hi < nbits) (nbits - 1 - hi) / p + 1 else 0;
+        t0 = tick(0, t0);
         while (rounds > 0) : (rounds -= 1) {
             inline for (0..8) |pl| {
                 base[i[pl] >> 6] |= @as(u64, 1) << @intCast(i[pl] & 63);
@@ -374,6 +412,7 @@ const WheelSieve = struct {
             var x = i[pl];
             while (x < end) : (x += p) base[x >> 6] |= @as(u64, 1) << @intCast(x & 63);
         }
+        _ = tick(4, t0);
     }
 
     fn isComposite(self: *WheelSieve, n: usize) bool {
@@ -384,6 +423,7 @@ const WheelSieve = struct {
 
     fn run(self: *WheelSieve) void {
         const nw = self.nw;
+        const tt = cycles();
 
         // Phase 1: the wheel tile. Multiples of 7 and 11 repeat every 77 words in each plane,
         // so mark one period, starting from 7 and 11 themselves to keep it periodic, and copy
@@ -405,6 +445,7 @@ const WheelSieve = struct {
         self.plane(0)[0] |= 1; // 1 is not prime
         self.plane(1)[0] &= ~@as(u64, 1); // 7 is prime
         self.plane(2)[0] &= ~@as(u64, 1); // 11 is prime
+        _ = tick(3, tt);
 
         // Phase 2: 13 on its own. Afterwards every bit below 17*17 is final.
         const thirteen = [1]u32{13};
@@ -526,6 +567,7 @@ fn runEntry(comptime S: type, comptime label: []const u8, comptime tags: []const
             total += j.passes;
         }
         try out.print(label ++ ";{d};{d:.6};{d};" ++ tags ++ "\n", .{ total, elapsed, n });
+        if (n == 1 and S == WheelSieve) try profileWheel(); // DIAGNOSTIC
 
         if (next < 2 or next * 4 < nthreads) break;
         n = next;
@@ -545,6 +587,50 @@ fn selfTest(comptime S: type, comptime name: []const u8, sizes: []const u64, exp
         if (c != e) ok = false;
     }
     return ok;
+}
+
+// DIAGNOSTIC: phase split over 20,000 single-threaded wheel passes, allocated as in the worker.
+// Printed as phase;<name>;<cycles per pass>;<share of the pass>. Each timed interval holds about
+// one back-to-back TSC read pair; that cost (measured) is taken off the timed phases and shown.
+fn profileWheel() !void {
+    const out = std.io.getStdOut().writer();
+    var ov: u64 = ~@as(u64, 0);
+    for (0..1000) |_| {
+        const a = cycles();
+        const b = cycles();
+        ov = @min(ov, b - a);
+    }
+    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+    defer arena.deinit();
+    const N: u64 = 20000;
+    PT = [_]u64{0} ** 8;
+    NI = 0;
+    NIC = [_]u64{0} ** 8;
+    var NIk = [_]u64{0} ** 5;
+    for (0..N) |_| {
+        const a = cycles();
+        var s = WheelSieve.init(arena.allocator(), SIEVE_SIZE) catch fatal("out of memory");
+        s.run();
+        s.deinit();
+        _ = arena.reset(.retain_capacity);
+        PT[5] += cycles() - a;
+    }
+    for (0..5) |k| NIk[k] = NIC[k];
+    const total = PT[5] - NI * ov;
+    var parts: [6]u64 = undefined;
+    var sum: u64 = 0;
+    for (0..5) |k| {
+        parts[k] = PT[k] - @min(PT[k], NIk[k] * ov);
+        sum += parts[k];
+    }
+    parts[5] = total - sum;
+    const names = [_][]const u8{ "start_offsets", "group_build", "group_pass", "tile_copy", "sparse_marks", "scan_setup" };
+    const tf: f64 = @floatFromInt(total);
+    for (0..6) |k| {
+        try out.print("phase;{s};{d};{d:.1}%\n", .{ names[k], parts[k] / N, 100.0 * @as(f64, @floatFromInt(parts[k])) / tf });
+    }
+    try out.print("phase;total;{d};100.0%\n", .{total / N});
+    try out.print("phase;tsc_read_pair;{d};intervals_per_pass={d}\n", .{ ov, NI / N });
 }
 
 pub fn main() !void {
