@@ -906,3 +906,5 @@
 {"utc": "2026-10-11T23:47:18Z", "level": "info", "text": "r10-final (both) confirmed: ", "auto": true}
 {"utc": "2026-10-11T23:47:18Z", "level": "info", "text": "Scoreboard, oxcaml base on Zen 5 (EPYC 9V45, D16as_v7): 72400 → 72200 at 1T, 260900 → 261500 at 4 threads.", "auto": true}
 {"utc": "2026-10-11T23:47:18Z", "level": "info", "text": "Scoreboard, oxcaml base on Zen 3 (EPYC 7763, D16a_v4): 37000 → 37200 at 1T, 136700 → 137000 at 4 threads.", "auto": true}
+{"utc": "2026-10-11T23:49:28Z", "level": "info", "text": "Run ap-20261011T1929Z stopped at 09:50 AEST (4.35 h of 6): experiments done, final scoreboard in, all pools deleted (az batch pool list: 0), lock cleared, morning report and retrospective written. Waiting only on the final README branches (hc/oxcaml-final, hc/ocaml-final)."}
+{"utc": "2026-10-11T23:49:28Z", "level": "info", "text": "Run ap-20261011T1929Z is stopped; spend NZ$7.72.", "auto": true}

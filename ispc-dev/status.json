@@ -1,9 +1,9 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T23:47:18Z",
+  "updated_utc": "2026-10-11T23:49:28Z",
   "run": {
     "id": "ap-20261011T1929Z",
-    "state": "running",
+    "state": "stopped",
     "mode": "azure",
     "mode_reason": "Run 10 (OxCaml). Azure via the container's cached login; Batch account and group set inline for this session.",
     "started_utc": "2026-10-11T19:29:00Z",
@@ -13,7 +13,7 @@
     "ends_utc": "2026-10-12T01:29:00Z",
     "background_runs": 0,
     "last_tick_utc": "2026-10-11T23:45:45Z",
-    "wakeup": "trig_01CtkkFtrQALo2QBp5wn6FRR"
+    "wakeup": null
   },
   "current": null,
   "scoreboard": [
@@ -2240,17 +2240,6 @@
     {
       "utc": "2026-10-11T21:51:28Z",
       "level": "info",
-      "text": "ox-012 Zen 3 profile of 4f1ba99 (x86 kernels): sparse 85 us (52%, 1.56 cycles/mark), dense copy 55 us (34%), pattern build 14 us (9%), setup and scan under 1%. Cobalt still running."
-    },
-    {
-      "utc": "2026-10-11T21:51:28Z",
-      "level": "info",
-      "text": "ox-011 kept.. vs a4e63af: Zen 5 +7.5% 1T, Zen 3 +4.8%; merged with ox-009 as ox-014 for a confirm run",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T21:51:28Z",
-      "level": "info",
       "text": "ox-014 (oxcaml) running: ",
       "auto": true
     },
@@ -2577,6 +2566,17 @@
       "utc": "2026-10-11T23:47:18Z",
       "level": "info",
       "text": "Scoreboard, oxcaml base on Zen 3 (EPYC 7763, D16a_v4): 37000 → 37200 at 1T, 136700 → 137000 at 4 threads.",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T23:49:28Z",
+      "level": "info",
+      "text": "Run ap-20261011T1929Z stopped at 09:50 AEST (4.35 h of 6): experiments done, final scoreboard in, all pools deleted (az batch pool list: 0), lock cleared, morning report and retrospective written. Waiting only on the final README branches (hc/oxcaml-final, hc/ocaml-final)."
+    },
+    {
+      "utc": "2026-10-11T23:49:28Z",
+      "level": "info",
+      "text": "Run ap-20261011T1929Z is stopped; spend NZ$7.72.",
       "auto": true
     }
   ],
