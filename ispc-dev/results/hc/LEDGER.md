@@ -278,3 +278,11 @@ faster, diff the ports' arithmetic types before their loop shapes.
 | zig-idea12 | 2026-10-11 | Zig wheel | port IDEAS 12 | +1-3% | +1.8% / +1.1% (14 rounds) | +1.6% / +1.0% (32T) | not kept (Zen 3 straddles) | `hc/zig-idea12` e1a55bb |
 | zig-f1 | 2026-10-11 | Zig base (grey) | port F1 | as ISPC | 59.9k / 439.4k, +8.7% / +4.3% | 132.9k / 1.08M, +11.7% / +9.2% | KEEP on `hc/zig-champion-grey` | `hc/zig-f1` 72e5b42 |
 | f6-no512 | 2026-10-11 | both | AVX-512 off at 96T | −2% to +4% | | | cancelled (quota wait) | `hc/f6-no512` d6feacb |
+| f4-384 | 2026-10-11 | wheel | F4: PRIMES_DENSE_MAX 384 (tuning, extra-faithful) | flat to +2% 1T | Zen 3 (7763): 102.6k / 872.5k, −8.6% ± 1.3 / −8.1% ± 0.3, 0/6 | Zen 5: 207.4k / 1.52M, −6.7% ± 0.9 / −6.9% ± 0.1, 0/6 | REVERT | `hc/f4-dense-384` |
+| f4-512 | 2026-10-11 | wheel | F4: PRIMES_DENSE_MAX 512 | flat to +2% 1T | Zen 3: 91.2k / 764.9k, −19.7% ± 1.2 / −19.3% ± 0.4, 0/6 | Zen 5: 167.5k / 1.33M, −17.9% ± 1.6 / −14.1% ± 2.1, 0/6 | REVERT | `hc/f4-dense-512` |
+| f4-640 | 2026-10-11 | wheel | F4: PRIMES_DENSE_MAX 640 | flat to +2% 1T | Zen 3: 81.3k / 710.8k, −27.5% ± 0.6 / −24.8% ± 0.3, 0/6 | Zen 5: 174.3k / 1.27M, −21.7% ± 0.7 / −21.9% ± 0.1, 0/6 | REVERT | `hc/f4-dense-640` |
+
+**F4, dense limit 384 to 640 (run ap-20261011T0100Z).** Every step above 256 loses more, on
+both machines, every round. The prediction (flat to +2%) was wrong in sign and size: after
+hc-035 and hc-045 the grouped dense pass costs far more per extra prime than the sparse pass it
+replaces. 192 and 128 queued to find the optimum's other side.
