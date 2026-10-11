@@ -18,6 +18,12 @@
 //  * Sparse (larger factors): the same idea over bytes. Eight multiples repeat every p bytes,
 //    each with a fixed bit position; their byte offsets are computed per factor, and the eight
 //    masks are compile-time constants selected by p mod 16.
+//
+// Sweep direction alternates by factor: the first factor (3) sweeps the sieve from the low end
+// up, the next from the high end down, and so on. A descending sweep visits the same
+// composites as an ascending one, each with its own single-bit OR and stepping 2 x factor,
+// from the last multiple below the sieve end down to the period holding factor squared. The
+// end of one sweep is the start of the next, so that part of the sieve is still in cache.
 
 #include <sched.h>
 #include <unistd.h>
@@ -71,17 +77,50 @@ ALWAYS_INLINE void clear_dense(std::uint64_t* __restrict w, std::size_t nwords) 
     if (std::size_t(f >> 6) < nwords) w[f >> 6] &= ~(std::uint64_t{1} << (f & 63));
 }
 
+// Descending form of clear_period (never the Init pass): the period's 64 multiples, top down.
+template <int P, std::size_t... J>
+ALWAYS_INLINE void clear_period_down(std::uint64_t* __restrict q, std::index_sequence<J...>) {
+    ((q[(P / 2 + (63 - J) * P) >> 6] |= std::uint64_t{1} << ((P / 2 + (63 - J) * P) & 63)), ...);
+}
+
+// Descending form of clear_dense: the same composites, visited top down. The partial last
+// period goes first, then the whole periods from the highest down to the one holding P*P.
+template <int P>
+ALWAYS_INLINE void clear_dense_down(std::uint64_t* __restrict w, std::size_t nwords) {
+    constexpr std::size_t first = std::size_t((P * P / 2) / 64 / P) * P;   // period holding P*P
+    const std::size_t n = nwords > first ? (nwords - first) / P : 0;
+    std::uint64_t* __restrict q = w + first + n * P;                   // the partial last period
+    const std::size_t left = nwords > first ? std::size_t(w + nwords - q) : 0;
+    for (int j = 63; j >= 0; j--) {
+        const int t = P / 2 + j * P;
+        if (std::size_t(t >> 6) < left) q[t >> 6] |= std::uint64_t{1} << (t & 63);
+    }
+    for (std::size_t k = n; k > 0; k--) {
+        q -= P;
+        clear_period_down<P>(q, std::make_index_sequence<64>{});
+    }
+    constexpr int f = P / 2;                                           // P itself is prime
+    if (std::size_t(f >> 6) < nwords) w[f >> 6] &= ~(std::uint64_t{1} << (f & 63));
+}
+
 template <int P>
 void dense(std::uint64_t* w, std::size_t nwords) { clear_dense<P, P == 3>(w, nwords); }
+template <int P>
+void dense_down(std::uint64_t* w, std::size_t nwords) { clear_dense_down<P>(w, nwords); }
 
-// One dense routine per odd factor below DenseLimit, indexed by factor / 2. Factor 3 always
-// runs first, so its routine also initialises the sieve.
-template <std::size_t... I>
+// One dense routine per odd factor below DenseLimit, indexed by factor / 2, in each direction.
+// Factor 3 always runs first and upward, so its routine also initialises the sieve.
+template <bool Down, std::size_t... I>
 constexpr auto dense_table(std::index_sequence<I...>) {
     using Fn = void (*)(std::uint64_t*, std::size_t);
-    return std::array<Fn, sizeof...(I)>{(I == 0 ? nullptr : &dense<int(2 * I + 1)>)...};
+    if constexpr (Down)
+        return std::array<Fn, sizeof...(I)>{(I < 2 ? nullptr : &dense_down<int(2 * I + 1)>)...};
+    else
+        return std::array<Fn, sizeof...(I)>{(I == 0 ? nullptr : &dense<int(2 * I + 1)>)...};
 }
-constexpr auto dense_routines = dense_table(std::make_index_sequence<DenseLimit / 2>{});
+constexpr auto dense_routines = dense_table<false>(std::make_index_sequence<DenseLimit / 2>{});
+constexpr auto dense_routines_down =
+    dense_table<true>(std::make_index_sequence<DenseLimit / 2>{});
 
 // Sparse clearing over bytes for an odd factor p > 16. In each p-byte chunk the eight
 // multiples sit at bit offsets p/2 + j*p (j = 0..7). Their bit-in-byte positions depend only
@@ -104,6 +143,27 @@ void clear_sparse(std::uint8_t* __restrict bytes, std::size_t nbytes, std::size_
         q[o[j]] |= std::uint8_t(1u << ((E / 2 + j * E) & 7));
 }
 
+// Descending form of clear_sparse: the partial last chunk first, then the chunks from the
+// highest down to the one holding p*p, each top down.
+template <int E>
+void clear_sparse_down(std::uint8_t* __restrict bytes, std::size_t nbytes, std::size_t p) {
+    std::size_t o[8];
+    for (int j = 0; j < 8; j++) o[j] = (p / 2 + j * p) >> 3;
+    constexpr auto bit = [](int j) { return std::uint8_t(1u << ((E / 2 + j * E) & 7)); };
+
+    const std::size_t first = ((p * p / 2) / 8 / p) * p;
+    std::size_t n = (nbytes - first) / p;
+    std::uint8_t* __restrict q = bytes + first + n * p;               // the partial last chunk
+    const std::size_t left = std::size_t(bytes + nbytes - q);
+    for (int j = 7; j >= 0; j--)
+        if (o[j] < left) q[o[j]] |= std::uint8_t(1u << ((E / 2 + j * E) & 7));
+    for (; n > 0; n--) {                                               // one composite each
+        q -= p;
+        q[o[7]] |= bit(7); q[o[6]] |= bit(6); q[o[5]] |= bit(5); q[o[4]] |= bit(4);
+        q[o[3]] |= bit(3); q[o[2]] |= bit(2); q[o[1]] |= bit(1); q[o[0]] |= bit(0);
+    }
+}
+
 // The sieve class: the whole state of one sieve. A new instance is made for every pass.
 class Sieve {
 public:
@@ -122,7 +182,9 @@ public:
     Sieve& operator=(const Sieve&) = delete;
 
     // The base algorithm: find the next prime, clear its multiples, repeat up to sqrt(size).
+    // The sweep direction alternates by factor, starting upward with 3.
     void run() {
+        bool down = false;
         std::uint64_t q = std::uint64_t(std::sqrt(double(size_)));
         while ((q + 1) * (q + 1) <= size_) q++;
         while (q * q > size_) q--;
@@ -131,7 +193,8 @@ public:
             while (i < nbits_ && is_composite(i)) i++;                 // next prime
             factor = 2 * i + 1;
             if (factor > q) break;
-            clear_factor(factor);
+            clear_factor(factor, down);
+            down = !down;
         }
     }
 
@@ -146,10 +209,26 @@ public:
 private:
     bool is_composite(std::uint64_t i) const { return (bits_[i / 64] >> (i % 64)) & 1; }
 
-    void clear_factor(std::uint64_t p) {
-        if (p < DenseLimit) { dense_routines[p / 2](bits_, nwords_); return; }
+    void clear_factor(std::uint64_t p, bool down) {
+        if (p < DenseLimit) {
+            (down ? dense_routines_down : dense_routines)[p / 2](bits_, nwords_);
+            return;
+        }
         auto* b = reinterpret_cast<std::uint8_t*>(bits_);
         const std::size_t n = nwords_ * 8;
+        if (down) {
+            switch (p & 15) {
+                case 1:  clear_sparse_down<1>(b, n, p);  break;
+                case 3:  clear_sparse_down<3>(b, n, p);  break;
+                case 5:  clear_sparse_down<5>(b, n, p);  break;
+                case 7:  clear_sparse_down<7>(b, n, p);  break;
+                case 9:  clear_sparse_down<9>(b, n, p);  break;
+                case 11: clear_sparse_down<11>(b, n, p); break;
+                case 13: clear_sparse_down<13>(b, n, p); break;
+                default: clear_sparse_down<15>(b, n, p); break;
+            }
+            return;
+        }
         switch (p & 15) {
             case 1:  clear_sparse<1>(b, n, p);  break;
             case 3:  clear_sparse<3>(b, n, p);  break;
