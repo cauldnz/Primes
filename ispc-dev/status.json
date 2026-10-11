@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T23:09:18Z",
+  "updated_utc": "2026-10-11T23:11:51Z",
   "run": {
     "id": "ap-20261011T1929Z",
     "state": "running",
@@ -2185,6 +2185,17 @@
       "verdict": "confirmed",
       "commit": "ad463f1",
       "note": "64-bit integer stores ~18.9 us per copy, 32-bit pairs 6.2 us, float stores 2.0-3.7 us"
+    },
+    {
+      "id": "ox-021",
+      "entry": "oxcaml",
+      "title": "Arm dense copy with 32-bit stores",
+      "tier": "extra-faithful",
+      "kind": "novel",
+      "plain": "If the Arm build stores the dense pattern 32 bits at a time, then it skips the memory barrier OCaml puts before each 64-bit store, because only 64-bit integer stores get the barrier.",
+      "prediction": "Cobalt +60% to +120% at 1T; x86 byte-identical",
+      "verdict": "running",
+      "commit": "37e493e"
     }
   ],
   "azure_queue": 0,
@@ -2194,20 +2205,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T21:27:48Z",
-      "level": "info",
-      "text": "ox-011 (oxcaml) running: ",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T21:29:00Z",
-      "level": "decision",
-      "text": "ox-standalone: run the standalone Dockerfile (builds the OxCaml switch inside the solution's own build) once on Zen 5 and Cobalt, 1 round, build time logged. Why: submission readiness and the upstream question: without a hosted OxCaml image the submission must build the compiler itself, so we need to know it works end to end and how long it takes per architecture. Harness fix: hc-pool now logs build seconds per image.",
-      "id": "ox-standalone",
-      "what": "run the standalone Dockerfile (builds the OxCaml switch inside the solution's own build) once on Zen 5 and Cobalt, 1 round, build time logged",
-      "why": "submission readiness and the upstream question: without a hosted OxCaml image the submission must build the compiler itself, so we need to know it works end to end and how long it takes per architecture. Harness fix: hc-pool now logs build seconds per image"
-    },
     {
       "utc": "2026-10-11T21:38:07Z",
       "level": "decision",
@@ -2539,6 +2536,20 @@
       "utc": "2026-10-11T23:09:10Z",
       "level": "info",
       "text": "ox-020 (oxcaml) confirmed: ",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T23:11:51Z",
+      "level": "decision",
+      "text": "ox-021: submit 37e493e vs 2d1ae49 on Cobalt only, 5 rounds; decide on Cobalt (x86 binaries byte-identical: scalar/ is not compiled on x86). Why: scalar build passes PRIMES_TEST=1 here; diff is scalar/dense.ml and a README paragraph; pattern build keeps one single-bit OR per multiple, now on 32-bit words. The partial-run tail in primes.ml still uses 64-bit stores (a few words per factor).",
+      "id": "ox-021",
+      "what": "submit 37e493e vs 2d1ae49 on Cobalt only, 5 rounds; decide on Cobalt (x86 binaries byte-identical: scalar/ is not compiled on x86)",
+      "why": "scalar build passes PRIMES_TEST=1 here; diff is scalar/dense.ml and a README paragraph; pattern build keeps one single-bit OR per multiple, now on 32-bit words. The partial-run tail in primes.ml still uses 64-bit stores (a few words per factor)"
+    },
+    {
+      "utc": "2026-10-11T23:11:51Z",
+      "level": "info",
+      "text": "ox-021 (oxcaml) running: ",
       "auto": true
     }
   ],
