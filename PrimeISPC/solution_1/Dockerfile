@@ -6,7 +6,7 @@ RUN apt-get update \
 
 WORKDIR /opt/app
 ARG ISPC_TARGETS
-COPY primes.ispc build.sh ./
+COPY primes.ispc gen_tables.c build.sh ./
 RUN sh build.sh
 
 FROM ubuntu:24.04

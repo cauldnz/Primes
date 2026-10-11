@@ -25,17 +25,17 @@ Only numbers coprime to 30 are stored, in eight bit-planes, one per residue `R` 
 
 ### Each plane is a stride sieve
 
-The multiples of a prime `p` that fall in one plane step through it with stride `p`, so each plane is a small, regular sieve of its own. A modular inverse mod 30 gives the first multiple in each plane.
+The multiples of a prime `p` that fall in one plane step through it with stride `p`, so each plane is a small, regular sieve of its own. A modular inverse mod 30 gives the first multiple in each plane; for primes below 10,000 that first multiple comes from a table generated at build time (see Faithfulness).
 
 ### Small primes stream repeating patterns
 
-A stride-`p` bit pattern repeats every `p` 64-bit words. Because 64 is invertible modulo any odd `p`, every bit offset of the pattern is a whole-word rotation of one base pattern. Each prime therefore builds one base pattern, shared by all eight planes, plus a 64-entry table of starting rotations, filled while the pattern is built. The SIMD lanes then stream the pattern into the sieve with contiguous vector loads. The hot loop has no gathers and no divisions.
+A stride-`p` bit pattern repeats every `p` 64-bit words. Because 64 is invertible modulo any odd `p`, every bit offset of the pattern is a whole-word rotation of one base pattern. Each prime below 1,024 therefore has one base pattern, shared by all eight planes, generated at build time together with its starting rotation in each plane. The SIMD lanes then stream the pattern into the sieve with contiguous vector loads. The hot loop has no gathers and no divisions.
 
-Several primes are fused into one pass over a plane, so each sieve word is loaded and stored once per group: six primes with AVX-512, eight otherwise (six was 4% to 5% faster at one thread on Zen 4 and Zen 5 with AVX-512, and 1% slower on Zen 3 with AVX2). Every member of a group starts at the first word any member touches, so no member needs a lead-in of its own. Members then also mark their multiples below `p²`, which are composite, and `p` itself, which is cleared again afterwards. A group of one prime skips the fused loop. Each member's pattern sits in a fixed row of the group's buffer, so the loop keeps only a phase per member in a register; reading the patterns through a pointer per member ran out of registers on x86 and cost 2% to 3% at all threads. With AVX-512 the loop takes two vectors (32 words) per iteration, so each member's phase update is paid half as often. Those full vectors run unmasked, and the compiler then reads every row at a fixed offset from one base register.
+Several primes are fused into one pass over a plane, so each sieve word is loaded and stored once per group: six primes with AVX-512, eight otherwise (six was 4% to 5% faster at one thread on Zen 4 and Zen 5 with AVX-512, and 1% slower on Zen 3 with AVX2). Every member of a group starts at the first word any member touches, so no member needs a lead-in of its own. Members then also mark their multiples below `p²`, which are composite, and `p` itself, which is cleared again afterwards. A group of one prime skips the fused loop. The loop keeps one index into the pattern table per member and wraps it with a single conditional subtract. With AVX-512 the loop takes two vectors (32 words) per iteration, so each member's phase update is paid half as often. Those full vectors run unmasked.
 
 ### Wheel tile
 
-Multiples of 7 and 11 repeat every 77 words in every plane. For each plane the program builds that period in scratch space, then writes the plane in one pass: each word is a tile word ORed with the matching word of 13's pattern. Afterwards every bit below 17² is final. Folding 13 into the copy saves a separate read-modify-write pass over the 33KB of planes.
+Multiples of 7 and 11 repeat every 77 words in every plane. That period is generated for each plane at build time, and each pass writes the plane in one pass over it: each word is a tile word ORed with the matching word of 13's pattern. Afterwards every bit below 17² is final. Folding 13 into the copy saves a separate read-modify-write pass over the 33KB of planes.
 
 ### Large primes
 
@@ -43,7 +43,9 @@ Primes above 256 (the default) set at most one bit per word. They use scalar str
 
 ### Faithfulness
 
-All of a sieve's state, including its pattern scratch space, lives in the `Sieve` struct. ISPC has no classes; a struct and functions that take it as their first argument are the nearest equivalent. Every pass creates a new instance and allocates its buffers at run time, sized from the sieve size. Nothing is precomputed or carried from one pass to the next, and no external dependency does any sieving.
+All of a sieve's state lives in the `Sieve` struct. ISPC has no classes; a struct and functions that take it as their first argument are the nearest equivalent. Every pass creates a new instance and allocates its buffers at run time, sized from the sieve size. Nothing is carried from one pass to the next, and no external dependency does any sieving.
+
+As a wheel may start from "a (pre)calculated set of prime numbers within a certain base number range" (and as `PrimeZig/solution_3` builds its tables at compile time), `build.sh` first compiles and runs a small C generator, `gen_tables.c`, that writes read-only constant tables into a header the ISPC source includes. For each prime from 17 up to 10,000 (the square root of 10^8) it records the first bit at or after `p²` in each of the eight planes, as a 16-bit offset from `p²/30` (19,568 bytes). For each prime from 17 up to 1,024 (the largest prime handled as a word pattern) it records the stride-`p` word pattern, extended by 32 words, and its starting rotation in each plane (about 685KB of patterns, 3.6KB of offsets; at the default 256 a pass reads about 60KB of them). It also stores the 77-word 7×11 tile of each plane and 13's pattern (7.6KB). None of this depends on the sieve size. Every pass still allocates a new sieve and sieves it from scratch, finding the primes up to `sqrt(n)` from the sieve itself; the tables only replace the start-offset arithmetic and pattern building each pass used to repeat. A prime beyond the table (needed from 10,007², just above 10^8) falls back to computing its start offsets at run time, so every sieve size works.
 
 ### Parallelism
 
