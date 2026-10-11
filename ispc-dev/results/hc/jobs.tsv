@@ -115,3 +115,4 @@ id	pool	size	kind	outdir	submitted	state
 01204223394	hc-standard-d16as-v7	Standard_D16as_v7	port	ispc-dev/results/hc/p-cpp-base-f1	2026-10-11T01:20:51Z	open
 01210424847	hc-standard-d16a-v4	Standard_D16a_v4	port	ispc-dev/results/hc/p-cpp-base-f1	2026-10-11T01:21:13Z	open
 01211916892	hc-standard-d16as-v7	Standard_D16as_v7	port	ispc-dev/results/hc/p-rust-base-f1	2026-10-11T01:21:28Z	open
+0121353770	hc-standard-d16a-v4	Standard_D16a_v4	port	ispc-dev/results/hc/p-rust-base-f1	2026-10-11T01:21:44Z	open
