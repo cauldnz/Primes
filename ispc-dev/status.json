@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T21:57:49Z",
+  "updated_utc": "2026-10-11T22:03:36Z",
   "run": {
     "id": "ap-20261011T1929Z",
     "state": "running",
@@ -8,11 +8,11 @@
     "mode_reason": "Run 10 (OxCaml). Azure via the container's cached login; Batch account and group set inline for this session.",
     "started_utc": "2026-10-11T19:29:00Z",
     "time_box_hours": 6,
-    "spend_nzd": 5.77,
+    "spend_nzd": 5.96,
     "spend_cap_nzd": 25,
     "ends_utc": "2026-10-12T01:29:00Z",
-    "background_runs": 2,
-    "last_tick_utc": "2026-10-11T21:50:22Z",
+    "background_runs": 4,
+    "last_tick_utc": "2026-10-11T22:03:36Z",
     "wakeup": "trig_013ja8cHb2bY1RP88q9kxWAd"
   },
   "current": {
@@ -2663,12 +2663,12 @@
     },
     "climber": {
       "totals": {
-        "calls": 5917,
-        "fresh": 12067,
-        "write": 13509632,
-        "read": 1289469853,
-        "output": 1807004,
-        "total": 1304798556
+        "calls": 5949,
+        "fresh": 12135,
+        "write": 13565147,
+        "read": 1294393229,
+        "output": 1814000,
+        "total": 1309784511
       },
       "runs": {
         "ap-20261009T0607Z": {
@@ -2735,11 +2735,11 @@
           "output": 178908
         },
         "ap-20261011T1929Z": {
-          "calls": 764,
-          "fresh": 1571,
-          "write": 1563812,
-          "read": 92475931,
-          "output": 123654
+          "calls": 796,
+          "fresh": 1639,
+          "write": 1619327,
+          "read": 97399307,
+          "output": 130650
         },
         "between runs": {
           "calls": 975,
@@ -2749,7 +2749,7 @@
           "output": 353905
         }
       },
-      "updated_utc": "2026-10-11T21:50:22Z"
+      "updated_utc": "2026-10-11T22:03:38Z"
     }
   }
 }
