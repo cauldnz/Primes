@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T06:43:57Z",
+  "updated_utc": "2026-10-11T06:47:31Z",
   "run": {
     "id": "ap-20261011T0645Z",
     "state": "running",
@@ -1557,12 +1557,6 @@
     {
       "utc": "2026-10-11T02:33:47Z",
       "level": "info",
-      "text": "p-cpp-wheel-clang kept.. KEEP: hc/port-cpp-wheel-champion = 3c98356 (alignment fix + clang++). Zen 3 1T over the 20% bar: 3-round Zen 3 recheck queued. vs our ISPC wheel: Zen 3 +8.7% 1T, Zen 5 -9.1% 1T, -0.7% 16T. vs C wheel (ctrl2): +45% to +88%",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T02:33:47Z",
-      "level": "info",
       "text": "p-cpp-wheel-ub kept.. kept as a correctness fix, not a speed keep: no regression anywhere (worst +0.0%), and clang builds need it. Under the speed rule alone it would need ~20 rounds",
       "auto": true
     },
@@ -1883,6 +1877,14 @@
       "level": "info",
       "text": "Run ap-20261011T0645Z started (azure mode).",
       "auto": true
+    },
+    {
+      "utc": "2026-10-11T06:47:31Z",
+      "level": "decision",
+      "text": "run: analyze.py verdict switched to the per-thread rule and backtested on run 8 (results/hc/rule-backtest). Why: RUN-PLAN phase 0 item 5: decide nothing before the verdict line matches HILL-CLIMB.md; one past keep (C++ wheel IDEAS 12 on clang) needs more rounds under it.",
+      "id": "run",
+      "what": "analyze.py verdict switched to the per-thread rule and backtested on run 8 (results/hc/rule-backtest)",
+      "why": "RUN-PLAN phase 0 item 5: decide nothing before the verdict line matches HILL-CLIMB.md; one past keep (C++ wheel IDEAS 12 on clang) needs more rounds under it"
     }
   ],
   "research": {
