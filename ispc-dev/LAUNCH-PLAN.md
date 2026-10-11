@@ -16,8 +16,12 @@ gives the next something to link to. Owner in brackets: **C** is Chris, **W** th
     into `hc/champion` before the landing branch is rebuilt. README: one sentence on why.
   - **Zen 4 and Intel AVX-512 check of fold-1pc: yes, before the PR** (`D16as_v6`, `D16s_v5`).
     If it loses there, use the 16-lane loop on Zen 5 only, or say so in the README.
-  - **Tables wheel: kept off upstream.** `hc/champion-tables` stays a documented branch; a
-    separate entry can be reconsidered after the main PR merges.
+  - **Tables wheel: a third entry** (changed 16:30). `PrimeISPC/solution_3` from
+    `hc/champion-tables`, with its own output label, tagged `faithful=yes` as
+    `PrimeZig/solution_3` is. Its README says what is precomputed, that we're uneasy about it,
+    and that `solution_1` is the wheel that computes everything itself; `solution_1`'s README
+    points the other way. Words in `drafts/solution-3-notes.md`. Same PR as the other two, with
+    an offer to drop it.
   - **Batch names in history: leave them now** and say so in the hill-climber README's security
     notes; retire the account (new account and group with neutral names, old ones deleted)
     after launch, when the next climb needs a quota request anyway (backlog).
@@ -60,8 +64,9 @@ F1 or F2 arrives as a small follow-up PR to our own entry.
 
 ## 4. The ISPC PR (day 2-3, after the repo is public)
 
-- [W] Rebuild `hc/ispc-landing` on the upstream `drag-race` branch from the clean champion (plus
-  `hc/line-4t` if chosen): `PrimeISPC/solution_1` (wheel) and `PrimeISPC/solution_2` (base) only.
+- [W] Rebuild `hc/ispc-landing` on the upstream `drag-race` branch from the clean champion (with
+  the 4-thread line): `PrimeISPC/solution_1` (wheel), `PrimeISPC/solution_2` (base) and
+  `PrimeISPC/solution_3` (wheel with build-time tables) only.
   One squashed commit, authored with the GitHub no-reply address. Leave out the build outputs
   (`primes`, `*.o`) that `hc/champion` has tracked since the IDEAS 12 merge.
 - [W] Check against CONTRIBUTING.md line by line:
