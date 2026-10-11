@@ -5,7 +5,8 @@ remembering to call `st.py event`.
   autolog.py diff        compare the last committed status.json with the working copy, append an
                          event for each change to status.json and to results/hc/EVENTS.jsonl.
                          pub.sh runs this before every commit.
-  autolog.py backfill    rebuild results/hc/EVENTS.jsonl from the whole git history of
+  autolog.py backfill [SINCE]  with SINCE (UTC stamp), append only the missing events after it;
+                         without it, rebuild results/hc/EVENTS.jsonl from the whole git history of
                          status.json (each change stamped with its commit time), merged with the
                          events written by hand. Safe to rerun.
 
@@ -84,7 +85,11 @@ def append_full(evs):
 
 
 def cmd_diff():
-    old, new = load_rev("HEAD"), json.load(open(STATUS))
+    # Compare with status.json as of the last commit that wrote the full log, not HEAD: a commit
+    # of status.json made outside pub.sh must not hide its changes from the log (ap-20261011T0100Z
+    # lost 01:11-02:26 that way).
+    base = git("log", "-1", "--format=%H", "--", "ispc-dev/results/hc/EVENTS.jsonl").strip() or "HEAD"
+    old, new = load_rev(base), json.load(open(STATUS))
     now = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     evs = [{"utc": now, "level": l, "text": t, "auto": True} for l, t in changes(old, new)]
     # events added by hand since the last commit go to the full log too
@@ -108,7 +113,8 @@ def cmd_diff():
         print("log:", e["text"])
 
 
-def cmd_backfill():
+def cmd_backfill(since=None):
+    """With since (a UTC stamp), append only events after it to the full log instead of rewriting it."""
     revs = git("log", "--reverse", "--format=%H %cI", "--", "ispc-dev/status.json").split("\n")
     out, prev, seen = [], None, set()
     for line in filter(None, revs):
@@ -126,6 +132,18 @@ def cmd_backfill():
                 out.append({"utc": utc, "level": l, "text": t, "auto": True})
         prev = cur
     out.sort(key=lambda e: e.get("utc") or "")
+    if since:
+        have = set()
+        if os.path.exists(FULL):
+            for line in open(FULL):
+                try:
+                    e = json.loads(line); have.add((e.get("utc"), e.get("text")))
+                except Exception:
+                    pass
+        add = [e for e in out if (e.get("utc") or "") > since and (e.get("utc"), e.get("text")) not in have]
+        append_full(add)
+        print(f"appended {len(add)} events after {since} -> {os.path.relpath(FULL, ROOT)}")
+        return
     os.makedirs(os.path.dirname(FULL), exist_ok=True)
     with open(FULL, "w") as f:
         for e in out:
@@ -134,4 +152,8 @@ def cmd_backfill():
 
 
 if __name__ == "__main__":
-    {"diff": cmd_diff, "backfill": cmd_backfill}[sys.argv[1] if len(sys.argv) > 1 else "diff"]()
+    cmd = sys.argv[1] if len(sys.argv) > 1 else "diff"
+    if cmd == "backfill":
+        cmd_backfill(sys.argv[2] if len(sys.argv) > 2 else None)
+    else:
+        {"diff": cmd_diff}[cmd]()
