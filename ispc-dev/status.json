@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T20:07:31Z",
+  "updated_utc": "2026-10-11T20:08:03Z",
   "run": {
     "id": "ap-20261011T1929Z",
     "state": "running",
@@ -1899,15 +1899,6 @@
   "events": [
     {
       "utc": "2026-10-11T09:42:25Z",
-      "level": "decision",
-      "text": "r9-zig-tables: KEEP in the permitted tier; hc/zig-champion-tables 0886ddf (not on the extra-faithful line). Why: comptime tables: Zen 5 +15.9% 1T, Zen 3 +14.1% 4T, both lower bounds above +12%; beats the ISPC wheel on both (+6.5% Zen 5, +20.7% Zen 3 at 1T). Expect: the tables line also needs the wheel group change (later).",
-      "id": "r9-zig-tables",
-      "what": "KEEP in the permitted tier; hc/zig-champion-tables 0886ddf (not on the extra-faithful line)",
-      "why": "comptime tables: Zen 5 +15.9% 1T, Zen 3 +14.1% 4T, both lower bounds above +12%; beats the ISPC wheel on both (+6.5% Zen 5, +20.7% Zen 3 at 1T)",
-      "expect": "the tables line also needs the wheel group change (later)"
-    },
-    {
-      "utc": "2026-10-11T09:42:25Z",
       "level": "info",
       "text": "r9-zig-wheel-group KEEP.. MORE ROUNDS: Zen 5 clears; Zen 3 1T straddles (lower +0.9%): 8 more Zen 3 rounds (r9-zig-wheel-group-z3b)",
       "auto": true
@@ -2236,6 +2227,16 @@
       "level": "info",
       "text": "ox-001 (oxcaml) confirmed: ",
       "auto": true
+    },
+    {
+      "utc": "2026-10-11T20:08:03Z",
+      "level": "decision",
+      "text": "ocaml-003: background agent: phase profile and hot-loop assembly of the plain OCaml base (hc/ocaml-003-profile). Why: AUTOPILOT section 3: the first experiment on a new entry is a measurement; the plain port runs 4.4x slower than the ISPC base on Zen 5 where the Rust port of the same design ran within 15%, so the gap is in how OCaml compiles it. Passed over: a GC or dense-limit change without a profile. Expect: the sparse phase and tag shifts dominate.",
+      "id": "ocaml-003",
+      "what": "background agent: phase profile and hot-loop assembly of the plain OCaml base (hc/ocaml-003-profile)",
+      "why": "AUTOPILOT section 3: the first experiment on a new entry is a measurement; the plain port runs 4.4x slower than the ISPC base on Zen 5 where the Rust port of the same design ran within 15%, so the gap is in how OCaml compiles it",
+      "instead": "a GC or dense-limit change without a profile",
+      "expect": "the sparse phase and tag shifts dominate"
     }
   ],
   "research": {
