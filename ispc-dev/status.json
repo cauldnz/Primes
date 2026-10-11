@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T06:56:32Z",
+  "updated_utc": "2026-10-11T06:57:19Z",
   "run": {
     "id": "ap-20261011T0645Z",
     "state": "running",
@@ -1609,18 +1609,6 @@
   "events": [
     {
       "utc": "2026-10-11T02:50:14Z",
-      "level": "warn",
-      "text": "s5-zig-wheel-profile inconclusive.. phase lines filtered out by the zig kind (harness fixed: zig kind keeps phase; lines); rerun s5-zig-wheel-profile-2 queued, 2 rounds",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T02:50:14Z",
-      "level": "info",
-      "text": "ha-f5-addr64 rejected.. Zen 3 recheck: the AVX2 path loses with --addressing=64",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T02:50:14Z",
       "level": "info",
       "text": "b2-sparse-prefetchw (base) running: Base sparse loop: prefetchw the chunk 4 primes ahead (x86 only; NEON byte-identical)",
       "auto": true
@@ -1938,6 +1926,19 @@
       "level": "info",
       "text": "p0-solution3 (wheel-tables) running: Third entry PrimeISPC/solution_3 (tables wheel, label cauldnz-ispc-wheel-tables, README words from drafts/solution-3-notes.md, 4T line) against solution_1 at 330b3d4",
       "auto": true
+    },
+    {
+      "utc": "2026-10-11T06:57:18Z",
+      "level": "info",
+      "text": "hc/champion 330b3d4 -> 3ad0427: build outputs no longer tracked (.gitignore added; no code change). hc/solution3's solution_1 still carries them; cleaned at the final tag."
+    },
+    {
+      "utc": "2026-10-11T06:57:19Z",
+      "level": "decision",
+      "text": "run: start port agents r9-zig-group (Zig wheel group passes vs ISPC's compiled loop) and r9-rust-wheel-prof (Rust wheel phase split vs ISPC). Why: RUN-PLAN stream 2 gives each language a fixed share: Zig and Rust wheel first, C++ base when a slot frees.",
+      "id": "run",
+      "what": "start port agents r9-zig-group (Zig wheel group passes vs ISPC's compiled loop) and r9-rust-wheel-prof (Rust wheel phase split vs ISPC)",
+      "why": "RUN-PLAN stream 2 gives each language a fixed share: Zig and Rust wheel first, C++ base when a slot frees"
     }
   ],
   "research": {
