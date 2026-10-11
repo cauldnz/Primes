@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T02:03:32Z",
+  "updated_utc": "2026-10-11T02:08:12Z",
   "run": {
     "id": "ap-20261011T0100Z",
     "state": "running",
@@ -1365,6 +1365,28 @@
       "prediction": "+5% to +15% at 1T against hc/champion-tables",
       "plain": "If the wheel looks up where each prime starts instead of working it out every pass, then a pass gets faster, because that work is about a quarter of the time, and the contest rules allow precalculated wheel tables.",
       "note": "agent building hc/s5-tables on hc/champion-tables (branched at 1551635)"
+    },
+    {
+      "id": "b1-cobalt-profile",
+      "entry": "base",
+      "tier": "extra-faithful",
+      "kind": "tuning",
+      "verdict": "running",
+      "hypothesis": "Measurement: phase split of our ISPC base and mike-barber Rust on Cobalt 100 (arm64), same node, to name the ~2% gap",
+      "prediction": "the gap sits in the sparse phase (NEON scalar ORs vs Rust unrolled)",
+      "plain": "If we time each step of our base and the fastest Rust base on the same Arm machine, then we can see where Rust gains its 2%, because a total hides which step differs.",
+      "note": "rust kind on D4ps_v6: cand = hc/diag-rust-phases (Rust with profile lines), ctrl = hc/diag-base-phases-arm 53ea880 (our base, ns timer); 5 rounds"
+    },
+    {
+      "id": "sb-base-z5-20",
+      "entry": "base",
+      "tier": "extra-faithful",
+      "kind": "tuning",
+      "verdict": "running",
+      "hypothesis": "Scoreboard: our base (1551635) against mike-barber Rust on Zen 5, 1T, 20 rounds, paired ratio with 95% interval",
+      "prediction": "a tie within ±1% at 1T",
+      "plain": "If we run our base and the fastest Rust base side by side twenty times on the official runner type, then we know whether ours wins, ties or loses at one thread, because one or two runs cannot tell a 1% difference from noise.",
+      "note": "cand hc/scoreboard-base = 1551635 with a README-only change"
     }
   ],
   "azure_queue": 0,
@@ -1374,18 +1396,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T23:08:09Z",
-      "level": "info",
-      "text": "zig-f2 (?) revert: Zen 3 -23% 1T, -12% 16T; Zen 5 +3% 1T, -0.6% 16T: ",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T23:08:09Z",
-      "level": "info",
-      "text": "f1f2-96 (base (grey)) running: F1 (champion-grey) and F2 (f2-block-16) each vs the clean champion at 48/96T on the 96-vCPU node, for the upstream issue",
-      "auto": true
-    },
     {
       "utc": "2026-10-10T23:08:09Z",
       "level": "info",
@@ -1736,6 +1746,20 @@
       "what": "start agents s5-starts-ef (extra-faithful, on hc/champion) and s5-tables (permitted, on the new hc/champion-tables)",
       "why": "the Zen 5 profile puts the two target phases at 23.5%; RUN-PLAN wants both what an extra-faithful speed-up is worth and what tables add, on separate lineages",
       "instead": "byte sparse kernel (history audit row 6) until a slot frees"
+    },
+    {
+      "utc": "2026-10-11T02:08:12Z",
+      "level": "info",
+      "text": "Chris: base gets more weight for the rest of the run. (1) Cobalt 100 profile of our ISPC base vs mike-barber's Rust, phases and compiled sparse loop, name the 2% gap, one experiment if ours; (2) at least three Rust base port experiments vs mike-barber, ahead of the C++ wheel if nodes are short; (3) morning report opens with the 4-thread per-thread base table; (4) phase 1 scoreboard: base on Zen 5 at 1T to 20 rounds, paired ratio with 95% interval."
+    },
+    {
+      "utc": "2026-10-11T02:08:12Z",
+      "level": "decision",
+      "text": "run: Cobalt pool (1 node) up; base profile pair on it; 20-round Zen 5 base scoreboard queued; Rust base ideas get the next agent slot ahead of the C++ wheel. Why: Chris's base instructions; Cobalt adds 4 vCPUs (116 of 128); the profile task runs both instrumented builds in one task so their shares are comparable. Passed over: rebalancing Zen 3 down to 2 nodes to speed the Zen 5 queue (13 queued; the scoreboard lands about 03:15, inside the cutoff).",
+      "id": "run",
+      "what": "Cobalt pool (1 node) up; base profile pair on it; 20-round Zen 5 base scoreboard queued; Rust base ideas get the next agent slot ahead of the C++ wheel",
+      "why": "Chris's base instructions; Cobalt adds 4 vCPUs (116 of 128); the profile task runs both instrumented builds in one task so their shares are comparable",
+      "instead": "rebalancing Zen 3 down to 2 nodes to speed the Zen 5 queue (13 queued; the scoreboard lands about 03:15, inside the cutoff)"
     }
   ],
   "research": {

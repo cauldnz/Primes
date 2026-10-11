@@ -138,3 +138,5 @@ id	pool	size	kind	outdir	submitted	state
 01582317677	hc-standard-d16as-v7	Standard_D16as_v7	base	ispc-dev/results/hc/ha-023	2026-10-11T01:59:14Z	open
 0159218080	hc-standard-d16a-v4	Standard_D16a_v4	zig	ispc-dev/results/hc/ha-zig-idea12-z3	2026-10-11T01:59:30Z	open
 0202196913	hc-standard-d16a-v4	Standard_D16a_v4	port	ispc-dev/results/hc/p-cpp-wheel-idea12-z3b	2026-10-11T02:02:28Z	open
+02070529969	hc-standard-d4ps-v6	Standard_D4ps_v6	rust	ispc-dev/results/hc/b1-cobalt-profile	2026-10-11T02:07:14Z	open
+02073413249	hc-standard-d16as-v7	Standard_D16as_v7	base	ispc-dev/results/hc/sb-base-z5-20	2026-10-11T02:07:44Z	open
