@@ -91,6 +91,42 @@ impl Sieve {
         }
     }
 
+    /// DIAGNOSTIC: `run` with cycle timers around each `clear_factor` call (per factor, never in
+    /// an inner loop). Returns (total, dense, sparse) cycles; the scan is total - dense - sparse.
+    #[inline(never)]
+    fn run_profiled(&mut self) -> (u64, u64, u64) {
+        let r0 = profile::cycles();
+        let (mut dense, mut sparse) = (0u64, 0u64);
+        let mut q = (self.size as f64).sqrt() as u64;
+        while (q + 1) * (q + 1) <= self.size {
+            q += 1;
+        }
+        while q * q > self.size {
+            q -= 1;
+        }
+        let mut factor = 3u64;
+        while factor <= q {
+            let mut i = (factor >> 1) as usize;
+            while i < self.nbits && self.is_composite(i) {
+                i += 1; // next prime
+            }
+            factor = 2 * i as u64 + 1;
+            if factor > q {
+                break;
+            }
+            let c0 = profile::cycles();
+            self.clear_factor(factor as usize);
+            let c1 = profile::cycles();
+            if (factor as usize) < DENSE_LIMIT {
+                dense += c1.wrapping_sub(c0);
+            } else {
+                sparse += c1.wrapping_sub(c0);
+            }
+            factor += 2;
+        }
+        (profile::cycles().wrapping_sub(r0), dense, sparse)
+    }
+
     /// Clear all odd multiples of `p`, from p², with one single-bit OR per composite.
     fn clear_factor(&mut self, p: usize) {
         let w = self.words.as_ptr();
@@ -276,6 +312,69 @@ unsafe fn clear_sparse<const E: usize>(b: *mut u8, nbytes: usize, p: usize) {
     }
 }
 
+/// DIAGNOSTIC BUILD (hc/diag-rust-base-port): never merge. Per-phase cycle counters, matching
+/// the phase names and method of mike-barber's diagnostic build (hc/diag-rust-phases).
+mod profile {
+    use super::{Sieve, LABEL, SIEVE_SIZE};
+
+    #[cfg(target_arch = "x86_64")]
+    #[inline(always)]
+    pub fn cycles() -> u64 {
+        // SAFETY: rdtsc is available on every x86_64 CPU.
+        unsafe { core::arch::x86_64::_rdtsc() }
+    }
+
+    // aarch64: nanoseconds from a monotonic clock, as in the mike-barber diagnostic build.
+    // Compare phase shares, not absolute counts, on arm64.
+    #[cfg(target_arch = "aarch64")]
+    #[inline(always)]
+    pub fn cycles() -> u64 {
+        use std::sync::OnceLock;
+        use std::time::Instant;
+        static T0: OnceLock<Instant> = OnceLock::new();
+        T0.get_or_init(Instant::now).elapsed().as_nanos() as u64
+    }
+
+    #[cfg(not(any(target_arch = "x86_64", target_arch = "aarch64")))]
+    #[inline(always)]
+    pub fn cycles() -> u64 {
+        0
+    }
+
+    /// Run `passes` single-threaded passes and print per-phase cycles per pass to stdout.
+    pub fn profile_phases(passes: u64) {
+        let (mut setup, mut dense, mut sparse, mut scan, mut destroy, mut run) =
+            (0u64, 0u64, 0u64, 0u64, 0u64, 0u64);
+        for _ in 0..passes {
+            let t0 = cycles();
+            let mut sieve = Sieve::new(SIEVE_SIZE);
+            let t1 = cycles();
+            let (r, d, s) = sieve.run_profiled();
+            let t2 = cycles();
+            drop(std::hint::black_box(sieve));
+            let t3 = cycles();
+            setup += t1.wrapping_sub(t0);
+            destroy += t3.wrapping_sub(t2);
+            run += r;
+            dense += d;
+            sparse += s;
+            scan += r.wrapping_sub(d).wrapping_sub(s);
+        }
+        for (name, v) in [
+            ("setup", setup),
+            ("dense", dense),
+            ("sparse", sparse),
+            ("scan", scan),
+            ("destroy", destroy),
+            ("alloc_drop", setup + destroy),
+            ("run_total", run),
+            ("total", setup + run + destroy),
+        ] {
+            println!("{LABEL};profile;{name};{}", v / passes);
+        }
+    }
+}
+
 fn sieve_count(size: u64) -> usize {
     let mut sieve = Sieve::new(size);
     sieve.run();
@@ -360,6 +459,9 @@ fn main() -> ExitCode {
     // Threads this process may run on. On Linux this counts the CPUs in the affinity mask
     // (and honours a cgroup CPU quota), so a container limited with --cpuset-cpus is not
     // oversubscribed.
+    // DIAGNOSTIC: per-phase profile before the normal benchmark.
+    profile::profile_phases(20_000);
+
     let hw = thread::available_parallelism().map_or(1, |n| n.get());
 
     // One thread, then all, half and a quarter of the hardware threads: where SMT siblings
