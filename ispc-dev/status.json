@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T02:32:39Z",
+  "updated_utc": "2026-10-11T02:33:47Z",
   "run": {
     "id": "ap-20261011T0100Z",
     "state": "running",
@@ -1121,12 +1121,13 @@
       "entry": "wheel",
       "tier": "extra-faithful",
       "kind": "novel",
-      "verdict": "running",
+      "verdict": "rejected",
       "hypothesis": "A mod-210 wheel (48 planes, ~28.6 KB at 1M) with incrementally derived starts beats the mod-30 champion with every thread busy",
       "prediction": "Zen 5 1T -5% to +3%, all threads 0 to +6%; Zen 3 1T -3% to +4%, all threads 0 to +5% (IDEAS.md)",
       "plain": "If the wheel also skips multiples of 7, then the sieve shrinks enough that two copies sharing a core fit better in its fastest cache, because 48 of every 210 numbers are kept instead of 8 of every 30.",
-      "note": "hc/wheel-210 99de3e7: correct (self-test; 6,000 odd sizes on avx512/avx2/sse4, 0 mismatches) but about 30% slower than the champion at 1T locally (58k vs 85k passes, interleaved). Stopped at the local gate, never sent to Azure. Cause: a plane is only 75 words at 1M, so per-group-per-plane set-up (432 apply_group calls per pass) dominates the dense side (~40 us vs the champion whole pass 58 us); the 48-start walk costs ~200 cycles per sparse prime. Prediction (-5% to +3% at 1T) missed. Next shape, if ever: interleave the 48 planes (one 3.6 KB stripe layout) so the dense pass vectorises across planes.",
-      "note_amd": "re-opened on Chris's instruction: 3-round Zen 5 screen"
+      "note": "Zen 5 screen confirms the local loss (local -30%, Zen 5 -40%)",
+      "note_amd": "re-opened on Chris's instruction: 3-round Zen 5 screen",
+      "zen5": "-39.5% 1T, -35.1% 16T (3-round screen)"
     },
     {
       "id": "p-cpp-wheel-idea12",
@@ -1199,57 +1200,65 @@
       "entry": "cpp-base",
       "tier": "extra-faithful",
       "kind": "borrowed",
-      "verdict": "running",
+      "verdict": "rejected",
       "hypothesis": "Build the C++ base with clang++ as davepl (PrimeCPP/solution_5) does, instead of g++",
       "prediction": "-3% to +5%",
       "plain": "If the C++ base is compiled with the compiler the existing C++ entries use, then it may run faster, because the two compilers lay out the hot loops differently.",
-      "note": "local screen, 2 interleaved pairs at 1T: g++ 50.5k/51.1k, clang 18 42.8k/43.9k (-15%). Not sent to Azure: a 15% local loss on a code-generation change is not something Zen reverses often enough to spend two node-runs on",
-      "note_amd": "re-opened on Chris's instruction: 3-round Zen 5 screen"
+      "note": "Zen 5 screen: far worse than locally (-15%); clang 18 must miscompile or de-vectorise a hot loop of the C++ base; worth a look only if the C++ base climbs again",
+      "note_amd": "re-opened on Chris's instruction: 3-round Zen 5 screen",
+      "zen5": "-62.6% 1T (3-round screen)"
     },
     {
       "id": "p-cpp-wheel-clang",
       "entry": "cpp-wheel",
       "tier": "extra-faithful",
       "kind": "borrowed",
-      "verdict": "running",
+      "verdict": "kept",
       "hypothesis": "Build the C++ wheel with clang++ instead of g++",
       "prediction": "+5% to +18% (local +18%)",
       "plain": "If the C++ wheel is compiled with the compiler the existing C++ entries use, then it may run faster, because the two compilers lay out the hot loops differently.",
-      "note": "re-opened: hc/port-cpp-wheel-clang 3c98356 = alignment fix + clang++ -O3 -march=native -mtune=native in the Dockerfile, against hc/port-cpp-wheel-ub; local 1T clang 87.3k vs g++ 73.8k (4 pairs)"
+      "note": "KEEP: hc/port-cpp-wheel-champion = 3c98356 (alignment fix + clang++). Zen 3 1T over the 20% bar: 3-round Zen 3 recheck queued. vs our ISPC wheel: Zen 3 +8.7% 1T, Zen 5 -9.1% 1T, -0.7% 16T. vs C wheel (ctrl2): +45% to +88%",
+      "zen5": "+16.2% ± 3.0 1T, +19.5% ± 0.9 16T (6/6)",
+      "zen3": "+20.5% ± 1.1 1T, +12.9% ± 0.6 16T (6/6)"
     },
     {
       "id": "p-cpp-wheel-ub",
       "entry": "cpp-wheel",
       "tier": "extra-faithful",
       "kind": "novel",
-      "verdict": "running",
+      "verdict": "kept",
       "hypothesis": "Fix undefined behaviour in the C++ wheel: vector loads/stores through a may_alias type whose aligned(8) Clang ignores; use memcpy loads/stores",
       "prediction": "0 to +2% under g++ (local +2%); required for correctness under clang",
       "plain": "If the C++ wheel reads its vectors in a way every compiler accepts at any address, then it stops crashing when built with Clang and runs no slower with GCC, because the old code relied on GCC honouring an alignment hint that Clang ignores.",
-      "note": "hc/port-cpp-wheel-ub 2ae55c9 (agent p-cpp-wheel-ub). Root cause primes.cpp:45-47; idea12 and group32 branches carry the same bug"
+      "note": "kept as a correctness fix, not a speed keep: no regression anywhere (worst +0.0%), and clang builds need it. Under the speed rule alone it would need ~20 rounds",
+      "zen5": "+1.1% ± 0.5 1T, +0.5% ± 0.2 16T",
+      "zen3": "+0.0% ± 0.6 1T, +1.0% ± 0.6 16T"
     },
     {
       "id": "p-rust-base-mb",
       "entry": "rust-base",
       "tier": "extra-faithful",
       "kind": "borrowed",
-      "verdict": "running",
+      "verdict": "rejected",
       "hypothesis": "Clear small dense factors one period at a time with masks in registers, as mike-barber extreme_reset does (helper-macros/src/lib.rs:270)",
       "prediction": "a few % at most",
       "plain": "If our Rust base clears each small factor one repeat-length at a time, as the fastest Rust entry does, then its masks stay in registers and it gets faster, because it no longer reloads them from memory.",
-      "note": "hc/port-rust-base-mb cee34c1: -15% to -18% locally over 5 pairs; not sent to Azure. Likely unaligned period-offset vectors crossing cache lines. Agent also measured the sparse loop at ~64% of the pass and already at 11 instructions per 8 composites",
-      "note_amd": "re-opened on Chris's instruction: 3-round Zen 5 screen"
+      "note": "Zen 5 screen confirms and deepens the local loss (-15% locally)",
+      "note_amd": "re-opened on Chris's instruction: 3-round Zen 5 screen",
+      "zen5": "-42.3% 1T (3-round screen)"
     },
     {
       "id": "p-rust-base-noavx512",
       "entry": "rust-base",
       "tier": "extra-faithful",
       "kind": "borrowed",
-      "verdict": "running",
+      "verdict": "kept",
       "hypothesis": "Build the Rust base with -C target-feature=-avx512f, as mike-barber does",
       "prediction": "+1% to +5% on Zen 5 (local +3% to +5%); Zen 3 unchanged by construction",
       "plain": "If the Rust base is built without the widest vector instructions, as the fastest Rust entry is, then it may run faster on chips that have them, because those instructions can lower the clock and do not help this loop.",
-      "note": "hc/port-rust-base-noavx512; target-specific (HILL-CLIMB rule: >=2% where code changes, identical elsewhere); Zen 5 only, 6 rounds"
+      "note": "KEEP under the target-specific rule (>=2% where the code changes, identical elsewhere): hc/port-rust-base-champion = noavx512. vs mike-barber (ctrl2): Zen 5 -1.9% 1T (was about -11%), +9.5% at 16T. Zen 4 recheck at the scoreboard",
+      "zen5": "+10.0% ± 0.4 1T, +9.6% ± 0.2 4T, +18.5% ± 0.5 16T (6/6)",
+      "zen3": "code unchanged (no AVX-512)"
     },
     {
       "id": "f4-dense-low",
@@ -1378,11 +1387,11 @@
       "entry": "base",
       "tier": "extra-faithful",
       "kind": "tuning",
-      "verdict": "running",
+      "verdict": "confirmed",
       "hypothesis": "Measurement: phase split of our ISPC base and mike-barber Rust on Cobalt 100 (arm64), same node, to name the ~2% gap",
       "prediction": "the gap sits in the sparse phase (NEON scalar ORs vs Rust unrolled)",
       "plain": "If we time each step of our base and the fastest Rust base on the same Arm machine, then we can see where Rust gains its 2%, because a total hides which step differs.",
-      "note": "rust kind on D4ps_v6: cand = hc/diag-rust-phases (Rust with profile lines), ctrl = hc/diag-base-phases-arm 53ea880 (our base, ns timer); 5 rounds"
+      "note": "Cobalt 100, 5 rounds, both profiled builds (ns per pass): ours dense 34.7k / sparse 89.2k / scan 5.3k / total 129.2k; Rust dense 33.4k / sparse 90.1k / scan 6.7k / total 130.2k. Benchmark lines in the same rounds: Rust diag 42.9k vs ours 42.0k (+2.1%). Ours trails only in the dense phase (+3.8% there, about 1% of a pass); sparse and scan are ours. The rest of the 2% is not in the timed phases (timer cost differs: ours clock_gettime, Rust Instant). Named gap: dense 65..127 reloads masks every period (b1-arm-asm) and the sparse loop-test (29 vs 28 instructions, b1-sparse-last running)"
     },
     {
       "id": "sb-base-z5-20",
@@ -1447,64 +1456,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T01:10:56Z",
-      "level": "decision",
-      "text": "s3-crishoj-wheel: measure crishoj's wheel as ctrl3 in a Zig-wheel task on Zen 5 and Zen 3. Why: RUN-PLAN stream 3: one task gives our Zig wheel, ISPC wheel, the C wheel and the PR side by side; the harness got a RIVAL3_REF control for it (commit 7aa065b). Expect: within 10% of our ISPC wheel.",
-      "id": "s3-crishoj-wheel",
-      "what": "measure crishoj's wheel as ctrl3 in a Zig-wheel task on Zen 5 and Zen 3",
-      "why": "RUN-PLAN stream 3: one task gives our Zig wheel, ISPC wheel, the C wheel and the PR side by side; the harness got a RIVAL3_REF control for it (commit 7aa065b)",
-      "expect": "within 10% of our ISPC wheel"
-    },
-    {
-      "utc": "2026-10-11T01:10:56Z",
-      "level": "info",
-      "text": "Harness 7aa065b: per-thread table, ctrl3, port kind. Stream 3 queued (2 tasks)."
-    },
-    {
-      "utc": "2026-10-11T01:10:57Z",
-      "level": "info",
-      "text": "f4-dense-384 (wheel) running: F4: raise the wheel's dense/sparse breakeven PRIMES_DENSE_MAX from 256 to 384",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T01:10:57Z",
-      "level": "info",
-      "text": "f4-dense-512 (wheel) running: F4: raise the wheel's dense/sparse breakeven PRIMES_DENSE_MAX from 256 to 512",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T01:10:57Z",
-      "level": "info",
-      "text": "f4-dense-640 (wheel) running: F4: raise the wheel's dense/sparse breakeven PRIMES_DENSE_MAX from 256 to 640",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T01:10:57Z",
-      "level": "info",
-      "text": "s3-crishoj-wheel (wheel) running: Measurement: crishoj 210-wheel (upstream PR 1094, Zig 0.17) beside our Zig wheel (cand=champ), our ISPC wheel (ctrl) and the C wheel (ctrl2), 1T and all threads",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T01:10:57Z",
-      "level": "info",
-      "text": "f4-dense: evaluate. 6 tasks queued, pools starting (about 8 min start task)",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T01:11:44Z",
-      "level": "info",
-      "text": "Tick 1 done: 8 tasks queued (F4 sweep, stream 3), 2 agents running; next tick 01:24Z, waiting for pools to boot."
-    },
-    {
-      "utc": "2026-10-11T01:15:48Z",
-      "level": "decision",
-      "text": "s5-wheel-profile: accept the agent's diagnostic branch and run it on Zen 5 (3 rounds). Why: rebuilt here, self-test passes, diff adds timers only; locally start offsets + pattern build are 19.5%, above the 5% bar for stream 5 step 2, so the Zen 5 number decides whether tables are worth building. Expect: Zen 5: 10-20% for start offsets + pattern build.",
-      "id": "s5-wheel-profile",
-      "what": "accept the agent's diagnostic branch and run it on Zen 5 (3 rounds)",
-      "why": "rebuilt here, self-test passes, diff adds timers only; locally start offsets + pattern build are 19.5%, above the 5% bar for stream 5 step 2, so the Zen 5 number decides whether tables are worth building",
-      "expect": "Zen 5: 10-20% for start offsets + pattern build"
-    },
     {
       "utc": "2026-10-11T01:16:12Z",
       "level": "decision",
@@ -1830,6 +1781,64 @@
       "utc": "2026-10-11T02:30:36Z",
       "level": "warn",
       "text": "ha-030 inconclusive.. cancelled before it started: Chris stopped new ISPC wheel speed experiments (base 1T on Zen 5 takes the nodes)",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T02:33:47Z",
+      "level": "decision",
+      "text": "run: keep the clang C++ wheel (pending a Zen 3 >20% recheck) and the AVX-512-off Rust base; set up per-port champions hc/port-cpp-wheel-champion and hc/port-rust-base-champion; reject three screens. Why: intervals clear on both Zens (clang) or on the only machines whose code changes (Rust flag); the screens lost 40-63% on Zen 5, worse than locally.",
+      "id": "run",
+      "what": "keep the clang C++ wheel (pending a Zen 3 >20% recheck) and the AVX-512-off Rust base; set up per-port champions hc/port-cpp-wheel-champion and hc/port-rust-base-champion; reject three screens",
+      "why": "intervals clear on both Zens (clang) or on the only machines whose code changes (Rust flag); the screens lost 40-63% on Zen 5, worse than locally"
+    },
+    {
+      "utc": "2026-10-11T02:33:47Z",
+      "level": "decision",
+      "text": "b1-cobalt-profile: name the Cobalt gap: our dense phase (+3.8% there, ~1% of a pass) and the sparse loop-test instruction; b1-sparse-last tests the second; the dense 65-127 mask reload fix is next if it fails. Why: the profile shows sparse and scan already faster in ours, dense slower; the asm agent found the dense mask reloads and the extra sparse instruction.",
+      "id": "b1-cobalt-profile",
+      "what": "name the Cobalt gap: our dense phase (+3.8% there, ~1% of a pass) and the sparse loop-test instruction; b1-sparse-last tests the second; the dense 65-127 mask reload fix is next if it fails",
+      "why": "the profile shows sparse and scan already faster in ours, dense slower; the asm agent found the dense mask reloads and the extra sparse instruction"
+    },
+    {
+      "utc": "2026-10-11T02:33:47Z",
+      "level": "info",
+      "text": "s6-wheel-210 rejected.. Zen 5 screen confirms the local loss (local -30%, Zen 5 -40%)",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T02:33:47Z",
+      "level": "info",
+      "text": "p-cpp-base-clang rejected.. Zen 5 screen: far worse than locally (-15%); clang 18 must miscompile or de-vectorise a hot loop of the C++ base; worth a look only if the C++ base climbs again",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T02:33:47Z",
+      "level": "info",
+      "text": "p-cpp-wheel-clang kept.. KEEP: hc/port-cpp-wheel-champion = 3c98356 (alignment fix + clang++). Zen 3 1T over the 20% bar: 3-round Zen 3 recheck queued. vs our ISPC wheel: Zen 3 +8.7% 1T, Zen 5 -9.1% 1T, -0.7% 16T. vs C wheel (ctrl2): +45% to +88%",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T02:33:47Z",
+      "level": "info",
+      "text": "p-cpp-wheel-ub kept.. kept as a correctness fix, not a speed keep: no regression anywhere (worst +0.0%), and clang builds need it. Under the speed rule alone it would need ~20 rounds",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T02:33:47Z",
+      "level": "info",
+      "text": "p-rust-base-mb rejected.. Zen 5 screen confirms and deepens the local loss (-15% locally)",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T02:33:47Z",
+      "level": "info",
+      "text": "p-rust-base-noavx512 kept.. KEEP under the target-specific rule (>=2% where the code changes, identical elsewhere): hc/port-rust-base-champion = noavx512. vs mike-barber (ctrl2): Zen 5 -1.9% 1T (was about -11%), +9.5% at 16T. Zen 4 recheck at the scoreboard",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T02:33:47Z",
+      "level": "info",
+      "text": "b1-cobalt-profile confirmed.. Cobalt 100, 5 rounds, both profiled builds (ns per pass): ours dense 34.7k / sparse 89.2k / scan 5.3k / total 129.2k; Rust dense 33.4k / sparse 90.1k / scan 6.7k / total 130.2k. Benchmark lines in the same rounds: Rust diag 42.9k vs ours 42.0k (+2.1%). Ours trails only in the dense phase (+3.8% there, about 1% of a pass); sparse and scan are ours. The rest of the 2% is not in the timed phases (timer cost differs: ours clock_gettime, Rust Instant). Named gap: dense 65.127 reloads masks every period (b1-arm-asm) and the sparse loop-test (29 vs 28 instructions, b1-sparse-last running)",
       "auto": true
     }
   ],
