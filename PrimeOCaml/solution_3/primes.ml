@@ -229,6 +229,7 @@ let diag passes =
   let o = ref 0 in
   for _ = 1 to k do let a = ticks () in o := !o + (ticks () - a) done;
   let ovh = float !o /. float k in
+  let mw0 = Gc.minor_words () and jw0 = (Gc.quick_stat ()).major_words in
   let w0 = mono_ns () and c0 = ticks () in
   for _ = 1 to passes do
     let t0 = ticks () in
@@ -237,6 +238,7 @@ let diag passes =
     run_t s
   done;
   let c1 = ticks () and w1 = mono_ns () in
+  let mw1 = Gc.minor_words () and jw1 = (Gc.quick_stat ()).major_words in
   let fp = float passes in
   let ns_per_tick =
     let hz = tick_hz () in
@@ -255,7 +257,67 @@ let diag passes =
   per "sparse" t_sparse (float !n_sparse_f /. fp);
   per "scan" t_scan (float !n_scan /. fp);
   line "total" total;
+  (* ox-018: words allocated per timed pass, minor heap and major heap (direct major
+     allocations included). The sieve and pattern buffers go straight to the major heap. *)
+  Printf.printf "cauldnz-oxcaml-diag;minor_words_per_pass;%.1f;0;0\n" ((mw1 -. mw0) /. fp);
+  Printf.printf "cauldnz-oxcaml-diag;major_words_per_pass;%.1f;0;0\n" ((jw1 -. jw0) /. fp);
   flush stdout
+
+(* ox-018: print the assembly of the dense copy functions (or_runs, store_runs) from the
+   dense.s that the Dockerfile keeps from the build, one line each as
+   cauldnz-oxcaml-diag;asm;<line>;0;0 with ';' replaced by ','. Debug directives are dropped.
+   At most [per_fn] lines per function. *)
+let print_asm () =
+  let path = match Sys.getenv_opt "DIAG_ASM" with Some p -> p | None -> "dense.s" in
+  match open_in path with
+  | exception Sys_error _ ->
+      print_endline "cauldnz-oxcaml-diag;asm;(no dense.s);0;0"
+  | ic ->
+      let per_fn = 80 in
+      let starts_with pre l =
+        String.length l >= String.length pre && String.sub l 0 (String.length pre) = pre
+      in
+      let contains sub l =
+        let n = String.length sub and m = String.length l in
+        let rec go i = i + n <= m && (String.sub l i n = sub || go (i + 1)) in
+        go 0
+      in
+      let is_fn_label l =
+        (not (starts_with "." l)) && String.length l > 6
+        && String.ends_with ~suffix:"_code:" l
+        && (contains "or_runs" l || contains "store_runs" l)
+      in
+      let skip l =
+        let t = String.trim l in
+        t = "" || starts_with ".loc" t || starts_with ".cfi" t || starts_with ".file" t
+        || starts_with ".type" t
+      in
+      let emit l =
+        let l = String.map (fun c -> if c = ';' then ',' else if c = '\t' then ' ' else c) l in
+        Printf.printf "cauldnz-oxcaml-diag;asm;%s;0;0\n" l
+      in
+      let inside = ref false and count = ref 0 in
+      (try
+         while true do
+           let l = input_line ic in
+           if !inside then begin
+             let t = String.trim l in
+             if starts_with ".size" t then inside := false
+             else if not (skip l) then begin
+               if !count < per_fn then emit l
+               else if !count = per_fn then emit "  (truncated)";
+               incr count
+             end
+           end
+           else if is_fn_label l then begin
+             inside := true;
+             count := 0;
+             emit l
+           end
+         done
+       with End_of_file -> ());
+      close_in ic;
+      flush stdout
 
 let sieve_count size =
   let s = create size in
@@ -338,5 +400,6 @@ let () =
     match Sys.getenv_opt "DIAG_PASSES" with Some v -> int_of_string v | None -> 3000
   in
   diag passes;
+  print_asm ();
   (* One normal one-domain run of the untimed loop. *)
   if not (timed_run 1) then exit 1
