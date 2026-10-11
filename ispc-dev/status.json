@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T03:03:24Z",
+  "updated_utc": "2026-10-11T03:04:46Z",
   "run": {
     "id": "ap-20261011T0100Z",
     "state": "running",
@@ -1190,10 +1190,11 @@
       "hypothesis": "F1 in the Rust base port, grey lineage",
       "prediction": "+8% to +15% at 1T",
       "plain": "If the Rust base sweeps each factor in the opposite direction to the last, then it gets faster, because the end of the sieve just touched is still in cache.",
-      "note": "KEEP on the grey lineage (hc/port-rust-base-grey e46ba0b), pending the >20% check: 3-round Zen 5 rerun on whichever node is free (p-rust-base-f1-verify) and the rules re-read (each composite one OR, downward routines mirror the upward). vs mike-barber (ctrl2): Zen 3 -0.6% 1T, +1.6% 16T; Zen 5 +8.9% 1T, +2.2% 16T",
+      "note": "KEEP on the grey lineage confirmed (>20% re-verified on a second node, rules re-read)",
       "zen3": "+8.0% ± 0.6 1T, +6.4% ± 0.3 16T (6/6)",
       "zen5": "+22.0% ± 0.7 1T, +10.6% ± 0.6 16T (6/6)",
-      "rules_reread": "passed: downward sparse loop does one OR per composite (8 per chunk), dense uses the same compile-time mask tables as the upward path; start period and bounds mirror the upward routine"
+      "rules_reread": "passed: downward sparse loop does one OR per composite (8 per chunk), dense uses the same compile-time mask tables as the upward path; start period and bounds mirror the upward routine",
+      "verify": "fresh-node Zen 5: +23.3% ± 7.9 1T, +23.1% ± 0.9 4T, +10.3% ± 1.8 16T (3/3); A/A -0.9% to +2.6%"
     },
     {
       "id": "p-cpp-base-clang",
@@ -1302,22 +1303,24 @@
       "entry": "zig-wheel",
       "tier": "extra-faithful",
       "kind": "borrowed",
-      "verdict": "running",
+      "verdict": "inconclusive",
       "hypothesis": "Recheck: IDEAS 12 in the Zig wheel on a fresh Zen 3 node",
       "prediction": "+1% to +2% (Zen 5 already +1.6% ± 0.3)",
       "plain": "If we rerun the Zig wheel's tile-fold change on a quiet Zen 3 machine, then it can be decided, because its earlier Zen 3 node was noisy.",
-      "note": "history audit row 1; hc/zig-idea12 e1a55bb; Zen 3 6 rounds"
+      "note": "Zen 3 16T lower bound sits at +1.0% exactly; with the earlier 14 Zen 3 rounds (+1.1% ± 0.5) it remains a straddle. Positive everywhere, never kept; left for the workshop",
+      "zen3": "+1.2% ± 1.7 1T, +1.5% ± 0.5 16T (6/6 at 16T)"
     },
     {
       "id": "ha-029",
       "entry": "ispc",
       "tier": "extra-faithful",
       "kind": "tuning",
-      "verdict": "running",
+      "verdict": "rejected",
       "hypothesis": "Recheck: ISPC 1.28 on Ubuntu 26.04 (hc-029), on the current champion",
       "prediction": "base +2% on Zen 5; wheel flat",
       "plain": "If the entries build with the newer compiler on the newer OS, then the base may gain a little, because the earlier short run showed +2.4% before later changes.",
-      "note": "wheel half cancelled before it started (Chris: no new ISPC wheel speed work); base half still queued"
+      "note": "ISPC 1.28 / Ubuntu 26.04 no longer helps the base on the current champion",
+      "zen5": "base: -0.4% ± 0.2 1T, -0.8% 4T, +0.8% 16T (3-round screen)"
     },
     {
       "id": "ha-030",
@@ -1351,18 +1354,20 @@
       "hypothesis": "Recheck: base sparse two chunks a trip (hc-018)",
       "prediction": "-1% to +1%",
       "plain": "If the base's sparse loop does two chunks per trip, then it may save loop overhead, because its earlier test ran on a noisy node.",
-      "note": "history audit row 7; Zen 5 3-round screen; touches NEON-shared code, Cobalt gate if it wins"
+      "note": "screen clears +1% on Zen 5 at 1T; promoted to 6 rounds on Zen 5, Zen 3 and Cobalt 100 (ha-018-full; NEON-shared code)",
+      "zen5": "+1.2% ± 0.2 1T, +1.2% ± 0.1 4T, +1.3% ± 0.9 16T (3/3 screen)"
     },
     {
       "id": "ha-023",
       "entry": "base",
       "tier": "extra-faithful",
       "kind": "novel",
-      "verdict": "running",
+      "verdict": "inconclusive",
       "hypothesis": "Recheck: base dense pointer walk (hc-023), never measured on Zen 5",
       "prediction": "-1% to +1%",
       "plain": "If the base's dense loop walks a pointer instead of an index, then it may save an instruction per store on Zen 5, because it was never measured there.",
-      "note": "history audit row 8; Zen 5 3-round screen"
+      "note": "noisy screen; not rerun (lower priority than the base 1T candidates)",
+      "zen5": "+0.9% ± 7.0 1T; A/A -5.1% to +5.7% (noisy node)"
     },
     {
       "id": "s5-starts-ef",
@@ -1497,45 +1502,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T01:29:49Z",
-      "level": "decision",
-      "text": "run: raise the Zen 5 pool's cap from 3 to 4 nodes. Why: 13 tasks queued behind 6 nodes; Zen 5 carries one more task (the s5 profile). Chris approved Azure operations in the session. Passed over: raising Zen 3 too (would leave no room for the Zen 4 node under 128 vCPUs). Expect: queue clears about 20 minutes sooner.",
-      "id": "run",
-      "what": "raise the Zen 5 pool's cap from 3 to 4 nodes",
-      "why": "13 tasks queued behind 6 nodes; Zen 5 carries one more task (the s5 profile). Chris approved Azure operations in the session",
-      "instead": "raising Zen 3 too (would leave no room for the Zen 4 node under 128 vCPUs)",
-      "expect": "queue clears about 20 minutes sooner"
-    },
-    {
-      "utc": "2026-10-11T01:34:17Z",
-      "level": "decision",
-      "text": "p-cpp-wheel-clang: submit the alignment fix (vs the port) and clang (vs the fix) on Zen 5 and Zen 3. Why: verified here: both compilers pass PRIMES_TEST=1 on the fix; the fix is required for any clang build, and clang was +18% locally, the largest local signal of the run. Passed over: folding the fix into idea12/group32 now (they run under g++, where the bug is latent; rebase whichever survives). Expect: fix 0 to +2%; clang +5% to +18%.",
-      "id": "p-cpp-wheel-clang",
-      "what": "submit the alignment fix (vs the port) and clang (vs the fix) on Zen 5 and Zen 3",
-      "why": "verified here: both compilers pass PRIMES_TEST=1 on the fix; the fix is required for any clang build, and clang was +18% locally, the largest local signal of the run",
-      "instead": "folding the fix into idea12/group32 now (they run under g++, where the bug is latent; rebase whichever survives)",
-      "expect": "fix 0 to +2%; clang +5% to +18%"
-    },
-    {
-      "utc": "2026-10-11T01:34:23Z",
-      "level": "decision",
-      "text": "run: start agent p-zig-wheel: Zig wheel phase split beside ISPC's, then one Zig-specific idea named from it. Why: Zig had no experiment yet this run; equal effort across C++, Rust and Zig (RUN-PLAN). The wheel first because it already leads our ISPC wheel and the plan asks whether it passes it. Passed over: Zig base (has F1 on grey already).",
-      "id": "run",
-      "what": "start agent p-zig-wheel: Zig wheel phase split beside ISPC's, then one Zig-specific idea named from it",
-      "why": "Zig had no experiment yet this run; equal effort across C++, Rust and Zig (RUN-PLAN). The wheel first because it already leads our ISPC wheel and the plan asks whether it passes it",
-      "instead": "Zig base (has F1 on grey already)"
-    },
-    {
-      "utc": "2026-10-11T01:37:30Z",
-      "level": "decision",
-      "text": "p-rust-base-noavx512: reject p-rust-base-mb at the local gate; test mike-barber's -avx512f build flag on Zen 5 only. Why: the period resetter lost 15-18% locally in 5 pairs; the flag is the remaining difference between the two builds, gained 3-5% locally, and leaves the Zen 3 binary unchanged, so Zen 5 alone decides under the target-specific rule. Passed over: a second Rust code idea (the agent found the sparse loop already at the instruction floor). Expect: +1% to +5% Zen 5.",
-      "id": "p-rust-base-noavx512",
-      "what": "reject p-rust-base-mb at the local gate; test mike-barber's -avx512f build flag on Zen 5 only",
-      "why": "the period resetter lost 15-18% locally in 5 pairs; the flag is the remaining difference between the two builds, gained 3-5% locally, and leaves the Zen 3 binary unchanged, so Zen 5 alone decides under the target-specific rule",
-      "instead": "a second Rust code idea (the agent found the sparse loop already at the instruction floor)",
-      "expect": "+1% to +5% Zen 5"
-    },
     {
       "utc": "2026-10-11T01:40:24Z",
       "level": "decision",
@@ -1869,6 +1835,34 @@
       "utc": "2026-10-11T02:50:14Z",
       "level": "info",
       "text": "b2-base-fold-1pc (base) running: Use the F5 x16 folded dense code when each thread has a core to itself (1T and one-per-core), x8 otherwise",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T03:04:46Z",
+      "level": "decision",
+      "text": "ha-018: promote hc-018 (base sparse two chunks a trip) to 6 rounds on Zen 5, Zen 3 and Cobalt. Why: its Zen 5 screen cleared +1% at 1T with a quiet A/A, the only base candidate so far that moves 1T on Zen 5; Chris's target is base 1T on Zen 5. Passed over: ha-023 rerun (noisy screen, smaller expected gain). Expect: +1% to +1.5% at 1T Zen 5; Zen 3 flat to +1%.",
+      "id": "ha-018",
+      "what": "promote hc-018 (base sparse two chunks a trip) to 6 rounds on Zen 5, Zen 3 and Cobalt",
+      "why": "its Zen 5 screen cleared +1% at 1T with a quiet A/A, the only base candidate so far that moves 1T on Zen 5; Chris's target is base 1T on Zen 5",
+      "instead": "ha-023 rerun (noisy screen, smaller expected gain)",
+      "expect": "+1% to +1.5% at 1T Zen 5; Zen 3 flat to +1%"
+    },
+    {
+      "utc": "2026-10-11T03:04:46Z",
+      "level": "warn",
+      "text": "ha-zig-idea12 inconclusive.. Zen 3 16T lower bound sits at +1.0% exactly; with the earlier 14 Zen 3 rounds (+1.1% ± 0.5) it remains a straddle. Positive everywhere, never kept; left for the workshop",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T03:04:46Z",
+      "level": "info",
+      "text": "ha-029 rejected.. ISPC 1.28 / Ubuntu 26.04 no longer helps the base on the current champion",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T03:04:46Z",
+      "level": "warn",
+      "text": "ha-023 inconclusive.. noisy screen; not rerun (lower priority than the base 1T candidates)",
       "auto": true
     }
   ],

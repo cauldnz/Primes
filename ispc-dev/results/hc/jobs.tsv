@@ -159,3 +159,6 @@ id	pool	size	kind	outdir	submitted	state
 02481923373	hc-standard-d16a-v4	Standard_D16a_v4	base	ispc-dev/results/hc/b2-sparse-prefetchw	2026-10-11T02:48:27Z	open
 0248347012	hc-standard-d16as-v7	Standard_D16as_v7	base	ispc-dev/results/hc/b2-dense-prefetchw	2026-10-11T02:48:45Z	open
 02491021825	hc-standard-d16as-v7	Standard_D16as_v7	zig	ispc-dev/results/hc/s5-zig-wheel-profile-2	2026-10-11T02:49:19Z	open
+0304048193	hc-standard-d16as-v7	Standard_D16as_v7	base	ispc-dev/results/hc/ha-018-full	2026-10-11T03:04:14Z	open
+03042025449	hc-standard-d16a-v4	Standard_D16a_v4	base	ispc-dev/results/hc/ha-018-full	2026-10-11T03:04:30Z	open
+03043629882	hc-standard-d4ps-v6	Standard_D4ps_v6	base	ispc-dev/results/hc/ha-018-full	2026-10-11T03:04:45Z	open
