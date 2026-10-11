@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T09:40:24Z",
+  "updated_utc": "2026-10-11T09:42:25Z",
   "run": {
     "id": "ap-20261011T0645Z",
     "state": "running",
@@ -1650,13 +1650,13 @@
       "entry": "zig-wheel",
       "tier": "extra-faithful",
       "kind": "borrowed",
-      "verdict": "running",
+      "verdict": "KEEP",
       "hypothesis": "Zig wheel: write each plane once as tile | 13-pattern instead of a tile copy plus a separate 13 group pass (ISPC IDEAS 12 shape)",
       "prediction": "0 to +4% at 1T (the extra 13 pass is ~2.9k of 61k cycles on Zen 5)",
       "plain": "If the Zig wheel marks 13 while it copies the 7-and-11 tile, then it saves a whole pass over the sieve, because the ISPC wheel does it that way.",
       "note": "MORE ROUNDS: Zen 5 clears; Zen 3 1T straddles (lower +0.9%): 8 more Zen 3 rounds (r9-zig-wheel-group-z3b)",
       "zen5": "+1.8% ± 0.3 1T, +1.7% ± 0.5 4T (6/6)",
-      "zen3": "+2.6% ± 1.6 1T, +1.7% ± 2.6 4T, +1.7% ± 0.3 16T"
+      "zen3": "+2.4% ± 1.8 1T, +2.7% ± 1.6 4T, +2.4% 16T (8 rounds)"
     },
     {
       "id": "r9-zig-base",
@@ -1768,10 +1768,12 @@
       "entry": "zig-wheel",
       "tier": "permitted",
       "kind": "borrowed",
-      "verdict": "running",
+      "verdict": "KEEP",
       "hypothesis": "Zig wheel: start offsets (and patterns if simple) as comptime tables, run-time fallback beyond them",
       "plain": "If the Zig wheel works out its start positions when it is compiled, as the existing Zig wheel entry does, then each pass skips that work, because the tables do not depend on the sieve size.",
-      "note": "hc/zig-wheel-tables 0886ddf: comptime start offsets (primes 13..9973, 19.6 KB + 5.3 KB index) and word patterns for all 51 pattern primes 7..251 (63 KB AVX); run-time startBit beyond 10,007; self-test incl. a new 2e8 wheel check (fallback). Binary +94 KB. Local +18.1% (4 pairs). Zen 5 + Zen 3 6 rounds. Permitted lineage"
+      "note": "hc/zig-wheel-tables 0886ddf: comptime start offsets (primes 13..9973, 19.6 KB + 5.3 KB index) and word patterns for all 51 pattern primes 7..251 (63 KB AVX); run-time startBit beyond 10,007; self-test incl. a new 2e8 wheel check (fallback). Binary +94 KB. Local +18.1% (4 pairs). Zen 5 + Zen 3 6 rounds. Permitted lineage",
+      "zen5": "+15.9% ± 2.4 1T, +12.3% ± 2.8 4T (6/6)",
+      "zen3": "+16.8% ± 4.4 1T, +14.1% ± 1.4 4T, +14.4% 16T (6/6)"
     },
     {
       "id": "r9-zig-base-wide",
@@ -1801,37 +1803,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T07:16:56Z",
-      "level": "decision",
-      "text": "s1-base-codesize: start the base code-size agent while the size cliff runs. Why: stream 1 step 4 needs no cliff result; the wheel candidates wait for it (they depend on a Zen 3 cliff).",
-      "id": "s1-base-codesize",
-      "what": "start the base code-size agent while the size cliff runs",
-      "why": "stream 1 step 4 needs no cliff result; the wheel candidates wait for it (they depend on a Zen 3 cliff)"
-    },
-    {
-      "utc": "2026-10-11T07:16:56Z",
-      "level": "info",
-      "text": "s1-base-codesize (base) running: Measure the hot dense/sparse code bytes per target (incl. the x16 copy and NEON); if the dense switch is large, a generic loop for factors 65-127",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T07:21:21Z",
-      "level": "decision",
-      "text": "r9-zig-base: submit on Zen 5 and Zen 3. Why: Chris's AMD-screen rule; the Zen 5 gap (139k vs 124k) does not show locally, so only Zen can say. Expect: 0 to +2%.",
-      "id": "r9-zig-base",
-      "what": "submit on Zen 5 and Zen 3",
-      "why": "Chris's AMD-screen rule; the Zen 5 gap (139k vs 124k) does not show locally, so only Zen can say",
-      "expect": "0 to +2%"
-    },
-    {
-      "utc": "2026-10-11T07:25:02Z",
-      "level": "decision",
-      "text": "s1-f1-grey: measure F1 on the champion for the upstream question; grey, never merged. Why: RUN-PLAN stream 1 step 5: the issue should quote F1's gain on the code we'd submit.",
-      "id": "s1-f1-grey",
-      "what": "measure F1 on the champion for the upstream question; grey, never merged",
-      "why": "RUN-PLAN stream 1 step 5: the issue should quote F1's gain on the code we'd submit"
-    },
     {
       "utc": "2026-10-11T07:25:02Z",
       "level": "info",
@@ -2151,6 +2122,36 @@
       "utc": "2026-10-11T09:21:15Z",
       "level": "info",
       "text": "r9-rust-wheel-combo (rust-wheel) running: Rust wheel: group-loop bounds hoist (47d9afd) on top of the pattern fix (df94b47)",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T09:42:25Z",
+      "level": "decision",
+      "text": "r9-zig-wheel-group: KEEP; merged into hc/zig-champion-r9 8ba3386 (with the base keep a90b985; self-test passes). Why: lower bound above +1% on both deciders (Zen 5 1T +1.6%, Zen 3 4T +1.1% after 8 rounds); no loss anywhere. Expect: Zig wheel +2% on both chips.",
+      "id": "r9-zig-wheel-group",
+      "what": "KEEP; merged into hc/zig-champion-r9 8ba3386 (with the base keep a90b985; self-test passes)",
+      "why": "lower bound above +1% on both deciders (Zen 5 1T +1.6%, Zen 3 4T +1.1% after 8 rounds); no loss anywhere",
+      "expect": "Zig wheel +2% on both chips"
+    },
+    {
+      "utc": "2026-10-11T09:42:25Z",
+      "level": "decision",
+      "text": "r9-zig-tables: KEEP in the permitted tier; hc/zig-champion-tables 0886ddf (not on the extra-faithful line). Why: comptime tables: Zen 5 +15.9% 1T, Zen 3 +14.1% 4T, both lower bounds above +12%; beats the ISPC wheel on both (+6.5% Zen 5, +20.7% Zen 3 at 1T). Expect: the tables line also needs the wheel group change (later).",
+      "id": "r9-zig-tables",
+      "what": "KEEP in the permitted tier; hc/zig-champion-tables 0886ddf (not on the extra-faithful line)",
+      "why": "comptime tables: Zen 5 +15.9% 1T, Zen 3 +14.1% 4T, both lower bounds above +12%; beats the ISPC wheel on both (+6.5% Zen 5, +20.7% Zen 3 at 1T)",
+      "expect": "the tables line also needs the wheel group change (later)"
+    },
+    {
+      "utc": "2026-10-11T09:42:25Z",
+      "level": "info",
+      "text": "r9-zig-wheel-group KEEP.. MORE ROUNDS: Zen 5 clears; Zen 3 1T straddles (lower +0.9%): 8 more Zen 3 rounds (r9-zig-wheel-group-z3b)",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T09:42:25Z",
+      "level": "info",
+      "text": "r9-zig-tables KEEP.. hc/zig-wheel-tables 0886ddf: comptime start offsets (primes 13.9973, 19.6 KB + 5.3 KB index) and word patterns for all 51 pattern primes 7.251 (63 KB AVX); run-time startBit beyond 10,007; self-test incl. a new 2e8 wheel check (fallback). Binary +94 KB. Local +18.1% (4 pairs). Zen 5 + Zen 3 6 rounds. Permitted lineage",
       "auto": true
     }
   ],
