@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T21:51:53Z",
+  "updated_utc": "2026-10-11T21:57:49Z",
   "run": {
     "id": "ap-20261011T1929Z",
     "state": "running",
@@ -2125,6 +2125,18 @@
       "prediction": "+4% to +8% over 4f1ba99 at 1T on Zen",
       "verdict": "running",
       "commit": "997f71f"
+    },
+    {
+      "id": "ox-015",
+      "entry": "oxcaml",
+      "title": "x86 sparse two chunks per iteration",
+      "tier": "extra-faithful",
+      "kind": "novel",
+      "plain": "If each sparse loop step marks two chunks, then the loop bookkeeping per mark halves, because the offsets are shared.",
+      "prediction": "+2% to +6%",
+      "verdict": "rejected",
+      "commit": "1814c90",
+      "note": "local: fewer instructions (4.6 vs 4.9 per composite) but no faster; the sparse loop looks bound by memory, not instructions"
     }
   ],
   "azure_queue": 0,
@@ -2134,24 +2146,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T20:58:44Z",
-      "level": "decision",
-      "text": "ocaml-004: KEEP; hc/ocaml-champion fast-forwarded to 0aaa340. Why: analyze.py KEEP: 4T lower bounds +3.0% Zen 5 and +5.8% Zen 3, no loss anywhere, Cobalt +23%.",
-      "id": "ocaml-004",
-      "what": "KEEP; hc/ocaml-champion fast-forwarded to 0aaa340",
-      "why": "analyze.py KEEP: 4T lower bounds +3.0% Zen 5 and +5.8% Zen 3, no loss anywhere, Cobalt +23%"
-    },
-    {
-      "utc": "2026-10-11T20:58:44Z",
-      "level": "decision",
-      "text": "ox-004: REVERT on the Cobalt gate; agent ox-008 rebuilds it x86-only so arm64 compiles the champion's code unchanged. Why: x86 gains are large (lower bounds +12.6% Zen 5, +13.9% Zen 3) and the Cobalt loss is in code the arm64 build shares; per-architecture kernels keep the arm binary at the champion, the target-specific rule then needs no Cobalt run. Passed over: debugging the arm64 slowdown (Cobalt is a gate, and its OxCaml build has no SIMD anyway). Expect: x86 as ox-004; Cobalt unchanged.",
-      "id": "ox-004",
-      "what": "REVERT on the Cobalt gate; agent ox-008 rebuilds it x86-only so arm64 compiles the champion's code unchanged",
-      "why": "x86 gains are large (lower bounds +12.6% Zen 5, +13.9% Zen 3) and the Cobalt loss is in code the arm64 build shares; per-architecture kernels keep the arm binary at the champion, the target-specific rule then needs no Cobalt run",
-      "instead": "debugging the arm64 slowdown (Cobalt is a gate, and its OxCaml build has no SIMD anyway)",
-      "expect": "x86 as ox-004; Cobalt unchanged"
-    },
     {
       "utc": "2026-10-11T20:58:44Z",
       "level": "info",
@@ -2488,6 +2482,21 @@
       "what": "background agent: two chunks per sparse loop iteration in the x86 kernel",
       "why": "sparse is 52% of a Zen 3 pass at 1.56 cycles per mark; 5 of the 39 instructions per chunk are loop overhead and poll, which a second chunk per iteration halves while sharing the eight offset registers",
       "expect": "+2% to +6% at 1T"
+    },
+    {
+      "utc": "2026-10-11T21:57:49Z",
+      "level": "decision",
+      "text": "ox-015: reject at the local gate; park the x86 sparse line. Why: fewer instructions per composite in four variants and no measured gain (whole pass -1.5% locally); with ox-013 also losing, two sparse ideas in a row failed and the loop now looks bound by memory traffic, not instruction count. Passed over: a third sparse variant.",
+      "id": "ox-015",
+      "what": "reject at the local gate; park the x86 sparse line",
+      "why": "fewer instructions per composite in four variants and no measured gain (whole pass -1.5% locally); with ox-013 also losing, two sparse ideas in a row failed and the loop now looks bound by memory traffic, not instruction count",
+      "instead": "a third sparse variant"
+    },
+    {
+      "utc": "2026-10-11T21:57:49Z",
+      "level": "info",
+      "text": "ox-015 (oxcaml) rejected: ",
+      "auto": true
     }
   ],
   "research": {
