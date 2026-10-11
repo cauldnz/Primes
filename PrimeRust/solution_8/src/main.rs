@@ -74,22 +74,24 @@ impl Pattern {
     /// of p, then copies of it out to `period + VW` words. Any bit offset of a stride-p pattern
     /// is a whole-word rotation of this one, since 64 is invertible mod p, so this one row
     /// serves every plane.
+    ///
+    /// The 64 multiples of p in one period land in 64 distinct bit positions, so they are set
+    /// directly into zeroed words, with no branch that depends on how many fall in each word.
     fn push(rows: &mut Vec<u64>, p: usize) -> Pattern {
         let first = rows.len();
-        let mut tab = [0u16; 64];
-        let mut j = 0; // next multiple of p, as a bit index; 64 of them in p words
-        for k in 0..p {
-            let mut word = 0u64;
-            while j < 64 * (k + 1) {
-                word |= 1 << (j & 63);
-                tab[j & 63] = k as u16;
-                j += p;
-            }
-            rows.push(word);
-        }
         let period = p * VW.div_ceil(p);
-        while rows.len() - first < period + VW {
-            let n = p.min(period + VW - (rows.len() - first));
+        let len = period + VW;
+        rows.resize(first + p, 0);
+        let mut tab = [0u16; 64];
+        let row = &mut rows[first..first + p];
+        for t in 0..64 {
+            let j = t * p;
+            row[j >> 6] |= 1 << (j & 63);
+            tab[j & 63] = (j >> 6) as u16;
+        }
+        // Copies of the first period: one copy when p >= VW, doubling below that.
+        while rows.len() - first < len {
+            let n = (rows.len() - first).min(first + len - rows.len());
             rows.extend_from_within(first..first + n);
         }
         Pattern { first, period, tab }
