@@ -124,3 +124,50 @@ rogiervandam_extend_epar;512001;5.000009;4;algorithm=other,faithful=yes,bits=1
 rogiervandam_extend_epar;260255;5.000032;2;algorithm=other,faithful=yes,bits=1
 rogiervandam_extend;139022;5.000000;1;algorithm=other,faithful=yes,bits=1
 == round 2 champ2
+cauldnz-rust-wheel;178642;5.000005;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-rust-wheel;1322191;5.000377;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-rust-wheel;1307640;5.000214;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-rust-wheel;674735;5.000122;4;algorithm=wheel,faithful=yes,bits=1
+== round 2 champ
+cauldnz-rust-wheel;179404;5.000007;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-rust-wheel;1318115;5.000483;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-rust-wheel;1309436;5.000248;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-rust-wheel;681201;5.000143;4;algorithm=wheel,faithful=yes,bits=1
+== round 2 cand
+cauldnz-rust-wheel;170516;5.000016;1;algorithm=wheel,faithful=yes,bits=1
+phase;start_offsets;5575.0;7.32
+phase;pattern_build;10715.9;14.08
+phase;group_passes;29051.4;38.16
+phase;tile;1487.5;1.95
+phase;sparse_marks;25491.4;33.49
+phase;scan_setup;3803.6;5.00
+phase;total;76124.8;100.00
+phase;detail.start_offsets_dense;2157.8;2.83
+phase;detail.start_offsets_sparse;3098.1;4.07
+phase;detail.start_offsets_tile;319.1;0.42
+phase;detail.tile_build;658.9;0.87
+phase;detail.tile_copy;828.6;1.09
+phase;detail.scan;3634.4;4.77
+phase;detail.setup_alloc_count;169.3;0.22
+cauldnz-rust-wheel;1216943;5.000416;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-rust-wheel;1237191;5.000195;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-rust-wheel;636204;5.000103;4;algorithm=wheel,faithful=yes,bits=1
+== round 2 ctrl
+cauldnz-ispc;211059;5.000015;1;algorithm=wheel,faithful=yes,bits=1
+phase;start_offsets;9517.138123;15.474601
+phase;pattern_build;5021.816497;8.165334
+phase;group_passes;20204.683904;32.852253
+phase;tile;1936.544459;3.148767
+phase;sparse_marks;21610.020023;35.137290
+phase;scan_setup;3211.466007;5.221754
+phase;total;61501.669017;100.000000
+phase;detail.start_offsets_dense;2175.992760;3.538104
+phase;detail.start_offsets_sparse;7052.061168;11.466455
+phase;detail.start_offsets_tile;289.084194;0.470043
+phase;detail.tile_build;897.384158;1.459122
+phase;detail.tile_copy;1039.160301;1.689646
+phase;detail.scan;2984.493843;4.852704
+phase;detail.setup_alloc_count;226.972164;0.369050
+cauldnz-ispc;1511194;5.000280;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1527565;5.000115;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;790579;5.000089;4;algorithm=wheel,faithful=yes,bits=1
