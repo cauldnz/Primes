@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T23:32:09Z",
+  "updated_utc": "2026-10-11T23:32:57Z",
   "run": {
     "id": "ap-20261011T1929Z",
     "state": "running",
@@ -18,7 +18,7 @@
   "current": {
     "id": "r10-final",
     "phase": "evaluate",
-    "detail": "final scoreboard: Zen 5 and Zen 3, 6 rounds; Cobalt waits for ox-021"
+    "detail": "final scoreboard: Zen 5, Zen 3 running; Cobalt submitted (champion 37e493e)"
   },
   "scoreboard": [
     {
@@ -46,13 +46,13 @@
     {
       "machine": "Cobalt 100 (D4ps_v6)",
       "entry": "oxcaml base",
-      "ours_1t": 7300,
-      "ours_mt": 27000,
+      "ours_1t": 11800,
+      "ours_mt": 41900,
       "rival": "mike-barber Rust",
       "rival_1t": 42900,
       "rival_mt": 171300,
       "threads": 4,
-      "source": "run 10 ox-017 cand (champion 2d1ae49), same-round medians, 4T in ours_mt"
+      "source": "run 10 ox-021 cand (champion 37e493e), same-round medians, 4T in ours_mt"
     },
     {
       "machine": "Zen 5 (EPYC 9V45, D32as_v7)",
@@ -2194,8 +2194,9 @@
       "kind": "novel",
       "plain": "If the Arm build stores the dense pattern 32 bits at a time, then it skips the memory barrier OCaml puts before each 64-bit store, because only 64-bit integer stores get the barrier.",
       "prediction": "Cobalt +60% to +120% at 1T; x86 byte-identical",
-      "verdict": "running",
-      "commit": "37e493e"
+      "verdict": "kept",
+      "commit": "37e493e",
+      "note": "Cobalt +61.4% 1T, +55.8% 4T; x86 byte-identical; champion 37e493e"
     },
     {
       "id": "ocaml-007",
@@ -2230,30 +2231,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T21:38:39Z",
-      "level": "decision",
-      "text": "ox-012: background agent: portable phase-timer build of the champion (rdtsc on x86, cntvct_el0 on Arm) to run on Cobalt and Zen 3. Why: OxCaml is 6x behind Rust on Cobalt and 2x on Zen; ox-010 showed the Arm dense copy isn't it, so the next Arm change needs a profile from an Arm node (AUTOPILOT section 3). Passed over: more Arm loop guesses.",
-      "id": "ox-012",
-      "what": "background agent: portable phase-timer build of the champion (rdtsc on x86, cntvct_el0 on Arm) to run on Cobalt and Zen 3",
-      "why": "OxCaml is 6x behind Rust on Cobalt and 2x on Zen; ox-010 showed the Arm dense copy isn't it, so the next Arm change needs a profile from an Arm node (AUTOPILOT section 3)",
-      "instead": "more Arm loop guesses"
-    },
-    {
-      "utc": "2026-10-11T21:41:34Z",
-      "level": "info",
-      "text": "ox-012 (oxcaml) running: ",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T21:41:59Z",
-      "level": "decision",
-      "text": "ox-013: background agent: 16-bit (and 32-bit if available) sparse ORs in the x86 kernel instead of unaligned 64-bit. Why: sparse is still 46% of an x86 pass (ox-012 local); an unaligned 8-byte access crosses a cache line for 7 of 64 start bytes, a 2-byte one for 1 of 64. Expect: 0% to +5% at 1T.",
-      "id": "ox-013",
-      "what": "background agent: 16-bit (and 32-bit if available) sparse ORs in the x86 kernel instead of unaligned 64-bit",
-      "why": "sparse is still 46% of an x86 pass (ox-012 local); an unaligned 8-byte access crosses a cache line for 7 of 64 start bytes, a 2-byte one for 1 of 64",
-      "expect": "0% to +5% at 1T"
-    },
     {
       "utc": "2026-10-11T21:48:58Z",
       "level": "decision",
@@ -2578,6 +2555,26 @@
       "utc": "2026-10-11T23:20:49Z",
       "level": "info",
       "text": "r10-final: evaluate. final scoreboard: Zen 5 and Zen 3, 6 rounds; Cobalt waits for ox-021",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T23:32:57Z",
+      "level": "decision",
+      "text": "ox-021: KEEP under the target-specific rule; hc/oxcaml-champion fast-forwarded to 37e493e; flag for Chris: an Arm-only change decided on Cobalt alone. Why: Cobalt +61.4% at 1T (5/5, A/A flat); scalar/ is not compiled on x86, so Zen and Intel binaries are byte-identical and the Zen final runs of 2d1ae49 stand for 37e493e. Over 20%: the mechanism was measured first (ox-018 asm, ox-020 store forms), the self-test passed on the node, and the pattern build keeps one single-bit OR per multiple.",
+      "id": "ox-021",
+      "what": "KEEP under the target-specific rule; hc/oxcaml-champion fast-forwarded to 37e493e; flag for Chris: an Arm-only change decided on Cobalt alone",
+      "why": "Cobalt +61.4% at 1T (5/5, A/A flat); scalar/ is not compiled on x86, so Zen and Intel binaries are byte-identical and the Zen final runs of 2d1ae49 stand for 37e493e. Over 20%: the mechanism was measured first (ox-018 asm, ox-020 store forms), the self-test passed on the node, and the pattern build keeps one single-bit OR per multiple"
+    },
+    {
+      "utc": "2026-10-11T23:32:57Z",
+      "level": "info",
+      "text": "ox-021 kept.. Cobalt +61.4% 1T, +55.8% 4T; x86 byte-identical; champion 37e493e",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T23:32:57Z",
+      "level": "info",
+      "text": "Scoreboard, oxcaml base on Cobalt 100 (D4ps_v6): 7300 → 11800 at 1T, 27000 → 41900 at 4 threads.",
       "auto": true
     }
   ],
