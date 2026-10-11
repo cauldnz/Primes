@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T09:42:25Z",
+  "updated_utc": "2026-10-11T09:43:13Z",
   "run": {
     "id": "ap-20261011T0645Z",
     "state": "running",
@@ -1794,6 +1794,15 @@
       "hypothesis": "Rust wheel: group-loop bounds hoist (47d9afd) on top of the pattern fix (df94b47)",
       "plain": "If both kept Rust wheel changes go in together, their gains add, because they speed up different phases.",
       "note": "hc/port-rust-wheel-combo a8d9f07 (clean merge); self-test 0 wrong. Zen 5 + Zen 3 6 rounds vs df94b47"
+    },
+    {
+      "id": "r9-zig-tables-group",
+      "entry": "zig-wheel",
+      "tier": "permitted",
+      "kind": "novel",
+      "verdict": "building",
+      "hypothesis": "Zig tables line plus the one-pass tile|13 write (022e479)",
+      "plain": "If the tables wheel also writes 7, 11 and 13 in one pass per plane, it gains the ~2% the faithful line got, because the passes are separate."
     }
   ],
   "azure_queue": 0,
@@ -1803,21 +1812,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T07:25:02Z",
-      "level": "info",
-      "text": "s1-f1-grey (base) running: F1 (alternate sweep direction per factor) on the code we would submit (3ad0427), for the upstream issue only",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T07:29:14Z",
-      "level": "decision",
-      "text": "p-cpp-wheel-clang-idea12-r9: revert IDEAS 12 from the C++ wheel champion. Why: per-thread rule: 16 rounds put 1T/4T at +1.0% ± 0.2 (Zen 5) and +1.2% ± 0.5 / +0.7% (Zen 3); at those means no round count lifts the lower bound past +1%. The +2% at 16T is recorded only. Passed over: 20 rounds.",
-      "id": "p-cpp-wheel-clang-idea12-r9",
-      "what": "revert IDEAS 12 from the C++ wheel champion",
-      "why": "per-thread rule: 16 rounds put 1T/4T at +1.0% ± 0.2 (Zen 5) and +1.2% ± 0.5 / +0.7% (Zen 3); at those means no round count lifts the lower bound past +1%. The +2% at 16T is recorded only",
-      "instead": "20 rounds"
-    },
     {
       "utc": "2026-10-11T07:29:14Z",
       "level": "info",
@@ -2152,6 +2146,21 @@
       "utc": "2026-10-11T09:42:25Z",
       "level": "info",
       "text": "r9-zig-tables KEEP.. hc/zig-wheel-tables 0886ddf: comptime start offsets (primes 13.9973, 19.6 KB + 5.3 KB index) and word patterns for all 51 pattern primes 7.251 (63 KB AVX); run-time startBit beyond 10,007; self-test incl. a new 2e8 wheel check (fallback). Binary +94 KB. Local +18.1% (4 pairs). Zen 5 + Zen 3 6 rounds. Permitted lineage",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T09:43:13Z",
+      "level": "decision",
+      "text": "r9-zig-tables-group: start agent: merge the wheel group change onto the Zig tables line. Why: both kept; the merge conflicts (const table pointers vs a writable tile), so it needs its own build and rounds. Expect: +1% to +3% over 0886ddf.",
+      "id": "r9-zig-tables-group",
+      "what": "start agent: merge the wheel group change onto the Zig tables line",
+      "why": "both kept; the merge conflicts (const table pointers vs a writable tile), so it needs its own build and rounds",
+      "expect": "+1% to +3% over 0886ddf"
+    },
+    {
+      "utc": "2026-10-11T09:43:14Z",
+      "level": "info",
+      "text": "r9-zig-tables-group (zig-wheel) building: Zig tables line plus the one-pass tile|13 write (022e479)",
       "auto": true
     }
   ],
