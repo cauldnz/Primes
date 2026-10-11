@@ -238,7 +238,10 @@ static void apply_group(uniform uint64 * uniform w, uniform int nw,
     for (uniform int j = 0; j < G; j++) {
         L[j] = g->L[j];
         if (j < n) {
-            uniform int r0 = g->tab[j][b[j] & 63] - ((b[j] >> 6) - start) % g->L[j];  // phase at start
+            // (b>>6) - start is below nw, a few periods at most: subtract rather than divide
+            uniform int d = (b[j] >> 6) - start;
+            while (d >= g->L[j]) d -= g->L[j];
+            uniform int r0 = g->tab[j][b[j] & 63] - d;   // phase at start
             r[j] = (r0 < 0) ? r0 + L[j] : r0;
         } else r[j] = 0;
     }
@@ -315,15 +318,29 @@ static void sparse_prime(uniform Sieve * uniform s, uniform int p) {
         i[pl] = st[pl] + (uniform int64)pl * pw * 64;  // bit index within the whole buffer
     // rounds in which all 48 streams are still inside their plane
     uniform int rounds = (hi < nbits) ? (nbits - 1 - hi) / p + 1 : 0;
-    for (uniform int r = 0; r < rounds; r++) {
-        for (uniform int pl = 0; pl < 48; pl++) {
-            base[i[pl] >> 6] |= ((uniform uint64)1) << (i[pl] & 63);
-            i[pl] += p;
+    // Eight planes at a time, so the eight stream positions stay in registers.
+    const uniform int64 adv = (uniform int64)rounds * p;
+    for (uniform int c = 0; c < 48; c += 8) {
+        uniform int64 ii[8];
+        for (uniform int t = 0; t < 8; t++) ii[t] = i[c + t];
+        const uniform int64 lim = ii[0] + adv;          // bounds stream 0; no counter
+        while (ii[0] < lim) {
+            for (uniform int t = 0; t < 8; t++) {
+                base[ii[t] >> 6] |= ((uniform uint64)1) << (ii[t] & 63);
+                ii[t] += p;
+            }
         }
+        for (uniform int t = 0; t < 8; t++) i[c + t] = ii[t];
     }
+    // The 48 starts span less than p bits (they come from 48 consecutive q, under 210 apart),
+    // so after those rounds each stream has at most one bit left. Set it without a branch:
+    // a stream that is done ORs zero into its plane's last word.
     for (uniform int pl = 0; pl < 48; pl++) {
-        uniform int64 end = (uniform int64)pl * pw * 64 + nbits;
-        for (uniform int64 x = i[pl]; x < end; x += p) base[x >> 6] |= ((uniform uint64)1) << (x & 63);
+        uniform int64 x = i[pl] - (uniform int64)pl * pw * 64;   // bit within the plane
+        uniform bool inside = x < nbits;
+        uniform int64 xs = inside ? x : nbits - 1;
+        uniform uint64 v = inside ? (((uniform uint64)1) << (x & 63)) : 0;
+        base[(uniform int64)pl * pw + (xs >> 6)] |= v;
     }
 }
 
