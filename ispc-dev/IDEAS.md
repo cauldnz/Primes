@@ -197,3 +197,16 @@ same design and measured there: Zig (`PrimeZig/solution_4`, base and wheel), Rus
 change goes onto a grey branch of that entry only, with its own `RULES.md`. Queue, in order:
 F2 (16 KB blocks) and F1 to the Zig base; `wheel-group32` (32-word AVX-512 group step) to the
 Zig, Rust and C++ wheels; the thread-count fix to every port that lacks it.
+
+## Stream 6 prediction (climber, run ap-20261011T0100Z, written before any code)
+
+A mod-210 wheel (48 residues; 7 joins 2, 3, 5 in the wheel) at sieve size 1,000,000: 48/210 ×
+10^6 ≈ 228.6k bits ≈ 28.6 KB, against 33.3 KB for mod 30 (8 planes). Two sieves on one Zen 5
+core (48 KB L1D) still overflow (57 KB), but by less; one sieve fits Zen 3's 32 KB L1D.
+The local phase profile (s5, Xeon) puts start offsets at 12% of a pass with 8 planes: with 48
+planes, computing each sparse prime's start per plane the same way costs 6× that, which would
+eat the gain. So the design has to derive the 48 starts incrementally (one division per prime,
+then a residue-table walk), as crishoj's PR does.
+Expected, against `hc/champion`: Zen 5 1T −5% to +3%, all threads 0 to +6%; Zen 3 1T −3% to
++4%, all threads 0 to +5%. Mod 2310 (480 residues, ~26 KB) is not worth it: start offsets
+grow 10× again for 9% less memory.

@@ -105,3 +105,4 @@ id	pool	size	kind	outdir	submitted	state
 01073321789	hc-standard-d16a-v4	Standard_D16a_v4	wheel	ispc-dev/results/hc/f4-dense-640	2026-10-11T01:07:42Z	open
 01102216524	hc-standard-d16as-v7	Standard_D16as_v7	zig	ispc-dev/results/hc/s3-crishoj-wheel	2026-10-11T01:10:32Z	open
 0110388158	hc-standard-d16a-v4	Standard_D16a_v4	zig	ispc-dev/results/hc/s3-crishoj-wheel	2026-10-11T01:10:48Z	open
+01153924313	hc-standard-d16as-v7	Standard_D16as_v7	wheel	ispc-dev/results/hc/s5-wheel-profile	2026-10-11T01:15:48Z	open

@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T01:11:44Z",
+  "updated_utc": "2026-10-11T01:16:12Z",
   "run": {
     "id": "ap-20261011T0100Z",
     "state": "running",
@@ -1098,6 +1098,28 @@
       "prediction": "PR claims 2.2x the existing Zig wheel; locally it was not faster than ours, so expect within 10% of our ISPC wheel",
       "plain": "If we run the newest outside wheel entry beside ours on the same machines, then we learn whether it is a faster rival, because its author claims more than twice the speed of the old Zig wheel.",
       "note": "stream 3, a measurement, not an experiment; 5 rounds"
+    },
+    {
+      "id": "s5-wheel-profile",
+      "entry": "wheel",
+      "tier": "extra-faithful",
+      "kind": "tuning",
+      "verdict": "running",
+      "hypothesis": "Measurement: TSC split of a wheel pass (start offsets, pattern build, group passes, tile, sparse marks, scan)",
+      "prediction": "start offsets + pattern build 5% to 15% of a pass (RUN-PLAN stream 5)",
+      "plain": "If we time each step of one sieve pass, then we know which step is worth speeding up, because a step that takes a tenth of the time cannot give more than a tenth back.",
+      "note": "hc/diag-wheel-phases-2 f3b6d1d; local Xeon: start offsets 12.3%, pattern build 7.2% (19.5% together), group 34%, sparse 39%; timers cost 3-4%. Zen 5, 3 rounds queued"
+    },
+    {
+      "id": "s6-wheel-210",
+      "entry": "wheel",
+      "tier": "extra-faithful",
+      "kind": "novel",
+      "verdict": "running",
+      "hypothesis": "A mod-210 wheel (48 planes, ~28.6 KB at 1M) with incrementally derived starts beats the mod-30 champion with every thread busy",
+      "prediction": "Zen 5 1T -5% to +3%, all threads 0 to +6%; Zen 3 1T -3% to +4%, all threads 0 to +5% (IDEAS.md)",
+      "plain": "If the wheel also skips multiples of 7, then the sieve shrinks enough that two copies sharing a core fit better in its fastest cache, because 48 of every 210 numbers are kept instead of 8 of every 30.",
+      "note": "agent building hc/wheel-210"
     }
   ],
   "azure_queue": 0,
@@ -1107,18 +1129,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T22:04:32Z",
-      "level": "info",
-      "text": "f1-alternate Zen 3 and Zen 5 clear; Zen 4 and arm pending. Zen 5 D16as_v7. Zen 3, 6 rounds vs clean champion: +10.2% +-0.2% at 1T, +9.8% at 8T (one per core), +5.3% +-0.2% at 16T; vs Rust +17.4 / +17.0 / +10.7",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-10T22:04:32Z",
-      "level": "info",
-      "text": "f2-block 16 KB chosen; Zen 4 and arm pending. Zen 3 D16a_v4 (block sweep); Zen 5 after the F1 profile. Zen 5 16 KB (D16as_v7, 8c x 2): +9.2% +-1.0 at 1T, +10.3% +-1.8 at 8T, +21.5% +-1.3 at 16T (6/6); vs Rust +12.1 / +14.3 / +41.4. 24 KB on Zen 5 running",
-      "auto": true
-    },
     {
       "utc": "2026-10-10T22:04:32Z",
       "level": "info",
@@ -1438,6 +1448,25 @@
       "utc": "2026-10-11T01:11:44Z",
       "level": "info",
       "text": "Tick 1 done: 8 tasks queued (F4 sweep, stream 3), 2 agents running; next tick 01:24Z, waiting for pools to boot."
+    },
+    {
+      "utc": "2026-10-11T01:15:48Z",
+      "level": "decision",
+      "text": "s5-wheel-profile: accept the agent's diagnostic branch and run it on Zen 5 (3 rounds). Why: rebuilt here, self-test passes, diff adds timers only; locally start offsets + pattern build are 19.5%, above the 5% bar for stream 5 step 2, so the Zen 5 number decides whether tables are worth building. Expect: Zen 5: 10-20% for start offsets + pattern build.",
+      "id": "s5-wheel-profile",
+      "what": "accept the agent's diagnostic branch and run it on Zen 5 (3 rounds)",
+      "why": "rebuilt here, self-test passes, diff adds timers only; locally start offsets + pattern build are 19.5%, above the 5% bar for stream 5 step 2, so the Zen 5 number decides whether tables are worth building",
+      "expect": "Zen 5: 10-20% for start offsets + pattern build"
+    },
+    {
+      "utc": "2026-10-11T01:16:12Z",
+      "level": "decision",
+      "text": "s6-wheel-210: start the stream 6 agent (mod-210 ISPC wheel, run-time starts walked from one division per prime). Why: s5-wheel-profile reported, freeing an agent slot; stream 6 is phase 1 agent work measured in phase 2. Prediction written to IDEAS.md first. Brief: 40 min, simplest correct version first, odd-size sweep, push hc/wheel-210 only. Passed over: mod 2310 (start-offset cost grows 10x for 9% less memory). Expect: see IDEAS.md stream 6 prediction.",
+      "id": "s6-wheel-210",
+      "what": "start the stream 6 agent (mod-210 ISPC wheel, run-time starts walked from one division per prime)",
+      "why": "s5-wheel-profile reported, freeing an agent slot; stream 6 is phase 1 agent work measured in phase 2. Prediction written to IDEAS.md first. Brief: 40 min, simplest correct version first, odd-size sweep, push hc/wheel-210 only",
+      "instead": "mod 2310 (start-offset cost grows 10x for 9% less memory)",
+      "expect": "see IDEAS.md stream 6 prediction"
     }
   ],
   "research": {
