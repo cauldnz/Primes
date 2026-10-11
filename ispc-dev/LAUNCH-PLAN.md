@@ -3,13 +3,19 @@
 Drafted 11 October, 11:30, while run ap-20261011T0100Z climbs the ports. Order matters: each step
 gives the next something to link to. Owner in brackets: **C** is Chris, **W** the workshop.
 
-## 0. Finish the climb (today)
+## 0. Finish the climb: done 11 October
 
-- [W] Done 11 October: run ap-20261011T0100Z ended 14:39 AEST. Base +10.44% ± 0.11 over Rust at
-  1T on Zen 5 (330b3d4); not yet checked on a Zen 4 with AVX-512 (`D16as_v6`), which the PR
-  should have first.
-- [W] Run ap-20261011T0100Z ends about 15:00 AEST. Review the morning report; freeze the
-  numbers we'll quote: `hc/ispc-ref`, the per-thread table, the port tables.
+- [W] Done. Run ap-20261011T0645Z (run 9) ended 22:15 AEST, NZ$7.77, every pool deleted. The
+  PR is built from two **branches** (the git proxy refuses tag pushes, so they aren't tags):
+  `hc/ispc-final` = 216629d (solution_1 and solution_2) and `hc/ispc-final-tables` = 57e0792
+  (the same plus solution_3; solutions 1 and 2 identical). Final per-thread scoreboard, 6 rounds,
+  in `STATUS.md` (run 9 morning report): base vs mike-barber's Rust at 1T Zen 5 +10.2%, Zen 4
+  (AVX-512) +8.2%, Zen 3 +6.7%, Cobalt −1.7%; wheel 3.3× (Zen 5), 2.9× (Zen 4), 3.0× (Zen 3),
+  2.4× (Cobalt) the danielspaangberg C wheel; solution_3 +14% to +17% over solution_1. The
+  4-thread lines are within half a point of 1T.
+- [W] Zen 4 AVX-512 check done: the 16-lane loop lost 3% on Zen 4 and 7% on Intel, so it is gated
+  on Zen 5 (family 1Ah); Zen 4 and Intel are now unchanged. Nothing for the README beyond one
+  line on the gate.
 - **Decided 11 October, 15:45 (Chris):**
   - **4-thread line: yes**, both entries. The climber builds `hc/line-4t` (a line at exactly 4
     threads, skipped on machines with 4 or fewer), self-tests and measures it, then merges it
@@ -64,8 +70,8 @@ F1 or F2 arrives as a small follow-up PR to our own entry.
 
 ## 4. The ISPC PR (day 2-3, after the repo is public)
 
-- [W] Rebuild `hc/ispc-landing` on the upstream `drag-race` branch from the clean champion (with
-  the 4-thread line): `PrimeISPC/solution_1` (wheel), `PrimeISPC/solution_2` (base) and
+- [W] Rebuild `hc/ispc-landing` on the upstream `drag-race` branch from `hc/ispc-final-tables`
+  (57e0792): `PrimeISPC/solution_1` (wheel), `PrimeISPC/solution_2` (base) and
   `PrimeISPC/solution_3` (wheel with build-time tables) only.
   One squashed commit, authored with the GitHub no-reply address. Leave out the build outputs
   (`primes`, `*.o`) that `hc/champion` has tracked since the IDEAS 12 merge.
@@ -120,12 +126,13 @@ On the day the ISPC PR opens, in this order:
 Keep the claims to what's measured and per-thread where it matters; the Arm gap and the grey
 question go in plainly, not in footnotes.
 
-## 7. After launch: two more languages (Chris, 11 October 18:45)
+## 7. After launch: OxCaml (Chris, 11 October)
 
-In this order, each a dedicated climb with the same bench (backlog items for each):
-1. **OxCaml**: a faithful one-bit base sieve, then a wheel, against gkpotter's `PrimeOCaml`
-   entries and mike-barber's Rust. A real candidate for upstream as a `PrimeOCaml` solution.
-2. **cursed**: after the ISPC PR has merged. Issue first to ask whether the maintainers would
-   consider it; then, if they're open to it, a PR in Gen Z slang with a plain-English summary on
-   top.
+A dedicated climb with the same bench (backlog 36; set-up plan in agentic-hill-climber
+`examples/primes/next-climbs.md`): a faithful one-bit base sieve, then a wheel, against
+gkpotter's `PrimeOCaml` entries and mike-barber's Rust, with the same sieve in plain OCaml as a
+control. Before the run, Chris adds `opam.ocaml.org` to the climber environment's allowlist.
+Upstream questions (`PrimeOCaml` or `PrimeOxCaml`; a hosted base image) go in an issue first.
+
+cursed was shelved (Chris, 11 October 19:18): its compiler can't yet run a sieve (backlog 37).
 
