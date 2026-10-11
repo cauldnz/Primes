@@ -1,3 +1,4 @@
+Autopilot lock: ap-20261011T0100Z 2026-10-11T01:00Z
 # Status from the Claude Code session
 
 
