@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T07:01:51Z",
+  "updated_utc": "2026-10-11T07:07:06Z",
   "run": {
     "id": "ap-20261011T0645Z",
     "state": "running",
@@ -1618,7 +1618,17 @@
       "hypothesis": "Rust wheel: build group patterns word by word and extend by one copy, as the ISPC wheel does",
       "prediction": "+5% to +8% at 1T (pattern build 14% of the Rust pass, halved)",
       "plain": "If the Rust wheel builds each small prime pattern a whole word at a time instead of bit by bit, then that step gets about twice as fast, because that is how the ISPC wheel does it.",
-      "note": "agent building hc/port-rust-wheel-pat"
+      "note": "hc/port-rust-wheel-pat df94b47: Pattern::push zeroes the first period once and sets bit t*p for 64 t with no data-dependent branch (ISPC build_pattern), then one extending copy. Self-test here passes (agent: sweep 0 wrong, DENSE_MAX 0/17/64/1024 clean). Local +4.4% to +5.0% (7/8 pairs); pattern_build 26k -> 13k cycles. Zen 5 + Zen 3 6 rounds"
+    },
+    {
+      "id": "r9-cpp-base",
+      "entry": "cpp-base",
+      "tier": "extra-faithful",
+      "kind": "borrowed",
+      "verdict": "running",
+      "hypothesis": "C++ base: read GCC dense loop, then bring fold-1pc (16-lane dense when a thread has a core) to C++ if GCC can express it",
+      "plain": "If the C++ base uses its widest vector code for small factors when a thread has a core to itself, then it gains as the ISPC base did, because the same change bought 7.5% there.",
+      "note": "agent building hc/port-cpp-base-wide"
     }
   ],
   "azure_queue": 0,
@@ -1628,22 +1638,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T03:04:46Z",
-      "level": "decision",
-      "text": "ha-018: promote hc-018 (base sparse two chunks a trip) to 6 rounds on Zen 5, Zen 3 and Cobalt. Why: its Zen 5 screen cleared +1% at 1T with a quiet A/A, the only base candidate so far that moves 1T on Zen 5; Chris's target is base 1T on Zen 5. Passed over: ha-023 rerun (noisy screen, smaller expected gain). Expect: +1% to +1.5% at 1T Zen 5; Zen 3 flat to +1%.",
-      "id": "ha-018",
-      "what": "promote hc-018 (base sparse two chunks a trip) to 6 rounds on Zen 5, Zen 3 and Cobalt",
-      "why": "its Zen 5 screen cleared +1% at 1T with a quiet A/A, the only base candidate so far that moves 1T on Zen 5; Chris's target is base 1T on Zen 5",
-      "instead": "ha-023 rerun (noisy screen, smaller expected gain)",
-      "expect": "+1% to +1.5% at 1T Zen 5; Zen 3 flat to +1%"
-    },
-    {
-      "utc": "2026-10-11T03:04:46Z",
-      "level": "warn",
-      "text": "ha-zig-idea12 inconclusive.. Zen 3 16T lower bound sits at +1.0% exactly; with the earlier 14 Zen 3 rounds (+1.1% ± 0.5) it remains a straddle. Positive everywhere, never kept; left for the workshop",
-      "auto": true
-    },
     {
       "utc": "2026-10-11T03:04:46Z",
       "level": "info",
@@ -1962,6 +1956,20 @@
       "utc": "2026-10-11T07:01:51Z",
       "level": "info",
       "text": "r9-rust-wheel-pat (rust-wheel) running: Rust wheel: build group patterns word by word and extend by one copy, as the ISPC wheel does",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T07:07:06Z",
+      "level": "decision",
+      "text": "run: Rust pattern fix to Zen 5 + Zen 3; C++ base agent started (fixed share). Why: Rust wheel: verified self-test, local +4-5%; C++ base is the third language's turn per RUN-PLAN stream 2.",
+      "id": "run",
+      "what": "Rust pattern fix to Zen 5 + Zen 3; C++ base agent started (fixed share)",
+      "why": "Rust wheel: verified self-test, local +4-5%; C++ base is the third language's turn per RUN-PLAN stream 2"
+    },
+    {
+      "utc": "2026-10-11T07:07:06Z",
+      "level": "info",
+      "text": "r9-cpp-base (cpp-base) running: C++ base: read GCC dense loop, then bring fold-1pc (16-lane dense when a thread has a core) to C++ if GCC can express it",
       "auto": true
     }
   ],
