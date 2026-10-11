@@ -15,12 +15,14 @@
    - Sparse (larger factors): eight multiples repeat every p bytes, each at a fixed bit. The
      byte offsets and masks are computed per factor; each composite is one byte OR.
 
-   The sieve is a [Bytes] buffer read and written as 64-bit little-endian words or as bytes.
-   The 64-bit accesses go through the compiler's unboxed primitives, so the inner loops do not
-   allocate. *)
+   The sieve is a Bigarray of 64-bit words indexed by word, so the dense loop needs no index
+   shifts. The sparse phase reads and writes the same memory as bytes, through a second view
+   of the array with an 8-bit element type (see clear_sparse). Neither loop allocates. *)
 
-external get64 : Bytes.t -> int -> int64 = "%caml_bytes_get64u"
-external set64 : Bytes.t -> int -> int64 -> unit = "%caml_bytes_set64u"
+open Bigarray
+
+(* A sieve buffer: 64-bit words indexed by word. *)
+type words = (int64, int64_elt, c_layout) Array1.t
 
 let sieve_size = 1_000_000
 let expected = 78_498
@@ -36,8 +38,8 @@ type sieve = {
   size : int;
   nbits : int;  (* one bit per odd number 1, 3, 5, ... up to size *)
   nwords : int;
-  bits : Bytes.t;  (* nwords 64-bit words, little-endian *)
-  pattern : Bytes.t;  (* scratch for one dense run of four periods *)
+  bits : words;  (* nwords 64-bit words *)
+  pattern : words;  (* scratch for one dense run of four periods *)
 }
 
 let create size =
@@ -47,49 +49,52 @@ let create size =
      factor the scan finds is always 3, and its dense pass writes every word without reading
      it, so the rest of the buffer is initialised there. No word is read before it is
      written. *)
-  let bits = Bytes.create (nwords * 8) in
-  set64 bits 0 0L;
-  { size; nbits; nwords; bits; pattern = Bytes.create (dense_limit * 32) }
+  let bits = Array1.create int64 c_layout nwords in
+  Array1.unsafe_set bits 0 0L;
+  { size; nbits; nwords; bits; pattern = Array1.create int64 c_layout (dense_limit * 4) }
 
 let[@inline always] is_composite s i =
-  (Char.code (Bytes.unsafe_get s.bits (i lsr 3)) lsr (i land 7)) land 1 <> 0
+  Int64.to_int (Int64.shift_right_logical (Array1.unsafe_get s.bits (i lsr 6)) (i land 63))
+  land 1 <> 0
+
+let[@inline always] or_word (b : words) a w =
+  Array1.unsafe_set b a (Int64.logor (Array1.unsafe_get b a) w)
 
 (* The word pattern of one run of four periods (4p words) for odd factor p: word t lsr 6 of
    the run gets bit t land 63 for each multiple p(2j + 1), at bit t = p/2 + jp, j = 0..255.
    One single-bit OR per composite. *)
 let build_pattern s p =
   let pat = s.pattern in
-  Bytes.fill pat 0 (p * 32) '\000';
+  for a = 0 to (p * 4) - 1 do Array1.unsafe_set pat a 0L done;
   for j = 0 to 255 do
     let t = (p lsr 1) + (j * p) in
-    let a = (t lsr 6) * 8 in
-    set64 pat a (Int64.logor (get64 pat a) (Int64.shift_left 1L (t land 63)))
+    or_word pat (t lsr 6) (Int64.shift_left 1L (t land 63))
   done
 
 (* Dense clearing for odd p < dense_limit. Periods of p words start at word multiples of p;
    clearing starts at the period holding p². The smaller multiples in that period are
    composite too, except p itself, which is restored at the end. The loop walks runs of four
-   periods, two runs and eight words at a time; the last, partial run takes as many words of the pattern as
-   fit. With [init] (the first factor, 3) every word is stored without being loaded, which
-   initialises the buffer. *)
+   periods, two runs and eight words at a time; the last, partial run takes as many words of
+   the pattern as fit. With [init] (the first factor, 3) every word is stored without being
+   loaded, which initialises the buffer. *)
 let clear_dense s p init =
   build_pattern s p;
   let b = s.bits and pat = s.pattern and n = s.nwords in
   let c0 = p * p / 2 / 64 / p * p in
   let runs = (n - c0) / (4 * p) in
-  let rb = p * 32 in
-  let base = ref (c0 * 8) in
+  let rb = p * 4 in
+  let base = ref c0 in
   if init then
     for _ = 1 to runs do
       let q = !base in
       let v = ref 0 in
       while !v < rb do
         let a = q + !v and v0 = !v in
-        set64 b a (get64 pat v0);
-        set64 b (a + 8) (get64 pat (v0 + 8));
-        set64 b (a + 16) (get64 pat (v0 + 16));
-        set64 b (a + 24) (get64 pat (v0 + 24));
-        v := v0 + 32
+        Array1.unsafe_set b a (Array1.unsafe_get pat v0);
+        Array1.unsafe_set b (a + 1) (Array1.unsafe_get pat (v0 + 1));
+        Array1.unsafe_set b (a + 2) (Array1.unsafe_get pat (v0 + 2));
+        Array1.unsafe_set b (a + 3) (Array1.unsafe_get pat (v0 + 3));
+        v := v0 + 4
       done;
       base := q + rb
     done
@@ -102,17 +107,17 @@ let clear_dense s p init =
       while !v < rb do
         let a = q + !v and v0 = !v in
         let a2 = a + rb in
-        let w0 = get64 pat v0 and w1 = get64 pat (v0 + 8)
-        and w2 = get64 pat (v0 + 16) and w3 = get64 pat (v0 + 24) in
-        set64 b a (Int64.logor (get64 b a) w0);
-        set64 b (a + 8) (Int64.logor (get64 b (a + 8)) w1);
-        set64 b (a + 16) (Int64.logor (get64 b (a + 16)) w2);
-        set64 b (a + 24) (Int64.logor (get64 b (a + 24)) w3);
-        set64 b a2 (Int64.logor (get64 b a2) w0);
-        set64 b (a2 + 8) (Int64.logor (get64 b (a2 + 8)) w1);
-        set64 b (a2 + 16) (Int64.logor (get64 b (a2 + 16)) w2);
-        set64 b (a2 + 24) (Int64.logor (get64 b (a2 + 24)) w3);
-        v := v0 + 32
+        let w0 = Array1.unsafe_get pat v0 and w1 = Array1.unsafe_get pat (v0 + 1)
+        and w2 = Array1.unsafe_get pat (v0 + 2) and w3 = Array1.unsafe_get pat (v0 + 3) in
+        or_word b a w0;
+        or_word b (a + 1) w1;
+        or_word b (a + 2) w2;
+        or_word b (a + 3) w3;
+        or_word b a2 w0;
+        or_word b (a2 + 1) w1;
+        or_word b (a2 + 2) w2;
+        or_word b (a2 + 3) w3;
+        v := v0 + 4
       done;
       base := q + (2 * rb)
     done;
@@ -122,36 +127,38 @@ let clear_dense s p init =
       let v = ref 0 in
       while !v < rb do
         let a = q + !v and v0 = !v in
-        set64 b a (Int64.logor (get64 b a) (get64 pat v0));
-        set64 b (a + 8) (Int64.logor (get64 b (a + 8)) (get64 pat (v0 + 8)));
-        set64 b (a + 16) (Int64.logor (get64 b (a + 16)) (get64 pat (v0 + 16)));
-        set64 b (a + 24) (Int64.logor (get64 b (a + 24)) (get64 pat (v0 + 24)));
-        v := v0 + 32
+        or_word b a (Array1.unsafe_get pat v0);
+        or_word b (a + 1) (Array1.unsafe_get pat (v0 + 1));
+        or_word b (a + 2) (Array1.unsafe_get pat (v0 + 2));
+        or_word b (a + 3) (Array1.unsafe_get pat (v0 + 3));
+        v := v0 + 4
       done;
       base := q + rb
     end
   end;
   (* The partial last run: fewer than 4p words. *)
   let q = !base in
-  let left = (n * 8) - q in
-  let v = ref 0 in
-  while !v < left do
-    let a = q + !v in
-    let x = if init then 0L else get64 b a in
-    set64 b a (Int64.logor x (get64 pat !v));
-    v := !v + 8
+  for v = 0 to n - q - 1 do
+    let a = q + v in
+    let x = if init then 0L else Array1.unsafe_get b a in
+    Array1.unsafe_set b a (Int64.logor x (Array1.unsafe_get pat v))
   done;
   (* p itself is prime. *)
   let f = p lsr 1 in
-  let i = f lsr 3 in
-  Bytes.unsafe_set b i
-    (Char.unsafe_chr (Char.code (Bytes.unsafe_get b i) land lnot (1 lsl (f land 7))))
+  let i = f lsr 6 in
+  Array1.unsafe_set b i
+    (Int64.logand (Array1.unsafe_get b i) (Int64.lognot (Int64.shift_left 1L (f land 63))))
 
 (* Sparse clearing over bytes for odd p >= dense_limit. Chunks of p bytes start at byte
    multiples of p; in each, the eight multiples p(2j + 1), j = 0..7, sit at fixed byte offsets
    o_j = (p/2 + jp) / 8 with fixed single-bit masks. *)
 let clear_sparse s p =
-  let b = s.bits and nbytes = s.nwords * 8 in
+  (* A byte view of the word array. The standard library has no way to change a Bigarray's
+     element type, so this is a cast: with the type known, unsafe_get and unsafe_set compile
+     to plain byte loads and stores from the data pointer, and the stored element kind and
+     dimension (nwords) are never read. Little-endian byte order is assumed, as before. *)
+  let b : (int, int8_unsigned_elt, c_layout) Array1.t = Obj.magic s.bits in
+  let nbytes = s.nwords * 8 in
   let h = p lsr 1 in
   let o0 = h lsr 3 and m0 = 1 lsl (h land 7) in
   let t = h + p in
@@ -169,7 +176,7 @@ let clear_sparse s p =
   let t = t + p in
   let o7 = t lsr 3 and m7 = 1 lsl (t land 7) in
   let[@inline always] mark a m =
-    Bytes.unsafe_set b a (Char.unsafe_chr (Char.code (Bytes.unsafe_get b a) lor m))
+    Array1.unsafe_set b a (Array1.unsafe_get b a lor m)
   in
   let s0 = p * p / 2 / 8 / p * p in
   let chunks = (nbytes - s0) / p in
