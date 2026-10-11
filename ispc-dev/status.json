@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T22:03:36Z",
+  "updated_utc": "2026-10-11T22:04:13Z",
   "run": {
     "id": "ap-20261011T1929Z",
     "state": "running",
@@ -2149,12 +2149,6 @@
     {
       "utc": "2026-10-11T20:58:44Z",
       "level": "info",
-      "text": "ocaml-004 kept.. Zen 5 +7.3% 1T / +4.7% 4T, Zen 3 +8.5% / +7.0%, Cobalt +23%; hc/ocaml-champion 0aaa340",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T20:58:44Z",
-      "level": "info",
       "text": "ox-004 rejected.. Zen 5 +22% 1T, Zen 3 +16% (2 rounds), Cobalt -28%: gate fails; x86-only form is ox-008",
       "auto": true
     },
@@ -2497,6 +2491,16 @@
       "level": "info",
       "text": "ox-015 (oxcaml) rejected: ",
       "auto": true
+    },
+    {
+      "utc": "2026-10-11T22:04:13Z",
+      "level": "decision",
+      "text": "ox-016: two agents on the merged build 997f71f: four runs per dense step (ox-016) and a cheaper x86 pattern build (ox-017). Why: the two-run step gave +7.5%/+4.8%, so the next width is the obvious test; the pattern build is 9% of a Zen 3 pass and still uses tagged arithmetic. Sparse is parked (two losses in a row). Passed over: OxCaml dense limit (flat 96-160 locally). Expect: ox-016 +0% to +4%; ox-017 +1% to +4%.",
+      "id": "ox-016",
+      "what": "two agents on the merged build 997f71f: four runs per dense step (ox-016) and a cheaper x86 pattern build (ox-017)",
+      "why": "the two-run step gave +7.5%/+4.8%, so the next width is the obvious test; the pattern build is 9% of a Zen 3 pass and still uses tagged arithmetic. Sparse is parked (two losses in a row)",
+      "instead": "OxCaml dense limit (flat 96-160 locally)",
+      "expect": "ox-016 +0% to +4%; ox-017 +1% to +4%"
     }
   ],
   "research": {
