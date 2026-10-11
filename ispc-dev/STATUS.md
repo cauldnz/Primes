@@ -1,8 +1,87 @@
 # Status from the Claude Code session
-Autopilot lock: ap-20261011T1929Z 2026-10-11T19:31Z
+
 
 **Last updated:** 2026-10-11 22:00 AEST. Living file; earlier versions are in
 `git log -p ispc-dev/STATUS.md`. Replies go in `ispc-dev/NEXT-STEPS.md`.
+
+## Morning report: run ap-20261011T1929Z, the OxCaml climb (05:29 to 11:29 AEST, 12 October)
+
+Six-hour run from RUN-PLAN.md (a6fec38). Spend NZ$7.72 of NZ$25 (2,045 node-minutes). Every
+pool taken down at 09:47 AEST. The ISPC entries and their branches were not touched; nothing
+went to `ispc`; no PRs.
+
+**Did the toolchain build? Yes, quickly.** The `5.2.0+ox` switch built in 347 s on a 16-vCPU
+Zen 5 node (whole image 561 s) and in 604 s on a 4-vCPU Cobalt 100 (image 775 s), against the
+plan's "30 minutes or more". The images (1.2 GB zstd each) load on a node in about 50 s. The
+standalone Dockerfile, which builds the switch inside the solution's own build as a submission
+without a hosted image would have to, works on Zen 5 in 458 s. On Cobalt it filled the node's
+disk and was not retried.
+
+### Final scoreboard (passes in 5 s, median of 6 rounds, same rounds; `results/hc/r10-final/`)
+
+| | Zen 5 1T | Zen 5 4T | Zen 3 1T | Zen 3 4T | Cobalt 1T |
+|---|---:|---:|---:|---:|---:|
+| OxCaml base (`hc/oxcaml-champion` 37e493e) | 72.2k | 261.5k | 37.2k | 137.0k | 11.8k |
+| plain OCaml base (`hc/ocaml-champion` 0aaa340) | 32.9k | 121.0k | 18.2k | 69.0k | 3.4k |
+| gkpotter faithful / unfaithful | 1.6k / 1.7k | - | 0.8k / 1.0k | - | 0.6k / 0.6k |
+| mike-barber Rust | 126.3k | 471.8k | 56.5k | 220.0k | 42.9k |
+| our ISPC base | 138.9k | 518.0k | 60.0k | 233.4k | 42.1k |
+
+### The OxCaml vs plain-OCaml gap, and what it came from
+
+OxCaml is 2.19x plain OCaml on Zen 5, 2.04x on Zen 3 and 3.45x on Cobalt at 1T. The compiler
+alone gave −4% (Zen 5) to +8% (Zen 3) on the same source. The x86 gap comes from three
+extensions: 256-bit vectors for the dense copy (+60% / +41%), untagged `int64#` addressing in
+x86-only kernels (+27% / +17%), and the loops they made possible (constant-mask sparse, the
+two-run copy, a cheaper pattern build: another +20% or so together). On Arm the gap comes from a
+finding, not an extension: **OCaml 5 puts a `dmb ishld` barrier before every 64-bit integer
+store on Arm.** It made the dense copy 80% of the Cobalt pass; 32-bit stores avoid it and gave
++61% (ox-021). The plain line still pays it, which is why plain OCaml is 12x behind Rust on
+Cobalt but 4x on Zen. Worth an upstream OCaml issue.
+
+### Keeps and rejects by kind
+
+- OxCaml (16 decided): kept 9 into the champion (novel 6, borrowed 2: the ISPC vector copy and
+  the plain line's two-run copy; 1 merge), 1 kept alone but lost when merged (four runs per
+  step), 6 rejected (2 at the Cobalt gate, then rebuilt x86-only; 3 at the local gate; 1 flat on
+  Arm). Seven measurements (toolchain, probe, profiles on Xeon, Zen 3 and Cobalt, Arm assembly,
+  Arm store forms).
+- Plain OCaml (6 decided): 1 kept (two runs per step, +7% Zen, +23% Cobalt), 5 rejected (GC
+  from the start, dense limit 64 and 96, Int64 Bigarray, 32-bit stores everywhere).
+- Calibration: 6 of 22 predictions in range on both Zens, 5 more in range on one. The big
+  misses were all upside on x86 (SIMD, untagged) and the build time.
+
+### Upstream questions this run answers
+
+- Folder: `PrimeOCaml/solution_3` (OxCaml) and `solution_4` (plain), tags
+  `algorithm=base,faithful=yes,bits=1`, labels `cauldnz-oxcaml-base`, `cauldnz-ocaml-base`.
+- Build time on the runners: about 8 minutes on a 16-vCPU Zen 5 to build the switch inside the
+  solution's image; longer on the 4-core runners. A hosted base image would remove it, but note:
+  the compiler enables AVX2 when built on an AVX2 machine, so a hosted x86 image built on modern
+  hardware won't run on the SSE4 Celeron. Building on the runner avoids that.
+- No Alpine: OxCaml needs glibc, so the runtime stage is `ubuntu:24.04`.
+
+### Tokens (run ap-20261011T1929Z)
+
+Main session: 1,030 calls, 148.4M tokens (145.7M cache reads, 2.4M writes, 194k output), about
+6.7M per decided experiment (22). Background agents: 24 agents, about 2.3M tokens as reported by
+each agent's own usage line (these figures don't include cache reads the same way; treat them
+as a lower bound).
+
+### Waiting for Chris
+
+- ox-021 was decided on Cobalt alone (target-specific rule; x86 binaries identical). Agree?
+- Final refs: `hc/oxcaml-final` and `hc/ocaml-final` (README results filled, cold-read).
+- Which Dockerfile a submission should carry for OxCaml (standalone build vs a hosted image).
+
+### Three best next experiments
+
+1. Plain OCaml on Arm: a per-architecture file with 32-bit stores for the dense copy (the
+   all-targets version lost 38% on x86). Expect Cobalt +50% or more.
+2. OxCaml on Arm: the sparse loop and the partial-run tail still use stores that may carry the
+   barrier; a Cobalt profile of 37e493e first.
+3. OxCaml x86: four runs per step without the pattern-build interaction (it gained 3% on Zen 5
+   but lost on Zen 3 when merged); try it gated to Zen 5 only.
 
 ## Run 10 hourly review, 09:30 AEST (3.0 h in)
 

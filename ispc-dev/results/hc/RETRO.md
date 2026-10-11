@@ -1,5 +1,27 @@
 # Run retrospectives (newest first)
 
+## ap-20261011T1929Z (2026-10-12, 05:29 to 11:29 AEST): OxCaml
+
+- Calibration: 6 of 22 predictions in range on both Zens (ox-002 on x86, ox-006, ox-008, ox-014,
+  limit 96, ox-021); 5 more in range on one Zen (ocaml-004, ox-009, ox-011, ox-016, ox-017).
+  Out: toolchain time (predicted 30-60 min, took 6-10), plain port (2-4x gkpotter, got 20x),
+  GC (−5 to −10% 1T, got −3%), SIMD copy (+10-30%, got +41-60%), untagged (+5-15%, got +16-22%
+  and −28% on Arm), Bigarray, Arm two-run, narrow sparse ORs, sparse unroll, the ox-019 merge,
+  plain 32-bit stores. Upside misses were all on x86 OxCaml features; downside misses on Arm.
+- Cost per kept change: 2,045 node-minutes for 7 keeps in the two champions, about 290 each
+  (toolchain builds and the final scoreboard included). Lost: about 40 Cobalt node-minutes to a
+  DiskFull node (the standalone Dockerfile build); no Spot pre-emptions; pools scaled to zero
+  between tasks (taskcompletion), so no idle floors.
+- Protocol: every candidate rebuilt and self-tested here before Azure; diffs read; five
+  candidates stopped at the local gate; Cobalt run whenever the Arm binary changed, skipped only
+  when byte-identical; two combinations measured before the champion moved (one kept, one
+  reverted). Skipped: a profile before the first plain-OCaml experiment (ocaml-002 went first
+  because it also gave the first Azure numbers); the cold read of the READMEs was done by an
+  agent at the end, not before each README change.
+- Next time: diagnose a platform gap with the compiled code first. Two guesses at the Arm loop
+  (ox-010, the plain two-run port) cost an hour before the assembly showed the store barrier in
+  minutes.
+
 ## ap-20261011T0645Z (2026-10-11, 16:45 to 22:45 AEST)
 
 - Calibration: size cliff 4 of 6 predictions held (Zen 3 wheel drop wrong, Zen 5 base step low).
