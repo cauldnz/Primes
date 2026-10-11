@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T20:45:33Z",
+  "updated_utc": "2026-10-11T20:45:41Z",
   "run": {
     "id": "ap-20261011T1929Z",
     "state": "running",
@@ -13,12 +13,12 @@
     "ends_utc": "2026-10-12T01:29:00Z",
     "background_runs": 7,
     "last_tick_utc": "2026-10-11T20:44:11Z",
-    "wakeup": "trig_013opCzrycmk4RsdPDooeU9b"
+    "wakeup": "trig_015DeohctETi1N3aboNRMCJd"
   },
   "current": {
-    "id": "ox-003",
+    "id": "ocaml-004",
     "phase": "evaluate",
-    "detail": "ox-002 Zen 3, ox-003 all machines, ocaml-004/005, ox-004 queued or running"
+    "detail": "ocaml-004 Zen 3, limit sweep, ox-004 running; ox-005/006 agent working"
   },
   "scoreboard": [
     {
