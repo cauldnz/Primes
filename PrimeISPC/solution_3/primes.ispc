@@ -241,8 +241,12 @@ static void dense_primes(uniform Sieve * uniform s, const uniform int * uniform 
         while (Lj < TAB_EXT) Lj += p;
         const uniform uint64 * uniform src = PAT + PAT_OFF[t[j]];
         uniform uint64 * uniform dst = scr + off;
-        foreach (k = 0 ... p) dst[k] = src[k];
-        foreach (k = p ... Lj + TAB_EXT) dst[k] = dst[k - p];   // p >= 17 > programCount
+        // Copies of the period, each read from the table: reading back the rows just written
+        // would stall on store forwarding.
+        for (uniform int c = 0; c < Lj + TAB_EXT; c += p) {
+            uniform int m = min(p, Lj + TAB_EXT - c);
+            foreach (k = 0 ... m) dst[c + k] = src[k];
+        }
         o[j] = off; L[j] = Lj;
         off += Lj + TAB_EXT;
     }
