@@ -10,13 +10,15 @@
 // Chapel solutions:
 //
 //  * Dense (factor < DENSE_LIMIT): the odd multiples of p repeat with a period of p 64-bit
-//    words, holding exactly 64 multiples at fixed (word, bit) positions. The routine is
-//    instantiated for every odd factor below the limit with the factor as a compile-time
+//    words, holding exactly 64 multiples at fixed (word, bit) positions. Below GENERIC_FROM
+//    the routine is instantiated for every odd factor with the factor as a compile-time
 //    constant, so those 64 positions and single-bit masks become immediates. It covers every
 //    odd value, not only primes: the program uses no knowledge of which numbers are prime
-//    beyond 2 being the only even one. For factors below 119 the same ORs are written per
-//    SIMD lane, over a block of consecutive words, so the compiler emits vector ORs with
-//    constant masks: the effect LLVM's SLP vectoriser has on the Rust entry's dense resetter.
+//    beyond 2 being the only even one. The same ORs are written per SIMD lane, over a block
+//    of consecutive words, so the compiler emits vector ORs with constant masks: the effect
+//    LLVM's SLP vectoriser has on the Rust entry's dense resetter. From GENERIC_FROM up one
+//    generic routine builds the 64 single-bit masks of a period in a buffer each pass and ORs
+//    it over the sieve, which keeps the dense code within the instruction cache.
 //  * Sparse (larger factors): the same idea over bytes. 8 multiples repeat every p bytes,
 //    each with a fixed bit position; their byte offsets are computed per factor and the 8
 //    masks are compile-time constants selected by p mod 16.
@@ -56,8 +58,8 @@ static inline uniform double now() {
     return (uniform double)ts.tv_sec + 1e-9 * (uniform double)ts.tv_nsec;
 }
 
-#define DENSE_LIMIT 128      // factors below this use the dense routine
-#define VEC_LIMIT 119        // ...and the vector form below this (larger ones exceed LLVM's unroll limit)
+#define DENSE_LIMIT 128      // factors below this use a dense routine
+#define GENERIC_FROM 65      // ...the per-factor specialised one below this, the generic one from it
 
 // ---------------------------------------------------------------------------------------
 // The sieve "class": a struct holding all of a sieve's state, plus the functions below that
@@ -117,8 +119,42 @@ static inline void clear_dense_from(uniform uint64 * uniform w, uniform int nwor
     if ((f >> 6) < nwords) w[f >> 6] &= ~(((uniform uint64)1) << (f & 63));
 }
 
-static inline void clear_dense(uniform uint64 * uniform w, uniform int nwords, const uniform int P) {
-    clear_dense_from(w, nwords, P, ((P * P / 2) / 64 / P) * P);
+// Generic dense clearing for factors from GENERIC_FROM up to DENSE_LIMIT, with p a run-time
+// value: one routine for all of them instead of a specialised copy per factor, which keeps the
+// dense code small enough for the instruction cache. Each pass builds the masks for one period
+// of p words in a buffer, one single-bit OR per composite, then ORs that buffer into every
+// period of the sieve one vector of words at a time. The buffer repeats its first programCount
+// words after word p, so a vector can start anywhere in the period.
+static void clear_dense_generic(uniform uint64 * uniform w, uniform int nwords, uniform int p) {
+  unmasked {                                                        // callers run with all lanes on
+    uniform uint64 m[DENSE_LIMIT + 2 * programCount];
+    foreach (k = 0 ... p + programCount) m[k] = 0;
+    for (uniform int j = 0; j < 64; j++) {
+        const uniform int t = p / 2 + j * p;
+        m[t >> 6] |= ((uniform uint64)1) << (t & 63);               // one composite
+    }
+    foreach (k = 0 ... programCount) m[p + k] = m[k];
+    // Walk pointers over the sieve and the period buffer, so each vector is one load of the
+    // buffer and one OR into the sieve with no index arithmetic.
+    uniform uint64 * uniform q = w + ((p * p / 2) / 64 / p) * p;   // the period holding p*p
+    uniform uint64 * uniform end = w + nwords;
+    uniform uint64 * uniform mp = m;                                // q's word of the period
+    uniform uint64 * uniform mend = m + p;
+    for (; q + 4 * programCount <= end; q += 4 * programCount) {
+        #pragma unroll
+        for (uniform int v = 0; v < 4; v++) {
+            q[v * programCount + programIndex] |= mp[programIndex];
+            mp += programCount;
+            if (mp >= mend) mp -= p;
+        }
+    }
+    for (; q < end; q++) {                                          // words after the last group
+        *q |= *mp;
+        if (++mp == mend) mp = m;
+    }
+    const uniform int f = p / 2;                                    // p itself is prime
+    if ((f >> 6) < nwords) w[f >> 6] &= ~(((uniform uint64)1) << (f & 63));
+  }
 }
 
 // Vector dense clearing for small factors. A block of programCount chunks (programCount * P
@@ -251,13 +287,12 @@ static void clear_sparse(uniform Sieve * uniform s, uniform int p) {
 #if defined(ISPC_TARGET_NEON)
 #define D(P) case P: clear_dense_neon(s->bits, s->nwords, P); break;
 #else
-#define D(P) case P: if (P < VEC_LIMIT) clear_dense_vec(s->bits, s->nwords, P, P == 3); \
-                     else clear_dense(s->bits, s->nwords, P); break;
+#define D(P) case P: clear_dense_vec(s->bits, s->nwords, P, P == 3); break;
 #endif
 
 #if defined(FOLD16)
 // FOLD16: build.sh compiles this file a second time with -DFOLD16 for avx512skx-x16 only. That
-// object holds just this function, the dense vector routine for factors below VEC_LIMIT with
+// object holds just this function, the dense vector routine for factors below GENERIC_FROM with
 // 16 lanes, so each OR and store covers eight words in one 512-bit instruction. The driver
 // below is left out of it.
 #define DV(P) case P: clear_dense_vec(w, nwords, P, P == 3); break;
@@ -267,9 +302,7 @@ export void clear_dense_x16(uniform uint64 * uniform w, uniform int nwords, unif
             DV(3)   DV(5)   DV(7)   DV(9)   DV(11)  DV(13)  DV(15)  DV(17)  DV(19)  DV(21)
             DV(23)  DV(25)  DV(27)  DV(29)  DV(31)  DV(33)  DV(35)  DV(37)  DV(39)  DV(41)
             DV(43)  DV(45)  DV(47)  DV(49)  DV(51)  DV(53)  DV(55)  DV(57)  DV(59)  DV(61)
-            DV(63)  DV(65)  DV(67)  DV(69)  DV(71)  DV(73)  DV(75)  DV(77)  DV(79)  DV(81)
-            DV(83)  DV(85)  DV(87)  DV(89)  DV(91)  DV(93)  DV(95)  DV(97)  DV(99)  DV(101)
-            DV(103) DV(105) DV(107) DV(109) DV(111) DV(113) DV(115) DV(117)
+            DV(63)
         }
     }
 }
@@ -289,16 +322,14 @@ static void clear_factor(uniform Sieve * uniform s, uniform int p) {
     // mask every vector load and store in the dense code. Callers run with all lanes on.
     unmasked {
         if (p >= DENSE_LIMIT) { clear_sparse(s, p); return; }
+        if (p >= GENERIC_FROM) { clear_dense_generic(s->bits, s->nwords, p); return; }
 #if defined(ISPC_TARGET_AVX512SKX)
-        if (use_x16 && p < VEC_LIMIT) { clear_dense_x16(s->bits, s->nwords, p); return; }
+        if (use_x16) { clear_dense_x16(s->bits, s->nwords, p); return; }
 #endif
         switch (p) {
             D(3)   D(5)   D(7)   D(9)   D(11)  D(13)  D(15)  D(17)  D(19)  D(21)  D(23)  D(25)
             D(27)  D(29)  D(31)  D(33)  D(35)  D(37)  D(39)  D(41)  D(43)  D(45)  D(47)  D(49)
-            D(51)  D(53)  D(55)  D(57)  D(59)  D(61)  D(63)  D(65)  D(67)  D(69)  D(71)  D(73)
-            D(75)  D(77)  D(79)  D(81)  D(83)  D(85)  D(87)  D(89)  D(91)  D(93)  D(95)  D(97)
-            D(99)  D(101) D(103) D(105) D(107) D(109) D(111) D(113) D(115) D(117) D(119) D(121)
-            D(123) D(125) D(127)
+            D(51)  D(53)  D(55)  D(57)  D(59)  D(61)  D(63)
         }
     }
 }
