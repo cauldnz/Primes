@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T21:27:48Z",
+  "updated_utc": "2026-10-11T21:29:00Z",
   "run": {
     "id": "ap-20261011T1929Z",
     "state": "running",
@@ -2101,12 +2101,6 @@
     {
       "utc": "2026-10-11T20:22:06Z",
       "level": "info",
-      "text": "ocaml-004 (ocaml-plain) running: ",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T20:22:06Z",
-      "level": "info",
       "text": "ocaml-005 (ocaml-plain) running: ",
       "auto": true
     },
@@ -2454,6 +2448,14 @@
       "level": "info",
       "text": "ox-011 (oxcaml) running: ",
       "auto": true
+    },
+    {
+      "utc": "2026-10-11T21:29:00Z",
+      "level": "decision",
+      "text": "ox-standalone: run the standalone Dockerfile (builds the OxCaml switch inside the solution's own build) once on Zen 5 and Cobalt, 1 round, build time logged. Why: submission readiness and the upstream question: without a hosted OxCaml image the submission must build the compiler itself, so we need to know it works end to end and how long it takes per architecture. Harness fix: hc-pool now logs build seconds per image.",
+      "id": "ox-standalone",
+      "what": "run the standalone Dockerfile (builds the OxCaml switch inside the solution's own build) once on Zen 5 and Cobalt, 1 round, build time logged",
+      "why": "submission readiness and the upstream question: without a hosted OxCaml image the submission must build the compiler itself, so we need to know it works end to end and how long it takes per architecture. Harness fix: hc-pool now logs build seconds per image"
     }
   ],
   "research": {
