@@ -85,18 +85,29 @@ struct Group {
                 std::fill_n(row, 2 * W, Word{0});
                 continue;
             }
-            const int p = primes[j];
-            int L = p;
-            while (L < W) L += p;
-            period[j] = L;
-            std::fill_n(row, p, Word{0});
-            for (int b = 0; b < 64 * p; b += p) {
-                row[b >> 6] |= Word{1} << (b & 63);
-                tab[j][b & 63] = std::int16_t(b >> 6);
-            }
-            for (int k = p; k < L + W; k++) row[k] = row[k - p];
+            period[j] = pattern(row, tab[j], primes[j]);
         }
     }
+
+    // Base pattern for p into row, with its rotation table; returns the period L.
+    static std::int64_t pattern(Word* row, std::array<std::int16_t, 64>& tab, int p) {
+        int L = p;
+        while (L < W) L += p;
+        std::fill_n(row, p, Word{0});
+        for (int b = 0; b < 64 * p; b += p) {
+            row[b >> 6] |= Word{1} << (b & 63);
+            tab[b & 63] = std::int16_t(b >> 6);
+        }
+        for (int k = p; k < L + W; k++) row[k] = row[k - p];
+        return L;
+    }
+};
+
+// Scratch for the wheel phase: one plane's 7x11 period extended by a step, and 13's pattern.
+struct Wheel {
+    alignas(64) Word tile[77 + W];
+    alignas(64) Word p13[RowWords];
+    std::array<std::int16_t, 64> tab13;
 };
 
 // The sieve class: the whole state of one sieve. A new instance is made for every pass.
@@ -113,11 +124,7 @@ public:
     }
 
     void run() {
-        wheel_tile();
-
-        // 13 on its own. Afterwards every bit below 17 * 17 is final.
-        constexpr int thirteen[1] = {13};
-        dense_primes(thirteen, 1);
+        wheel_tile();     // 7, 11 and 13. Afterwards every bit below 17 * 17 is final.
 
         // The remaining primes up to sqrt(size): small ones as fused pattern groups, large
         // ones as strided bit sets. A candidate is only read once every prime up to its square
@@ -176,25 +183,40 @@ private:
         return (plane(Plane[n % 30])[m / 64] >> (m % 64)) & 1;
     }
 
-    // Multiples of 7 and 11 repeat every 77 words in every plane. Mark one period, starting
-    // from 7 and 11 themselves so it is exactly periodic, and copy it along the plane. Then
-    // unmark 7 and 11 and mark 1.
+    // Multiples of 7 and 11 repeat every 77 words in every plane. Mark one period in scratch
+    // space, starting from 7 and 11 themselves so it is exactly periodic. Each plane is then
+    // written in one pass: tile word OR 13's pattern word. 13's pattern starts at the plane's
+    // first word, so it also marks 13 itself and 91 and 143 (already marked by 7 and 11).
+    // Then unmark 7, 11 and 13 and mark 1.
     void wheel_tile() {
-        const std::size_t t = std::min<std::size_t>(77, nw_);
         constexpr int tile_primes[2] = {7, 11};
-        group_->build(tile_primes, 2);
+        Group& g = *group_;
+        Wheel& wh = *wheel_;
+        g.build(tile_primes, 2);
+        const std::int64_t L13 = Group::pattern(wh.p13, wh.tab13, 13);
         for (int pl = 0; pl < 8; pl++) {
-            Word* __restrict w = plane(pl);
-            std::fill_n(w, std::min(t + W - 1, pw_), Word{0});   // the tile and its overrun
+            std::fill_n(wh.tile, 77 + W, Word{0});
             const std::size_t first[G] = {start_bit(7, Res[pl], 1), start_bit(11, Res[pl], 1)};
-            apply_group<2>(w, t, *group_, first);
-            for (std::size_t base = t; base < nw_; base += t)
-                std::memcpy(w + base, w, std::min(t, nw_ - base) * sizeof(Word));
+            apply_group<2>(wh.tile, 77, g, first);
+            std::copy_n(wh.tile, W, wh.tile + 77);
+            const std::size_t b13 = start_bit(13, Res[pl], 13);
+            std::int64_t r13 = wh.tab13[b13 % 64] - std::int64_t((b13 / 64) % L13);  // at word 0
+            if (r13 < 0) r13 += L13;
+            std::int64_t rt = 0;
+            Word* __restrict w = plane(pl);
+            for (std::size_t k = 0; k < nw_; k += W) {       // the last step runs into the padding
+                store(w + k, load(wh.tile + rt) | load(wh.p13 + r13));
+                rt += W;
+                if (rt >= 77) rt -= 77;
+                r13 += W;
+                if (r13 >= L13) r13 -= L13;
+            }
             std::fill(w + nw_, w + pw_, Word{0});                  // padding past the plane
         }
         plane(0)[0] |= 1;                                             // 1 is not prime
         plane(1)[0] &= ~Word{1};                                   // 7 is prime
         plane(2)[0] &= ~Word{1};                                   // 11 is prime
+        plane(3)[0] &= ~Word{1};                                   // 13 is prime
     }
 
     // Fused pass over one plane for N members: each step of W words is loaded and stored once
@@ -260,7 +282,7 @@ private:
         std::size_t first[G];
         for (int pl = 0; pl < 8; pl++) {
             for (int j = 0; j < n; j++) first[j] = start_bit(primes[j], Res[pl], primes[j]);
-            if (n == 1) {      // a lone prime (13): skip the fused loop and its empty members
+            if (n == 1) {      // a lone prime: skip the fused loop and its empty members
                 apply_one(plane(pl), nw_, g.rows[0], g.period[0], g.tab[0][first[0] % 64],
                           first[0]);
             } else {
@@ -312,6 +334,7 @@ private:
     std::size_t pw_;       // plane stride in words
     std::unique_ptr<Word[], Free> bits_;           // the eight bit-planes, pw_ words apart
     std::unique_ptr<Group> group_{new Group};      // pattern scratch space (not zeroed)
+    std::unique_ptr<Wheel> wheel_{new Wheel};      // wheel scratch space (not zeroed)
 };
 
 // ---------------------------------------------------------------------------------------
