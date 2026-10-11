@@ -1,9 +1,9 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T12:14:23Z",
+  "updated_utc": "2026-10-11T12:15:01Z",
   "run": {
     "id": "ap-20261011T0645Z",
-    "state": "running",
+    "state": "stopped",
     "mode": "azure",
     "mode_reason": "Chris started run 9 in the same conversation (RUN-PLAN 16:50: size stream, submission-ready phase 0, fixed port shares). Azure via the container's cached service-principal login (the env secret was not used); Batch account and group set inline for this session.",
     "started_utc": "2026-10-11T06:45:00Z",
@@ -1828,7 +1828,7 @@
       "entry": "scoreboard",
       "tier": "extra-faithful",
       "kind": "scoreboard",
-      "verdict": "running",
+      "verdict": "done",
       "hypothesis": "final per-thread scoreboard: three ISPC entries at 1T and 4T on Zen 5, Zen 3, Zen 4 (AVX-512) and Cobalt, with rogiervandam C5, danielspaangberg C wheel and mike-barber Rust",
       "note": "hc/champion-tables-r9 57e0792 = hc/champion 216629d + solution_3 (4a42d98) + solution_3 .gitignore; built and self-tested locally. Wheel kind: solution_3 (cand) vs solution_1 (champ), ctrl c5 (Rust on Cobalt), ctrl2 dsp. Base kind: 57e0792 vs run start 3ad0427, ctrl Rust. 6 rounds, four chips"
     },
@@ -1837,7 +1837,7 @@
       "entry": "scoreboard",
       "tier": "mixed",
       "kind": "scoreboard",
-      "verdict": "running",
+      "verdict": "done",
       "hypothesis": "ports at 1T (and 4T) on Zen 5 and Zen 3: each port champion against its run-start version, beside our ISPC entry of the same design (57e0792) and the language rival",
       "note": "C++ wheel bf7619a vs 547221c (idea12, reverted), C++ base 558a949 vs 3045246, Rust wheel a8d9f07 vs 72932c7, Rust base b6b35f0 vs b1e49eb (AVX-512 on), Zig 8ba3386 vs 2de555d (base and wheel). 6 rounds each"
     }
@@ -1849,33 +1849,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T08:07:34Z",
-      "level": "decision",
-      "text": "fold-zen5: read the family from /proc/cpuinfo instead of CPUID. Why: ISPC has no cpuid intrinsic and the base is all ISPC with C-library calls only; /proc/cpuinfo keeps that true, and any failure falls back to the 8-lane path. Passed over: a C helper with __get_cpuid (would add a C file to the entry).",
-      "id": "fold-zen5",
-      "what": "read the family from /proc/cpuinfo instead of CPUID",
-      "why": "ISPC has no cpuid intrinsic and the base is all ISPC with C-library calls only; /proc/cpuinfo keeps that true, and any failure falls back to the 8-lane path",
-      "instead": "a C helper with __get_cpuid (would add a C file to the entry)"
-    },
-    {
-      "utc": "2026-10-11T08:07:34Z",
-      "level": "info",
-      "text": "fold-zen5 (base) running: Chris: gate fold-1pc's 16-lane dense path on Zen 5 (AMD family 1Ah) as well as one thread per core; 8-lane everywhere else",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T08:07:34Z",
-      "level": "info",
-      "text": "r9-cpp-wheel (cpp-wheel) running: C++ wheel: group-loop rows read through one base pointer with per-member wrap limits (ISPC's shape), removing per-row pointer spills",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T08:07:34Z",
-      "level": "info",
-      "text": "r9-rust-wheel-group (rust-wheel) running: Rust wheel group loop: hoist bounds checks out of the loop (asserts before, raw pointers inside); 170 -> 93 instructions per 32 words on Zen 5, ORs fuse into vpternlog",
-      "auto": true
-    },
     {
       "utc": "2026-10-11T08:08:02Z",
       "level": "decision",
@@ -2207,6 +2180,29 @@
       "utc": "2026-10-11T11:27:56Z",
       "level": "info",
       "text": "Pools for Zen 4, Cobalt and Intel deleted (their scoreboard work is done)"
+    },
+    {
+      "utc": "2026-10-11T12:15:01Z",
+      "level": "info",
+      "text": "Run ap-20261011T0645Z stopped: all pools deleted (last one deleting at 12:15Z), morning report in STATUS.md, final refs hc/ispc-final 216629d and hc/ispc-final-tables 57e0792 (branches)"
+    },
+    {
+      "utc": "2026-10-11T12:15:01Z",
+      "level": "info",
+      "text": "Run ap-20261011T0645Z is stopped; spend NZ$7.77.",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T12:15:01Z",
+      "level": "info",
+      "text": "r9-final done.. hc/champion-tables-r9 57e0792 = hc/champion 216629d + solution_3 (4a42d98) + solution_3.gitignore; built and self-tested locally. Wheel kind: solution_3 (cand) vs solution_1 (champ), ctrl c5 (Rust on Cobalt), ctrl2 dsp. Base kind: 57e0792 vs run start 3ad0427, ctrl Rust. 6 rounds, four chips",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T12:15:01Z",
+      "level": "info",
+      "text": "r9-final-ports done.. C++ wheel bf7619a vs 547221c (idea12, reverted), C++ base 558a949 vs 3045246, Rust wheel a8d9f07 vs 72932c7, Rust base b6b35f0 vs b1e49eb (AVX-512 on), Zig 8ba3386 vs 2de555d (base and wheel). 6 rounds each",
+      "auto": true
     }
   ],
   "research": {

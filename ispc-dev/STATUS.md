@@ -1,4 +1,3 @@
-Autopilot lock: ap-20261011T0645Z 2026-10-11T06:45Z
 # Status from the Claude Code session
 
 
@@ -8,7 +7,7 @@ Autopilot lock: ap-20261011T0645Z 2026-10-11T06:45Z
 ## Morning report: run ap-20261011T0645Z (16:45 to 22:45 AEST, 11 October)
 
 Six-hour run from RUN-PLAN.md, continuing the previous conversation (no clear). Keep rule: the
-per-thread rule in HILL-CLIMB.md (decide at 1T and 4T on Zen 5 and Zen 3). Spend about NZ$7.6 of
+per-thread rule in HILL-CLIMB.md (decide at 1T and 4T on Zen 5 and Zen 3). Spend NZ$7.77 of
 NZ$25. Every pool deleted at the end. Nothing went to `ispc` or to a PR. The final refs are
 **branches** `hc/ispc-final` (216629d) and `hc/ispc-final-tables` (57e0792): the git proxy
 refuses tag pushes (HTTP 403), so they could not be made tags from this container.
@@ -85,7 +84,7 @@ Zen 4's +2.7% over the run start is the Zen 5 gate taking back what the ungated 
 | C++ wheel (bf7619a) | 40,520 / 47,133 / C5 27,859 | none kept (IDEAS 12 reverted −1.4%, −0.9%) | 24,358 / 22,674 / C5 13,055 |
 | C++ base (558a949) | 27,829 / 27,796 / davepl 18,410 | +5.4%, +0.0% (Zen 5 wide path) | 10,355 / 11,219 / davepl 7,326 |
 | Rust wheel (a8d9f07) | 44,324 / 47,096 / C5 27,855 | +23.6%, +10.0% | 23,421 / 24,648 / C5 14,166 |
-| Rust base (b6b35f0) | 24,721 / 27,827 / Rust 25,198 | (vs AVX-512 on: +9.8%) | 9,671 / 11,212 / Rust 10,507 (2 rounds) |
+| Rust base (b6b35f0) | 24,721 / 27,827 / Rust 25,198 | (vs AVX-512 on: +9.8%) | 9,665 / 11,210 / Rust 10,516 |
 | Zig base (8ba3386) | 25,295 / 27,769 | +1.2%, +1.4% | 11,189 / 11,180 |
 | Zig wheel (8ba3386) | 44,037 / 46,563 / C5 27,775 | +1.2%, +3.1% | 24,954 / 23,962 / C5 13,361 |
 | Zig wheel tables (138e074, permitted) | 253.9k/5 s = 50,780 (r9-zig-tables-group) | +15.9% then +1.5% | 28,420 |
