@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T08:31:34Z",
+  "updated_utc": "2026-10-11T08:32:08Z",
   "run": {
     "id": "ap-20261011T0645Z",
     "state": "running",
@@ -1661,10 +1661,12 @@
       "entry": "zig-base",
       "tier": "extra-faithful",
       "kind": "borrowed",
-      "verdict": "running",
+      "verdict": "kept",
       "hypothesis": "Zig base: compiled dense/sparse paths against the ISPC base, then one change on the biggest difference",
       "plain": "If the Zig base gets the part of the ISPC base that differs most, then it closes some of its 10% gap, because the two do the same work otherwise.",
-      "note": "hc/zig-base-r9 a90b985: init clears only word 0 and the P=3 pass stores without loading (ISPC INIT), replacing a full memset + load. Agent: Zig dense path already vectorised and leaner per word than ISPC x8/x16; sparse 13 vs 12 instr per 8 (a pointer rewrite did not change LLVM output); locally Zig and ISPC bases level (47.6k vs 48.0k). Self-test 26/26 incl. dirty-memory check; local +1.3% (noise). Zen 5 + Zen 3 6 rounds"
+      "note": "KEEP (per-thread rule, decided at 4T on both): Zig base clears only word 0 and the P=3 pass stores without loading (ISPC INIT). New Zig champion line hc/zig-champion-r9 = a90b985 (base only; the wheel changes are separate experiments). Zig base vs ISPC base (ctrl): Zen 5 -9.1% 1T, Zen 3 -0.2%",
+      "zen5": "+1.5% ± 0.4 1T, +1.3% ± 0.2 4T (6/6)",
+      "zen3": "+1.1% ± 0.2 1T, +1.3% ± 0.3 4T (6/6)"
     },
     {
       "id": "s1-base-codesize",
@@ -1682,11 +1684,13 @@
       "entry": "base",
       "tier": "grey",
       "kind": "novel",
-      "verdict": "running",
+      "verdict": "confirmed",
       "hypothesis": "F1 (alternate sweep direction per factor) on the code we would submit (3ad0427), for the upstream issue only",
       "prediction": "+8% to +13% at 1T on Zen 5 and Zen 3 (last run +12.7% / +10.2% on 1551635)",
       "plain": "If the base sweeps each factor in the opposite direction to the last, then the end it just touched is still in cache, because a factor sweep leaves its last stretch of the sieve hot.",
-      "note": "hc/f1-on-330b3d4 2f6864f (conflict with fold-1pc resolved: the 16-lane dense path always sweeps up); self-test passes both paths; never merged; Zen 5 + Zen 3 6 rounds"
+      "note": "GREY measurement for the upstream issue, never merged: F1 on the code we'd submit (3ad0427). vs mike-barber at 1T: Zen 5 +24.8%, Zen 3 +17.4%. With the size-cliff number (base L1 worth 22-28% on Zen 5 at 1M), the issue can quote both",
+      "zen5": "+13.9% ± 0.5 1T, +13.9% ± 0.3 4T, +12.3% 16T (6/6)",
+      "zen3": "+10.0% ± 0.6 1T, +9.8% ± 0.4 4T, +5.3% 16T (6/6)"
     },
     {
       "id": "r9-rust-base-dense",
@@ -1717,7 +1721,10 @@
       "hypothesis": "Chris: gate fold-1pc's 16-lane dense path on Zen 5 (AMD family 1Ah) as well as one thread per core; 8-lane everywhere else",
       "prediction": "Zen 4 and Intel within ±0.5% of 1551635 at 1T/4T; Zen 5 +7.5% holds",
       "plain": "If the base uses its widest code only on the chip where it helps, then no other chip loses, because the slowdown came from chips that run 512-bit work more slowly.",
-      "note": "hc/fold-zen5 d882ed5: family read from /proc/cpuinfo (vendor AuthenticAMD and cpu family 26; the base stays all-ISPC with C-library calls only); parser tested on family 26/25/Intel/missing file; self-test in auto, FOLD=0, FOLD=1; README sentence added. 6 rounds against 1551635 on D16as_v6 (Zen 4), D16s_v5 (Intel), D16as_v7 (Zen 5)"
+      "note": "hc/fold-zen5 d882ed5: family read from /proc/cpuinfo (vendor AuthenticAMD and cpu family 26; the base stays all-ISPC with C-library calls only); parser tested on family 26/25/Intel/missing file; self-test in auto, FOLD=0, FOLD=1; README sentence added. 6 rounds against 1551635 on D16as_v6 (Zen 4), D16s_v5 (Intel), D16as_v7 (Zen 5)",
+      "zen4": "9V74: +0.1% ± 0.4 1T, +0.1% ± 0.4 4T, +0.1% 16T vs 1551635 (no loss)",
+      "intel": "Xeon 8370C: -0.0% ± 0.2 1T, +0.0% ± 0.9 4T, -0.8% ± 0.7 16T vs 1551635 (no loss)",
+      "note_gate": "Zen 4 and Intel now behave as 1551635 at 1T/4T (was -2.7% / -7.1%); Zen 5 check pending"
     },
     {
       "id": "r9-cpp-wheel",
@@ -1759,26 +1766,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T06:55:15Z",
-      "level": "info",
-      "text": "size-cliff (both) running: Measurement: throughput per number against working set, 16 sizes 250k-2M, both entries, Zen 3, Zen 5, Cobalt",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T06:55:15Z",
-      "level": "info",
-      "text": "p-cpp-wheel-clang-idea12-r9 (cpp-wheel) running: More rounds for the C++ wheel IDEAS 12 on clang under the per-thread rule",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T06:56:32Z",
-      "level": "decision",
-      "text": "p0-solution3: accept the agent's solution_3 and add the 4T line; measure against solution_1 at the champion. Why: checks passed (self-test, Docker stage by hand, sweep 0 bad); README words placed verbatim; solution_1 label kept as cauldnz-ispc (a label change for solution_1 is Chris's call).",
-      "id": "p0-solution3",
-      "what": "accept the agent's solution_3 and add the 4T line; measure against solution_1 at the champion",
-      "why": "checks passed (self-test, Docker stage by hand, sweep 0 bad); README words placed verbatim; solution_1 label kept as cauldnz-ispc (a label change for solution_1 is Chris's call)"
-    },
     {
       "utc": "2026-10-11T06:56:32Z",
       "level": "info",
@@ -2101,6 +2088,26 @@
       "utc": "2026-10-11T08:16:33Z",
       "level": "info",
       "text": "r9-cpp-base kept.. KEEP (target-specific: Zen 3 code unchanged without AVX-512). Gated on Zen 5 per Chris: hc/port-cpp-base-wide-zen5 558a949 (CPUID family 1Ah) = hc/port-cpp-base-champion; 3-round Zen 5 check of the gated build queued. C++ base vs ISPC base (ctrl) on Zen 5: +0.1% at 1T (was -5%)",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T08:32:08Z",
+      "level": "decision",
+      "text": "run: Zig base INIT kept (new line hc/zig-champion-r9); F1 grey recorded for the issue; fold-zen5 clean on Zen 4 and Intel. Why: per-thread rule clears at 4T on both Zens for the Zig base; F1 is a measurement only; the gate's two checks show no loss at 1T/4T.",
+      "id": "run",
+      "what": "Zig base INIT kept (new line hc/zig-champion-r9); F1 grey recorded for the issue; fold-zen5 clean on Zen 4 and Intel",
+      "why": "per-thread rule clears at 4T on both Zens for the Zig base; F1 is a measurement only; the gate's two checks show no loss at 1T/4T"
+    },
+    {
+      "utc": "2026-10-11T08:32:08Z",
+      "level": "info",
+      "text": "r9-zig-base kept.. KEEP (per-thread rule, decided at 4T on both): Zig base clears only word 0 and the P=3 pass stores without loading (ISPC INIT). New Zig champion line hc/zig-champion-r9 = a90b985 (base only; the wheel changes are separate experiments). Zig base vs ISPC base (ctrl): Zen 5 -9.1% 1T, Zen 3 -0.2%",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T08:32:08Z",
+      "level": "info",
+      "text": "s1-f1-grey confirmed.. GREY measurement for the upstream issue, never merged: F1 on the code we'd submit (3ad0427). vs mike-barber at 1T: Zen 5 +24.8%, Zen 3 +17.4%. With the size-cliff number (base L1 worth 22-28% on Zen 5 at 1M), the issue can quote both",
       "auto": true
     }
   ],
