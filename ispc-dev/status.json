@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T22:04:21Z",
+  "updated_utc": "2026-10-11T22:07:46Z",
   "run": {
     "id": "ap-20261011T1929Z",
     "state": "running",
@@ -2137,6 +2137,17 @@
       "verdict": "rejected",
       "commit": "1814c90",
       "note": "local: fewer instructions (4.6 vs 4.9 per composite) but no faster; the sparse loop looks bound by memory, not instructions"
+    },
+    {
+      "id": "ox-016",
+      "entry": "oxcaml",
+      "title": "x86 dense: four runs per step",
+      "tier": "extra-faithful",
+      "kind": "novel",
+      "plain": "If each loaded pattern vector is ORed into four runs instead of two, then the dense copy loads even less, because one load now serves four stores.",
+      "prediction": "+0% to +4% over 997f71f at 1T",
+      "verdict": "running",
+      "commit": "af2adaf"
     }
   ],
   "azure_queue": 0,
@@ -2146,22 +2157,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T20:58:44Z",
-      "level": "info",
-      "text": "ox-004 rejected.. Zen 5 +22% 1T, Zen 3 +16% (2 rounds), Cobalt -28%: gate fails; x86-only form is ox-008",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T21:00:22Z",
-      "level": "decision",
-      "text": "ox-007: submit 0245d04 vs cbcd24d on Zen 5, Zen 3 and Cobalt. Why: rebuilt here, PRIMES_TEST=1 exits 0; diff read: still eight ORs per chunk, one per composite, reordered by bit, tail keeps byte ORs; sparse 1.55 cycles per mark vs 2.0 locally. Cobalt shows whether the arm64 loss is the word OR itself; if it loses there, the form goes into ox-008's x86-only sparse kernel. Passed over: waiting for ox-008 to land first. Expect: x86 +8% to +20%.",
-      "id": "ox-007",
-      "what": "submit 0245d04 vs cbcd24d on Zen 5, Zen 3 and Cobalt",
-      "why": "rebuilt here, PRIMES_TEST=1 exits 0; diff read: still eight ORs per chunk, one per composite, reordered by bit, tail keeps byte ORs; sparse 1.55 cycles per mark vs 2.0 locally. Cobalt shows whether the arm64 loss is the word OR itself; if it loses there, the form goes into ox-008's x86-only sparse kernel",
-      "instead": "waiting for ox-008 to land first",
-      "expect": "x86 +8% to +20%"
-    },
     {
       "utc": "2026-10-11T21:00:43Z",
       "level": "decision",
@@ -2501,6 +2496,21 @@
       "why": "the two-run step gave +7.5%/+4.8%, so the next width is the obvious test; the pattern build is 9% of a Zen 3 pass and still uses tagged arithmetic. Sparse is parked (two losses in a row)",
       "instead": "OxCaml dense limit (flat 96-160 locally)",
       "expect": "ox-016 +0% to +4%; ox-017 +1% to +4%"
+    },
+    {
+      "utc": "2026-10-11T22:07:46Z",
+      "level": "decision",
+      "text": "ox-016: submit af2adaf vs 997f71f on Zen 5 and Zen 3; no Cobalt run. Why: rebuilt here, PRIMES_TEST=1 exits 0; amd64/dense.ml only (arm64 byte-identical); 7.0 to 5.5 instructions per 32 B, dense copy -18% and whole pass +4.3% locally in 3 of 3 rounds. Expect: +2% to +5%.",
+      "id": "ox-016",
+      "what": "submit af2adaf vs 997f71f on Zen 5 and Zen 3; no Cobalt run",
+      "why": "rebuilt here, PRIMES_TEST=1 exits 0; amd64/dense.ml only (arm64 byte-identical); 7.0 to 5.5 instructions per 32 B, dense copy -18% and whole pass +4.3% locally in 3 of 3 rounds",
+      "expect": "+2% to +5%"
+    },
+    {
+      "utc": "2026-10-11T22:07:46Z",
+      "level": "info",
+      "text": "ox-016 (oxcaml) running: ",
+      "auto": true
     }
   ],
   "research": {
