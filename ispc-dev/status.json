@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T21:12:05Z",
+  "updated_utc": "2026-10-11T21:12:39Z",
   "run": {
     "id": "ap-20261011T1929Z",
     "state": "running",
@@ -1979,9 +1979,9 @@
       "kind": "tuning",
       "plain": "If fewer small primes use the pattern copy and more use direct marking, then a pass gets faster, because the profile shows direct marking is already cheaper above about 68.",
       "prediction": "0% to +8% at 1T",
-      "verdict": "running",
+      "verdict": "rejected",
       "commit": "da786ff, c620f30",
-      "note": "limit 64 REVERT (Zen 3 -3.1%); limit 96 Zen 5 +1.9% 1T, Zen 3 more rounds"
+      "note": "limit 64: Zen 3 -3.1%; limit 96: Zen 5 +1.9%, Zen 3 +0.4% +-1.0; dense limit stays 128"
     },
     {
       "id": "ox-004",
@@ -2060,33 +2060,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T20:00:12Z",
-      "level": "decision",
-      "text": "ox-002: background agent: OxCaml solution_3 in two steps, the plain code compiled by OxCaml (hc/ox-002-port), then SIMD dense and unboxed types (hc/ox-003-ext). Why: separates what the compiler alone gives from what the extensions give, which is the gap the plan asks for. Expect: ox-002 within +-10% of plain; ox-003 +10% to +30% at 1T on x86.",
-      "id": "ox-002",
-      "what": "background agent: OxCaml solution_3 in two steps, the plain code compiled by OxCaml (hc/ox-002-port), then SIMD dense and unboxed types (hc/ox-003-ext)",
-      "why": "separates what the compiler alone gives from what the extensions give, which is the gap the plan asks for",
-      "expect": "ox-002 within +-10% of plain; ox-003 +10% to +30% at 1T on x86"
-    },
-    {
-      "utc": "2026-10-11T20:00:12Z",
-      "level": "info",
-      "text": "ocaml-001 confirmed.. self-test passes (rebuilt by the loop); local 1T 14-16k vs gkpotter faithful 0.7k on the shared container; hot loops allocation-free; GC stops all domains at 4T",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T20:00:12Z",
-      "level": "info",
-      "text": "ocaml-002 (ocaml-plain) running: ",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T20:00:12Z",
-      "level": "info",
-      "text": "ocaml-002: evaluate. 5 rounds on Zen 5 and Zen 3",
-      "auto": true
-    },
     {
       "utc": "2026-10-11T20:06:44Z",
       "level": "info",
@@ -2417,6 +2390,35 @@
       "utc": "2026-10-11T21:09:08Z",
       "level": "info",
       "text": "ocaml-006 (ocaml-plain) rejected: ",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T21:12:38Z",
+      "level": "decision",
+      "text": "ocaml-005: REVERT limit 96 without more rounds; dense limit stays 128. Why: analyze.py asks for more rounds, but Zen 3's mean is +0.4% +-1.0 after 5 rounds, so its lower bound reaching +1% would need the mean to more than double; three experiments on the plain dense loop (004 kept, 005 x2 lost) say the line has moved past it. Passed over: 15 more Zen 3 rounds (about 20 node-minutes).",
+      "id": "ocaml-005",
+      "what": "REVERT limit 96 without more rounds; dense limit stays 128",
+      "why": "analyze.py asks for more rounds, but Zen 3's mean is +0.4% +-1.0 after 5 rounds, so its lower bound reaching +1% would need the mean to more than double; three experiments on the plain dense loop (004 kept, 005 x2 lost) say the line has moved past it",
+      "instead": "15 more Zen 3 rounds (about 20 node-minutes)"
+    },
+    {
+      "utc": "2026-10-11T21:12:39Z",
+      "level": "info",
+      "text": "ox-007 Cobalt: -27.6% at 1T, the same loss as ox-004. The 64-bit-word OR in the sparse loop is what costs Arm. ox-007's form goes into the x86-only kernel as ox-009 (on ox-008)."
+    },
+    {
+      "utc": "2026-10-11T21:12:39Z",
+      "level": "decision",
+      "text": "ox-009: background agent: ox-007's constant-mask sparse form inside ox-008's x86-only sparse kernel. Why: both ox-004 and ox-007 lose 28% on Cobalt from the word OR, so the only place the form can live is the x86 kernel; this combines two changes, so it waits for ox-008's own verdict before it can be kept. Expect: +5% to +10% over ox-008 at 1T on Zen.",
+      "id": "ox-009",
+      "what": "background agent: ox-007's constant-mask sparse form inside ox-008's x86-only sparse kernel",
+      "why": "both ox-004 and ox-007 lose 28% on Cobalt from the word OR, so the only place the form can live is the x86 kernel; this combines two changes, so it waits for ox-008's own verdict before it can be kept",
+      "expect": "+5% to +10% over ox-008 at 1T on Zen"
+    },
+    {
+      "utc": "2026-10-11T21:12:39Z",
+      "level": "info",
+      "text": "ocaml-005 rejected.. limit 64: Zen 3 -3.1%; limit 96: Zen 5 +1.9%, Zen 3 +0.4% +-1.0; dense limit stays 128",
       "auto": true
     }
   ],
