@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T08:13:26Z",
+  "updated_utc": "2026-10-11T08:16:33Z",
   "run": {
     "id": "ap-20261011T0645Z",
     "state": "running",
@@ -1624,21 +1624,24 @@
       "entry": "rust-wheel",
       "tier": "extra-faithful",
       "kind": "borrowed",
-      "verdict": "running",
+      "verdict": "kept",
       "hypothesis": "Rust wheel: build group patterns word by word and extend by one copy, as the ISPC wheel does",
       "prediction": "+5% to +8% at 1T (pattern build 14% of the Rust pass, halved)",
       "plain": "If the Rust wheel builds each small prime pattern a whole word at a time instead of bit by bit, then that step gets about twice as fast, because that is how the ISPC wheel does it.",
-      "note": "hc/port-rust-wheel-pat df94b47: Pattern::push zeroes the first period once and sets bit t*p for 64 t with no data-dependent branch (ISPC build_pattern), then one extending copy. Self-test here passes (agent: sweep 0 wrong, DENSE_MAX 0/17/64/1024 clean). Local +4.4% to +5.0% (7/8 pairs); pattern_build 26k -> 13k cycles. Zen 5 + Zen 3 6 rounds"
+      "note": "KEEP (per-thread rule; Zen 3 decided at 4T, A/A clean there): hc/port-rust-wheel-champion = df94b47. Rust wheel vs ISPC wheel now Zen 5 -16.9% 1T (was ~-24%)",
+      "zen5": "+9.2% ± 1.1 1T, +9.0% ± 0.7 4T, +6.0% 16T (6/6)",
+      "zen3": "+6.1% ± 0.9 1T (A/A noisy at 1T), +7.1% ± 1.1 4T, +10.9% 16T (6/6)"
     },
     {
       "id": "r9-cpp-base",
       "entry": "cpp-base",
       "tier": "extra-faithful",
       "kind": "borrowed",
-      "verdict": "running",
+      "verdict": "kept",
       "hypothesis": "C++ base: read GCC dense loop, then bring fold-1pc (16-lane dense when a thread has a core) to C++ if GCC can express it",
       "plain": "If the C++ base uses its widest vector code for small factors when a thread has a core to itself, then it gains as the ISPC base did, because the same change bought 7.5% there.",
-      "note": "hc/port-cpp-base-wide 738377c: GCC already emits 512-bit dense code for P<64 on Zen-like targets; for P 65-127 its vectorisation breaks down (0.55-2.3 instr/word). New dense_wide<P> (GCC vector extension, behind __AVX512F__, one |= per composite per lane, constant masks): 0.34 instr/word at P=113. Used when each thread has a core. Self-test both modes; sweep identical. Local Cascade Lake native -6.8% (zmm downclock), Zen-like build +4.5%. Zen 3 code unchanged (no AVX-512); Zen 5 6 rounds decides (target-specific)"
+      "note": "KEEP (target-specific: Zen 3 code unchanged without AVX-512). Gated on Zen 5 per Chris: hc/port-cpp-base-wide-zen5 558a949 (CPUID family 1Ah) = hc/port-cpp-base-champion; 3-round Zen 5 check of the gated build queued. C++ base vs ISPC base (ctrl) on Zen 5: +0.1% at 1T (was -5%)",
+      "zen5": "+5.9% ± 0.1 1T, +5.6% ± 0.2 4T, +5.7% 8T, -1.3% 16T (recorded) (6/6)"
     },
     {
       "id": "r9-zig-wheel-group",
@@ -1649,7 +1652,9 @@
       "hypothesis": "Zig wheel: write each plane once as tile | 13-pattern instead of a tile copy plus a separate 13 group pass (ISPC IDEAS 12 shape)",
       "prediction": "0 to +4% at 1T (the extra 13 pass is ~2.9k of 61k cycles on Zen 5)",
       "plain": "If the Zig wheel marks 13 while it copies the 7-and-11 tile, then it saves a whole pass over the sieve, because the ISPC wheel does it that way.",
-      "note": "hc/zig-wheel-group 022e479; agent: Zig group loop already equals ISPC per member (13.1 vs 14.3 instr/member/step); self-test 26/26 native and SSE2; local neutral to -2.6% (3 of 4 pairs). AMD screen per Chris rule: Zen 5 + Zen 3 6 rounds"
+      "note": "MORE ROUNDS: Zen 5 clears; Zen 3 1T straddles (lower +0.9%): 8 more Zen 3 rounds (r9-zig-wheel-group-z3b)",
+      "zen5": "+1.8% ± 0.3 1T, +1.7% ± 0.5 4T (6/6)",
+      "zen3": "+2.6% ± 1.6 1T, +1.7% ± 2.6 4T, +1.7% ± 0.3 16T"
     },
     {
       "id": "r9-zig-base",
@@ -1744,7 +1749,7 @@
       "verdict": "running",
       "hypothesis": "Zig wheel: start offsets (and patterns if simple) as comptime tables, run-time fallback beyond them",
       "plain": "If the Zig wheel works out its start positions when it is compiled, as the existing Zig wheel entry does, then each pass skips that work, because the tables do not depend on the sieve size.",
-      "note": "agent building hc/zig-wheel-tables (permitted lineage; borrowed from PrimeZig/solution_3 and our solution_3)"
+      "note": "hc/zig-wheel-tables 0886ddf: comptime start offsets (primes 13..9973, 19.6 KB + 5.3 KB index) and word patterns for all 51 pattern primes 7..251 (63 KB AVX); run-time startBit beyond 10,007; self-test incl. a new 2e8 wheel check (fallback). Binary +94 KB. Local +18.1% (4 pairs). Zen 5 + Zen 3 6 rounds. Permitted lineage"
     }
   ],
   "azure_queue": 0,
@@ -1754,26 +1759,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T06:55:15Z",
-      "level": "decision",
-      "text": "run: phase 0 in flight: AVX-512 check (Zen 4 v6, Intel), 4T line (Zen 5 + a 6-CPU functional run), size cliff (Zen 5, Zen 3, Cobalt; predictions written first), C++ IDEAS 12 re-decided under the new rule. Why: RUN-PLAN phase 0 items 1, 3, 5 and stream 1 step 1; solution_3 and the champion clean-up next.",
-      "id": "run",
-      "what": "phase 0 in flight: AVX-512 check (Zen 4 v6, Intel), 4T line (Zen 5 + a 6-CPU functional run), size cliff (Zen 5, Zen 3, Cobalt; predictions written first), C++ IDEAS 12 re-decided under the new rule",
-      "why": "RUN-PLAN phase 0 items 1, 3, 5 and stream 1 step 1; solution_3 and the champion clean-up next"
-    },
-    {
-      "utc": "2026-10-11T06:55:15Z",
-      "level": "info",
-      "text": "p0-fold-avx512 (base) running: AVX-512 check of fold-1pc (330b3d4 vs 1551635) on Zen 4 with AVX-512 (D16as_v6) and Intel Xeon (D16s_v5)",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T06:55:15Z",
-      "level": "info",
-      "text": "p0-line-4t (both) running: Report exactly 4 threads when the thread loop didn't and the machine has more than 4 (hc/line-4t 365991b)",
-      "auto": true
-    },
     {
       "utc": "2026-10-11T06:55:15Z",
       "level": "info",
@@ -2096,6 +2081,26 @@
       "utc": "2026-10-11T08:08:03Z",
       "level": "info",
       "text": "r9-zig-tables (zig-wheel) running: Zig wheel: start offsets (and patterns if simple) as comptime tables, run-time fallback beyond them",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T08:16:33Z",
+      "level": "decision",
+      "text": "run: keep Rust wheel pattern build and C++ base wide (gated on Zen 5); Zig 13-fold gets 8 Zen 3 rounds; Zig tables to Zen 5 + Zen 3. Why: per-thread rule: Rust clears at 1T/4T on both Zens; the C++ base change is target-specific (Zen 3 unchanged) and +5.9% on Zen 5; Zig 13-fold straddles only on Zen 3 1T.",
+      "id": "run",
+      "what": "keep Rust wheel pattern build and C++ base wide (gated on Zen 5); Zig 13-fold gets 8 Zen 3 rounds; Zig tables to Zen 5 + Zen 3",
+      "why": "per-thread rule: Rust clears at 1T/4T on both Zens; the C++ base change is target-specific (Zen 3 unchanged) and +5.9% on Zen 5; Zig 13-fold straddles only on Zen 3 1T"
+    },
+    {
+      "utc": "2026-10-11T08:16:33Z",
+      "level": "info",
+      "text": "r9-rust-wheel-pat kept.. KEEP (per-thread rule; Zen 3 decided at 4T, A/A clean there): hc/port-rust-wheel-champion = df94b47. Rust wheel vs ISPC wheel now Zen 5 -16.9% 1T (was ~-24%)",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T08:16:33Z",
+      "level": "info",
+      "text": "r9-cpp-base kept.. KEEP (target-specific: Zen 3 code unchanged without AVX-512). Gated on Zen 5 per Chris: hc/port-cpp-base-wide-zen5 558a949 (CPUID family 1Ah) = hc/port-cpp-base-champion; 3-round Zen 5 check of the gated build queued. C++ base vs ISPC base (ctrl) on Zen 5: +0.1% at 1T (was -5%)",
       "auto": true
     }
   ],
