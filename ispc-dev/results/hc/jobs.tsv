@@ -269,3 +269,6 @@ id	pool	size	kind	outdir	submitted	state
 2100294570	hc-standard-d16as-v7	Standard_D16as_v7	ocaml	ispc-dev/results/hc/ox-007-sparse	2026-10-11T21:00:41Z	open
 21004715481	hc-standard-d16a-v4	Standard_D16a_v4	ocaml	ispc-dev/results/hc/ox-007-sparse	2026-10-11T21:00:58Z	open
 21010626271	hc-standard-d4ps-v6	Standard_D4ps_v6	ocaml	ispc-dev/results/hc/ox-007-sparse	2026-10-11T21:01:16Z	open
+21035018488	hc-standard-d16as-v7	Standard_D16as_v7	ocaml	ispc-dev/results/hc/ox-008-x86-untagged	2026-10-11T21:04:01Z	open
+21040921301	hc-standard-d16a-v4	Standard_D16a_v4	ocaml	ispc-dev/results/hc/ox-008-x86-untagged	2026-10-11T21:04:20Z	open
+2104267467	hc-standard-d4ps-v6	Standard_D4ps_v6	ocaml	ispc-dev/results/hc/ox-008-x86-untagged	2026-10-11T21:04:37Z	open
