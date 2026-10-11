@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T20:31:14Z",
+  "updated_utc": "2026-10-11T20:31:29Z",
   "run": {
     "id": "ap-20261011T1929Z",
     "state": "running",
@@ -13,7 +13,7 @@
     "ends_utc": "2026-10-12T01:29:00Z",
     "background_runs": 14,
     "last_tick_utc": "2026-10-11T20:30:37Z",
-    "wakeup": "trig_01C9VueTxWfMx5sdkckZNcSU"
+    "wakeup": "trig_013opCzrycmk4RsdPDooeU9b"
   },
   "current": {
     "id": "ox-003",
