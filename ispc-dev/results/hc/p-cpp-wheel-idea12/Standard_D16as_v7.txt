@@ -1,0 +1,69 @@
+Architecture:                            x86_64
+CPU(s):                                  16
+Model name:                              AMD EPYC 9V45 96-Core Processor
+BIOS Model name:                         AMD EPYC 9V45 96-Core Processor                 None CPU @ 2.6GHz
+AVX-512: yes
+kind=port rounds=6 id=01190717730
+build cand
+build champ
+build ctx
+self-test cand: 8 ok, 0 bad, exit=0
+self-test champ: 8 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-cpp-wheel;181479;5.000022;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-cpp-wheel;1354385;5.000191;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-cpp-wheel;1319008;5.000094;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-cpp-wheel;715983;5.000031;4;algorithm=wheel,faithful=yes,bits=1
+== round warmup champ
+cauldnz-cpp-wheel;170638;5.000021;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-cpp-wheel;1354596;5.000251;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-cpp-wheel;1261208;5.000089;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-cpp-wheel;680497;5.000045;4;algorithm=wheel,faithful=yes,bits=1
+== round warmup champ2
+cauldnz-cpp-wheel;171101;5.000019;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-cpp-wheel;1349796;5.000201;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-cpp-wheel;1263019;5.000082;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-cpp-wheel;680511;5.000040;4;algorithm=wheel,faithful=yes,bits=1
+== round warmup ctrl
+cauldnz-ispc;222392;5.000015;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1633163;5.000195;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1636445;5.000093;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;883868;5.000053;4;algorithm=wheel,faithful=yes,bits=1
+== round warmup ctrl2
+rogiervandam_extend_epar;1157907;5.000022;16;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;959188;5.000007;8;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;507900;5.000017;4;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;276988;5.000010;2;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend;139145;5.000010;1;algorithm=other,faithful=yes,bits=1
+== round 1 ctrl
+cauldnz-ispc;221687;5.000015;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1632839;5.000170;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1634314;5.000081;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;878161;5.000043;4;algorithm=wheel,faithful=yes,bits=1
+== round 1 champ2
+cauldnz-cpp-wheel;170238;5.000024;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-cpp-wheel;1363448;5.000185;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-cpp-wheel;1264276;5.000074;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-cpp-wheel;681923;5.000050;4;algorithm=wheel,faithful=yes,bits=1
+== round 1 ctrl2
+rogiervandam_extend_epar;1158388;5.000023;16;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;961517;5.000016;8;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;508891;5.000033;4;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;276588;5.000025;2;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend;139087;5.000012;1;algorithm=other,faithful=yes,bits=1
+== round 1 cand
+cauldnz-cpp-wheel;180957;5.000010;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-cpp-wheel;1354993;5.000170;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-cpp-wheel;1316717;5.000081;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-cpp-wheel;716196;5.000052;4;algorithm=wheel,faithful=yes,bits=1
+== round 1 champ
+cauldnz-cpp-wheel;170807;5.000005;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-cpp-wheel;1356689;5.000187;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-cpp-wheel;1261168;5.000075;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-cpp-wheel;681577;5.000052;4;algorithm=wheel,faithful=yes,bits=1
+== round 2 champ2
+cauldnz-cpp-wheel;168679;5.000003;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-cpp-wheel;1357209;5.000189;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-cpp-wheel;1261360;5.000093;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-cpp-wheel;681615;5.000039;4;algorithm=wheel,faithful=yes,bits=1
+== round 2 champ

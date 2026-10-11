@@ -1,0 +1,43 @@
+Architecture:                            x86_64
+CPU(s):                                  16
+Model name:                              AMD EPYC 9V45 96-Core Processor
+BIOS Model name:                         AMD EPYC 9V45 96-Core Processor                 None CPU @ 2.6GHz
+AVX-512: yes
+kind=port rounds=6 id=01193924915
+build cand
+build champ
+build ctx
+self-test cand: 9 ok, 0 bad, exit=0
+self-test champ: 9 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-rust-wheel;178745;5.000015;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-rust-wheel;1300626;5.000355;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-rust-wheel;1306779;5.000131;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-rust-wheel;699549;5.000075;4;algorithm=wheel,faithful=yes,bits=1
+== round warmup champ
+cauldnz-rust-wheel;179724;5.000007;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-rust-wheel;1312619;5.000296;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-rust-wheel;1309511;5.000127;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-rust-wheel;681995;5.000061;4;algorithm=wheel,faithful=yes,bits=1
+== round warmup champ2
+cauldnz-rust-wheel;177700;5.000020;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-rust-wheel;1302381;5.000290;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-rust-wheel;1309193;5.000139;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-rust-wheel;682989;5.000057;4;algorithm=wheel,faithful=yes,bits=1
+== round warmup ctrl
+cauldnz-ispc;222500;5.000004;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1628248;5.000197;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;1633571;5.000088;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-ispc;882982;5.000042;4;algorithm=wheel,faithful=yes,bits=1
+== round warmup ctrl2
+rogiervandam_extend_epar;1153081;5.000030;16;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;960466;5.000025;8;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;507243;5.000008;4;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend_epar;276932;5.000020;2;algorithm=other,faithful=yes,bits=1
+rogiervandam_extend;139240;5.000009;1;algorithm=other,faithful=yes,bits=1
+== round 1 cand
+cauldnz-rust-wheel;177657;5.000022;1;algorithm=wheel,faithful=yes,bits=1
+cauldnz-rust-wheel;1300141;5.000360;16;algorithm=wheel,faithful=yes,bits=1
+cauldnz-rust-wheel;1306829;5.000160;8;algorithm=wheel,faithful=yes,bits=1
+cauldnz-rust-wheel;692721;5.000071;4;algorithm=wheel,faithful=yes,bits=1
+== round 1 ctrl2
