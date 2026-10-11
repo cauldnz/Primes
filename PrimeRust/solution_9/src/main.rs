@@ -116,7 +116,8 @@ impl Sieve {
                     match p {
                         // 3 is always the first factor: its pass initialises the buffer.
                         3 => clear_dense::<3, true>(w, n),
-                        $($p => clear_dense::<$p, false>(w, n),)*
+                        $($p if $p < PERIOD_LIMIT => clear_dense_period::<$p, false>(w, n),
+                          $p => clear_dense::<$p, false>(w, n),)*
                         _ => unreachable!("even factor {p}"),
                     }
                 };
@@ -160,6 +161,71 @@ impl<const P: usize> Dense<P> {
         }
         m
     };
+
+    /// One period (P words, 64 multiples) as single words: `WORD[k]` sets each multiple in
+    /// word k of a period with its own single-bit OR, at compile time.
+    const WORD: [u64; P] = {
+        let mut m = [0u64; P];
+        let mut j = 0;
+        while j < 64 {
+            let t = P / 2 + j * P; // bit of the multiple P(2j + 1)
+            m[t >> 6] |= 1u64 << (t & 63); // one composite
+            j += 1;
+        }
+        m
+    };
+}
+
+/// Factors below this clear one period per iteration (`clear_dense_period`); the rest use
+/// runs of four periods (`clear_dense`).
+const PERIOD_LIMIT: usize = 64;
+
+/// Dense clearing one period of P words per iteration, for 5 <= P < 64. The idea is
+/// mike-barber's (PrimeRust/solution_1, `extreme_reset`, with GordonBGood): a period of a small
+/// factor needs only about P/4 mask vectors, so they stay in registers for the whole loop and
+/// the loop body loads nothing but the sieve. The four-period runs of `clear_dense` need P
+/// distinct mask vectors, which for P above about 13 are reloaded from a table on every run.
+/// Here each period is P/4 unaligned `[u64; 4]` ORs plus one to three single words; every
+/// composite still gets its own single-bit OR in the compile-time `WORD` table.
+///
+/// # Safety
+/// As for `clear_dense`.
+#[inline(never)]
+unsafe fn clear_dense_period<const P: usize, const INIT: bool>(w: *mut u64, nwords: usize) {
+    #[inline(always)]
+    unsafe fn or_period<const P: usize, const INIT: bool>(q: *mut u64, len: usize) {
+        let m = &Dense::<P>::WORD;
+        let mut k = 0;
+        while k + 4 <= len {
+            let a = q.add(k) as *mut [u64; 4];
+            let mut x = if INIT { [0; 4] } else { a.read_unaligned() };
+            for l in 0..4 {
+                x[l] |= m[k + l];
+            }
+            a.write_unaligned(x);
+            k += 4;
+        }
+        while k < len {
+            let a = q.add(k);
+            *a = if INIT { 0 } else { *a } | m[k];
+            k += 1;
+        }
+    }
+
+    let c0 = (P * P / 2) / 64 / P * P;
+    debug_assert!(c0 < nwords);
+    let periods = (nwords - c0) / P;
+    let mut q = w.add(c0);
+    // SAFETY: each period covers P words that end at or before nwords.
+    for _ in 0..periods {
+        or_period::<P, INIT>(q, P);
+        q = q.add(P);
+    }
+    or_period::<P, INIT>(q, nwords - c0 - periods * P);
+    let f = P / 2; // P itself is prime
+    if f >> 6 < nwords {
+        *w.add(f >> 6) &= !(1u64 << (f & 63));
+    }
 }
 
 /// Dense clearing for a compile-time odd factor P. Periods of P words start at word multiples
