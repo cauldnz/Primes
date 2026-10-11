@@ -1,2 +1,4 @@
 gen_tables
 primes_tables.h
+primes
+*.o
