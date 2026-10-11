@@ -289,39 +289,66 @@ impl Sieve {
     fn run(&mut self) {
         let (nw, pw) = (self.nw, self.pw);
 
-        // Phase 1: the wheel tile. Multiples of 7 and 11 repeat every 77 words in every plane,
-        // so mark one period, starting from 7 and 11 themselves to keep it periodic, and copy
-        // it along the plane. This writes every word of every plane, padding included.
-        let t = TILE.min(nw);
-        self.build_group(&[7, 11]);
+        // Phase 1: the wheel tile and 13. Multiples of 7 and 11 repeat every 77 words in every
+        // plane, so mark one period, starting from 7 and 11 themselves to keep it periodic. Each
+        // plane is then written in one pass, tile word OR 13's pattern word, padding included.
+        // 13's pattern starts at the plane's first word, so it also marks 13 itself and 91 and
+        // 143 (already marked by 7 and 11). 7, 11 and 13 are then unmarked. Afterwards every
+        // bit below 17*17 is final.
+        self.build_group(&[7, 11, 13]);
+        let p13 = self.group[2];
         let pad = self.words.as_ptr().align_offset(64);
         self.words.resize(pad, 0);
         self.base = pad;
-        let mut tile = [0u64; TILE + VW];
+        let mut tile = [0u64; TILE + 2 * VW];
         for &r in &RES {
             tile.fill(0);
             let b = [start_bit(7, r, 1), start_bit(11, r, 1)];
             apply_group::<2>(
                 &mut tile,
-                t,
+                TILE,
                 &self.rows,
                 self.group[..2].try_into().unwrap(),
                 &b,
             );
-            let mut left = nw;
-            while left > 0 {
-                let n = left.min(t);
-                self.words.extend_from_slice(&tile[..n]);
-                left -= n;
+            tile.copy_within(..VW, TILE);
+            // 13's phase at word 0
+            let b13 = start_bit(13, r, 13);
+            let back = (b13 >> 6) % p13.period;
+            let t13 = usize::from(p13.tab[b13 & 63]);
+            let mut r13 = p13.first
+                + if t13 >= back {
+                    t13 - back
+                } else {
+                    t13 + p13.period - back
+                };
+            let end13 = p13.first + p13.period;
+            let mut rt = 0;
+            let mut k = 0;
+            while k < nw {
+                let a: &[u64; VW] = tile[rt..rt + VW].try_into().unwrap();
+                let c: &[u64; VW] = self.rows[r13..r13 + VW].try_into().unwrap();
+                let mut v = [0u64; VW];
+                for i in 0..VW {
+                    v[i] = a[i] | c[i];
+                }
+                self.words.extend_from_slice(&v[..VW.min(nw - k)]);
+                rt += VW;
+                if rt >= TILE {
+                    rt -= TILE;
+                }
+                r13 += VW;
+                if r13 >= end13 {
+                    r13 -= p13.period;
+                }
+                k += VW;
             }
             self.words.resize(self.words.len() + pw - nw, 0);
         }
         self.plane_mut(0)[0] |= 1; // 1 is not prime
         self.clear_bit(7);
         self.clear_bit(11);
-
-        // Phase 2: 13 on its own. Afterwards every bit below 17*17 is final.
-        self.dense_primes(&[13]);
+        self.clear_bit(13);
 
         // Phase 3: the remaining primes up to sqrt(size), small ones as fused pattern groups,
         // large ones as single bits. A candidate is read only once every prime up to its square
