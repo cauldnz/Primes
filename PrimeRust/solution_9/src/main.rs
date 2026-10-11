@@ -14,6 +14,12 @@
 //!   compile-time mask vector into each `[u64; 4]`.
 //! * Sparse (larger factors): eight multiples repeat every p bytes, each at a fixed bit. The
 //!   byte offsets are computed per factor; the eight masks are const generics chosen by p mod 16.
+//!
+//! Sweep direction alternates by factor: the first factor (3) sweeps the sieve from the low end
+//! up, the next from the high end down, and so on. A descending sweep visits the same composites
+//! as an ascending one, each with its own single-bit OR and stepping 2 x factor, from the last
+//! multiple below the sieve end down to the period holding factor squared. The end of one sweep
+//! is the start of the next, so that part of the sieve is still in cache.
 
 use std::alloc::{self, Layout};
 use std::env;
@@ -77,6 +83,7 @@ impl Sieve {
             q -= 1;
         }
         let mut factor = 3u64;
+        let mut down = false; // 3 sweeps up; then the direction alternates
         while factor <= q {
             let mut i = (factor >> 1) as usize;
             while i < self.nbits && self.is_composite(i) {
@@ -86,19 +93,34 @@ impl Sieve {
             if factor > q {
                 break;
             }
-            self.clear_factor(factor as usize);
+            self.clear_factor(factor as usize, down);
+            down = !down;
             factor += 2;
         }
     }
 
-    /// Clear all odd multiples of `p`, from p², with one single-bit OR per composite.
-    fn clear_factor(&mut self, p: usize) {
+    /// Clear all odd multiples of `p`, from p², with one single-bit OR per composite, from the
+    /// bottom up or (`down`) from the top down.
+    fn clear_factor(&mut self, p: usize, down: bool) {
         let w = self.words.as_ptr();
         let n = self.nwords;
         // SAFETY (all arms): p is odd, p >= 3 and p² <= size, which is what the resetters need.
         unsafe {
             if p >= DENSE_LIMIT {
                 let b = w as *mut u8;
+                if down {
+                    match p & 15 {
+                        1 => clear_sparse_down::<1>(b, n * 8, p),
+                        3 => clear_sparse_down::<3>(b, n * 8, p),
+                        5 => clear_sparse_down::<5>(b, n * 8, p),
+                        7 => clear_sparse_down::<7>(b, n * 8, p),
+                        9 => clear_sparse_down::<9>(b, n * 8, p),
+                        11 => clear_sparse_down::<11>(b, n * 8, p),
+                        13 => clear_sparse_down::<13>(b, n * 8, p),
+                        _ => clear_sparse_down::<15>(b, n * 8, p),
+                    }
+                    return;
+                }
                 match p & 15 {
                     1 => clear_sparse::<1>(b, n * 8, p),
                     3 => clear_sparse::<3>(b, n * 8, p),
@@ -114,8 +136,9 @@ impl Sieve {
             macro_rules! dense {
                 ($($p:literal)*) => {
                     match p {
-                        // 3 is always the first factor: its pass initialises the buffer.
+                        // 3 is always the first factor, upward: its pass initialises the buffer.
                         3 => clear_dense::<3, true>(w, n),
+                        $($p if down => clear_dense_down::<$p>(w, n),)*
                         $($p => clear_dense::<$p, false>(w, n),)*
                         _ => unreachable!("even factor {p}"),
                     }
@@ -212,6 +235,51 @@ unsafe fn clear_dense<const P: usize, const INIT: bool>(w: *mut u64, nwords: usi
     }
 }
 
+/// Descending form of `clear_dense` (never the `INIT` pass): the same composites, visited top
+/// down. The partial last run goes first, its single words and then its vectors from the top
+/// one down; then the whole runs from the highest down to the one starting at the period that
+/// holds P², each one vector at a time from its top vector down.
+///
+/// # Safety
+/// As for `clear_dense`, with every word initialised.
+#[inline(never)]
+unsafe fn clear_dense_down<const P: usize>(w: *mut u64, nwords: usize) {
+    #[inline(always)]
+    unsafe fn or4<const P: usize>(a: *mut u64, v: usize) {
+        let a = a as *mut [u64; 4];
+        let mut x = a.read_unaligned();
+        let m = Dense::<P>::MASKS[v];
+        for l in 0..4 {
+            x[l] |= m[l];
+        }
+        a.write_unaligned(x);
+    }
+
+    let c0 = (P * P / 2) / 64 / P * P;
+    debug_assert!(c0 < nwords);
+    let runs = (nwords - c0) / (4 * P);
+    // SAFETY: the partial last run lies between c0 + runs * 4P and nwords; each whole run
+    // covers 4P words that end at or before nwords.
+    let mut q = w.add(c0 + runs * 4 * P);
+    let left = nwords - c0 - runs * 4 * P;
+    let v = left / 4;
+    for l in (0..left % 4).rev() {
+        *q.add(4 * v + l) |= Dense::<P>::MASKS[v][l];
+    }
+    for v in (0..left / 4).rev() {
+        or4::<P>(q.add(4 * v), v);
+    }
+    for _ in 0..runs {
+        q = q.sub(4 * P);
+        for v in (0..P).rev() {
+            or4::<P>(q.add(4 * v), v);
+        }
+    }
+    let f = P / 2; // P itself is prime
+    if f >> 6 < nwords {
+        *w.add(f >> 6) &= !(1u64 << (f & 63));
+    }
+}
 
 /// The eight single-bit byte masks for factors p with p mod 16 = E: the multiple p(2j + 1) sits
 /// at bit p/2 + jp, whose position within its byte is (E/2 + jE) mod 8.
@@ -273,6 +341,51 @@ unsafe fn clear_sparse<const E: usize>(b: *mut u8, nbytes: usize, p: usize) {
             break;
         }
         *q.add(o[j]) |= m[j];
+    }
+}
+
+/// Descending form of `clear_sparse`: the partial last chunk first, then the whole chunks from
+/// the highest down to the one holding p², each top down.
+///
+/// # Safety
+/// As for `clear_sparse`.
+#[inline(always)]
+unsafe fn clear_sparse_down<const E: usize>(b: *mut u8, nbytes: usize, p: usize) {
+    debug_assert_eq!(p & 15, E);
+    let m = SparseMasks::<E>::M;
+    let h = p / 2;
+    let o = [
+        h >> 3,
+        (h + p) >> 3,
+        (h + 2 * p) >> 3,
+        (h + 3 * p) >> 3,
+        (h + 4 * p) >> 3,
+        (h + 5 * p) >> 3,
+        (h + 6 * p) >> 3,
+        (h + 7 * p) >> 3,
+    ];
+    let s0 = (p * p / 2) / 8 / p * p;
+    debug_assert!(s0 < nbytes);
+    let chunks = (nbytes - s0) / p;
+    // SAFETY: as in `clear_sparse`: the partial chunk writes only offsets below `left`, and the
+    // whole chunks end at or before `nbytes`.
+    let mut q = b.add(s0 + chunks * p);
+    let left = nbytes - s0 - chunks * p;
+    for j in (0..8).rev() {
+        if o[j] < left {
+            *q.add(o[j]) |= m[j];
+        }
+    }
+    for _ in 0..chunks {
+        q = q.sub(p);
+        *q.add(o[7]) |= m[7]; // one composite each
+        *q.add(o[6]) |= m[6];
+        *q.add(o[5]) |= m[5];
+        *q.add(o[4]) |= m[4];
+        *q.add(o[3]) |= m[3];
+        *q.add(o[2]) |= m[2];
+        *q.add(o[1]) |= m[1];
+        *q.add(o[0]) |= m[0];
     }
 }
 
