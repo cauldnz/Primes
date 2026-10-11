@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T22:07:46Z",
+  "updated_utc": "2026-10-11T22:10:30Z",
   "run": {
     "id": "ap-20261011T1929Z",
     "state": "running",
@@ -2148,6 +2148,17 @@
       "prediction": "+0% to +4% over 997f71f at 1T",
       "verdict": "running",
       "commit": "af2adaf"
+    },
+    {
+      "id": "ox-017",
+      "entry": "oxcaml",
+      "title": "x86 pattern build: vector zeroing, untagged bit ORs",
+      "tier": "extra-faithful",
+      "kind": "novel",
+      "plain": "If the pattern buffer is cleared with wide vector stores and the 256 bits are set with untagged arithmetic, then building each small prime pattern gets cheaper, because the old build used a byte fill and tagged shifts.",
+      "prediction": "+1% to +4% over 997f71f at 1T",
+      "verdict": "running",
+      "commit": "2d1ae49"
     }
   ],
   "azure_queue": 0,
@@ -2157,22 +2168,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T21:00:43Z",
-      "level": "decision",
-      "text": "ocaml-006: background agent: plain OCaml sieve in a word-indexed Int64 Bigarray (ocaml-006, on 0aaa340). Why: the plain line's profile change 2 (11 to 7 instructions per dense word); the dense loop is still the biggest plain phase, and the plain line needs its own climb for the gap record. Passed over: porting ox-003's SIMD, which plain OCaml can't express. Expect: +5% to +15% at 1T, GC cost to check.",
-      "id": "ocaml-006",
-      "what": "background agent: plain OCaml sieve in a word-indexed Int64 Bigarray (ocaml-006, on 0aaa340)",
-      "why": "the plain line's profile change 2 (11 to 7 instructions per dense word); the dense loop is still the biggest plain phase, and the plain line needs its own climb for the gap record",
-      "instead": "porting ox-003's SIMD, which plain OCaml can't express",
-      "expect": "+5% to +15% at 1T, GC cost to check"
-    },
-    {
-      "utc": "2026-10-11T21:01:18Z",
-      "level": "info",
-      "text": "ox-007 (oxcaml) running: ",
-      "auto": true
-    },
     {
       "utc": "2026-10-11T21:04:37Z",
       "level": "decision",
@@ -2510,6 +2505,21 @@
       "utc": "2026-10-11T22:07:46Z",
       "level": "info",
       "text": "ox-016 (oxcaml) running: ",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T22:10:30Z",
+      "level": "decision",
+      "text": "ox-017: submit 2d1ae49 vs 997f71f on Zen 5, Zen 3 and Cobalt. Why: rebuilt here, PRIMES_TEST=1 exits 0; read build_pattern: zeroing by p 256-bit stores (x xor x of an unread load), then still 256 single-bit ORs, one per multiple; dense_pattern 17.5 to 11.3 us locally, pass +3%. Arm code was moved into scalar/dense.ml, so the Arm binary is not byte-identical: Cobalt runs it. Expect: +1% to +4%.",
+      "id": "ox-017",
+      "what": "submit 2d1ae49 vs 997f71f on Zen 5, Zen 3 and Cobalt",
+      "why": "rebuilt here, PRIMES_TEST=1 exits 0; read build_pattern: zeroing by p 256-bit stores (x xor x of an unread load), then still 256 single-bit ORs, one per multiple; dense_pattern 17.5 to 11.3 us locally, pass +3%. Arm code was moved into scalar/dense.ml, so the Arm binary is not byte-identical: Cobalt runs it",
+      "expect": "+1% to +4%"
+    },
+    {
+      "utc": "2026-10-11T22:10:30Z",
+      "level": "info",
+      "text": "ox-017 (oxcaml) running: ",
       "auto": true
     }
   ],
