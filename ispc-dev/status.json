@@ -1,18 +1,18 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T04:39:51Z",
+  "updated_utc": "2026-10-11T06:43:57Z",
   "run": {
-    "id": "ap-20261011T0100Z",
-    "state": "stopped",
+    "id": "ap-20261011T0645Z",
+    "state": "running",
     "mode": "azure",
-    "mode_reason": "Chris kicked off a 4-hour run (RUN-PLAN.md: finish and freeze ISPC, then climb the C++, Rust and Zig ports alike); cached Azure login works, no pools up.",
-    "started_utc": "2026-10-11T01:00:00Z",
-    "time_box_hours": 4,
-    "spend_nzd": 6.31,
-    "spend_cap_nzd": 30,
-    "ends_utc": "2026-10-11T05:00:00Z",
+    "mode_reason": "Chris started run 9 in the same conversation (RUN-PLAN 16:50: size stream, submission-ready phase 0, fixed port shares). Azure via the container's cached service-principal login (the env secret was not used); Batch account and group set inline for this session.",
+    "started_utc": "2026-10-11T06:45:00Z",
+    "time_box_hours": 6,
+    "spend_nzd": 0,
+    "spend_cap_nzd": 25,
+    "ends_utc": "2026-10-11T12:45:00Z",
     "background_runs": 0,
-    "last_tick_utc": "2026-10-11T04:38:33Z",
+    "last_tick_utc": null,
     "wakeup": null
   },
   "current": null,
@@ -1557,18 +1557,6 @@
     {
       "utc": "2026-10-11T02:33:47Z",
       "level": "info",
-      "text": "s6-wheel-210 rejected.. Zen 5 screen confirms the local loss (local -30%, Zen 5 -40%)",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T02:33:47Z",
-      "level": "info",
-      "text": "p-cpp-base-clang rejected.. Zen 5 screen: far worse than locally (-15%); clang 18 must miscompile or de-vectorise a hot loop of the C++ base; worth a look only if the C++ base climbs again",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T02:33:47Z",
-      "level": "info",
       "text": "p-cpp-wheel-clang kept.. KEEP: hc/port-cpp-wheel-champion = 3c98356 (alignment fix + clang++). Zen 3 1T over the 20% bar: 3-round Zen 3 recheck queued. vs our ISPC wheel: Zen 3 +8.7% 1T, Zen 5 -9.1% 1T, -0.7% 16T. vs C wheel (ctrl2): +45% to +88%",
       "auto": true
     },
@@ -1884,6 +1872,17 @@
       "level": "info",
       "text": "sb-base-z5-20-new (base) confirmed: Scoreboard: hc/champion 330b3d4 base against mike-barber on Zen 5, 20 paired rounds",
       "auto": true
+    },
+    {
+      "utc": "2026-10-11T06:43:57Z",
+      "level": "info",
+      "text": "Run ap-20261011T0645Z started. Keep rule in force: per-thread (HILL-CLIMB.md, Chris 11 Oct 16:50): decide on passes/s/thread at 1T and 4T on Zen 5 and Zen 3 (lower bound >= +1% at 1T or 4T, neither losing 1%+); Intel AVX2 and Cobalt are gates; all-threads recorded, not decided. Azure on the cached login; NZ$25 cap; 6 h; no clear (continues run 8's conversation)."
+    },
+    {
+      "utc": "2026-10-11T06:43:58Z",
+      "level": "info",
+      "text": "Run ap-20261011T0645Z started (azure mode).",
+      "auto": true
     }
   ],
   "research": {
@@ -2050,12 +2049,12 @@
     },
     "climber": {
       "totals": {
-        "calls": 3688,
-        "fresh": 7496,
-        "write": 8581645,
-        "read": 932182781,
-        "output": 1292781,
-        "total": 942064703
+        "calls": 4415,
+        "fresh": 8980,
+        "write": 10177724,
+        "read": 1054830771,
+        "output": 1504442,
+        "total": 1066521917
       },
       "runs": {
         "ap-20261009T0607Z": {
@@ -2113,9 +2112,16 @@
           "write": 3233842,
           "read": 207485510,
           "output": 353905
+        },
+        "ap-20261011T0100Z": {
+          "calls": 727,
+          "fresh": 1484,
+          "write": 1596079,
+          "read": 122647990,
+          "output": 211661
         }
       },
-      "updated_utc": "2026-10-11T04:38:34Z"
+      "updated_utc": "2026-10-11T06:43:58Z"
     }
   }
 }

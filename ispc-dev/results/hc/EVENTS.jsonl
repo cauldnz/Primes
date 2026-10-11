@@ -656,3 +656,5 @@
 {"utc": "2026-10-11T04:39:51Z", "level": "warn", "text": "Redacted the Batch account name from an older STATUS.md line (it remains in git history; flagged for Chris)."}
 {"utc": "2026-10-11T04:39:57Z", "level": "info", "text": "Run ap-20261011T0100Z is stopped; spend NZ$6.31.", "auto": true}
 {"utc": "2026-10-11T04:39:57Z", "level": "info", "text": "sb-base-z5-20-new (base) confirmed: Scoreboard: hc/champion 330b3d4 base against mike-barber on Zen 5, 20 paired rounds", "auto": true}
+{"utc": "2026-10-11T06:43:57Z", "level": "info", "text": "Run ap-20261011T0645Z started. Keep rule in force: per-thread (HILL-CLIMB.md, Chris 11 Oct 16:50): decide on passes/s/thread at 1T and 4T on Zen 5 and Zen 3 (lower bound >= +1% at 1T or 4T, neither losing 1%+); Intel AVX2 and Cobalt are gates; all-threads recorded, not decided. Azure on the cached login; NZ$25 cap; 6 h; no clear (continues run 8's conversation)."}
+{"utc": "2026-10-11T06:43:58Z", "level": "info", "text": "Run ap-20261011T0645Z started (azure mode).", "auto": true}
