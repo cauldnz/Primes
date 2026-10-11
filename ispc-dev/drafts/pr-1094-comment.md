@@ -4,7 +4,7 @@ submitted.
 
 1. **Sizes above about 1.018 million give wrong counts.** `WheelSieve.init` sizes the buffer at
    run time, but `large_primes` stops at 997, so `applyLarge` has nothing to strike once
-   √limit passes 1,009 (limit ≥ 1,018,081). Not a problem at 1,000,000, but an assertion that
+   √limit reaches 1,009 (limit ≥ 1,018,081). Not a problem at 1,000,000, but an assertion that
    `isqrt(sieve_limit) < 1009`, or tables built from the limit, would make the limit explicit.
 
 2. **The multi-thread line uses at most 32 threads.** `benchParallel` caps at `counters.len` (32),
