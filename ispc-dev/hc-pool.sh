@@ -12,7 +12,7 @@
 # Usage (needs SUB, az logged in; run from anywhere in the repo):
 #   hc-pool.sh up <size> [maxnodes=2] [minutes=240]     create the pool (idempotent)
 #   hc-pool.sh run <size> <kind> <cand-ref> <champ-ref> <outdir> [rounds=5]
-#        kind: wheel | base | rust | zig | port | board (port: see PORT_DIR in cmd_submit). Submits one task and follows it until it completes,
+#        kind: wheel | base | rust | zig | port | board | oxbuild | ocaml (port: see PORT_DIR in cmd_submit). Submits one task and follows it until it completes,
 #        copying its stdout to <outdir>/<size>.txt as it grows.
 #   hc-pool.sh submit <size> <kind> <cand-ref> <champ-ref> <outdir> [rounds=5]
 #        Same as run, but returns as soon as the task is queued. The task is recorded in
@@ -55,7 +55,7 @@ st() { az storage "$@" --account-name "$SA" --account-key "$SAKEY"; }
 START='set -e
 export DEBIAN_FRONTEND=noninteractive DOCKER_BUILDKIT=1
 APT="apt-get -o DPkg::Lock::Timeout=600 -qq"
-$APT update && $APT install -y docker.io docker-buildx git >/dev/null
+$APT update && $APT install -y docker.io docker-buildx git zstd >/dev/null
 cd /root && rm -rf Primes && git clone -q --depth 1 -b drag-race https://github.com/PlummersSoftwareLLC/Primes.git
 cd Primes
 docker build -q -t rust PrimeRust/solution_1 >/dev/null
@@ -72,6 +72,26 @@ export DOCKER_BUILDKIT=1
 lscpu | grep -E "Model name|^CPU\(s\)|^Architecture" || true
 grep -q avx512f /proc/cpuinfo && echo "AVX-512: yes" || echo "AVX-512: no"
 echo "kind=$KIND rounds=$ROUNDS id=$ID"
+need_zstd() { command -v zstd >/dev/null || apt-get -o DPkg::Lock::Timeout=600 -qq install -y zstd >/dev/null; }
+if [ -f "$STAGE/oxbuild" ]; then   # oxbuild kind: build the OxCaml toolchain image, time it, save it to storage
+  need_zstd; t0=$(date +%s); echo "oxbuild start $(date -u +%T)"; rc=0
+  docker build --progress=plain -t oxcaml:5.2.0-ox "$STAGE/tool" > "$AZ_BATCH_TASK_WORKING_DIR/build.log" 2>&1 || rc=$?
+  grep -E "switch build seconds|DONE [0-9]|ERROR|architecture|flambda|^#[0-9]+ [0-9.]+ [0-9]" "$AZ_BATCH_TASK_WORKING_DIR/build.log" | tail -80
+  echo "image build seconds: $(( $(date +%s) - t0 )) rc=$rc"
+  [ "$rc" = 0 ] || { tail -150 "$AZ_BATCH_TASK_WORKING_DIR/build.log"; echo "!!! oxbuild failed"; exit 6; }
+  docker image ls oxcaml; t1=$(date +%s)
+  docker save oxcaml:5.2.0-ox | zstd -q -T0 -6 > "$AZ_BATCH_TASK_WORKING_DIR/img.tar.zst"
+  ls -l "$AZ_BATCH_TASK_WORKING_DIR/img.tar.zst"; echo "save seconds: $(( $(date +%s) - t1 ))"
+  code=$(curl -sS -o /dev/null -w "%{http_code}" -X PUT -H "x-ms-blob-type: BlockBlob" -H "x-ms-version: 2021-08-06" \
+         --upload-file "$AZ_BATCH_TASK_WORKING_DIR/img.tar.zst" "$(cat "$STAGE/upload.url")")
+  echo "upload http $code"; [ "$code" = 201 ] || exit 7
+  exit 0
+fi
+if [ -f "$STAGE/oxcaml.url" ] && grep -qs oxcaml "$STAGE/cand/Dockerfile" "$STAGE/champ/Dockerfile" && ! docker image inspect oxcaml:5.2.0-ox >/dev/null 2>&1; then
+  need_zstd; t0=$(date +%s)
+  curl -fsS "$(cat "$STAGE/oxcaml.url")" | zstd -dq | docker load >/dev/null || { echo "!!! oxcaml image load failed"; exit 5; }
+  echo "oxcaml image loaded in $(( $(date +%s) - t0 )) s"
+fi
 for d in cand champ ctx ctx3; do
   [ -d "$STAGE/$d" ] || continue
   echo "build $d"; docker build -q -t "$d-$ID" "$STAGE/$d" >/dev/null || { echo "!!! build $d failed"; exit 3; }
@@ -207,6 +227,26 @@ cmd_submit() {
              davepl) printf '%s\n' 'ctrl2|davepl|dummy -l 1000000 -t 1|^davepl' 'ctrl2|davepl|dummy -l 1000000|^davepl' >> "$S/spec" ;;
              c5)     [ -n "$X86" ] && echo 'ctrl2|c5||^rogiervandam_extend(_epar)?;' >> "$S/spec" ;;
            esac ;;
+    oxbuild) # OxCaml toolchain image (RUN-PLAN run 10): build, time, save to images/oxcaml-<arch>.tar.zst
+           SELF=; mkdir -p "$S/tool"; cp "$HERE/ocaml/oxcaml.Dockerfile" "$S/tool/Dockerfile"; touch "$S/oxbuild" "$S/spec"
+           local A=amd64; [ -z "$X86" ] && A=arm64
+           echo "https://$SA.blob.core.windows.net/primes-bench/images/oxcaml-$A.tar.zst?$(st container generate-sas -n primes-bench \
+             --permissions cw --expiry "$(date -u -d '+4 hours' +%Y-%m-%dT%H:%MZ)" --https-only -o tsv)" > "$S/upload.url"
+           mkdir -p "$S/cand" "$S/champ"; echo x > "$S/cand/x" ;;
+    ocaml) # OCaml ports (RUN-PLAN run 10): cand/champ at CAND_DIR/CHAMP_DIR (default PrimeOCaml/solution_3, the
+           # OxCaml base; solution_4 is plain OCaml), filtered by OCAML_FILTER. ctrl = our ISPC base at CTRL_REF
+           # (default origin/hc/ispc-final), ctrl2 = mike-barber Rust, ctrl3 = gkpotter faithful, gk2 = gkpotter
+           # unfaithful. The OxCaml image is loaded from storage when the node doesn't have it.
+           CTRL_REF="${CTRL_REF_OCAML:-origin/hc/ispc-final}"
+           ctx_from "$CAND" "${CAND_DIR:-PrimeOCaml/solution_3}" "$S/cand"; ctx_from "$CHAMP" "${CHAMP_DIR:-PrimeOCaml/solution_3}" "$S/champ"
+           ctx_from "$CTRL_REF" PrimeISPC/solution_2 "$S/ctx"
+           local A=amd64; [ -z "$X86" ] && A=arm64
+           st blob generate-sas -c primes-bench -n "images/oxcaml-$A.tar.zst" --permissions r \
+             --expiry "$(date -u -d '+6 hours' +%Y-%m-%dT%H:%MZ)" --https-only --full-uri -o tsv > "$S/oxcaml.url"
+           printf '%s\n' 'gk1 PrimeOCaml/solution_1' 'gk2 PrimeOCaml/solution_2' > "$S/builds"
+           local F="${OCAML_FILTER:-^cauldnz-(oxcaml|ocaml)-base;}"
+           printf '%s\n' "cand|cand-@ID||$F" "champ|champ-@ID||$F" "champ2|champ-@ID||$F" 'ctrl|ctx-@ID||;' \
+             'ctrl2|rust|--bits-extreme|^mike-barber_bit-extreme-hybrid;' 'ctrl3|gk1||^gkpotter-faithful;' 'gk2|gk2||^gkpotter-unfaithful;' > "$S/spec" ;;
     size)  # size cliff (RUN-PLAN run 9): both ISPC entries of a PRIMES_SIZE diagnostic build at CAND,
            # wheel = cand image, base = champ image, one label per entry and size (w<n>, b<n>).
            ctx_from "$CAND" PrimeISPC/solution_1 "$S/cand"; ctx_from "$CAND" PrimeISPC/solution_2 "$S/champ"
@@ -255,7 +295,7 @@ json.dump({"id": tid,
            "environmentSettings": [{"name": "KIND", "value": kind}, {"name": "ROUNDS", "value": rounds},
                                    {"name": "ID", "value": tid}, {"name": "SELFTEST", "value": selftest}],
            "userIdentity": {"autoUser": {"scope": "pool", "elevationLevel": "admin"}},
-           "constraints": {"maxWallClockTime": "PT120M" if kind in ("board", "size") else "PT50M", "maxTaskRetryCount": 0}},
+           "constraints": {"maxWallClockTime": "PT150M" if kind == "oxbuild" else "PT120M" if kind in ("board", "size") else "PT50M", "maxTaskRetryCount": 0}},
           open(f"{d}/task.json", "w"))
 PY
   az batch task create --job-id "$P" --json-file "$D/task.json" -o none
