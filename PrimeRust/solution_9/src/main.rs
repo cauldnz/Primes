@@ -11,7 +11,9 @@
 //! * Dense (factor below 128): the odd multiples of p repeat with a period of p 64-bit words.
 //!   The resetter is instantiated for every odd factor below 128 with the factor as a const
 //!   generic, works on runs of four periods (4p words, p vectors of four words) and ORs one
-//!   compile-time mask vector into each `[u64; 4]`.
+//!   compile-time mask vector into each `[u64; 4]`. Factors from 17 to 63 work on runs of one
+//!   period (P words) instead, so their masks stay in vector registers rather than being
+//!   reloaded for every vector.
 //! * Sparse (larger factors): eight multiples repeat every p bytes, each at a fixed bit. The
 //!   byte offsets are computed per factor; the eight masks are const generics chosen by p mod 16.
 
@@ -173,6 +175,9 @@ impl<const P: usize> Dense<P> {
 /// `w` points to at least `nwords` words, all initialised unless `INIT`; P² <= the sieve size.
 #[inline(never)]
 unsafe fn clear_dense<const P: usize, const INIT: bool>(w: *mut u64, nwords: usize) {
+    if !INIT && P >= PERIOD_MIN && P <= PERIOD_MAX {
+        return clear_period::<P>(w, nwords);
+    }
     #[inline(always)]
     unsafe fn or4<const P: usize, const INIT: bool>(a: *mut u64, v: usize) {
         let a = a as *mut [u64; 4];
@@ -212,6 +217,56 @@ unsafe fn clear_dense<const P: usize, const INIT: bool>(w: *mut u64, nwords: usi
     }
 }
 
+/// Odd factors in this range use `clear_period`: runs of one period (P words), whose P/4 or so
+/// mask vectors still fit in the 16 vector registers.
+const PERIOD_MIN: usize = 17;
+const PERIOD_MAX: usize = 63;
+
+/// The masks for one period of P words: bit P/2 + jP, for the 64 multiples P(2j + 1) with
+/// j < 64, each set with its own single-bit OR at compile time.
+struct Period<const P: usize>;
+
+impl<const P: usize> Period<P> {
+    const MASKS: [u64; P] = {
+        let mut m = [0u64; P];
+        let mut j = 0;
+        while j < 64 {
+            let t = P / 2 + j * P; // bit of the multiple P(2j + 1)
+            m[t >> 6] |= 1u64 << (t & 63); // one composite
+            j += 1;
+        }
+        m
+    };
+}
+
+/// Dense clearing in runs of one period (P words) for a compile-time odd factor P, from the
+/// period holding P². Like `clear_dense`, P itself is restored at the end.
+///
+/// # Safety
+/// `w` points to at least `nwords` initialised words; P² <= the sieve size.
+#[inline(always)]
+unsafe fn clear_period<const P: usize>(w: *mut u64, nwords: usize) {
+    let c0 = (P * P / 2) / 64 / P * P;
+    debug_assert!(c0 < nwords);
+    let runs = (nwords - c0) / P;
+    let mut q = w.add(c0);
+    // SAFETY: each run covers P words that end at or before nwords.
+    for _ in 0..runs {
+        let run = &mut *(q as *mut [u64; P]);
+        for i in 0..P {
+            run[i] |= Period::<P>::MASKS[i];
+        }
+        q = q.add(P);
+    }
+    let left = nwords - c0 - runs * P;
+    for i in 0..left {
+        *q.add(i) |= Period::<P>::MASKS[i];
+    }
+    let f = P / 2; // P itself is prime
+    if f >> 6 < nwords {
+        *w.add(f >> 6) &= !(1u64 << (f & 63));
+    }
+}
 
 /// The eight single-bit byte masks for factors p with p mod 16 = E: the multiple p(2j + 1) sits
 /// at bit p/2 + jp, whose position within its byte is (E/2 + jE) mod 8.
