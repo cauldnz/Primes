@@ -18,9 +18,9 @@ One bit per odd number: bit `i` stands for `2i + 1`, and a set bit means composi
 An outer loop scans the odd numbers from 3 for the next clear bit, then clears that factor's odd multiples, stepping `2 × factor` through the numbers. It stops at the square root of the sieve size. Every composite gets its own single-bit OR.
 
 - **Factors below 128.** The odd multiples of `p` repeat every `p` 64-bit words, 64 multiples to a period. For each factor, the sieve builds the pattern of four periods (`4p` words) in a scratch buffer it owns, setting each of the 256 multiples with its own single-bit OR. That is what the Rust port's compile-time masks hold; OCaml has no const generics, so the pattern is built at run time, once per factor per pass. Clearing then ORs the pattern into the sieve 32 bytes per loop step, starting at the period that holds `p²`. On x86-64 that step is one 256-bit load, `vorps` and store, written with OxCaml's `int64x4` vector type (`amd64/dense.ml`). OxCaml's vector types exist only on x86-64, so on other machines `build.sh` takes `scalar/dense.ml`, which does the step as four 64-bit word ORs. Building the pattern is the same on both: one single-bit OR per multiple. The smaller multiples in that period are composite too; only `p` itself is restored afterwards. Every odd factor takes the same path, including 9, 15 and the other composites, so nothing beyond 2 being the only even prime is assumed.
-- **Factors of 128 and above.** The same idea over bytes: eight multiples repeat every `p` bytes, each at a fixed bit position. Their byte offsets and masks are computed once per factor. A loop walks over the `p`-byte chunks, so each composite is one byte OR.
+- **Factors of 128 and above.** The same idea over bytes: eight multiples repeat every `p` bytes, each at a fixed bit position. Their byte offsets and masks are computed once per factor. A loop walks over the `p`-byte chunks, so each composite is one OR of a single-bit mask. Like the dense loop, this one is picked per architecture by `build.sh`. On x86-64 (`amd64/sparse.ml`) the mask is ORed into the unaligned 64-bit word that starts at the composite's byte, with the mask in the low byte, so the other seven bytes are ORed with zero. For `p` of 128 and above that word stays inside the chunk; the partial last chunk uses byte ORs. Other machines (`scalar/sparse.ml`) use a byte OR throughout, because the 64-bit word form was 28% slower on Arm Neoverse N2.
 
-The inner loops use only `int` arithmetic, the unboxed 64-bit primitives and, on x86-64, the vector primitives. The generated assembly (`ocamlopt -S`) shows no heap allocation and no boxed `Int64` in them; the only calls are the OCaml 5 safepoint polls on loop back edges. The build uses `-unsafe`, so `Bytes` accesses carry no bounds checks; a test against a plain sieve for every size from 1 to 20,000, and every 997th up to 2,000,000, passed.
+The inner loops use only integer arithmetic, the unboxed 64-bit primitives and, on x86-64, the vector primitives. The generated assembly (`ocamlopt -S`) shows no heap allocation and no boxed `Int64` in them; the only calls are the OCaml 5 safepoint polls on loop back edges. The build uses `-unsafe`, so `Bytes` accesses carry no bounds checks; a test against a plain sieve for every size from 1 to 20,000, and every 997th up to 2,000,000, passed.
 
 ### OxCaml extensions
 
@@ -34,7 +34,15 @@ On a shared 4-vCPU Intel Xeon container, three interleaved 5-second one-thread r
 | 128-bit vectors (two per step) | 23,180, 22,472, 22,586 |
 | 256-bit vectors (this version) | 25,999, 25,404, 26,100 |
 
-The sparse loop was left alone. Each byte OR there costs about four extra instructions for OCaml's tagged integers, but OxCaml has no byte load or store indexed by an untagged integer, and the untagged `int#` adds a fix-up to every add. flambda2 already keeps the `Int64` values in the scalar loops unboxed, so `int64#` would change nothing there.
+On x86-64 the copy loops and the sparse loop keep their byte offsets as untagged 64-bit integers (`int64#`) and use the primitives indexed by them (`%caml_bytes_getu256u_indexed_by_int64#`, `%caml_bytes_get64u#_indexed_by_int64#` and their `set` forms). With tagged `int` offsets every access first shifts the tag off the index, and a byte OR also retags and untags the byte. OxCaml has no byte access indexed by an untagged integer, which is why the x86-64 sparse loop ORs a 64-bit word. Instructions per unit in the `-S` listing (loop overhead and the safepoint poll included):
+
+| loop | tagged `int` | `int64#` |
+|---|---|---|
+| sparse, per composite | 7.75 | 5.5 |
+| dense OR, x86-64, per 32 bytes | 13 | 10 |
+| dense store (factor 3), x86-64, per 32 bytes | 11 | 8 |
+
+The sparse loop has 20 values live, more than the 13 registers the allocator uses, so six of the eight offsets and six of the eight masks still come from the stack. Three interleaved 5-second one-thread runs on the same kind of container: tagged 26,150, 26,498, 26,494 passes; `int64#` 29,510, 28,285, 29,573. The `scalar/` modules keep tagged `int` offsets and byte ORs.
 
 ### Faithfulness
 

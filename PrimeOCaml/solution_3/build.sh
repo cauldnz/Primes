@@ -1,7 +1,8 @@
 #!/bin/sh
 # Needs the OxCaml compiler (opam switch 5.2.0+ox, flambda2).
-# The dense copy loops come from amd64/ (256-bit AVX vectors) on x86-64 and from scalar/
-# (64-bit words) everywhere else. OxCaml's SIMD types are x86-64 only.
+# The dense copy loops and the sparse loop come from amd64/ on x86-64 (256-bit AVX vectors;
+# 64-bit word ORs with untagged offsets) and from scalar/ everywhere else (64-bit words; byte
+# ORs). OxCaml's SIMD types are x86-64 only, and the word-OR sparse loop was slower on Arm.
 # The OCaml 5 Domain.spawn alerts are switched off: OxCaml wants its own threading library, but
 # this program spawns at most as many domains as recommended_domain_count.
 set -e
@@ -10,4 +11,4 @@ case "$(uname -m)" in
   *) d=scalar; extra= ;;
 esac
 ocamlopt -O3 -unsafe -alert -do_not_spawn_domains -alert -unsafe_multidomain \
-  -I +unix -I $d unix.cmxa $extra $d/dense.ml primes.ml -o primes
+  -I +unix -I $d unix.cmxa $extra $d/dense.ml $d/sparse.ml primes.ml -o primes

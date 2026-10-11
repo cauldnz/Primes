@@ -14,7 +14,10 @@
      x86-64 (amd64/dense.ml) they use OxCaml's 256-bit vector type and do one AVX load, OR and
      store per 32 bytes; elsewhere (scalar/dense.ml) they do four 64-bit words per step.
    - Sparse (larger factors): eight multiples repeat every p bytes, each at a fixed bit. The
-     byte offsets and masks are computed per factor; each composite is one byte OR.
+     byte offsets and masks are computed per factor; each composite is one OR of a single-bit
+     mask. This loop lives in module Sparse, also picked by build.sh: on x86-64
+     (amd64/sparse.ml) it ORs the mask into a 64-bit word with untagged offsets; elsewhere
+     (scalar/sparse.ml) it does one byte OR.
 
    The sieve is a [Bytes] buffer read and written as 64-bit little-endian words or as bytes.
    The 64-bit accesses go through the compiler's unboxed primitives, so the inner loops do not
@@ -98,71 +101,6 @@ let clear_dense s p init =
   Bytes.unsafe_set b i
     (Char.unsafe_chr (Char.code (Bytes.unsafe_get b i) land lnot (1 lsl (f land 7))))
 
-(* Sparse clearing over bytes for odd p >= dense_limit. Chunks of p bytes start at byte
-   multiples of p; in each, the eight multiples p(2j + 1), j = 0..7, sit at fixed byte offsets
-   o_j = (p/2 + jp) / 8 with fixed single-bit masks. *)
-let clear_sparse s p =
-  let b = s.bits and nbytes = s.nwords * 8 in
-  let h = p lsr 1 in
-  let o0 = h lsr 3 and m0 = 1 lsl (h land 7) in
-  let t = h + p in
-  let o1 = t lsr 3 and m1 = 1 lsl (t land 7) in
-  let t = t + p in
-  let o2 = t lsr 3 and m2 = 1 lsl (t land 7) in
-  let t = t + p in
-  let o3 = t lsr 3 and m3 = 1 lsl (t land 7) in
-  let t = t + p in
-  let o4 = t lsr 3 and m4 = 1 lsl (t land 7) in
-  let t = t + p in
-  let o5 = t lsr 3 and m5 = 1 lsl (t land 7) in
-  let t = t + p in
-  let o6 = t lsr 3 and m6 = 1 lsl (t land 7) in
-  let t = t + p in
-  let o7 = t lsr 3 and m7 = 1 lsl (t land 7) in
-  let[@inline always] mark a m =
-    Bytes.unsafe_set b a (Char.unsafe_chr (Char.code (Bytes.unsafe_get b a) lor m))
-  in
-  let s0 = p * p / 2 / 8 / p * p in
-  let chunks = (nbytes - s0) / p in
-  let q = ref s0 in
-  for _ = 1 to chunks do
-    let a = !q in
-    mark (a + o0) m0;  (* one composite each *)
-    mark (a + o1) m1;
-    mark (a + o2) m2;
-    mark (a + o3) m3;
-    mark (a + o4) m4;
-    mark (a + o5) m5;
-    mark (a + o6) m6;
-    mark (a + o7) m7;
-    q := a + p
-  done;
-  (* Partial last chunk: the offsets increase, so stop at the first one past the end. *)
-  let a = !q in
-  let left = nbytes - a in
-  if o0 < left then begin
-    mark (a + o0) m0;
-    if o1 < left then begin
-      mark (a + o1) m1;
-      if o2 < left then begin
-        mark (a + o2) m2;
-        if o3 < left then begin
-          mark (a + o3) m3;
-          if o4 < left then begin
-            mark (a + o4) m4;
-            if o5 < left then begin
-              mark (a + o5) m5;
-              if o6 < left then begin
-                mark (a + o6) m6;
-                if o7 < left then mark (a + o7) m7
-              end
-            end
-          end
-        end
-      end
-    end
-  end
-
 (* The base algorithm: find the next prime, clear its multiples, repeat up to sqrt(size). *)
 let run s =
   let q = ref (int_of_float (sqrt (float_of_int s.size))) in
@@ -178,7 +116,8 @@ let run s =
     if p > q then continue := false
     else begin
       (* 3 is always the first factor: its pass initialises the buffer. *)
-      if p < dense_limit then clear_dense s p (p = 3) else clear_sparse s p;
+      if p < dense_limit then clear_dense s p (p = 3)
+      else Sparse.clear s.bits (s.nwords * 8) p;
       factor := p + 2
     end
   done
