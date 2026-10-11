@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T01:29:49Z",
+  "updated_utc": "2026-10-11T01:34:23Z",
   "run": {
     "id": "ap-20261011T0100Z",
     "state": "running",
@@ -1192,11 +1192,22 @@
       "entry": "cpp-wheel",
       "tier": "extra-faithful",
       "kind": "borrowed",
-      "verdict": "inconclusive",
+      "verdict": "running",
       "hypothesis": "Build the C++ wheel with clang++ instead of g++",
-      "prediction": "-3% to +5%",
+      "prediction": "+5% to +18% (local +18%)",
       "plain": "If the C++ wheel is compiled with the compiler the existing C++ entries use, then it may run faster, because the two compilers lay out the hot loops differently.",
-      "note": "clang 18 build segfaults in PRIMES_TEST=1 (g++ build passes): undefined behaviour in the port. Agent p-cpp-wheel-ub is finding it"
+      "note": "re-opened: hc/port-cpp-wheel-clang 3c98356 = alignment fix + clang++ -O3 -march=native -mtune=native in the Dockerfile, against hc/port-cpp-wheel-ub; local 1T clang 87.3k vs g++ 73.8k (4 pairs)"
+    },
+    {
+      "id": "p-cpp-wheel-ub",
+      "entry": "cpp-wheel",
+      "tier": "extra-faithful",
+      "kind": "novel",
+      "verdict": "running",
+      "hypothesis": "Fix undefined behaviour in the C++ wheel: vector loads/stores through a may_alias type whose aligned(8) Clang ignores; use memcpy loads/stores",
+      "prediction": "0 to +2% under g++ (local +2%); required for correctness under clang",
+      "plain": "If the C++ wheel reads its vectors in a way every compiler accepts at any address, then it stops crashing when built with Clang and runs no slower with GCC, because the old code relied on GCC honouring an alignment hint that Clang ignores.",
+      "note": "hc/port-cpp-wheel-ub 2ae55c9 (agent p-cpp-wheel-ub). Root cause primes.cpp:45-47; idea12 and group32 branches carry the same bug"
     }
   ],
   "azure_queue": 0,
@@ -1206,22 +1217,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-10T22:45:49Z",
-      "level": "decision",
-      "text": "f1-on-f2: REVERT: alternating inside blocks loses to F2 alone. Why: Zen 5 D16as_v7 vs f2-block-16: -1.3% +-0.9 1T, -2.0% +-0.6 16T (0/6). hc/f1-on-f2-x86 (same idea) dropped unmeasured.",
-      "id": "f1-on-f2",
-      "what": "REVERT: alternating inside blocks loses to F2 alone",
-      "why": "Zen 5 D16as_v7 vs f2-block-16: -1.3% +-0.9 1T, -2.0% +-0.6 16T (0/6). hc/f1-on-f2-x86 (same idea) dropped unmeasured"
-    },
-    {
-      "utc": "2026-10-10T22:45:49Z",
-      "level": "decision",
-      "text": "wheel-f1-dense: REVERT. Why: Zen 5 D32: -0.7% 1T, -0.4% 32T; nothing to gain from the dense-only wheel alternation.",
-      "id": "wheel-f1-dense",
-      "what": "REVERT",
-      "why": "Zen 5 D32: -0.7% 1T, -0.4% 32T; nothing to gain from the dense-only wheel alternation"
-    },
     {
       "utc": "2026-10-10T22:45:49Z",
       "level": "decision",
@@ -1548,6 +1543,25 @@
       "why": "13 tasks queued behind 6 nodes; Zen 5 carries one more task (the s5 profile). Chris approved Azure operations in the session",
       "instead": "raising Zen 3 too (would leave no room for the Zen 4 node under 128 vCPUs)",
       "expect": "queue clears about 20 minutes sooner"
+    },
+    {
+      "utc": "2026-10-11T01:34:17Z",
+      "level": "decision",
+      "text": "p-cpp-wheel-clang: submit the alignment fix (vs the port) and clang (vs the fix) on Zen 5 and Zen 3. Why: verified here: both compilers pass PRIMES_TEST=1 on the fix; the fix is required for any clang build, and clang was +18% locally, the largest local signal of the run. Passed over: folding the fix into idea12/group32 now (they run under g++, where the bug is latent; rebase whichever survives). Expect: fix 0 to +2%; clang +5% to +18%.",
+      "id": "p-cpp-wheel-clang",
+      "what": "submit the alignment fix (vs the port) and clang (vs the fix) on Zen 5 and Zen 3",
+      "why": "verified here: both compilers pass PRIMES_TEST=1 on the fix; the fix is required for any clang build, and clang was +18% locally, the largest local signal of the run",
+      "instead": "folding the fix into idea12/group32 now (they run under g++, where the bug is latent; rebase whichever survives)",
+      "expect": "fix 0 to +2%; clang +5% to +18%"
+    },
+    {
+      "utc": "2026-10-11T01:34:23Z",
+      "level": "decision",
+      "text": "run: start agent p-zig-wheel: Zig wheel phase split beside ISPC's, then one Zig-specific idea named from it. Why: Zig had no experiment yet this run; equal effort across C++, Rust and Zig (RUN-PLAN). The wheel first because it already leads our ISPC wheel and the plan asks whether it passes it. Passed over: Zig base (has F1 on grey already).",
+      "id": "run",
+      "what": "start agent p-zig-wheel: Zig wheel phase split beside ISPC's, then one Zig-specific idea named from it",
+      "why": "Zig had no experiment yet this run; equal effort across C++, Rust and Zig (RUN-PLAN). The wheel first because it already leads our ISPC wheel and the plan asks whether it passes it",
+      "instead": "Zig base (has F1 on grey already)"
     }
   ],
   "research": {
