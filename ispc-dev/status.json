@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T20:18:54Z",
+  "updated_utc": "2026-10-11T20:21:53Z",
   "run": {
     "id": "ap-20261011T1929Z",
     "state": "running",
@@ -1922,6 +1922,28 @@
       "verdict": "confirmed",
       "commit": "159152e",
       "note": "dense OR loop 54%, sparse 36%; 11 instr/dense word vs ~1 in ISPC; ranked: 2-run dense step (+8-13%), word-indexed Bigarray (+10-20%), dense limit 64-96 (0-8%)"
+    },
+    {
+      "id": "ocaml-004",
+      "entry": "ocaml-plain",
+      "title": "Dense OR over two runs per step",
+      "tier": "extra-faithful",
+      "kind": "novel",
+      "plain": "If each loaded pattern word is ORed into two places in the sieve instead of one, then the dense loop gets faster, because it does fewer loads per word cleared.",
+      "prediction": "+8% to +13% at 1T on Zen 5 and Zen 3",
+      "verdict": "running",
+      "commit": "0aaa340"
+    },
+    {
+      "id": "ocaml-005",
+      "entry": "ocaml-plain",
+      "title": "Dense limit 64 and 96 (sweep)",
+      "tier": "extra-faithful",
+      "kind": "tuning",
+      "plain": "If fewer small primes use the pattern copy and more use direct marking, then a pass gets faster, because the profile shows direct marking is already cheaper above about 68.",
+      "prediction": "0% to +8% at 1T",
+      "verdict": "running",
+      "commit": "da786ff, c620f30"
     }
   ],
   "azure_queue": 0,
@@ -1931,27 +1953,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T10:07:03Z",
-      "level": "info",
-      "text": "r9-rust-wheel-combo KEEP.. hc/port-rust-wheel-combo a8d9f07 (clean merge); self-test 0 wrong. Zen 5 + Zen 3 6 rounds vs df94b47",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T10:09:28Z",
-      "level": "decision",
-      "text": "r9-zig-evex512: start: Zig evex512 build flag on Zen 5, base and wheel. Why: the Zig base wide revert showed Zig 0.13 emits no 512-bit code on Zen 5; one build flag tests whether that is worth the 5-15% ISPC and C++ get there. Expect: base +3% to +8%, wheel 0 to +5% on Zen 5.",
-      "id": "r9-zig-evex512",
-      "what": "start: Zig evex512 build flag on Zen 5, base and wheel",
-      "why": "the Zig base wide revert showed Zig 0.13 emits no 512-bit code on Zen 5; one build flag tests whether that is worth the 5-15% ISPC and C++ get there",
-      "expect": "base +3% to +8%, wheel 0 to +5% on Zen 5"
-    },
-    {
-      "utc": "2026-10-11T10:09:28Z",
-      "level": "info",
-      "text": "r9-zig-evex512 (zig) running: Zig on Zen 5: build with -mcpu=native+evex512 (Zig 0.13 has no znver5, so native emits no zmm)",
-      "auto": true
-    },
     {
       "utc": "2026-10-11T10:31:18Z",
       "level": "decision",
@@ -2275,6 +2276,27 @@
       "utc": "2026-10-11T20:18:45Z",
       "level": "info",
       "text": "ocaml-002 Zen 5: GC space_overhead 1000 from start -3.0% +-3.9% at 1T, -0.8% at 4T, +16% at 16T (recorded only). Plain OCaml 31.6k at 1T: 0.24x our ISPC base (130k), 0.26x Rust (119k), 20x gkpotter faithful (1.6k). 4T scales to 92% per thread. Zen 3 still running."
+    },
+    {
+      "utc": "2026-10-11T20:21:53Z",
+      "level": "decision",
+      "text": "ocaml-004: submit ocaml-004 (0aaa340 vs 0b8d98c) on Zen 5, Zen 3, Cobalt and the limit sweep (64 da786ff, 96 c620f30, each vs 0aaa340) on Zen 5 and Zen 3, 5 rounds. Why: rebuilt all three here, PRIMES_TEST=1 exits 0; diff read: only the pattern copy loop and the limit constant change, marking stays one OR per composite; locally +12% and +19-20%. Expect: ocaml-004 +8-13%; limits 0-8% over it.",
+      "id": "ocaml-004",
+      "what": "submit ocaml-004 (0aaa340 vs 0b8d98c) on Zen 5, Zen 3, Cobalt and the limit sweep (64 da786ff, 96 c620f30, each vs 0aaa340) on Zen 5 and Zen 3, 5 rounds",
+      "why": "rebuilt all three here, PRIMES_TEST=1 exits 0; diff read: only the pattern copy loop and the limit constant change, marking stays one OR per composite; locally +12% and +19-20%",
+      "expect": "ocaml-004 +8-13%; limits 0-8% over it"
+    },
+    {
+      "utc": "2026-10-11T20:22:06Z",
+      "level": "info",
+      "text": "ocaml-004 (ocaml-plain) running: ",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T20:22:06Z",
+      "level": "info",
+      "text": "ocaml-005 (ocaml-plain) running: ",
+      "auto": true
     }
   ],
   "research": {
