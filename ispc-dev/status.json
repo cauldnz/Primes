@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T02:47:42Z",
+  "updated_utc": "2026-10-11T02:50:14Z",
   "run": {
     "id": "ap-20261011T0100Z",
     "state": "running",
@@ -1265,34 +1265,37 @@
       "entry": "wheel",
       "tier": "extra-faithful",
       "kind": "tuning",
-      "verdict": "running",
+      "verdict": "rejected",
       "hypothesis": "F4 other side: PRIMES_DENSE_MAX 192 and 128",
       "prediction": "one of them +0% to +4% at 1T (the loss grows steeply above 256, so the optimum may sit below it)",
       "plain": "If the wheel hands primes to the sparse pass earlier than it does now, then a pass gets faster, because raising the limit cost up to a quarter of the speed, which suggests the limit is already too high.",
-      "note": "hc/f4-dense-192, hc/f4-dense-128; 6 rounds Zen 5 + Zen 3"
+      "note": "256 is the optimum on both sides: F4 closed",
+      "zen3": "192: -2.4% ± 0.8 / -4.8% ± 0.5; 128: -7.5% ± 1.4 / -14.0% ± 1.1",
+      "zen5": "192: -4.0% ± 1.5 / -2.6% ± 0.1; 128: -12.6% ± 2.6 / -9.3% ± 1.4"
     },
     {
       "id": "p-zig-wheel-direct-pattern",
       "entry": "zig-wheel",
       "tier": "extra-faithful",
       "kind": "novel",
-      "verdict": "running",
+      "verdict": "rejected",
       "hypothesis": "Zig wheel: build each group pattern word in a register and store once",
       "prediction": "+3% (local -5% to -9%)",
       "plain": "If the Zig wheel builds each pattern word in a register before storing it, then pattern building gets cheaper, because it skips a clearing pass and many small memory updates.",
-      "note": "hc/zig-wheel-direct-pattern 82a21fa; local 3 pairs -5% to -9%; Zen 5 screen per Chris's rule, 3 rounds",
-      "note_local": "agent p-zig-wheel: Zig local split start 7.7%, pattern 8.5%, group 38.6%, tile 2.4%, sparse 38.2%, scan 4.7%; DENSE_MAX 256 and G 6-16 already best locally"
+      "note": "Zen 5 screen confirms the local loss",
+      "note_local": "agent p-zig-wheel: Zig local split start 7.7%, pattern 8.5%, group 38.6%, tile 2.4%, sparse 38.2%, scan 4.7%; DENSE_MAX 256 and G 6-16 already best locally",
+      "zen5": "-5.3% ± 0.2 1T, -6.3% ± 0.7 16T (3-round screen)"
     },
     {
       "id": "s5-zig-wheel-profile",
       "entry": "zig-wheel",
       "tier": "extra-faithful",
       "kind": "tuning",
-      "verdict": "running",
+      "verdict": "inconclusive",
       "hypothesis": "Measurement: Zig wheel phase split on Zen 5",
       "prediction": "Zig behind ISPC only in group passes and pattern build",
       "plain": "If we time each step of the Zig wheel on the same machine as the ISPC wheel, then we see where the two differ, because the local split showed Zig ahead everywhere except the grouped passes.",
-      "note": "hc/diag-zig-wheel-phases-2 afd9146; local: start 7.7%, pattern 8.5%, group 38.6%, tile 2.4%, sparse 38.2%, scan 4.7% (147k cycles vs ISPC 175.6k)"
+      "note": "phase lines filtered out by the zig kind (harness fixed: zig kind keeps phase; lines); rerun s5-zig-wheel-profile-2 queued, 2 rounds"
     },
     {
       "id": "ha-zig-idea12",
@@ -1332,11 +1335,12 @@
       "entry": "base",
       "tier": "extra-faithful",
       "kind": "tuning",
-      "verdict": "running",
+      "verdict": "rejected",
       "hypothesis": "Recheck: base --addressing=64 on Zen 3 (AVX2), never measured there",
       "prediction": "0 to +2% on Zen 3",
       "plain": "If the base is compiled with 64-bit addressing, then its dense loop loses two sign-extension instructions per vector on Zen 3, because the same flag gave the wheel 2% to 3% there.",
-      "note": "history audit row 4; Zen 5 was +0.2%/+0.9%; Zen 3 6 rounds"
+      "note": "Zen 3 recheck: the AVX2 path loses with --addressing=64",
+      "zen3": "-0.9% ± 0.3 1T, -0.8% ± 0.1 16T (0/6)"
     },
     {
       "id": "ha-018",
@@ -1369,7 +1373,9 @@
       "hypothesis": "Cheaper sparse start offsets computed at run time (one division per prime and a residue walk, or the 8 planes vectorised)",
       "prediction": "+3% to +8% at 1T (start offsets are 15.3% on Zen 5)",
       "plain": "If the wheel finds where each large prime starts in all eight planes with one division instead of eight, then a pass gets faster, because that step takes about a seventh of the time now.",
-      "note": "hc/s5-starts-ef 71bda5d: start_bits8 computes p^2 once and the 8 starts as independent products divided by the constant 30 (a multiply); used for sparse primes and dense members. Self-test passes here; agent: 5,300 odd sizes x 3 targets, 0 mismatches; local 1T +1% to +9.5% (4 pairs); start-offset phase 12.2% -> 7.5% locally. Zen 5 + Zen 3 6 rounds, Cobalt 5 rounds (shared code)"
+      "note": "hc/s5-starts-ef 71bda5d: start_bits8 computes p^2 once and the 8 starts as independent products divided by the constant 30 (a multiply); used for sparse primes and dense members. Self-test passes here; agent: 5,300 odd sizes x 3 targets, 0 mismatches; local 1T +1% to +9.5% (4 pairs); start-offset phase 12.2% -> 7.5% locally. Zen 5 + Zen 3 6 rounds, Cobalt 5 rounds (shared code)",
+      "cobalt": "-1.1% ± 0.1 1T, -1.0% ± 0.2 4T (0/5)",
+      "note_cobalt": "Cobalt 100 loses 1.1%: a keep would need the change guarded off NEON (target-specific) if Zen gains"
     },
     {
       "id": "s5-tables",
@@ -1424,7 +1430,9 @@
       "hypothesis": "Base sparse loop tests q against the last full chunk start instead of q + p <= end, removing two register copies per chunk on arm64 (29 -> 28 instructions per 8 composites, Rust has 28)",
       "prediction": "Cobalt 100 +1% to +2% at 1T; x86 flat",
       "plain": "If the base's large-prime loop checks against a precomputed last position instead of adding before every check, then it runs one instruction fewer per eight marks on Arm, because that is the one instruction the fastest Rust entry saves there.",
-      "note": "from b1-arm-asm (hc/b1-arm-asm 866a636: our sparse 29 vs Rust 28 instr per 8 composites, dense ours fewer); hc/b1-sparse-last; x86 local neutral (3 pairs); Cobalt + Zen 5 + Zen 3, 6 rounds; Cobalt pool raised to 2 nodes"
+      "note": "from b1-arm-asm (hc/b1-arm-asm 866a636: our sparse 29 vs Rust 28 instr per 8 composites, dense ours fewer); hc/b1-sparse-last; x86 local neutral (3 pairs); Cobalt + Zen 5 + Zen 3, 6 rounds; Cobalt pool raised to 2 nodes",
+      "cobalt": "-0.2% ± 0.4 1T, +0.0% ± 0.1 4T",
+      "note_cobalt": "flat on Cobalt: the extra arm64 instruction is not the 2% (Rust still +2.0% in the same rounds). Zen 5 / Zen 3 pending"
     },
     {
       "id": "p-rust-base-zprof",
@@ -1447,6 +1455,39 @@
       "prediction": "sparse ~60%, dense ~35%",
       "plain": "If we time each step of our base on the official kind of machine beside the fastest Rust base, then we see which step to speed up to pass it by 4%, because the totals alone do not say where the time goes.",
       "note": "hc/diag-base-phases-arm 53ea880; 3 rounds"
+    },
+    {
+      "id": "b2-sparse-prefetchw",
+      "entry": "base",
+      "tier": "extra-faithful",
+      "kind": "novel",
+      "verdict": "running",
+      "hypothesis": "Base sparse loop: prefetchw the chunk 4 primes ahead (x86 only; NEON byte-identical)",
+      "prediction": "0 to +2% at 1T",
+      "plain": "If the base asks the processor to fetch the next stretch of the sieve for writing before it gets there, then fewer marks wait on memory, because the sieve is larger than the fastest cache.",
+      "note": "hc/b2-base-sparse-prefetchw 977a027; agent b2-base-x86: x86 sparse loops equal (12 instr per 8 both), our dense fewer memory ops; local +1.4% (4/4). Zen 5 + Zen 3 6 rounds"
+    },
+    {
+      "id": "b2-dense-prefetchw",
+      "entry": "base",
+      "tier": "extra-faithful",
+      "kind": "novel",
+      "verdict": "running",
+      "hypothesis": "Base dense loop: prefetchw one line per 64 words ahead (x86 only)",
+      "prediction": "0 to +3%",
+      "plain": "If the base fetches the sieve ahead of the small-factor pass, then that pass waits less on memory, because each small factor sweeps the whole sieve.",
+      "note": "hc/b2-base-dense-prefetchw d3c2435; local -0.7%; Zen 5 3-round screen"
+    },
+    {
+      "id": "b2-base-fold-1pc",
+      "entry": "base",
+      "tier": "extra-faithful",
+      "kind": "novel",
+      "verdict": "running",
+      "hypothesis": "Use the F5 x16 folded dense code when each thread has a core to itself (1T and one-per-core), x8 otherwise",
+      "prediction": "+5% to +8% at 1T on Zen 5; flat at all threads",
+      "plain": "If the base uses its widest dense code only when a thread has a whole core, then it keeps the 9% one-thread gain measured earlier without the 5% loss when two threads share a core, because the loss came from sharing.",
+      "note": "agent building hc/b2-base-fold-1pc"
     }
   ],
   "azure_queue": 0,
@@ -1456,69 +1497,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T01:16:12Z",
-      "level": "decision",
-      "text": "s6-wheel-210: start the stream 6 agent (mod-210 ISPC wheel, run-time starts walked from one division per prime). Why: s5-wheel-profile reported, freeing an agent slot; stream 6 is phase 1 agent work measured in phase 2. Prediction written to IDEAS.md first. Brief: 40 min, simplest correct version first, odd-size sweep, push hc/wheel-210 only. Passed over: mod 2310 (start-offset cost grows 10x for 9% less memory). Expect: see IDEAS.md stream 6 prediction.",
-      "id": "s6-wheel-210",
-      "what": "start the stream 6 agent (mod-210 ISPC wheel, run-time starts walked from one division per prime)",
-      "why": "s5-wheel-profile reported, freeing an agent slot; stream 6 is phase 1 agent work measured in phase 2. Prediction written to IDEAS.md first. Brief: 40 min, simplest correct version first, odd-size sweep, push hc/wheel-210 only",
-      "instead": "mod 2310 (start-offset cost grows 10x for 9% less memory)",
-      "expect": "see IDEAS.md stream 6 prediction"
-    },
-    {
-      "utc": "2026-10-11T01:21:14Z",
-      "level": "decision",
-      "text": "run: accept p1-port-keeps' five branches and submit them as port-kind A/B runs on Zen 5 and Zen 3, ISPC ref 1551635 (wheels) or 3a893c1 (grey bases) as ctrl. Why: rebuilt all five here with the Dockerfile flags; every self-test passes; diffs touch only the port's own directory (plus a RULES.md on the grey bases). Pools have spare queue time behind F4, so phase 2 starts early on the fleet as RUN-PLAN allows. Passed over: waiting for hc/ispc-ref (it equals 1551635 unless F4 keeps). Expect: wheels +1% to +6%; grey bases +8% to +15%.",
-      "id": "run",
-      "what": "accept p1-port-keeps' five branches and submit them as port-kind A/B runs on Zen 5 and Zen 3, ISPC ref 1551635 (wheels) or 3a893c1 (grey bases) as ctrl",
-      "why": "rebuilt all five here with the Dockerfile flags; every self-test passes; diffs touch only the port's own directory (plus a RULES.md on the grey bases). Pools have spare queue time behind F4, so phase 2 starts early on the fleet as RUN-PLAN allows",
-      "instead": "waiting for hc/ispc-ref (it equals 1551635 unless F4 keeps)",
-      "expect": "wheels +1% to +6%; grey bases +8% to +15%"
-    },
-    {
-      "utc": "2026-10-11T01:26:00Z",
-      "level": "decision",
-      "text": "s6-wheel-210: reject at the local gate; park the bigger-wheel line. Why: -30% at 1T locally is at the 30% gate and 25 points below the prediction; the agent's split shows the cost is structural (48 short planes multiply per-plane set-up), not a missing tweak, so Zen won't rescue it at 1T and a 6% SMT gain can't cover it. Passed over: sending it to Azure for the all-threads number (would cost two node-runs to confirm a loss).",
-      "id": "s6-wheel-210",
-      "what": "reject at the local gate; park the bigger-wheel line",
-      "why": "-30% at 1T locally is at the 30% gate and 25 points below the prediction; the agent's split shows the cost is structural (48 short planes multiply per-plane set-up), not a missing tweak, so Zen won't rescue it at 1T and a 6% SMT gain can't cover it",
-      "instead": "sending it to Azure for the all-threads number (would cost two node-runs to confirm a loss)"
-    },
-    {
-      "utc": "2026-10-11T01:26:00Z",
-      "level": "info",
-      "text": "Zen 5 pool resize to 4 nodes was refused by the session's permission check; pools stay at 3+3 nodes, queue runs longer."
-    },
-    {
-      "utc": "2026-10-11T01:28:46Z",
-      "level": "decision",
-      "text": "p-cpp-wheel-clang: start agent p-cpp-wheel-ub: find and fix the undefined behaviour that makes the clang build of the C++ wheel segfault, then re-measure clang against g++ locally. Why: a port that only works under one compiler is a correctness bug in a would-be submission, and the clang comparison is RUN-PLAN's first C++ wheel idea. Brief: sanitizers under both compilers, minimal fix on hc/port-cpp-wheel-ub from hc/port-cpp-wheel, 30 min. Expect: a fix that is speed-neutral under g++.",
-      "id": "p-cpp-wheel-clang",
-      "what": "start agent p-cpp-wheel-ub: find and fix the undefined behaviour that makes the clang build of the C++ wheel segfault, then re-measure clang against g++ locally",
-      "why": "a port that only works under one compiler is a correctness bug in a would-be submission, and the clang comparison is RUN-PLAN's first C++ wheel idea. Brief: sanitizers under both compilers, minimal fix on hc/port-cpp-wheel-ub from hc/port-cpp-wheel, 30 min",
-      "expect": "a fix that is speed-neutral under g++"
-    },
-    {
-      "utc": "2026-10-11T01:29:07Z",
-      "level": "decision",
-      "text": "run: start agent p-rust-base-mb: one idea from mike-barber's Rust base that ours lacks, clean tier, profile-named before coding. Why: RUN-PLAN stream 1 step 3 puts the Rust base side-by-side first; Rust and C++ each have their own experiments queued, Zig has none yet, so Zig is next once a slot frees. Passed over: Zig wheel tables via comptime (permitted lineage, phase 2 after the s5 profile). Expect: +2% to +6% at 1T.",
-      "id": "run",
-      "what": "start agent p-rust-base-mb: one idea from mike-barber's Rust base that ours lacks, clean tier, profile-named before coding",
-      "why": "RUN-PLAN stream 1 step 3 puts the Rust base side-by-side first; Rust and C++ each have their own experiments queued, Zig has none yet, so Zig is next once a slot frees",
-      "instead": "Zig wheel tables via comptime (permitted lineage, phase 2 after the s5 profile)",
-      "expect": "+2% to +6% at 1T"
-    },
-    {
-      "utc": "2026-10-11T01:29:07Z",
-      "level": "info",
-      "text": "Agents: s6-wheel-210 rejected locally (-30%); p-cpp-wheel-ub (clang segfault) and p-rust-base-mb running. 19 tasks open."
-    },
-    {
-      "utc": "2026-10-11T01:29:49Z",
-      "level": "info",
-      "text": "Chris gave explicit permission for pool resizes and other Azure operations; Zen 5 pool raised to 4 nodes (Zen 3 stays 3: 112 of 128 Spot vCPUs, 16 left for the Zen 4 scoreboard node)."
-    },
     {
       "utc": "2026-10-11T01:29:49Z",
       "level": "decision",
@@ -1839,6 +1817,58 @@
       "utc": "2026-10-11T02:33:47Z",
       "level": "info",
       "text": "b1-cobalt-profile confirmed.. Cobalt 100, 5 rounds, both profiled builds (ns per pass): ours dense 34.7k / sparse 89.2k / scan 5.3k / total 129.2k; Rust dense 33.4k / sparse 90.1k / scan 6.7k / total 130.2k. Benchmark lines in the same rounds: Rust diag 42.9k vs ours 42.0k (+2.1%). Ours trails only in the dense phase (+3.8% there, about 1% of a pass); sparse and scan are ours. The rest of the 2% is not in the timed phases (timer cost differs: ours clock_gettime, Rust Instant). Named gap: dense 65.127 reloads masks every period (b1-arm-asm) and the sparse loop-test (29 vs 28 instructions, b1-sparse-last running)",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T02:50:14Z",
+      "level": "decision",
+      "text": "run: F4 closed at 256; b1-sparse-last is flat on Cobalt, so the arm gap is not that instruction; submit both prefetch candidates; start agent b2-base-fold-1pc (x16 fold only when one thread per core). Why: Chris's target is +4% over Rust at 1T on Zen 5; the x86 side-by-side shows no instruction gap, and the only measured lever that big is the F5 fold (+8.6% 1T, -5.2% at 32T from SMT sharing): choosing it per run keeps the keep rule satisfiable unchanged. Passed over: dense 65-127 mask reload fix on arm (the Cobalt gap is 2% on a non-deciding machine; Zen 5 1T comes first). Expect: fold-1pc +5% to +8% at 1T Zen 5.",
+      "id": "run",
+      "what": "F4 closed at 256; b1-sparse-last is flat on Cobalt, so the arm gap is not that instruction; submit both prefetch candidates; start agent b2-base-fold-1pc (x16 fold only when one thread per core)",
+      "why": "Chris's target is +4% over Rust at 1T on Zen 5; the x86 side-by-side shows no instruction gap, and the only measured lever that big is the F5 fold (+8.6% 1T, -5.2% at 32T from SMT sharing): choosing it per run keeps the keep rule satisfiable unchanged",
+      "instead": "dense 65-127 mask reload fix on arm (the Cobalt gap is 2% on a non-deciding machine; Zen 5 1T comes first)",
+      "expect": "fold-1pc +5% to +8% at 1T Zen 5"
+    },
+    {
+      "utc": "2026-10-11T02:50:14Z",
+      "level": "info",
+      "text": "f4-dense-low rejected.. 256 is the optimum on both sides: F4 closed",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T02:50:14Z",
+      "level": "info",
+      "text": "p-zig-wheel-direct-pattern rejected.. Zen 5 screen confirms the local loss",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T02:50:14Z",
+      "level": "warn",
+      "text": "s5-zig-wheel-profile inconclusive.. phase lines filtered out by the zig kind (harness fixed: zig kind keeps phase; lines); rerun s5-zig-wheel-profile-2 queued, 2 rounds",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T02:50:14Z",
+      "level": "info",
+      "text": "ha-f5-addr64 rejected.. Zen 3 recheck: the AVX2 path loses with --addressing=64",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T02:50:14Z",
+      "level": "info",
+      "text": "b2-sparse-prefetchw (base) running: Base sparse loop: prefetchw the chunk 4 primes ahead (x86 only; NEON byte-identical)",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T02:50:14Z",
+      "level": "info",
+      "text": "b2-dense-prefetchw (base) running: Base dense loop: prefetchw one line per 64 words ahead (x86 only)",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-11T02:50:14Z",
+      "level": "info",
+      "text": "b2-base-fold-1pc (base) running: Use the F5 x16 folded dense code when each thread has a core to itself (1T and one-per-core), x8 otherwise",
       "auto": true
     }
   ],
