@@ -5,6 +5,17 @@ gives the next something to link to. Owner in brackets: **C** is Chris, **W** th
 
 ## 0. Finish the climb: done 11 October
 
+**Update, 12 October: the PR builds from `hc/ispc-landing-2` = 6cd85cd**, one commit on upstream
+`drag-race` c4e42f00, with `PrimeISPC/solution_1` (wheel) and `PrimeISPC/solution_2` (base)
+only. Both are byte-identical to `hc/ispc-final` (216629d). **solution_3 (the tables wheel) was
+dropped on 12 October (Chris).** Upstream c4e42f00 (#1095) added a "Wheel algorithm" section to
+CONTRIBUTING.md: primes known in advance must be the smallest primes, in order, all below 100;
+patterns projected onto the sieve must be composed in code, not included as finished data.
+solution_3's build-time tables break those rules; solution_1 complies (separate review,
+12 October). `hc/ispc-final-tables` (57e0792) stays as a record only. The scoreboard below is
+still the source for the PR numbers; ignore its solution_3 line. The READMEs' tables on
+6cd85cd predate run 9 and need updating before the PR opens.
+
 - [W] Done. Run ap-20261011T0645Z (run 9) ended 22:15 AEST, NZ$7.77, every pool deleted. The
   PR is built from two **branches** (the git proxy refuses tag pushes, so they aren't tags):
   `hc/ispc-final` = 216629d (solution_1 and solution_2) and `hc/ispc-final-tables` = 57e0792
@@ -22,7 +33,8 @@ gives the next something to link to. Owner in brackets: **C** is Chris, **W** th
     into `hc/champion` before the landing branch is rebuilt. README: one sentence on why.
   - **Zen 4 and Intel AVX-512 check of fold-1pc: yes, before the PR** (`D16as_v6`, `D16s_v5`).
     If it loses there, use the 16-lane loop on Zen 5 only, or say so in the README.
-  - **Tables wheel: a third entry** (changed 16:30). `PrimeISPC/solution_3` from
+  - **Tables wheel: a third entry** (changed 16:30; **superseded 12 October: dropped**, see the
+    update at the top of this step). `PrimeISPC/solution_3` from
     `hc/champion-tables`, with its own output label, tagged `faithful=yes` as
     `PrimeZig/solution_3` is. Its README says what is precomputed, that we're uneasy about it,
     and that `solution_1` is the wheel that computes everything itself; `solution_1`'s README
@@ -70,13 +82,16 @@ F1 or F2 arrives as a small follow-up PR to our own entry.
 
 ## 4. The ISPC PR (day 2-3, after the repo is public)
 
-- [W] Rebuild `hc/ispc-landing` on the upstream `drag-race` branch from `hc/ispc-final-tables`
-  (57e0792): `PrimeISPC/solution_1` (wheel), `PrimeISPC/solution_2` (base) and
-  `PrimeISPC/solution_3` (wheel with build-time tables) only.
-  One squashed commit, authored with the GitHub no-reply address. Leave out the build outputs
-  (`primes`, `*.o`) that `hc/champion` has tracked since the IDEAS 12 merge.
+- [W] Done 12 October: `hc/ispc-landing-2` = 6cd85cd, one squashed commit on upstream
+  `drag-race` c4e42f00, authored with the GitHub no-reply address: `PrimeISPC/solution_1`
+  (wheel) and `PrimeISPC/solution_2` (base) only, from `hc/ispc-final` (216629d), without the
+  build outputs. solution_3 is out (step 0). Still to do on that branch: bring both READMEs'
+  tables, output samples and summary percentages up to the run 9 scoreboard.
 - [W] Check against CONTRIBUTING.md line by line:
-  - Dockerfile builds from Ubuntu packages only (it does: `apt-get install ispc`); hadolint clean;
+  - Dockerfile builds from Ubuntu packages only (it does: `apt-get install ispc`); hadolint clean
+    (hadolint 2.12.0 with `config/hadolint.yml`: no findings on either Dockerfile, 12 October);
+  - wheel rules (#1095): solution_1 knows only 2, 3, 5, 7, 11 and 13 in advance, builds every
+    pattern in code on each pass, and its tables only describe the wheel;
   - output tags honest: `algorithm=wheel` and `algorithm=base`, `faithful=yes`, `bits=1`;
   - **language eligibility**: ISPC is new to the repo. Give the evidence the rules ask for:
     Intel's open-source compiler since 2011, packaged in Debian and Ubuntu, used in Embree,
@@ -103,6 +118,12 @@ F1 or F2 arrives as a small follow-up PR to our own entry.
   already asked.
 
 ## 5. The ports (after the ISPC PR is in review)
+
+**Before any port PR:** check the Zig and C++ wheel ports against the new wheel rules (#1095,
+CONTRIBUTING.md "Wheel algorithm"), as solution_1 was: which primes are known in advance (the
+smallest, in order, all below 100), and whether every projected pattern is composed in code
+rather than included as finished data. The Zig tables wheel (138e074) is built like solution_3,
+so expect it to fail the same way; check it first.
 
 From this run's results, one PR each, each with its own cold read:
 - **Zig** (`PrimeZig`, both designs): check the next free solution number against open PRs
