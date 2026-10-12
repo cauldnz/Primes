@@ -21,17 +21,17 @@ The buffer is not zeroed. `create` writes word 0, so the scan can read the bit f
 
 ### The base algorithm
 
-An outer loop scans the odd numbers from 3 for the next clear bit, then clears that factor's odd multiples. It stops at the square root of the sieve size. Every composite gets its own single-bit OR. Every odd factor takes the same path, including 9, 15 and the other composites, so nothing is assumed beyond 2 being the only even prime.
+An outer loop scans the odd numbers from 3 for the next clear bit, then marks that factor's odd multiples as composite. It stops at the square root of the sieve size. Each composite is marked by its own single-bit OR: directly for the large factors, and while the pattern is built for the small ones. Every odd factor takes the same path, including 9, 15 and the other composites, so nothing is assumed beyond 2 being the only even prime.
 
-- **Factors below 128 (dense).** The odd multiples of `p` repeat every `p` 64-bit words. For each factor the sieve builds the pattern of four periods (`4p` words, 256 multiples) in a scratch buffer it owns, with one single-bit OR per multiple. OCaml has no const generics, so the pattern is built at run time, once per factor per pass. Clearing then ORs the pattern into the sieve from the period that holds `p²`. The smaller multiples in that period are composite too; only `p` itself is restored afterwards.
+- **Factors below 128 (dense).** The odd multiples of `p` repeat every `p` 64-bit words. For each factor the sieve builds the pattern of four periods (`4p` words, 256 multiples) in a scratch buffer it owns, with one single-bit OR per multiple. OCaml can't work the pattern out at compile time, so the program builds it at run time, once per factor per pass. Marking then ORs the pattern into the sieve from the period that holds `p²`. The smaller multiples in that period are composite too; the program then clears the bit for `p` itself, which is prime.
 - **Two runs per step.** The dense loop takes two consecutive runs of the pattern at once: each step loads four pattern words and ORs each into the same word of both runs, eight sieve words in all. One pattern load then serves two sieve words. This gained 7.3% at one thread on AMD Zen 5, 8.5% on Zen 3 and 23% on Arm Neoverse N2. An odd run left over takes a one-run loop.
-- **Factors of 128 and above (sparse).** Eight multiples repeat every `p` bytes, each at a fixed bit. Their byte offsets and masks are computed once per factor, and a loop walks the `p`-byte chunks with one byte OR per composite. The partial last chunk stops at the first offset past the end.
+- **Factors of 128 and above (sparse).** Eight multiples repeat every `p` bytes, each at a fixed bit. The program works out their byte offsets and masks once per factor, and a loop walks the `p`-byte chunks with one byte OR per composite. The partial last chunk stops at the first offset past the end.
 
 The inner loops use only `int` arithmetic and the unboxed 64-bit primitives. The generated assembly (`ocamlopt -S`) shows no heap allocation and no boxed `Int64` in them; the only calls are the OCaml 5 safepoint polls on loop back edges. The build uses `-unsafe`, so `Bytes` accesses carry no bounds checks.
 
-On Arm, OCaml 5 puts a barrier (`dmb ishld`) before every 64-bit integer store, which is why this entry is slow on Cobalt 100: 3.4k passes at one thread, against 11.8k for the OxCaml entry. A form with 32-bit stores lost 38% at one thread on an Intel Xeon, so it would need a per-architecture file, as the OxCaml entry has. This entry has none.
+On Arm, OCaml 5 puts a barrier (`dmb ishld`) before every 64-bit integer store, which is why this entry is slow on Cobalt 100: 3.4k passes at one thread, against 11.8k for the OxCaml entry. A form with 32-bit stores lost 38% at one thread on the shared development container's Intel Xeon (2.8 GHz), so it would need a per-architecture file, as the OxCaml entry has. This entry has none.
 
-Three changes were tried and dropped: a dense limit of 64 or 96 instead of 128 (at most +1.9% on Zen 5, −3.1% to +0.4% on Zen 3), and the sieve in an `Int64` Bigarray (about 8% slower at one thread on an Intel Xeon).
+Two changes were tried and dropped: a smaller dense limit, 64 or 96 instead of 128 (at most +1.9% on Zen 5, −3.1% to +0.4% on Zen 3), and the sieve in an `Int64` Bigarray (about 8% slower at one thread on the same development container).
 
 ### Faithfulness
 
@@ -39,13 +39,13 @@ All of a sieve's state lives in the `sieve` record: the bit buffer and the patte
 
 ### Parallelism
 
-The multi-threaded runs start one domain per thread with `Domain.spawn`, each running its own sieves until the 5 seconds are up; the passes are summed. The program reports one domain, then all hardware threads (`Domain.recommended_domain_count`), then exactly four when the machine has more than four.
+The multi-threaded runs start one domain per thread with `Domain.spawn`, each running its own sieves until the five seconds are up; the passes are summed. The program reports one domain, then all hardware threads (`Domain.recommended_domain_count`), then exactly four when the machine has more than four.
 
-Each pass allocates a 62.5KB sieve and drops it, while almost nothing stays live. With OCaml's default settings the major GC then finishes a cycle every few passes, and each cycle stops every domain. For the multi-domain runs only, the program raises the GC's space overhead from 80 to 1,000, which makes cycles rare. The one-domain run keeps the default. Setting 1,000 from the start of the program changed the one-thread result on Zen 5 by −3.0% ± 3.9, within noise, and gained 16% at all 16 threads.
+Each pass allocates a 62.5KB sieve and drops it, while almost nothing stays live. With OCaml's default settings the major GC then finishes a cycle every few passes, and each cycle stops every domain. For the multi-domain runs only, the program raises the GC's space overhead from 80 to 1,000, which makes cycles rare. The one-domain run keeps the default. Setting 1,000 from the start of the program changed the one-thread result on Zen 5 by −3.0% (95% interval ±3.9%), within the noise, and gained 16% with all 16 threads on Zen 5.
 
 ## Results
 
-Passes in 5 seconds, the median of six rounds, with all five entries run in the same rounds on Azure on 2026-10-12. Zen 5 is an AMD EPYC 9V45 (D16as_v7), Zen 3 an AMD EPYC 7763 (D16a_v4) and Cobalt 100 an Arm Neoverse N2 (D4ps_v6). Cobalt has four vCPUs, so its 4T column is all threads. gkpotter's entry runs one thread only.
+Passes in five seconds, the median of six rounds, with all five entries run in the same rounds on Azure on 2026-10-12. Zen 5 is an AMD EPYC 9V45 (D16as_v7), Zen 3 an AMD EPYC 7763 (D16a_v4) and Cobalt 100 an Arm Neoverse N2 (D4ps_v6). Cobalt has four vCPUs, so its 4T column is all threads. gkpotter's entry runs one thread only.
 
 | | Zen 5 1T | Zen 5 4T | Zen 3 1T | Zen 3 4T | Cobalt 1T | Cobalt 4T |
 |---|---|---|---|---|---|---|
@@ -55,11 +55,11 @@ Passes in 5 seconds, the median of six rounds, with all five entries run in the 
 | mike-barber ([PrimeRust/solution_1](../../PrimeRust/solution_1)) | 126.3k | 471.8k | 56.5k | 220.0k | 42.9k | 171.3k |
 | the author's ISPC base ([PrimeISPC/solution_2](../../PrimeISPC/solution_2)) | 138.9k | 518.0k | 60.0k | 233.4k | 42.1k | 168.0k |
 
-The OxCaml entry is the same design with vector and untagged-integer kernels on x86-64 and 32-bit stores on Arm. At one thread this entry does 20 times the passes of gkpotter's on Zen 5 and 24% of the ISPC base.
+At one thread this entry does 20 times the passes of gkpotter's on Zen 5 and 24% of the ISPC base.
 
 ## How this was built
 
-This solution came out of the same experiment in agentic engineering with Claude (Anthropic) as the author's ISPC entries. A Claude Code session ported the design, wrote the self-test and ran the benchmarks; the author set the brief and made the calls.
+This solution came out of the same experiment in agentic engineering with Claude (Anthropic) as the author's ISPC entries. A Claude Code session ported the design, wrote the self-test and ran the benchmarks; the author set the brief and made the decisions.
 
 ## Run instructions
 
