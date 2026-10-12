@@ -1,16 +1,10 @@
 **Title:** Base algorithm: two questions on clearing order
 
 Two questions about the base rules, for the base entry in #PR. That PR doesn't depend on the
-answers: as submitted it uses the plain upward loop. If either change is allowed, I'll send it
-as a small follow-up PR. I'll follow whatever you decide:
-
-| Q1 | Q2 | What gets submitted as base |
-|---|---|---|
-| no | no | the plain upward loop, no blocks |
-| no | yes | blocks for the large factors, upward within each block |
-| yes | either | alternating direction (blocking adds little on top of it) |
-
-Anything ruled out stays out of the base entry.
+answers. As submitted, it clears all of a factor's multiples in one upward sweep, starting from
+the period of the sieve that holds p², before it looks for the next factor. For small factors
+the sweep works through whole periods, a vector of consecutive words at a time. If either change
+below is allowed, I'll send it as a small follow-up PR.
 
 **The entry.** An ISPC base sieve (`PrimeISPC/solution_2`, in #PR), tagged
 `algorithm=base,faithful=yes,bits=1`: one bit per odd number, factors found by scanning the sieve,
@@ -56,9 +50,9 @@ Is the version above base on the same footing as those?
 
 ### Why it matters
 
-At 1,000,000 the base sieve is 61 KB: one bit per odd number, which the rules fix. The fastest
-data cache is 32 KB on most x86 cores and 48 KB on Zen 5, so every upward sweep pushes the start
-of the sieve out of cache before the next sweep needs it. I ran the entry unchanged at sixteen
+At 1,000,000 a one-bit sieve of odd numbers is 61 KiB, and a base entry can't make it smaller.
+The fastest data cache is 32 KB on most x86 cores and 48 KB on Zen 5, so every upward sweep
+pushes the start of the sieve out of cache before the next sweep needs it. I ran the entry unchanged at sixteen
 sieve sizes on Zen 3, Zen 5 and Cobalt: on Zen 5 its throughput per number holds steady up to
 about 47 KB and falls 21% by 61 KB. On Cobalt (64 KB cache) it sits just inside and the step
 comes past 64 KB. Neither change shrinks the sieve; both only change which part of it is being
@@ -69,7 +63,16 @@ worked on, so the part in use stays in cache.
 The entry as submitted is in #PR. Each change on top of it: [alternating](https://github.com/cauldnz/Primes/tree/hc/f1-alternate/PrimeISPC/solution_2)
 and [blocked](https://github.com/cauldnz/Primes/tree/hc/f2-block-16/PrimeISPC/solution_2), in
 `primes_base.ispc`. Measured on the code in #PR, alternating adds 13.9% on Zen 5 and 10.0% on
-Zen 3 at one thread (6 paired rounds each); blocking added about 9% on both, measured on an
-earlier build of the same entry. That's why I'd like
-a ruling rather than guess either way. The size measurements are in
+Zen 3 at one thread (6 paired rounds each); blocking adds [F2 re-measure on the submitted
+build: Zen 5 X%, Zen 3 Y%]. That's why I'd like a ruling rather than guess either way. The size measurements are in
 [`results/hc/size-cliff`](https://github.com/cauldnz/Primes/tree/ispc-dev/ispc-dev/results/hc/size-cliff).
+
+### What I'd submit
+
+I'll follow whatever you decide, and anything ruled out stays out of the base entry:
+
+| Q1 | Q2 | What gets submitted as base |
+|---|---|---|
+| no | no | the plain upward loop, no blocks |
+| no | yes | blocks for the large factors, upward within each block |
+| yes | either | alternating direction (blocking adds little on top of it) |
