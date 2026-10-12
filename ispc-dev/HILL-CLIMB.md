@@ -53,6 +53,11 @@ count, candidate over champion in the same round; `analyze.py` gives their mean 
 - **Gates**: no loss of 1% or more at 1T or 4T on Intel AVX2 (for x86 code the AVX2 path shares)
   or on Cobalt 100 (for code the Arm build compiles). A target whose compiled code is
   byte-identical needs no run (the target-specific rule).
+- **Arm-only changes** (Chris, 12 October): a change that only the Arm build compiles, with the
+  x86 binaries byte-identical, is decided on Cobalt 100 alone, by the same interval test at 1T or
+  4T. Cobalt is the Arm reference chip. Each architecture keeps the code that suits it; record
+  in the entry's README which kernel each architecture gets and why, since different
+  optimisations for different chip families are a result worth reporting, not a workaround.
 - **Recorded, not decided**: all-threads and half-threads. A loss there of more than 5% is
   reported to Chris, not reverted.
 - **More rounds** while an interval straddles +1%, up to 20 in all. **Revert** otherwise.
