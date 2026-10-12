@@ -22,7 +22,7 @@
 //    masks are compile-time constants selected by p mod 16.
 //
 // After the dense phase the sparse factors clear the sieve block by block, as rogiervandam's
-// base entry (PrimeC/solution_5, shakeSieve) does: for each block of the bit array (32 KB by
+// base entry (PrimeC/solution_5, shakeSieve) does: for each block of the bit array (16 KB by
 // default, so it stays in L1), every sparse factor clears its multiples inside the block,
 // stepping 2 x factor, and carries its next position on to the following block. Each
 // composite is still cleared by its own single-bit OR; only the nesting of the loops changes.
