@@ -21,10 +21,10 @@ The buffer is not zeroed. `create` writes word 0, so the scan can read the bit f
 
 ### The base algorithm
 
-An outer loop scans the odd numbers from 3 for the next clear bit, then clears that factor's odd multiples. It stops at the square root of the sieve size. Every composite gets its own single-bit OR. Every odd factor takes the same path, including 9, 15 and the other composites, so nothing is assumed beyond 2 being the only even prime.
+An outer loop scans the odd numbers from 3 for the next clear bit, then marks that factor's odd multiples as composite. It stops at the square root of the sieve size. Each composite is marked by its own single-bit OR: directly for the large factors, and while the pattern is built for the small ones. Every odd factor takes the same path, including 9, 15 and the other composites, so nothing is assumed beyond 2 being the only even prime.
 
-- **Factors below 128 (dense).** The odd multiples of `p` repeat every `p` 64-bit words. For each factor the sieve builds the pattern of four periods (`4p` words, 256 multiples) in a scratch buffer it owns, with one single-bit OR per multiple. OCaml has no const generics, so the pattern is built at run time, once per factor per pass. Clearing then ORs the pattern into the sieve from the period that holds `p²`. The smaller multiples in that period are composite too; only `p` itself is restored afterwards.
-- **Factors of 128 and above (sparse).** Eight multiples repeat every `p` bytes, each at a fixed bit. Their byte offsets are computed once per factor, and a loop walks the `p`-byte chunks with one OR per composite. The partial last chunk uses byte ORs, so nothing past the end of the sieve is touched.
+- **Factors below 128 (dense).** The odd multiples of `p` repeat every `p` 64-bit words. For each factor the sieve builds the pattern of four periods (`4p` words, 256 multiples) in a scratch buffer it owns, with one single-bit OR per multiple. OCaml can't work the pattern out at compile time, so the program builds it at run time, once per factor per pass. Marking then ORs the pattern into the sieve from the period that holds `p²`. The smaller multiples in that period are composite too; the program then clears the bit for `p` itself, which is prime.
+- **Factors of 128 and above (sparse).** Eight multiples repeat every `p` bytes, each at a fixed bit. The program works out their byte offsets once per factor, and a loop walks the `p`-byte chunks with one OR per composite. The partial last chunk uses byte ORs, so nothing past the end of the sieve is touched.
 
 ### Two kernels: x86-64 and the rest
 
@@ -36,7 +36,7 @@ An outer loop scans the odd numbers from 3 for the next clear bit, then clears t
 | Dense copy | one 256-bit load, OR and store per 32 bytes; two runs of the pattern per loop step, so one pattern load serves two sieve vectors | eight 32-bit words per step, one run at a time |
 | Sparse | one OR into the unaligned 64-bit word that starts at the composite's byte, mask in the low byte; offsets untagged; masks are constants | one byte OR per composite; offsets and masks in registers |
 
-The split exists because the two kinds of machine wanted different code. OxCaml's vector types are x86-64 only. The 64-bit-word sparse OR, which won 16% to 33% on AMD Zen 3 and Zen 5, lost 28% on Arm Neoverse N2 (Azure Cobalt 100). Two runs per step in the scalar dense copy made no difference on Cobalt (−0.4%), so it stayed out.
+The split exists because the two kinds of machine wanted different code. OxCaml's vector types are x86-64 only. The 64-bit-word sparse OR, which won on AMD Zen 3 and Zen 5 (see the table below), lost 28% on Arm Neoverse N2 (Azure Cobalt 100). Two runs per step in the scalar dense copy made no difference on Cobalt (−0.4%), so it stayed out, although the same change gained 23% on Cobalt in the plain OCaml entry; the reason for the difference wasn't investigated.
 
 The scalar dense copy and pattern build use 32-bit stores because of Arm. There OCaml 5 puts a `dmb ishld` barrier before every 64-bit integer store, as part of its memory model; 32-bit stores do not get one. On Cobalt 100 a 62.5KB copy took about 19µs with every 64-bit store form tried and 6.2µs with pairs of 32-bit stores. The change gained 61% at one thread on Cobalt. The 32-bit words are the low and high halves of the 64-bit words used elsewhere, so on a little-endian machine the bit layout is the same. The partial last run of the pattern, in `primes.ml`, still uses 64-bit stores.
 
@@ -58,15 +58,15 @@ Not used: `local_` allocation, since the loops allocate nothing, and `Domain.Saf
 
 ### AVX2 on x86-64
 
-OxCaml turns on the instruction sets of the machine that built the compiler, so the x86-64 binary uses AVX2 when the OxCaml switch was built on an AVX2 machine. Intel has shipped AVX2 since Haswell (2013) and AMD since Excavator (2015); the binary will not run on an x86-64 CPU without it. OxCaml 5.2.0+ox cannot emit 512-bit code: a 512-bit load crashes its emitter.
+OxCaml turns on the instruction sets of the machine that built the compiler, so the x86-64 binary uses AVX2 when the OxCaml switch was built on an AVX2 machine. Intel has shipped AVX2 since Haswell (2013) and AMD since Excavator (2015); the binary will not run on an x86-64 CPU without it. Building the compiler inside the Dockerfile, on the machine that will run the program, gives a binary that machine can run. OxCaml 5.2.0+ox cannot emit 512-bit code: a 512-bit load crashes its emitter.
 
 ### How it got here
 
-Each change below was kept under a paired-run rule at one and four threads on AMD Zen 5 and Zen 3, with Intel and Arm Neoverse N2 as gates. Gains are at one thread, against the version before.
+Each change below was kept only if it won when run side by side with the version before, on the same machine, at one or four threads on both AMD Zen 5 and Zen 3, and lost nothing on Intel or on Arm Neoverse N2. A change that only the Arm build compiles was decided on Arm alone. Gains are at one thread, against the version before.
 
 | Change | Zen 5 | Zen 3 | Cobalt 100 |
 |---|---|---|---|
-| The plain OCaml 5.2 source, compiled by OxCaml | −4.1% | +8.4% | +163% |
+| The plain OCaml 5.2 source, compiled by OxCaml | −4.1% | +8.4% | +163% (cause not investigated) |
 | 256-bit vector dense copy | +60.5% | +41.4% | +0.1% |
 | x86-64 kernels: untagged `int64#` offsets, 64-bit-word sparse OR | +26.6% | +17.4% | +0.0% |
 | Constant masks in the x86-64 sparse loop | +5.8% | +12.6% | same binary |
@@ -82,13 +82,13 @@ All of a sieve's state lives in the `sieve` record: the bit buffer and the patte
 
 ### Parallelism
 
-The multi-threaded runs start one domain per thread with `Domain.spawn`, each running its own sieves until the 5 seconds are up; the passes are summed. The program reports one domain, then all hardware threads (`Domain.recommended_domain_count`), then exactly four when the machine has more than four.
+The multi-threaded runs start one domain per thread with `Domain.spawn`, each running its own sieves until the five seconds are up; the passes are summed. The program reports one domain, then all hardware threads (`Domain.recommended_domain_count`), then exactly four when the machine has more than four.
 
-Each pass allocates a 62.5KB sieve and drops it, while almost nothing stays live. With OCaml's default settings the major GC then finishes a cycle every few passes, and each cycle stops every domain. For the multi-domain runs the program raises the GC's space overhead from 80 to 1,000, which makes cycles rare. The one-domain run keeps the default. On the plain OCaml entry, setting 1,000 from the start changed the one-thread result on Zen 5 by −3.0% ± 3.9, within noise, and gained 16% at all 16 threads.
+Each pass allocates a 62.5KB sieve and drops it, while almost nothing stays live. With OCaml's default settings the major GC then finishes a cycle every few passes, and each cycle stops every domain. For the multi-domain runs the program raises the GC's space overhead from 80 to 1,000, which makes cycles rare. The one-domain run keeps the default. On the plain OCaml entry, setting 1,000 from the start changed the one-thread result on Zen 5 by −3.0% (95% interval ±3.9%), within the noise, and gained 16% with all 16 threads on Zen 5.
 
 ## Results
 
-Passes in 5 seconds, the median of six rounds, with all five entries run in the same rounds on Azure on 2026-10-12. Zen 5 is an AMD EPYC 9V45 (D16as_v7), Zen 3 an AMD EPYC 7763 (D16a_v4) and Cobalt 100 an Arm Neoverse N2 (D4ps_v6). Cobalt has four vCPUs, so its 4T column is all threads. gkpotter's entry runs one thread only.
+Passes in five seconds, the median of six rounds, with all five entries run in the same rounds on Azure on 2026-10-12. Zen 5 is an AMD EPYC 9V45 (D16as_v7), Zen 3 an AMD EPYC 7763 (D16a_v4) and Cobalt 100 an Arm Neoverse N2 (D4ps_v6). Cobalt has four vCPUs, so its 4T column is all threads. gkpotter's entry runs one thread only.
 
 | | Zen 5 1T | Zen 5 4T | Zen 3 1T | Zen 3 4T | Cobalt 1T | Cobalt 4T |
 |---|---|---|---|---|---|---|
@@ -102,13 +102,13 @@ The Zen runs measured the version before the last change. That change touched on
 
 ## How this was built
 
-This solution came out of the same experiment in agentic engineering with Claude (Anthropic) as the author's ISPC entries. A Claude Code session ported the design, wrote the self-test and ran the benchmarks; the author set the brief and made the calls.
+This solution came out of the same experiment in agentic engineering with Claude (Anthropic) as the author's ISPC entries. A Claude Code session ported the design, wrote the self-test and ran the benchmarks; the author set the brief and made the decisions.
 
 ## Run instructions
 
 ### Docker
 
-The `Dockerfile` builds `FROM oxcaml:5.2.0-ox`: Ubuntu 24.04 with the OxCaml switch `5.2.0+ox` on `PATH`. No public registry hosts that image; the author's benchmark machines build it once and cache it locally. `Dockerfile.standalone` builds the same switch from the OxCaml opam repository first, then the solution. That took 458 seconds on a 16-vCPU AMD Zen 5 machine:
+The `Dockerfile` builds `FROM oxcaml:5.2.0-ox`: Ubuntu 24.04 with the OxCaml switch `5.2.0+ox` on `PATH`. No public registry hosts that image; the author's benchmark machines build it once and cache it locally. `Dockerfile.standalone` builds the same switch from the OxCaml opam repository first, then the solution. Building both took 458 seconds on a 16-vCPU AMD Zen 5 machine:
 
 ```
 docker build -f Dockerfile.standalone -t primes-oxcaml-base .
