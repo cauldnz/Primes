@@ -82,11 +82,14 @@ F1 or F2 arrives as a small follow-up PR to our own entry.
 
 ## 4. The ISPC PR (day 2-3, after the repo is public)
 
-- [W] Done 12 October: `hc/ispc-landing-2` = 6cd85cd, one squashed commit on upstream
-  `drag-race` c4e42f00, authored with the GitHub no-reply address: `PrimeISPC/solution_1`
-  (wheel) and `PrimeISPC/solution_2` (base) only, from `hc/ispc-final` (216629d), without the
-  build outputs. solution_3 is out (step 0). Still to do on that branch: bring both READMEs'
-  tables, output samples and summary percentages up to the run 9 scoreboard.
+- [W] Done 12 October: **`hc/ispc-landing-3` = 36a1616**, one squashed commit on upstream
+  `drag-race` c4e42f00, authored and committed with the GitHub no-reply address:
+  `PrimeISPC/solution_1` (wheel) and `PrimeISPC/solution_2` (base) only. Its code files are
+  byte-identical to `hc/ispc-landing-2` (6cd85cd, from `hc/ispc-final` 216629d); only the two
+  READMEs differ: run 9 tables and output samples, the four-thread line, the known primes
+  (solution_1) and corrected percentages (solution_2). hadolint clean and `PRIMES_TEST=1` exit 0
+  for both. solution_3 is out (step 0). [C] The branch exists only in the local clone: the
+  session wasn't allowed to push it. Push it before opening the PR.
 - [W] Check against CONTRIBUTING.md line by line:
   - Dockerfile builds from Ubuntu packages only (it does: `apt-get install ispc`); hadolint clean
     (hadolint 2.12.0 with `config/hadolint.yml`: no findings on either Dockerfile, 12 October);

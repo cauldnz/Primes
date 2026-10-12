@@ -1,12 +1,13 @@
 <!--
 PR text for PlummersSoftwareLLC/Primes, target branch drag-race.
 Title: [ISPC] Add ISPC solutions 1 (wheel) and 2 (base)
-Code: hc/ispc-landing-2 (6cd85cd), one commit on upstream drag-race c4e42f00 (#1095, the wheel
-rules). solution_3 (the tables wheel) was dropped on 12 October; see LAUNCH-PLAN.md step 0.
+Code: hc/ispc-landing-3 (36a1616), one commit on upstream drag-race c4e42f00 (#1095, the wheel
+rules): the code of hc/ispc-landing-2 (6cd85cd) byte for byte, with both READMEs brought up to
+run 9. Not yet pushed: the session's push was refused; push the local branch first. solution_3 (the tables wheel) was dropped on 12 October; see LAUNCH-PLAN.md step 0.
 Numbers: run 9 final scoreboard (STATUS.md, morning report of run ap-20261011T0645Z; logs in
 results/hc/r9-final-wheel and r9-final-base, 6 rounds; solution_1 = "champ" rows of the wheel
-logs, solution_2 = "cand" rows of the base logs). The READMEs' tables predate run 9 and must be
-updated on the landing branch to match before the PR opens.
+logs, solution_2 = "cand" rows of the base logs). The READMEs on landing-3 use the same run 9
+data (1T / all threads, passes in 5 s).
 Fill in #N once the F1/F2 issue is filed (LAUNCH-PLAN step 4). Replace the climb map URL if it
 changes. Apply the house-style and economist-style skills to any edit. Everything below the
 comment is the PR body.
