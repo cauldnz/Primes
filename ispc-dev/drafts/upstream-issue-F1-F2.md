@@ -63,8 +63,8 @@ worked on, so the part in use stays in cache.
 The entry as submitted is in #PR. Each change on top of it: [alternating](https://github.com/cauldnz/Primes/tree/hc/f1-alternate/PrimeISPC/solution_2)
 and [blocked](https://github.com/cauldnz/Primes/tree/hc/f2-block-16/PrimeISPC/solution_2), in
 `primes_base.ispc`. Measured on the code in #PR, alternating adds 13.9% on Zen 5 and 10.0% on
-Zen 3 at one thread (6 paired rounds each); blocking adds [F2 re-measure on the submitted
-build: Zen 5 X%, Zen 3 Y%]. That's why I'd like a ruling rather than guess either way. The size measurements are in
+Zen 3 at one thread (6 paired rounds each); blocking adds 10.8% on Zen 5 and
+10.6% on Zen 3 (7 paired rounds each). That's why I'd like a ruling rather than guess either way. The size measurements are in
 [`results/hc/size-cliff`](https://github.com/cauldnz/Primes/tree/ispc-dev/ispc-dev/results/hc/size-cliff).
 
 ### What I'd submit
