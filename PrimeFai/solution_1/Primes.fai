@@ -1,0 +1,277 @@
+module Primes
+
+// Prime sieve drag race: a plain base-algorithm solution in Fai by cauldnz.
+//
+// Bit i of the sieve stands for the odd number 2i + 1; a set bit means composite.
+// The bits are packed 32 to an element of an `Array Int`. An array slot holds a
+// tagged 63-bit integer, and a value outside that range is boxed on the heap, so a
+// 64-bit word with its top bits set would allocate on every store (2.5 times fewer
+// passes). A new array is made for every pass and threaded through tail-recursive
+// loops; it is uniquely owned throughout, so `Array.unsafeSet` updates it in place.
+sieveSize : Int
+let sieveSize = 1000000
+
+expected : Int
+let expected = 78498
+
+runMillis : Int
+let runMillis = 5000
+
+label : String
+let label = "cauldnz-fai-base"
+
+tags : String
+let tags = "algorithm=base,faithful=yes,bits=1"
+
+/// Number of bits: one per odd number 1, 3, 5, ... up to size.
+bitCount : Int -> Int
+let bitCount size = (size + 1) / 2
+
+/// Number of 32-bit words holding those bits (at least one).
+wordCount : Int -> Int
+let wordCount size = Int.shiftRightLogical (bitCount size + 31) 5
+
+/// Largest q with q * q <= n.
+isqrt : Int -> Int
+let isqrt n = fixRoot n (Float.toInt (Float.sqrt (Int.toFloat n)))
+
+fixRoot : Int -> Int -> Int
+let fixRoot n q =
+  if (q + 1) * (q + 1) <= n then fixRoot n (q + 1) else if q * q > n then fixRoot n (q - 1) else q
+example: isqrt 1000000 = 1000
+example: isqrt 99 = 9
+
+isComposite : Int -> Array Int -> Bool
+let isComposite i bits =
+  Int.and (Int.shiftRightLogical (Array.unsafeGet (Int.shiftRightLogical i 5) bits) (Int.and i 31)) 1 <> 0
+
+/// Set bit i, then every step-th bit after it, up to nbits: one update per multiple.
+clearMultiples : Int -> Int -> Int -> Array Int -> Array Int
+let clearMultiples i step nbits bits =
+  if i >= nbits then
+    bits
+  else
+    let w = Int.shiftRightLogical i 5
+    let word = Int.or (Array.unsafeGet w bits) (Int.shiftLeft 1 (Int.and i 31))
+    clearMultiples (i + step) step nbits (Array.unsafeSet w word bits)
+
+/// Index of the first unmarked odd number at or after index i.
+nextPrimeIndex : Int -> Int -> Array Int -> Int
+let nextPrimeIndex i nbits bits =
+  if i < nbits && isComposite i bits then nextPrimeIndex (i + 1) nbits bits else i
+
+/// The base algorithm: find the next prime p, clear its odd multiples from p * p
+/// (bit index p * p / 2, stepping p bits = 2p in value), repeat while p <= sqrt(size).
+sieveFrom : Int -> Int -> Int -> Array Int -> Array Int
+let sieveFrom i q nbits bits =
+  let j = nextPrimeIndex i nbits bits
+  let p = 2 * j + 1
+  if p > q then bits else sieveFrom (j + 1) q nbits (clearMultiples (p * p / 2) p nbits bits)
+
+/// A new sieve for size, fully run.
+runSieve : Int -> Array Int
+let runSieve size = sieveFrom 1 (isqrt size) (bitCount size) (Array.repeat (wordCount size) 0)
+
+countFrom : Int -> Int -> Int -> Array Int -> Int
+let countFrom acc i nbits bits =
+  if i >= nbits then
+    acc
+  else
+    countFrom (if isComposite i bits then acc else acc + 1) (i + 1) nbits bits
+
+/// Primes up to and including size: 2, plus the unmarked odd numbers from 3.
+countPrimes : Int -> Array Int -> Int
+let countPrimes size bits = if size < 2 then 0 else countFrom 1 1 (bitCount size) bits
+
+public primeCount : Int -> Int
+let primeCount size = countPrimes size (runSieve size)
+example: primeCount 1 = 0
+example: primeCount 2 = 1
+example: primeCount 3 = 2
+example: primeCount 10 = 4
+example: primeCount 100 = 25
+example: primeCount 127 = 31
+example: primeCount 1000 = 168
+example: primeCount 16383 = 1900
+
+collectFrom : List Int -> Int -> Array Int -> List Int
+let collectFrom acc i bits =
+  if i < 1 then
+    acc
+  else
+    collectFrom (if isComposite i bits then acc else (2 * i + 1) :: acc) (i - 1) bits
+
+/// The primes up to and including size, ascending (for the contracts).
+public primesUpTo : Int -> List Int
+let primesUpTo size =
+  if size < 2 then [] else 2 :: collectFrom [] (bitCount size - 1) (runSieve size)
+example: primesUpTo 30 = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29]
+forall n: List.length (primesUpTo (smallSize n)) = primeCount (smallSize n)
+forall n: List.all (fun p -> p = 2 || Int.floorMod p 2 = 1) (primesUpTo (smallSize n))
+forall n: List.all (fun p -> noOddDivisor p 3) (primesUpTo (smallSize n))
+forall n: List.all (fun p -> p <= smallSize n) (primesUpTo (smallSize n))
+
+/// Spreads a generated Int (which `fai test` keeps within its max size, 100 by default)
+/// over the sizes 0 to 4999.
+smallSize : Int -> Int
+let smallSize n = Int.floorMod (n * 53) 5000
+example: smallSize 100 = 300
+
+/// True when p has no odd divisor d with d * d <= p, starting from d.
+noOddDivisor : Int -> Int -> Bool
+let noOddDivisor p d =
+  if d * d > p then true else if p % d = 0 then false else noOddDivisor p (d + 2)
+example: noOddDivisor 97 3
+example: not (noOddDivisor 91 3)
+
+/// Passes completed before the deadline, and the prime count of the first pass.
+worker : Clock -> Int -> Int -> Int -> Int * Int / { Clock }
+let worker clock deadline passes count =
+  if clock.now () >= deadline then
+    (passes, count)
+  else
+    let bits = runSieve sieveSize
+    let c = if passes = 0 then countPrimes sieveSize bits else count
+    worker clock deadline (passes + 1) c
+
+startWorker : Clock -> Int -> Unit -> Int * Int / { Clock }
+let startWorker clock deadline u = worker clock deadline 0 0
+
+/// Milliseconds as seconds with three decimals.
+seconds : Int -> String
+let seconds ms = Int.toString (ms / 1000) ++ "." ++ String.padStart 3 "0" (Int.toString (ms % 1000))
+example: seconds 5001 = "5.001"
+example: seconds 5020 = "5.020"
+
+/// One timed run on `threads` tasks, each running its own sieves. False on a wrong count.
+timedRun : { clock : Clock, concurrency : Concurrency, console : Console | _ } -> Int -> Bool / { Clock, Concurrency, Console }
+let timedRun rt threads =
+  let start = rt.clock.now ()
+  let deadline = start + runMillis
+  let results =
+    if threads = 1 then
+      [worker rt.clock deadline 0 0]
+    else
+      let thunks = List.map (fun k -> startWorker rt.clock deadline) (List.range 0 threads)
+      Async.parallel rt.concurrency thunks
+  let elapsed = rt.clock.now () - start
+  let passes = List.sum (List.map (fun r -> fst r) results)
+  if List.all (fun r -> snd r = expected) results then
+    let line =
+      rt.console.writeLine (label ++ ";" ++ Int.toString passes ++ ";" ++ seconds elapsed ++ ";" ++ Int.toString threads ++ ";" ++ tags)
+    true
+  else
+    let line = rt.console.writeError "ERROR: wrong prime count"
+    false
+
+fst : Int * Int -> Int
+let fst pair =
+  let (a, b) = pair
+  a
+
+snd : Int * Int -> Int
+let snd pair =
+  let (a, b) = pair
+  b
+
+testCases : List (Int * Int)
+let testCases = [
+  (1, 0),
+  (2, 1),
+  (3, 2),
+  (10, 4),
+  (100, 25),
+  (1000, 168),
+  (10000, 1229),
+  (100000, 9592),
+  (1000000, 78498),
+  (10000000, 664579),
+  (100000000, 5761455),
+  (127, 31),
+  (16383, 1900)
+]
+
+testOne : Console -> Bool -> Int * Int -> Bool / { Console }
+let testOne console ok case =
+  let (size, want) = case
+  let c = primeCount size
+  let mark = if c = want then "1" else "0"
+  let line =
+    console.writeLine ("size " ++ Int.toString size ++ " -> " ++ Int.toString c ++ " primes (expected " ++ Int.toString want ++ ") " ++ mark)
+  ok && c = want
+
+/// PRIMES_TEST is on when it holds a nonzero unsigned 32-bit number, as in the OCaml entry.
+testRequested : Option String -> Bool
+let testRequested value =
+  match value with
+  | None -> false
+  | Some raw ->
+    let v0 = String.trim raw
+    let v = if String.length v0 > 1 && String.take 1 v0 = "+" then String.drop 1 v0 else v0
+    let signed = String.take 1 v = "+" || String.take 1 v = "-"
+    match Int.fromString v with
+    | None -> false
+    | Some n -> not signed && String.length v <= 10 && n <> 0 && n <= 0xFFFFFFFF
+example: testRequested (Some "1")
+example: not (testRequested (Some "0"))
+example: not (testRequested None)
+example: not (testRequested (Some "-1"))
+
+/// Hardware threads: the "processor" lines of /proc/cpuinfo, at least 1.
+hardwareThreads : FileSystem -> Int / { FileSystem }
+let hardwareThreads fs =
+  match Path.fromString "/proc/cpuinfo" with
+  | Err e -> 1
+  | Ok path ->
+    match fs.readFile path with
+    | Err e -> 1
+    | Ok text ->
+      let n =
+        List.length (List.filter (fun l -> String.take 9 l = "processor") (String.split "\n" text))
+      if n < 1 then 1 else n
+
+// `main` needs a way to set the exit status, which the standard Runtime lacks:
+// a small capability over libc's exit.
+public interface Exit =
+  exit : Int -> Unit / { Exit }
+
+foreign "exit" cExit : Int -> Unit / { Exit }
+
+public exitCapability : Exit
+let exitCapability = { Exit with exit code = cExit code }
+
+public type AppRuntime = {
+  clock : Clock,
+  concurrency : Concurrency,
+  console : Console,
+  env : Env,
+  exit : Exit,
+  fs : FileSystem
+}
+
+public runtime : AppRuntime
+let runtime = {
+  clock = stdClock,
+  concurrency = stdConcurrency,
+  console = stdConsole,
+  env = stdEnv,
+  exit = exitCapability,
+  fs = stdFs
+}
+
+runAll : AppRuntime -> List Int -> Unit / { Clock, Concurrency, Console, Exit }
+let runAll rt runs =
+  match runs with
+  | [] -> ()
+  | t :: rest -> if timedRun rt t then runAll rt rest else rt.exit.exit 1
+
+public main : AppRuntime -> Unit / { Clock, Concurrency, Console, Env, Exit, FileSystem }
+let main rt =
+  if testRequested (rt.env.get "PRIMES_TEST") then
+    let ok = List.foldl (testOne rt.console) true testCases
+    rt.exit.exit (if ok then 0 else 1)
+  else
+    // One thread, then all hardware threads, then exactly four when there are more than four.
+    let hw = hardwareThreads rt.fs
+    let runs = if hw > 4 then [1, hw, 4] else if hw > 1 then [1, hw] else [1]
+    runAll rt runs
