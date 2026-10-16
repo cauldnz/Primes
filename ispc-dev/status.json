@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-16T23:37:22Z",
+  "updated_utc": "2026-10-16T23:38:27Z",
   "run": {
     "id": "ap-20261016T2335Z",
     "state": "running",
@@ -2242,12 +2242,6 @@
   ],
   "events": [
     {
-      "utc": "2026-10-11T21:57:49Z",
-      "level": "info",
-      "text": "ox-015 (oxcaml) rejected: ",
-      "auto": true
-    },
-    {
       "utc": "2026-10-11T22:04:13Z",
       "level": "decision",
       "text": "ox-016: two agents on the merged build 997f71f: four runs per dense step (ox-016) and a cheaper x86 pattern build (ox-017). Why: the two-run step gave +7.5%/+4.8%, so the next width is the obvious test; the pattern build is 9% of a Zen 3 pass and still uses tagged arithmetic. Sparse is parked (two losses in a row). Passed over: OxCaml dense limit (flat 96-160 locally). Expect: ox-016 +0% to +4%; ox-017 +1% to +4%.",
@@ -2575,6 +2569,15 @@
       "level": "info",
       "text": "fai-000: plan. Phase 0: feasibility in the container",
       "auto": true
+    },
+    {
+      "utc": "2026-10-16T23:38:27Z",
+      "level": "decision",
+      "text": "fai-000: background agent: Phase 0 feasibility (questions a-j with evidence, plain faithful sieve on hc/fai-base, cycle log for claims 1 and 2, local screen against plain OCaml). Why: RUN-PLAN Phase 0; Azure is blocked, so all of this runs in the container; one agent keeps the cycle log consistent. Expect: in-place updates via unique references; 3x to 10x slower than plain OCaml locally.",
+      "id": "fai-000",
+      "what": "background agent: Phase 0 feasibility (questions a-j with evidence, plain faithful sieve on hc/fai-base, cycle log for claims 1 and 2, local screen against plain OCaml)",
+      "why": "RUN-PLAN Phase 0; Azure is blocked, so all of this runs in the container; one agent keeps the cycle log consistent",
+      "expect": "in-place updates via unique references; 3x to 10x slower than plain OCaml locally"
     }
   ],
   "research": {
