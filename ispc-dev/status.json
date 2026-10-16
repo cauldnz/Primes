@@ -1,11 +1,11 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-16T23:39:00Z",
+  "updated_utc": "2026-10-16T23:39:42Z",
   "run": {
     "id": "ap-20261016T2335Z",
     "state": "running",
-    "mode": "local",
-    "mode_reason": "Azure service principal secret expired (AADSTS7000222); Phase 0 only",
+    "mode": "azure",
+    "mode_reason": "Azure restored 2026-10-17 with a new service-principal secret from Chris (expires 15 January); cached login; Batch account and group set inline for this session.",
     "started_utc": "2026-10-16T23:35:00Z",
     "time_box_hours": 5,
     "spend_nzd": 0,
@@ -2243,15 +2243,6 @@
   "events": [
     {
       "utc": "2026-10-11T22:07:46Z",
-      "level": "decision",
-      "text": "ox-016: submit af2adaf vs 997f71f on Zen 5 and Zen 3; no Cobalt run. Why: rebuilt here, PRIMES_TEST=1 exits 0; amd64/dense.ml only (arm64 byte-identical); 7.0 to 5.5 instructions per 32 B, dense copy -18% and whole pass +4.3% locally in 3 of 3 rounds. Expect: +2% to +5%.",
-      "id": "ox-016",
-      "what": "submit af2adaf vs 997f71f on Zen 5 and Zen 3; no Cobalt run",
-      "why": "rebuilt here, PRIMES_TEST=1 exits 0; amd64/dense.ml only (arm64 byte-identical); 7.0 to 5.5 instructions per 32 B, dense copy -18% and whole pass +4.3% locally in 3 of 3 rounds",
-      "expect": "+2% to +5%"
-    },
-    {
-      "utc": "2026-10-11T22:07:46Z",
       "level": "info",
       "text": "ox-016 (oxcaml) running: ",
       "auto": true
@@ -2576,6 +2567,11 @@
       "id": "run",
       "what": "two outputs: the normal dashboard (status.json, ledger, events as usual) and a separate report, docs/agent-languages.md published as a page, on whether agent-specific languages help",
       "why": "Chris asked for both (2026-10-17); the report is built around the author's claims with evidence collected per stage during the run, compared with run 10's OCaml and OxCaml lines"
+    },
+    {
+      "utc": "2026-10-16T23:39:42Z",
+      "level": "info",
+      "text": "Azure access restored with a new service-principal secret (expires 15 January): Batch account reachable, no pools running. Phase 1 can start once Phase 0 passes."
     }
   ],
   "research": {
