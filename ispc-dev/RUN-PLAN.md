@@ -70,6 +70,30 @@ Fai's author claims four things. Each gets a prediction and the evidence for or 
    Measure: the scoreboard against plain OCaml and Rust.
 4. (The fourth claim was cut off in the run's prompt; to be confirmed with Chris.)
 
+## Outputs (Chris, 2026-10-17)
+
+1. **The normal dashboard.** Every experiment, verdict, decision and event goes into
+   `status.json`, the ledger and `results/hc/EVENTS.jsonl` as in earlier runs, so the climb
+   shows on the status page like any other. Fai experiments use ids `fai-NNN`.
+2. **A separate report: "Do agent-specific programming languages help?"** Written at the end
+   as `docs/agent-languages.md` and published as a page, built around the author's claims as
+   hypotheses, with Fai against the general-purpose languages we have climbed with the same
+   design and harness (plain OCaml and OxCaml in run 10; Rust, Zig and C++ ports in run 9 where
+   the record allows). Evidence per claim, gathered during the run:
+   - correctness: mistakes caught per stage (type checker, effects, contracts, `fai test`,
+     self-test, bench) from the cycle log, against the same stages in run 10, reconstructed
+     from its ledger and agent reports (local-gate rejects, self-test failures, Cobalt
+     losses);
+   - tooling: wall-clock per edit-check-test cycle and per native build, against OCaml and
+     OxCaml compile times measured on the same container;
+   - speed and memory: the scoreboard (or local screens while Azure is blocked) and peak RSS;
+   - agent effort: tokens and tool calls per decided experiment and to a first passing self-test,
+     against run 10;
+   - what an agent had to read: llms.txt and docs consulted, and where they were enough or
+     wrong.
+   Each claim ends with a verdict (supported, not supported, not tested) and how strong the
+   evidence is. A single climb is one data point; the report says so.
+
 ## Morning report
 
 Open with whether Azure was usable and whether Phase 0 passed its feasibility test. Then the
