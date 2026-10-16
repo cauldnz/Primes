@@ -44,6 +44,16 @@ say so and carry on.
 - If Fai can't express an in-place sieve at a sane speed (about 100 times slower than our plain
   OCaml base), stop, record why, and report. That is a result.
 
+## Session boundary (Chris, 2026-10-17)
+
+Phase 0 ran in a session shared with run 10 and the F2 measurement, so its main-session tokens
+are not comparable with run 10's (which began after a clear). At the Phase 0 / Phase 1 boundary,
+once the Phase 0 agent has reported and everything is pushed, Chris clears the session and a new
+one resumes run 11 from git (`STATUS.md` "Run 11 handover", `status.json`, the ledger). The
+secret goes into the environment's variables first, so the new session logs in without it.
+In the report, claim 4 leads with background-agent tokens and source size; main-session tokens
+are split into new input plus output against cache reads, with Phase 0's marked as shared.
+
 ## Phase 1: bench
 
 A bench kind for Fai in `hc-pool.sh` on the pattern of the `ocaml` kind (the Dockerfile installs

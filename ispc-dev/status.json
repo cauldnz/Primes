@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-16T23:41:17Z",
+  "updated_utc": "2026-10-16T23:49:21Z",
   "run": {
     "id": "ap-20261016T2335Z",
     "state": "running",
@@ -2243,15 +2243,6 @@
   "events": [
     {
       "utc": "2026-10-11T22:10:30Z",
-      "level": "decision",
-      "text": "ox-017: submit 2d1ae49 vs 997f71f on Zen 5, Zen 3 and Cobalt. Why: rebuilt here, PRIMES_TEST=1 exits 0; read build_pattern: zeroing by p 256-bit stores (x xor x of an unread load), then still 256 single-bit ORs, one per multiple; dense_pattern 17.5 to 11.3 us locally, pass +3%. Arm code was moved into scalar/dense.ml, so the Arm binary is not byte-identical: Cobalt runs it. Expect: +1% to +4%.",
-      "id": "ox-017",
-      "what": "submit 2d1ae49 vs 997f71f on Zen 5, Zen 3 and Cobalt",
-      "why": "rebuilt here, PRIMES_TEST=1 exits 0; read build_pattern: zeroing by p 256-bit stores (x xor x of an unread load), then still 256 single-bit ORs, one per multiple; dense_pattern 17.5 to 11.3 us locally, pass +3%. Arm code was moved into scalar/dense.ml, so the Arm binary is not byte-identical: Cobalt runs it",
-      "expect": "+1% to +4%"
-    },
-    {
-      "utc": "2026-10-11T22:10:30Z",
       "level": "info",
       "text": "ox-017 (oxcaml) running: ",
       "auto": true
@@ -2571,6 +2562,15 @@
       "utc": "2026-10-16T23:41:17Z",
       "level": "info",
       "text": "RUN-PLAN updated from Chris's full prompt: claims 3 (in-place evidence) and 4 (token efficiency) added, lesson candidates in results/hc/fai-lessons.md, notes for the Fai author drafted in drafts/fai-notes.md (no upstream contact)."
+    },
+    {
+      "utc": "2026-10-16T23:49:21Z",
+      "level": "decision",
+      "text": "run: clear the session at the Phase 0 / Phase 1 boundary; the new session resumes run 11 from a handover note in STATUS.md. Why: Phase 0 shares this session with run 10, which skews main-session tokens per experiment (claim 4); agents' tokens, cycle logs and the scoreboard are unaffected. Passed over: restarting run 11 from scratch.",
+      "id": "run",
+      "what": "clear the session at the Phase 0 / Phase 1 boundary; the new session resumes run 11 from a handover note in STATUS.md",
+      "why": "Phase 0 shares this session with run 10, which skews main-session tokens per experiment (claim 4); agents' tokens, cycle logs and the scoreboard are unaffected",
+      "instead": "restarting run 11 from scratch"
     }
   ],
   "research": {
