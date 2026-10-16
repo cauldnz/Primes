@@ -1,99 +1,77 @@
-# Run plan: OxCaml (agreed with Chris, 2026-10-12 05:25 AEST)
+# Run plan: Fai (run 11, agreed with Chris, 2026-10-17 10:35 AEST)
 
-Read this after `AUTOPILOT.md`. It sets this run's priorities, time box and end-of-run steps.
-Everything else in the brief, the runbook and `HILL-CLIMB.md` still applies, including the
-"Never without Chris" list. The previous plan (run 9: size, final scoreboard) is in git history;
-its results are in the run 9 morning report in `STATUS.md`.
+Read this after `AUTOPILOT.md`. It sets this run's priorities, limits and end steps. Everything
+else in the brief, the runbook and `HILL-CLIMB.md` still applies, including the "Never without
+Chris" list. The previous plan (run 10, OxCaml) is in git history; its results are in the run 10
+morning report in `STATUS.md`.
 
-This is the first climb in a language new to the machine, and the first in a language none of
-our entries uses. Backlog item 36 has the background; the workshop's set-up notes are in
-agentic-hill-climber `examples/primes/next-climbs.md` (summarised here, so you don't need them).
+This is a research climb in Fai (https://github.com/Krzysztof-Cieslak/fai), a small, strict,
+pure functional language in the ML / F# family with a native compiler, built for AI agents.
+**No upstream PR, ever.** The work lives in `PrimeFai/solution_1` on `hc/fai-*` branches only.
 
 ## Limits
 
-- Time box: 6 hours from the session start. Stop starting experiments at 5h15; the final
+- Time box: 5 hours from the session start. Stop starting experiments at 4h15; the final
   scoreboard and shutdown take the last 45 minutes.
-- Azure: NZ$25 for the run, no new pools past NZ$20, Spot only, 128 Spot vCPUs, at most 6 pools.
-  Every pool's deadline is the run's end; take a pool down as soon as its work is done.
-- Check the CPU model line of every log against the pool's intended chip before counting it.
-- **Don't touch the ISPC entries.** `hc/champion`, `hc/champion-tables`, `hc/ispc-final` and
-  `hc/ispc-final-tables` are frozen for the PR. ISPC builds appear in this run only as controls.
-- Write a "Run ... started" event first thing (`st.py`) so the token counter can attribute the
-  run, and report main-session and background-agent tokens separately.
+- Azure: NZ$15 for the run, Spot only, take every pool down when done and confirm nothing is
+  left running (`az batch pool list`). Check each log's CPU model line before counting it.
+- The ISPC and OCaml entries are frozen; they appear only as controls.
+- Write a "Run ... started" event first thing (`st.py`).
 
-## The keep rule
+## Step 0: Azure access
 
-As in run 9 (`HILL-CLIMB.md`, "Acceptance rule"): decide per thread at 1T and 4T on Zen 5 and
-Zen 3; Intel AVX2 and Cobalt are gates; all-threads is recorded, not decided.
+Check `az account show` and a harmless read of the Batch account before anything else. If the
+cached login or the service principal secret fails, don't work around it: tell Chris exactly
+what is needed, carry on with Phase 0 only (it runs in the container), and stop before Phase 1.
+Local timings in Phase 0 screen only; nothing is decided on them.
 
-## What we know about OxCaml (checked 11 October)
+Knowledge base: if the agentic-hill-climber knowledge base (knowledge/, Foundry IQ) is up and
+its endpoint is known, query it before planning and cite card ids in ledger entries; if not,
+say so and carry on.
 
-- Install: an opam switch, `5.2.0+ox`, from Jane Street's opam repository:
-  `opam switch create 5.2.0+ox --repos ox=git+https://github.com/oxcaml/opam-repository.git,default`.
-  It builds the compiler from source; expect 30 minutes or more on a 16-vCPU node. Needs
-  `autoconf` and glibc.
-- **No Alpine.** OxCaml needs glibc, so the runtime stage can't copy into `alpine` as gkpotter's
-  OCaml entries do. Use a Debian or Ubuntu slim image.
-- x86-64 and Arm64 are supported. **SIMD is x86-64 only** for now, so Cobalt gets a scalar build.
-- Not yet known: which SIMD widths OxCaml exposes on x86 (128-bit only, or 256 and 512), and how
-  unboxed types and `local` allocation compile in a tight loop. Find out in phase 0.
-- The container may or may not reach `opam.ocaml.org` (Chris will say in the start prompt). If it
-  can't, every compile happens on a Batch node; batch your edits and keep each round trip worth it.
+## Phase 0 (90 minutes at most): feasibility
 
-## Phase 0, first 90 minutes: toolchain and bench
+- Install Fai from its prebuilt release; record version and commit. Read `llms.txt` and `docs/`
+  before writing code.
+- Answer, with evidence: mutable arrays or byte buffers and whether updates happen in place;
+  bitwise operations and shifts on 64-bit integers; loops or guaranteed tail calls; threads or
+  structured concurrency usable for one sieve per thread; a monotonic clock; stdout; bounds
+  checks and any unchecked access; SIMD (likely none); arm64 support.
+- Write a plain faithful base sieve in `PrimeFai/solution_1` on `hc/fai-*` branches: one bit per
+  odd number, the contest output format, a `PRIMES_TEST` self-test, label `cauldnz-fai-base`,
+  tags `algorithm=base,faithful=yes,bits=1`. Use Fai's `example` and `forall` contracts for the
+  sieve's properties.
+- If Fai can't express an in-place sieve at a sane speed (about 100 times slower than our plain
+  OCaml base), stop, record why, and report. That is a result.
 
-1. **Build the toolchain once per architecture** on a Batch node (`Standard_D16as_v7` for amd64,
-   `Standard_D4ps_v6` for arm64; Cobalt will take longer): a Docker image with the switch, timed.
-   `docker save | zstd` it to the bench storage account, and have start tasks `docker load` it,
-   so a pool comes up in minutes and a pre-empted node doesn't rebuild. The image never leaves our
-   storage account. Record the build time per architecture; it matters for the upstream question.
-2. **A bench kind `ocaml`** in `hc-pool.sh`, on the pattern of `port`: candidate and champion
-   Dockerfiles that start `FROM` the cached image (bench Dockerfiles differ from the submission
-   Dockerfile only in that first stage), controls gkpotter's `PrimeOCaml/solution_1` and
-   `solution_2` (from `primeimages/ocaml:5.1`), mike-barber's Rust and our ISPC base at
-   `hc/ispc-final`. Self-test and paired rounds as usual.
-3. If the container can reach `opam.ocaml.org`, build the switch in a background agent here too,
-   for local compile checks. Don't wait for it.
+## Phase 1: bench
 
-If the toolchain won't build on a node within the first 90 minutes, stop and report: that is the
-finding, and the plain-OCaml line (below) still runs.
+A bench kind for Fai in `hc-pool.sh` on the pattern of the `ocaml` kind (the Dockerfile installs
+Fai from its release; a cached image per architecture). Controls: our plain OCaml base
+(`hc/ocaml-final`, `PrimeOCaml/solution_4`), mike-barber's Rust, our ISPC base
+(`hc/ispc-landing-4`, `PrimeISPC/solution_2`). Per thread at 1T and 4T on Zen 5 and Zen 3,
+Cobalt at 1T.
 
-## Phase 1, next two hours: a faithful base, two ways
+## Phase 2: climb
 
-Both in a new folder, `PrimeOCaml/solution_3` (OxCaml) and `PrimeOCaml/solution_4` (plain
-OCaml), on `hc/ocaml-*` branches. Tags `algorithm=base,faithful=yes,bits=1`, own output labels
-(`cauldnz-oxcaml-base`, `cauldnz-ocaml-base`), the contest's output format, a self-test and the
-size sweep as for the other ports.
+Climb the Fai base under the keep rule (`HILL-CLIMB.md`, "Acceptance rule"). Port the base
+design from the OCaml line first (kind `borrowed`, name the source), then Fai-specific ideas.
 
-- **Plain OCaml 5.2 first**, the control: the design of our ISPC base (one bit per odd number,
-  64-bit words, dense small factors from word patterns, the factor-3 set-up, sparse large
-  factors), with `Bytes` or `Bigarray` and no allocation in the loop. Built with the upstream
-  compiler from `ocaml/opam` or `primeimages/ocaml`, so it needs no special toolchain.
-- **Then OxCaml**: the same design with unboxed integers, `local` allocation where it matters,
-  and SIMD for the dense phase on x86.
+## The author's claims, as hypotheses
 
-Measure both against gkpotter's entries, Rust and our ISPC base. The gap between the two lines is
-what OxCaml's extensions are worth; record it plainly.
+Fai's author claims four things. Each gets a prediction and the evidence for or against:
 
-## Phase 2: climb (the rest, to 5h15)
-
-Climb the OxCaml base under the keep rule. Borrow from the ISPC, Zig, Rust and C++ climbs and
-label each borrowed idea with its source (`kind: borrowed`), so the generalising record stays
-honest. Port a kept idea to the plain-OCaml line when it's cheap, so the control stays a fair
-comparison. A wheel only if the base has stopped moving.
-
-Record for `docs/generalising.md`: set-up cost (harness lines, toolchain build time), experiments
-and keeps, the plain-OCaml vs OxCaml gap at the end, node-minutes.
-
-## Final scoreboard (last 45 minutes)
-
-Per thread at 1T and 4T on Zen 5 and Zen 3, and Cobalt at 1T: OxCaml base, plain-OCaml base,
-gkpotter's two entries, mike-barber's Rust and our ISPC base. Final refs as branches
-`hc/oxcaml-final` and `hc/ocaml-final` (tag pushes are refused).
+1. **Correctness**: the types, effects and contracts catch agent mistakes early. Measure:
+   mistakes caught by `fai check`, `fai test` or contracts before timing, against those that
+   reached the bench or the self-test; compare with run 10's OCaml and OxCaml lines.
+2. **Fast tooling**: quicker iteration. Measure: wall-clock time per edit-check-test cycle and
+   per build, against OCaml and OxCaml in run 10.
+3. **Generated-code speed and memory management** (Perceus-style reference counting with reuse).
+   Measure: the scoreboard against plain OCaml and Rust.
+4. (The fourth claim was cut off in the run's prompt; to be confirmed with Chris.)
 
 ## Morning report
 
-Open with whether the toolchain built and how long it took per architecture. Then the
-scoreboard, the OxCaml vs plain-OCaml gap and what it came from, keeps and rejects by kind, the
-upstream questions this run answers (folder name, build time on the runners, a hosted base image),
-and tokens per experiment (main session and background agents separately).
+Open with whether Azure was usable and whether Phase 0 passed its feasibility test. Then the
+answers to the Phase 0 questions with evidence, the scoreboard if Phase 1 ran, the four claims
+with their evidence, and tokens (main session and background agents separately).

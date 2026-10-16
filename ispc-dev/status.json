@@ -1,21 +1,25 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-11T23:49:28Z",
+  "updated_utc": "2026-10-16T23:37:22Z",
   "run": {
-    "id": "ap-20261011T1929Z",
-    "state": "stopped",
-    "mode": "azure",
-    "mode_reason": "Run 10 (OxCaml). Azure via the container's cached login; Batch account and group set inline for this session.",
-    "started_utc": "2026-10-11T19:29:00Z",
-    "time_box_hours": 6,
-    "spend_nzd": 7.72,
-    "spend_cap_nzd": 25,
-    "ends_utc": "2026-10-12T01:29:00Z",
+    "id": "ap-20261016T2335Z",
+    "state": "running",
+    "mode": "local",
+    "mode_reason": "Azure service principal secret expired (AADSTS7000222); Phase 0 only",
+    "started_utc": "2026-10-16T23:35:00Z",
+    "time_box_hours": 5,
+    "spend_nzd": 0,
+    "spend_cap_nzd": 15,
+    "ends_utc": "2026-10-17T04:35:00Z",
     "background_runs": 0,
     "last_tick_utc": "2026-10-11T23:45:45Z",
     "wakeup": null
   },
-  "current": null,
+  "current": {
+    "id": "fai-000",
+    "phase": "plan",
+    "detail": "Phase 0: feasibility in the container"
+  },
   "scoreboard": [
     {
       "machine": "Zen 5 (EPYC 9V45, D16as_v7)",
@@ -2238,30 +2242,6 @@
   ],
   "events": [
     {
-      "utc": "2026-10-11T21:51:28Z",
-      "level": "info",
-      "text": "ox-014 (oxcaml) running: ",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T21:51:53Z",
-      "level": "decision",
-      "text": "ox-015: background agent: two chunks per sparse loop iteration in the x86 kernel. Why: sparse is 52% of a Zen 3 pass at 1.56 cycles per mark; 5 of the 39 instructions per chunk are loop overhead and poll, which a second chunk per iteration halves while sharing the eight offset registers. Expect: +2% to +6% at 1T.",
-      "id": "ox-015",
-      "what": "background agent: two chunks per sparse loop iteration in the x86 kernel",
-      "why": "sparse is 52% of a Zen 3 pass at 1.56 cycles per mark; 5 of the 39 instructions per chunk are loop overhead and poll, which a second chunk per iteration halves while sharing the eight offset registers",
-      "expect": "+2% to +6% at 1T"
-    },
-    {
-      "utc": "2026-10-11T21:57:49Z",
-      "level": "decision",
-      "text": "ox-015: reject at the local gate; park the x86 sparse line. Why: fewer instructions per composite in four variants and no measured gain (whole pass -1.5% locally); with ox-013 also losing, two sparse ideas in a row failed and the loop now looks bound by memory traffic, not instruction count. Passed over: a third sparse variant.",
-      "id": "ox-015",
-      "what": "reject at the local gate; park the x86 sparse line",
-      "why": "fewer instructions per composite in four variants and no measured gain (whole pass -1.5% locally); with ox-013 also losing, two sparse ideas in a row failed and the loop now looks bound by memory traffic, not instruction count",
-      "instead": "a third sparse variant"
-    },
-    {
       "utc": "2026-10-11T21:57:49Z",
       "level": "info",
       "text": "ox-015 (oxcaml) rejected: ",
@@ -2577,6 +2557,23 @@
       "utc": "2026-10-11T23:49:28Z",
       "level": "info",
       "text": "Run ap-20261011T1929Z is stopped; spend NZ$7.72.",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-16T23:37:22Z",
+      "level": "info",
+      "text": "Run ap-20261016T2335Z started (run 11, Fai research climb; RUN-PLAN for run 11). Step 0: Azure blocked, service principal client secret expired (AADSTS7000222); Phase 0 only, in the container, stop before Phase 1. Knowledge base not available (no checkout or endpoint). Fai 0.1.0 (release commit ca5b9c8) installed via a loopback release mirror: the launcher ignores the proxy CA."
+    },
+    {
+      "utc": "2026-10-16T23:37:22Z",
+      "level": "info",
+      "text": "Run ap-20261016T2335Z started (local mode).",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-16T23:37:22Z",
+      "level": "info",
+      "text": "fai-000: plan. Phase 0: feasibility in the container",
       "auto": true
     }
   ],
