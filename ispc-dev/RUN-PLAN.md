@@ -67,8 +67,22 @@ Fai's author claims four things. Each gets a prediction and the evidence for or 
 2. **Fast tooling**: quicker iteration. Measure: wall-clock time per edit-check-test cycle and
    per build, against OCaml and OxCaml in run 10.
 3. **Generated-code speed and memory management** (Perceus-style reference counting with reuse).
-   Measure: the scoreboard against plain OCaml and Rust.
-4. (The fourth claim was cut off in the run's prompt; to be confirmed with Chris.)
+   Measure: the scoreboard against plain OCaml and Rust with the same design, and whether the
+   sieve's array updates actually happen in place (evidence: a profile, allocation counts or the
+   generated code).
+4. **Token efficiency of ML-family languages.** Measure: tokens per experiment against run 10,
+   and the size of the same base sieve's source in tokens across Fai, OCaml (solution_4), Rust
+   and ISPC, counted with one tokenizer (named in the report).
+
+Say plainly where a claim isn't supported, and where one run is too small to tell.
+
+## Also record, for the knowledge base and the talk
+
+- Tokens per experiment, main session and background agents separately.
+- Lesson candidates as they happen (prediction misses, protocol surprises, anything
+  Fai-specific), one line each with the experiment id, in `results/hc/fai-lessons.md`.
+- Anything worth telling Krzysztof (bugs found, performance gaps with a minimal repro), drafted
+  in `drafts/fai-notes.md`. Don't file issues upstream or contact anyone.
 
 ## Outputs (Chris, 2026-10-17)
 
@@ -96,6 +110,7 @@ Fai's author claims four things. Each gets a prediction and the evidence for or 
 
 ## Morning report
 
-Open with whether Azure was usable and whether Phase 0 passed its feasibility test. Then the
-answers to the Phase 0 questions with evidence, the scoreboard if Phase 1 ran, the four claims
-with their evidence, and tokens (main session and background agents separately).
+Whether Fai could run the sieve and how long set-up took, the scoreboard, the four claims with
+evidence, keeps and rejects by kind, tokens per experiment (main session and background agents
+separately), and the lesson candidates. Step 0 note: Azure failed at the start (expired
+service-principal secret) and was restored mid-Phase 0 with a new secret from Chris.
