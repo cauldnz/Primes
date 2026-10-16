@@ -1,8 +1,47 @@
 # Status from the Claude Code session
-Autopilot lock: ap-20261016T2335Z 2026-10-16T23:40Z
+
 
 **Last updated:** 2026-10-11 22:00 AEST. Living file; earlier versions are in
 `git log -p ispc-dev/STATUS.md`. Replies go in `ispc-dev/NEXT-STEPS.md`.
+
+## Run 11 handover (Phase 0 done, 2026-10-17 10:55 AEST): resume here in a new session
+
+Run `ap-20261016T2335Z`, the Fai research climb. Plan: `RUN-PLAN.md` (run 11). Chris clears the
+session at this boundary so Phases 1 and 2 run in a clean one (main-session tokens comparable
+with run 10). No upstream PR, ever.
+
+- **Time and spend:** Phase 0 took 17 minutes (23:35-23:52 UTC). The 5-hour box restarts at the
+  new session's start, less those 17 minutes: about 4 h 40 m. Spend so far NZ$0 (cap NZ$15).
+  No pools running at handover.
+- **Azure:** the old service-principal secret expired; Chris issued a new one (expires
+  15 January). It is meant to be in the environment's variables (`AZURE_*`); log in with the
+  runbook's "In-session login". Batch account and group names come from Chris's prompt, never
+  from a file.
+- **Fai:** 0.1.0, release commit ca5b9c8, installed at `/opt/fai` (`export PATH=/opt/fai/bin:$PATH
+  FAI_HOME=/opt/fai`). If the container is fresh: the launcher ignores the proxy CA, so fetch
+  `release.json`, `SHA256SUMS` and the two x86-64 Linux tarballs from the v0.1.0 release with
+  curl into `<mirror>/download/v0.1.0/`, serve it with `python3 -m http.server` on 127.0.0.1,
+  and run `fai toolchain install 0.1.0` with `FAI_RELEASE_BASE_URL=http://127.0.0.1:<port>`.
+  On Azure nodes the normal installer works (no proxy).
+- **Phase 0 result:** Fai runs the faithful base sieve. `hc/fai-champion` = `hc/fai-base` 1ce921d
+  (`PrimeFai/solution_1`): 32 bits per `Array Int` slot (values outside 63 bits box), one
+  read-OR-write per composite, contracts (8 examples, 4 foralls), self-test 13/13. Local screen
+  (Xeon, 1T): 1.1k passes vs OCaml solution_4 21.5k (20x) and the same loop in plain OCaml 2.3k
+  (2.1x). Evidence: `results/hc/fai-000-feasibility/` (README answers a-j, CYCLES.md).
+- **Harness:** `hc-pool.sh` kind `fai` (cand/champ `PrimeFai/solution_1`; controls plain OCaml
+  `hc/ocaml-final` solution_4, Rust, ISPC `hc/ispc-landing-4` solution_2). Untested on Azure; the
+  Dockerfile on `hc/fai-base` installs Fai 0.1.0 in the build stage and hasn't been built yet.
+  `submit` refuses cand = champ, so the first baseline task needs a variant (or CAND_DIR trick).
+- **Next step (Phase 1):** pools up (Zen 5 `D16as_v7`, Zen 3 `D16a_v4`, Cobalt `D4ps_v6`), a first
+  `fai` task to prove the Dockerfile and give the baseline per thread at 1T and 4T, CPU model
+  lines checked. Then Phase 2: port the OCaml base design (dense word patterns, two runs per
+  step; kind borrowed, source `hc/ocaml-final`), then Fai-specific ideas (inline-friendly
+  access, 62-bit layout, fewer runtime calls per mark).
+- **Records:** lesson candidates in `results/hc/fai-lessons.md`; notes for the Fai author drafted in
+  `drafts/fai-notes.md` (don't send); the report goes to `docs/agent-languages.md` at the end.
+- **Tokens, Phase 0 (shared session, not comparable with run 10):** main session 130 calls,
+  32.8M tokens (32.5M cache reads, 0.24M writes, 24k output); background agent 1 run, 206,590
+  tokens, 131 tool calls.
 
 ## Morning report: run ap-20261011T1929Z, the OxCaml climb (05:29 to 11:29 AEST, 12 October)
 

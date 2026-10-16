@@ -1,9 +1,9 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-16T23:52:43Z",
+  "updated_utc": "2026-10-16T23:53:33Z",
   "run": {
     "id": "ap-20261016T2335Z",
-    "state": "running",
+    "state": "idle",
     "mode": "azure",
     "mode_reason": "Azure restored 2026-10-17 with a new service-principal secret from Chris (expires 15 January); cached login; Batch account and group set inline for this session.",
     "started_utc": "2026-10-16T23:35:00Z",
@@ -15,11 +15,7 @@
     "last_tick_utc": "2026-10-11T23:45:45Z",
     "wakeup": null
   },
-  "current": {
-    "id": "fai-000",
-    "phase": "plan",
-    "detail": "Phase 0: feasibility in the container"
-  },
+  "current": null,
   "scoreboard": [
     {
       "machine": "Zen 5 (EPYC 9V45, D16as_v7)",
@@ -2264,20 +2260,6 @@
   "events": [
     {
       "utc": "2026-10-11T22:18:32Z",
-      "level": "decision",
-      "text": "ox-standalone: don't retry the standalone build on Cobalt. Why: it filled the node's disk; its question (does the standalone Dockerfile work, how long) is answered on Zen 5 (458 s, self-test passes), and the Cobalt switch build time is known from ox-000 (604 s switch, 775 s image).",
-      "id": "ox-standalone",
-      "what": "don't retry the standalone build on Cobalt",
-      "why": "it filled the node's disk; its question (does the standalone Dockerfile work, how long) is answered on Zen 5 (458 s, self-test passes), and the Cobalt switch build time is known from ox-000 (604 s switch, 775 s image)"
-    },
-    {
-      "utc": "2026-10-11T22:18:32Z",
-      "level": "info",
-      "text": "ox-014 kept.. Zen 5 +7.7% 1T, Zen 3 +4.2%; champion 997f71f",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T22:18:32Z",
       "level": "info",
       "text": "Scoreboard, oxcaml base on Zen 5 (EPYC 9V45, D16as_v7): 64700 → 69300 at 1T, 236700 → 252500 at 4 threads.",
       "auto": true
@@ -2593,6 +2575,17 @@
       "level": "info",
       "text": "fai-001 (fai) confirmed: ",
       "auto": true
+    },
+    {
+      "utc": "2026-10-16T23:53:33Z",
+      "level": "info",
+      "text": "Phase 0 done and recorded; run 11 handed over for a session clear (STATUS.md 'Run 11 handover'). Lock released, no pools running. Phases 1 and 2 resume in a new session."
+    },
+    {
+      "utc": "2026-10-16T23:53:36Z",
+      "level": "info",
+      "text": "Run ap-20261016T2335Z is idle; spend NZ$0.",
+      "auto": true
     }
   ],
   "research": {
@@ -2759,12 +2752,12 @@
     },
     "climber": {
       "totals": {
-        "calls": 6183,
-        "fresh": 12623,
-        "write": 14389696,
-        "read": 1342734116,
-        "output": 1876932,
-        "total": 1359013367
+        "calls": 6330,
+        "fresh": 12919,
+        "write": 14652835,
+        "read": 1380084907,
+        "output": 1907424,
+        "total": 1396658085
       },
       "runs": {
         "ap-20261009T0607Z": {
@@ -2831,11 +2824,11 @@
           "output": 178908
         },
         "ap-20261011T1929Z": {
-          "calls": 1030,
-          "fresh": 2127,
-          "write": 2443876,
-          "read": 145740194,
-          "output": 193582
+          "calls": 1047,
+          "fresh": 2161,
+          "write": 2469754,
+          "read": 150576378,
+          "output": 200487
         },
         "between runs": {
           "calls": 975,
@@ -2843,9 +2836,16 @@
           "write": 3233842,
           "read": 207485510,
           "output": 353905
+        },
+        "ap-20261016T2335Z": {
+          "calls": 130,
+          "fresh": 262,
+          "write": 237261,
+          "read": 32514607,
+          "output": 23587
         }
       },
-      "updated_utc": "2026-10-11T23:48:10Z"
+      "updated_utc": "2026-10-16T23:53:07Z"
     }
   }
 }
