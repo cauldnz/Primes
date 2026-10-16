@@ -12,7 +12,7 @@
 # Usage (needs SUB, az logged in; run from anywhere in the repo):
 #   hc-pool.sh up <size> [maxnodes=2] [minutes=240]     create the pool (idempotent)
 #   hc-pool.sh run <size> <kind> <cand-ref> <champ-ref> <outdir> [rounds=5]
-#        kind: wheel | base | rust | zig | port | board | oxbuild | ocaml (port: see PORT_DIR in cmd_submit). Submits one task and follows it until it completes,
+#        kind: wheel | base | rust | zig | port | board | oxbuild | ocaml | fai (port: see PORT_DIR in cmd_submit). Submits one task and follows it until it completes,
 #        copying its stdout to <outdir>/<size>.txt as it grows.
 #   hc-pool.sh submit <size> <kind> <cand-ref> <champ-ref> <outdir> [rounds=5]
 #        Same as run, but returns as soon as the task is queued. The task is recorded in
@@ -248,6 +248,17 @@ cmd_submit() {
            local F="${OCAML_FILTER:-^cauldnz-(oxcaml|ocaml)-base;}"
            printf '%s\n' "cand|cand-@ID||$F" "champ|champ-@ID||$F" "champ2|champ-@ID||$F" 'ctrl|ctx-@ID||;' \
              'ctrl2|rust|--bits-extreme|^mike-barber_bit-extreme-hybrid;' 'ctrl3|gk1||^gkpotter-faithful;' 'gk2|gk2||^gkpotter-unfaithful;' > "$S/spec" ;;
+    fai)   # Fai research climb (RUN-PLAN run 11): cand/champ are PrimeFai/solution_1 at the two refs (CAND_DIR /
+           # CHAMP_DIR override), filtered by FAI_FILTER. ctrl = our plain OCaml base (PrimeOCaml/solution_4 at
+           # OCAML_REF, default origin/hc/ocaml-final), ctrl2 = mike-barber Rust, ctrl3 = our ISPC base
+           # (PrimeISPC/solution_2 at ISPC_REF, default origin/hc/ispc-landing-4). Fai installs from its release
+           # inside each Dockerfile; Docker's layer cache keeps it per node.
+           ctx_from "$CAND" "${CAND_DIR:-PrimeFai/solution_1}" "$S/cand"; ctx_from "$CHAMP" "${CHAMP_DIR:-PrimeFai/solution_1}" "$S/champ"
+           ctx_from "${OCAML_REF:-origin/hc/ocaml-final}" PrimeOCaml/solution_4 "$S/ctx"
+           ctx_from "${ISPC_REF:-origin/hc/ispc-landing-4}" PrimeISPC/solution_2 "$S/ctx3"
+           local F="${FAI_FILTER:-^cauldnz-fai-base;}"
+           printf '%s\n' "cand|cand-@ID||$F" "champ|champ-@ID||$F" "champ2|champ-@ID||$F" 'ctrl|ctx-@ID||;' \
+             'ctrl2|rust|--bits-extreme|^mike-barber_bit-extreme-hybrid;' 'ctrl3|ctx3-@ID||;' > "$S/spec" ;;
     size)  # size cliff (RUN-PLAN run 9): both ISPC entries of a PRIMES_SIZE diagnostic build at CAND,
            # wheel = cand image, base = champ image, one label per entry and size (w<n>, b<n>).
            ctx_from "$CAND" PrimeISPC/solution_1 "$S/cand"; ctx_from "$CAND" PrimeISPC/solution_2 "$S/champ"
