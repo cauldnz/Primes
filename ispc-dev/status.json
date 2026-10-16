@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-16T23:49:21Z",
+  "updated_utc": "2026-10-16T23:52:43Z",
   "run": {
     "id": "ap-20261016T2335Z",
     "state": "running",
@@ -2232,6 +2232,27 @@
       "plain": "If every entry runs in the same rounds on each machine, then the comparison is fair, because each node and moment affects them all alike.",
       "verdict": "confirmed",
       "note": "OxCaml 72.2k Zen 5 1T (2.19x plain OCaml, 0.52x ISPC base, 44x gkpotter); Cobalt 11.8k (3.45x plain)"
+    },
+    {
+      "id": "fai-000",
+      "entry": "fai",
+      "title": "Fai feasibility",
+      "tier": "permitted",
+      "kind": "permitted",
+      "plain": "If Fai can update an array in place and run loops without growing the stack, then it can run a real sieve, because the sieve rewrites one buffer a million times a pass.",
+      "verdict": "confirmed",
+      "note": "in place when the array has one reference (gdb: 0 copies); 64-bit Int, bounds checks always, no SIMD, Async.parallel scales 3.5-4.1x at 4T; build 0.6 s"
+    },
+    {
+      "id": "fai-001",
+      "entry": "fai",
+      "title": "Plain faithful base sieve in Fai",
+      "tier": "extra-faithful",
+      "kind": "novel",
+      "plain": "If we write the simple faithful sieve in Fai, then we have a baseline to climb from, because every later change is measured against it.",
+      "verdict": "confirmed",
+      "commit": "1ce921d",
+      "note": "local: 1.1k passes at 1T, 20x below OCaml solution_4 and 2.1x below the same loop in plain OCaml; self-test 13/13"
     }
   ],
   "azure_queue": 0,
@@ -2241,25 +2262,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T22:10:30Z",
-      "level": "info",
-      "text": "ox-017 (oxcaml) running: ",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T22:18:31Z",
-      "level": "decision",
-      "text": "ox-014: KEEP; hc/oxcaml-champion fast-forwarded to 997f71f. Why: analyze.py KEEP: lower bounds +6.7% Zen 5 (4T) and +3.7% Zen 3 (1T); gains add as predicted (+7.5%/+4.8% for ox-011 alone).",
-      "id": "ox-014",
-      "what": "KEEP; hc/oxcaml-champion fast-forwarded to 997f71f",
-      "why": "analyze.py KEEP: lower bounds +6.7% Zen 5 (4T) and +3.7% Zen 3 (1T); gains add as predicted (+7.5%/+4.8% for ox-011 alone)"
-    },
-    {
-      "utc": "2026-10-11T22:18:32Z",
-      "level": "warn",
-      "text": "Cobalt node unusable since 21:38 UTC: DiskFull. The standalone Dockerfile (builds the whole OxCaml switch beside the cached 4.8 GB image and the controls) filled the D4ps_v6 disk. The classifier refused deleting the node, so the Cobalt pool was taken down with hc-pool.sh and brought back up; ox-012 diag and ox-017 Cobalt resubmitted; the Cobalt standalone build is not retried (oxbuild already timed the switch there: 604 s). Lost: about 40 Cobalt node-minutes."
-    },
     {
       "utc": "2026-10-11T22:18:32Z",
       "level": "decision",
@@ -2571,6 +2573,26 @@
       "what": "clear the session at the Phase 0 / Phase 1 boundary; the new session resumes run 11 from a handover note in STATUS.md",
       "why": "Phase 0 shares this session with run 10, which skews main-session tokens per experiment (claim 4); agents' tokens, cycle logs and the scoreboard are unaffected",
       "instead": "restarting run 11 from scratch"
+    },
+    {
+      "utc": "2026-10-16T23:52:43Z",
+      "level": "decision",
+      "text": "fai-001: accept Phase 0: Fai can run the sieve (20x below our OCaml base locally, inside the 100x stop line); hc/fai-champion = 1ce921d. Why: rebuilt here, PRIMES_TEST=1 exits 0, check 0.25 s and build 0.59 s; code read: one read-OR-write per composite, a new array each pass, odd-only scan. 32 bits per slot is the faster layout because Fai boxes values outside 63 bits.",
+      "id": "fai-001",
+      "what": "accept Phase 0: Fai can run the sieve (20x below our OCaml base locally, inside the 100x stop line); hc/fai-champion = 1ce921d",
+      "why": "rebuilt here, PRIMES_TEST=1 exits 0, check 0.25 s and build 0.59 s; code read: one read-OR-write per composite, a new array each pass, odd-only scan. 32 bits per slot is the faster layout because Fai boxes values outside 63 bits"
+    },
+    {
+      "utc": "2026-10-16T23:52:43Z",
+      "level": "info",
+      "text": "fai-000 (fai) confirmed: ",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-16T23:52:43Z",
+      "level": "info",
+      "text": "fai-001 (fai) confirmed: ",
+      "auto": true
     }
   ],
   "research": {
