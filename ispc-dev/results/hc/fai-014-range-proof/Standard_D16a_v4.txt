@@ -132,3 +132,67 @@ cauldnz-fai-base;5917;5.000;1;algorithm=base,faithful=yes,bits=1
 cauldnz-fai-base;13010;5.003;16;algorithm=base,faithful=yes,bits=1
 cauldnz-fai-base;6314;5.002;4;algorithm=base,faithful=yes,bits=1
 == round 4 champ
+cauldnz-fai-base;5922;5.000;1;algorithm=base,faithful=yes,bits=1
+cauldnz-fai-base;13452;5.004;16;algorithm=base,faithful=yes,bits=1
+cauldnz-fai-base;6344;5.002;4;algorithm=base,faithful=yes,bits=1
+== round 4 cand
+cauldnz-fai-base;6316;5.000;1;algorithm=base,faithful=yes,bits=1
+cauldnz-fai-base;13605;5.004;16;algorithm=base,faithful=yes,bits=1
+cauldnz-fai-base;6396;5.002;4;algorithm=base,faithful=yes,bits=1
+== round 4 ctrl3
+cauldnz-ispc-base;55922;5.000024;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;428297;5.000333;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;444292;5.000146;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;222831;5.000108;4;algorithm=base,faithful=yes,bits=1
+== round 5 ctrl2
+mike-barber_bit-extreme-hybrid;52416;5.0000162125;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;209497;5.0001296997;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;419835;5.0002274513;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;409027;5.0005273819;16;algorithm=base,faithful=yes,bits=1
+== round 5 ctrl3
+cauldnz-ispc-base;55880;5.000008;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;430219;5.000309;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;445587;5.000192;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;222766;5.000079;4;algorithm=base,faithful=yes,bits=1
+== round 5 cand
+cauldnz-fai-base;6293;5.000;1;algorithm=base,faithful=yes,bits=1
+cauldnz-fai-base;13565;5.004;16;algorithm=base,faithful=yes,bits=1
+cauldnz-fai-base;6367;5.002;4;algorithm=base,faithful=yes,bits=1
+== round 5 champ
+cauldnz-fai-base;5914;5.000;1;algorithm=base,faithful=yes,bits=1
+cauldnz-fai-base;13318;5.005;16;algorithm=base,faithful=yes,bits=1
+cauldnz-fai-base;6336;5.002;4;algorithm=base,faithful=yes,bits=1
+== round 5 champ2
+cauldnz-fai-base;5896;5.000;1;algorithm=base,faithful=yes,bits=1
+cauldnz-fai-base;13451;5.005;16;algorithm=base,faithful=yes,bits=1
+cauldnz-fai-base;6386;5.003;4;algorithm=base,faithful=yes,bits=1
+== round 5 ctrl
+cauldnz-ocaml-base;16889;5.000152;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ocaml-base;131220;5.004872;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ocaml-base;65942;5.006229;4;algorithm=base,faithful=yes,bits=1
+== round 6 ctrl3
+cauldnz-ispc-base;55681;5.000002;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;430779;5.000322;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;445423;5.000160;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;223039;5.000122;4;algorithm=base,faithful=yes,bits=1
+== round 6 ctrl
+cauldnz-ocaml-base;16946;5.000098;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ocaml-base;130383;5.003534;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ocaml-base;65904;5.002543;4;algorithm=base,faithful=yes,bits=1
+== round 6 ctrl2
+mike-barber_bit-extreme-hybrid;52366;5.0000286102;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;208871;5.0000996590;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;418542;5.0002436638;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;410611;5.0004925728;16;algorithm=base,faithful=yes,bits=1
+== round 6 cand
+cauldnz-fai-base;6303;5.000;1;algorithm=base,faithful=yes,bits=1
+cauldnz-fai-base;13584;5.004;16;algorithm=base,faithful=yes,bits=1
+cauldnz-fai-base;6395;5.003;4;algorithm=base,faithful=yes,bits=1
+== round 6 champ
+cauldnz-fai-base;5925;5.000;1;algorithm=base,faithful=yes,bits=1
+cauldnz-fai-base;13451;5.004;16;algorithm=base,faithful=yes,bits=1
+cauldnz-fai-base;6246;5.001;4;algorithm=base,faithful=yes,bits=1
+== round 6 champ2
+cauldnz-fai-base;5910;5.000;1;algorithm=base,faithful=yes,bits=1
+cauldnz-fai-base;13341;5.004;16;algorithm=base,faithful=yes,bits=1
+cauldnz-fai-base;6306;5.002;4;algorithm=base,faithful=yes,bits=1
