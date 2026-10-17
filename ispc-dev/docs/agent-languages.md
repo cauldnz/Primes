@@ -35,7 +35,24 @@ round. Tokens were counted with one tokenizer, `tiktoken` 0.14.0 with `o200k_bas
 | 3b. Memory management (reuse, in place) | Supported: every update in place, 11 MB peak | Strong |
 | 4. Token efficiency | Not supported on source size or on agent tokens | Moderate on size; weak on agent tokens |
 
-<!-- FINAL-SCOREBOARD -->
+## The scoreboard
+
+The final run had all five programs in the same six rounds on each machine, 17 October,
+02:45-03:00 UTC (`results/hc/r11-final/`). Figures are passes in 5 s, 1T and 4T.
+
+| | Zen 5 1T | Zen 5 4T | Zen 3 1T | Zen 3 4T | Cobalt 1T | Cobalt 4T |
+|---|---:|---:|---:|---:|---:|---:|
+| Fai, final (`hc/fai-champion` e80bf39) | 10.2k | 12.9k | 6.0k | 6.3k | 6.2k | 8.2k |
+| Fai, plain loop (Phase 0) | 2.0k | 7.4k | 0.9k | 3.6k | 1.2k | 4.7k |
+| plain OCaml, same design (run 10) | 32.9k | 120.6k | 17.2k | 65.9k | 3.4k | 13.0k |
+| mike-barber Rust | 126.2k | 469.9k | 53.5k | 211.0k | 42.9k | 171.4k |
+| our ISPC base | 139.0k | 517.7k | 56.8k | 224.4k | 42.0k | 168.1k |
+
+At one thread the Fai climb gained 4.2 to 6.5 times, and Fai reached a third of plain OCaml on
+Zen. On Cobalt it beat plain OCaml by 1.8 times, because OCaml pays an Arm store barrier there.
+With threads, Fai stays far behind: about a tenth of OCaml per thread on Zen.
+
+<!-- FAI014 -->
 
 ## Claim 1: types, effects and contracts catch agent mistakes
 
@@ -118,7 +135,9 @@ may not have been used.
 **Prediction:** the same design within a factor of two of plain OCaml, with every array update
 in place through Perceus reuse.
 
-<!-- SPEED-TABLE -->
+See the scoreboard above. Experiments, in order of effect: the OCaml design port (+65-69%), the
+one-thread program without `Concurrency` (+187-273%), per-binary kernels (+3-11% at 1T,
++5% at 4T) and the range-analysis mask (fai-014, below).
 
 The first measurement was 20 times below OCaml. Most of that gap was design: the plain Fai loop
 was 2.1 times slower than the same loop in OCaml. Porting the OCaml design gave +68%. The rest
@@ -173,6 +192,30 @@ tokens.**
 - **Agent tokens.** Per decided experiment, agent tokens came out close to run 10's. The
   sessions differ in length and in the size of each experiment, so one run can't separate the
   language from the work.
+
+## Using Fai's own features
+
+Chris asked mid-run that the climb use what is unique to Fai, not just port the OCaml design.
+
+| Feature | What it did here |
+|---|---|
+| Perceus reference counting with in-place reuse | every update in place with no effort; 11 MB peak |
+| Effect rows that set the compile mode | dropping `Concurrency` from the one-thread program tripled its speed |
+| Owned-loop specialisation | one reference-count check per loop, if the loop stays a single self-recursive function with no calls |
+| Range analysis (`bounds.rs`) | a no-op mask bound to a local (`let m = 0xFFFFFFFF`) lets it prove each word fits; the overflow check goes (fai-014) |
+| `example` and `forall` contracts | 46 properties checked in a fifth of a second, including every sieve bit against trial division |
+| `fai query caps` | shows from the effect rows that a binary is not in concurrent mode |
+| `ProcessHost.Process` | starts processes without concurrent mode: 3.4x at 4T locally, but not used (Chris ruled out multi-process runs) |
+
+Features the survey looked for but found missing in 0.1.0:
+- per-task or per-function concurrent mode;
+- slices of `Array Int`;
+- `requires` or `ensures` contracts that the optimiser uses;
+- inline or specialise annotations;
+- a writable byte or packed array.
+
+Fai's design does reward code written for its optimiser. The rewards are large, but agents
+could find them only by reading the compiler's source.
 
 ## What an agent had to read
 
