@@ -67,7 +67,7 @@ let nextPrimeIndex i nbits bits =
 
 /// Factors below this are dense: their multiples are built into a pattern and ORed in.
 denseLimit : Int
-let denseLimit = 16
+let denseLimit = 24
 
 /// Periods of the pattern the scratch holds: one period is p slots, 32 multiples of p.
 periods : Int
