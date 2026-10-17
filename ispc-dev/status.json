@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-17T01:34:34Z",
+  "updated_utc": "2026-10-17T01:44:48Z",
   "run": {
     "id": "ap-20261016T2335Z",
     "state": "running",
@@ -2405,7 +2405,8 @@
       "kind": "novel",
       "verdict": "running",
       "plain": "If the one-thread program and the threaded program each get the sieve code that suits how Fai compiles them, then both get faster, because the unrolled loop helps only inline code and the appended first pass helps only call-based code.",
-      "prediction": "1T +2-5% on Zen (Cobalt +10%), 4T +4-7%"
+      "prediction": "1T +2-5% on Zen (Cobalt +10%), 4T +4-7%",
+      "note": "hc/fai-011-per-binary e80bf39: 1T kernel = limit 16, Array.repeat start, unrolled sparse (fai-008); threaded kernel = limit 32, push-built pass for 3 (fai-004), plain sparse; selected by a Bool outside the loops; both kernels self-tested (39 lines) and covered by contracts (46). Local: 1T +10.5% (5/5), 4T -2.2% pooled over 14 rounds (noise about ±3%). Agent 150k tokens, 68 calls, 10.5 min; mistakes: 1 at fai test (examples attached to the wrong function, silent), 1 formatter"
     }
   ],
   "azure_queue": 0,
@@ -2415,12 +2416,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-17T00:28:29Z",
-      "level": "info",
-      "text": "fai-005 (fai) running: ",
-      "auto": true
-    },
     {
       "utc": "2026-10-17T00:29:29Z",
       "level": "info",
@@ -2766,6 +2761,15 @@
       "level": "info",
       "text": "Scoreboard, fai base on Cobalt 100 (D4ps_v6): 2000 → 5600 at 1T, 7900 → 7800 at 4 threads.",
       "auto": true
+    },
+    {
+      "utc": "2026-10-17T01:44:48Z",
+      "level": "decision",
+      "text": "fai-011: submit on all three against the champion 9dbf524. Why: rebuilt here: self-test 39/39 via run.sh; kernel chosen by a constant Bool per main, outside the loops; both kernels verified in their shipped compile mode; local 4T within noise. Expect: 1T +2-5% Zen (Cobalt +10%); 4T 0 to +5%.",
+      "id": "fai-011",
+      "what": "submit on all three against the champion 9dbf524",
+      "why": "rebuilt here: self-test 39/39 via run.sh; kernel chosen by a constant Bool per main, outside the loops; both kernels verified in their shipped compile mode; local 4T within noise",
+      "expect": "1T +2-5% Zen (Cobalt +10%); 4T 0 to +5%"
     }
   ],
   "research": {

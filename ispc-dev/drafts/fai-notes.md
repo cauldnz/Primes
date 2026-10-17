@@ -68,3 +68,9 @@ Codegen (from fai-008):
 - The range analysis (`bounds.rs`, `integer_in_range`) ignores bitwise operators, so
   `Int.and x 0xFFFFFFFF` can't prove that a retag fits, and every store keeps a `seto` check.
 - `fai` needs `FAI_HOME` even when `/opt/fai/bin` is on PATH ("no default compiler").
+
+Contracts (from fai-011):
+- An `example:` or `forall` line attaches to the nearest preceding declaration, not to the
+  function it calls, and nothing warns. Repro: `f`, then `g`, then `example: f 1 = 1` is
+  tested and reported under `g`. A warning when an example doesn't mention the declaration
+  it's attached to would catch it.
