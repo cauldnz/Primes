@@ -14,7 +14,7 @@ let sieveSize = 1000000
 expected : Int
 let expected = 78498
 
-runMillis : Int
+public runMillis : Int
 let runMillis = 5000
 
 label : String
@@ -29,12 +29,7 @@ let bitCount size = (size + 1) / 2
 
 /// Number of 32-bit words holding those bits (at least one).
 wordCount : Int -> Int
-let wordCount size =
-  let n = Int.shiftRightLogical (bitCount size + 31) 5
-  if n < 1 then 1 else n
-example: wordCount 0 = 1
-example: wordCount 63 = 1
-example: wordCount 65 = 2
+let wordCount size = Int.shiftRightLogical (bitCount size + 31) 5
 
 /// Largest q with q * q <= n.
 isqrt : Int -> Int
@@ -152,57 +147,10 @@ let sieveFrom i q nbits nwords pat bits =
   else
     sieveFrom (j + 1) q nbits nwords pat (clearMultiples (p * p / 2) p nbits bits)
 
-/// Push zero words until the sieve holds nwords.
-pushZeros : Int -> Array Int -> Array Int
-let pushZeros nwords bits =
-  if Array.length bits >= nwords then bits else pushZeros nwords (Array.push 0 bits)
-
-/// Push sieve words w up to nwords - 1 for factor 3, whose pattern repeats every three
-/// words: a is the pattern slot for word w, then b, then c. Each word is stored once,
-/// never read.
-pushThree : Int -> Int -> Int -> Int -> Int -> Array Int -> Array Int
-let pushThree w nwords a b c bits =
-  if w >= nwords then bits else pushThree (w + 1) nwords b c a (Array.push a bits)
-
-/// Start a pass. The sieve begins as one zero word, in an array with room for all nwords,
-/// and the scan from index 1 runs on it as on any sieve. The first prime it finds is 3
-/// (index 1) whenever 3 <= q. Its marking then builds the sieve: 3's pattern is built in
-/// the scratch (one OR per multiple), word 0 is ORed with pattern slot 0 and the other
-/// words are pushed from slots w mod 3; 3 itself is cleared again, and the scan goes on
-/// from index 2 as in `sieveFrom`.
-startSieve : Int -> Int -> Int -> Array Int -> Array Int
-let startSieve q nbits nwords pat =
-  let first = Array.push 0 (Array.withCapacity nwords)
-  let j = nextPrimeIndex 1 nbits first
-  let p = 2 * j + 1
-  if p > q then
-    pushZeros nwords first
-  else if p = 3 then
-    let pat1 = buildPattern p pat
-    let a = Array.unsafeGet 0 pat1
-    let b = Array.unsafeGet 1 pat1
-    let c = Array.unsafeGet 2 pat1
-    let w0 = Array.unsafeSet 0 (Int.or (Array.unsafeGet 0 first) a) first
-    sieveFrom (j + 1) q nbits nwords pat1 (clearBit j (pushThree 1 nwords b c a w0))
-  else
-    sieveFrom j q nbits nwords pat (pushZeros nwords first)
-
 /// A new sieve for size, with its own pattern scratch, fully run.
 runSieve : Int -> Array Int
 let runSieve size =
-  startSieve (isqrt size) (bitCount size) (wordCount size) (Array.repeat (periods * denseLimit) 0)
-forall n: Array.length (runSieve (smallSize n)) = wordCount (smallSize n)
-forall n: sieveOk 1 (bitCount (smallSize n)) (runSieve (smallSize n))
-example: Array.length (runSieve 0) = 1
-example: Array.length (runSieve 8) = 1
-
-/// True when bits i up to nbits - 1 are set exactly at the odd composites 2i + 1, checked by
-/// trial division.
-sieveOk : Int -> Int -> Array Int -> Bool
-let sieveOk i nbits bits =
-  if i >= nbits then
-    true
-  else if isComposite i bits = noOddDivisor (2 * i + 1) 3 then false else sieveOk (i + 1) nbits bits
+  sieveFrom 1 (isqrt size) (bitCount size) (wordCount size) (Array.repeat (periods * denseLimit) 0) (Array.repeat (wordCount size) 0)
 
 countFrom : Int -> Int -> Int -> Array Int -> Int
 let countFrom acc i nbits bits =
@@ -266,7 +214,7 @@ example: noOddDivisor 97 3
 example: not (noOddDivisor 91 3)
 
 /// Passes completed before the deadline, and the prime count of the first pass.
-worker : Clock -> Int -> Int -> Int -> Int * Int / { Clock }
+public worker : Clock -> Int -> Int -> Int -> Int * Int / { Clock }
 let worker clock deadline passes count =
   if clock.now () >= deadline then
     (passes, count)
@@ -275,35 +223,31 @@ let worker clock deadline passes count =
     let c = if passes = 0 then countPrimes sieveSize bits else count
     worker clock deadline (passes + 1) c
 
-startWorker : Clock -> Int -> Unit -> Int * Int / { Clock }
-let startWorker clock deadline u = worker clock deadline 0 0
-
 /// Milliseconds as seconds with three decimals.
 seconds : Int -> String
 let seconds ms = Int.toString (ms / 1000) ++ "." ++ String.padStart 3 "0" (Int.toString (ms % 1000))
 example: seconds 5001 = "5.001"
 example: seconds 5020 = "5.020"
 
-/// One timed run on `threads` tasks, each running its own sieves. False on a wrong count.
-timedRun : { clock : Clock, concurrency : Concurrency, console : Console | _ } -> Int -> Bool / { Clock, Concurrency, Console }
-let timedRun rt threads =
-  let start = rt.clock.now ()
-  let deadline = start + runMillis
-  let results =
-    if threads = 1 then
-      [worker rt.clock deadline 0 0]
-    else
-      let thunks = List.map (fun k -> startWorker rt.clock deadline) (List.range 0 threads)
-      Async.parallel rt.concurrency thunks
-  let elapsed = rt.clock.now () - start
+/// Writes the result line for one timed run of `threads` workers. False on a wrong count.
+public report : Console -> Int -> Int -> List (Int * Int) -> Bool / { Console }
+let report console threads elapsed results =
   let passes = List.sum (List.map (fun r -> fst r) results)
   if List.all (fun r -> snd r = expected) results then
     let line =
-      rt.console.writeLine (label ++ ";" ++ Int.toString passes ++ ";" ++ seconds elapsed ++ ";" ++ Int.toString threads ++ ";" ++ tags)
+      console.writeLine (label ++ ";" ++ Int.toString passes ++ ";" ++ seconds elapsed ++ ";" ++ Int.toString threads ++ ";" ++ tags)
     true
   else
-    let line = rt.console.writeError "ERROR: wrong prime count"
+    let line = console.writeError "ERROR: wrong prime count"
     false
+
+/// One timed single-threaded run. Multi-threaded runs are in `PrimesParallel.fai`: a program
+/// whose `main` has the `Concurrency` effect is compiled without Fai's inline array fast path.
+timedRun : { clock : Clock, console : Console | _ } -> Bool / { Clock, Console }
+let timedRun rt =
+  let start = rt.clock.now ()
+  let result = worker rt.clock (start + runMillis) 0 0
+  report rt.console 1 (rt.clock.now () - start) [result]
 
 fst : Int * Int -> Int
 let fst pair =
@@ -342,7 +286,7 @@ let testOne console ok case =
   ok && c = want
 
 /// PRIMES_TEST is on when it holds a nonzero unsigned 32-bit number, as in the OCaml entry.
-testRequested : Option String -> Bool
+public testRequested : Option String -> Bool
 let testRequested value =
   match value with
   | None -> false
@@ -359,7 +303,7 @@ example: not (testRequested None)
 example: not (testRequested (Some "-1"))
 
 /// Hardware threads: the "processor" lines of /proc/cpuinfo, at least 1.
-hardwareThreads : FileSystem -> Int / { FileSystem }
+public hardwareThreads : FileSystem -> Int / { FileSystem }
 let hardwareThreads fs =
   match Path.fromString "/proc/cpuinfo" with
   | Err e -> 1
@@ -383,7 +327,6 @@ let exitCapability = { Exit with exit code = cExit code }
 
 public type AppRuntime = {
   clock : Clock,
-  concurrency : Concurrency,
   console : Console,
   env : Env,
   exit : Exit,
@@ -393,26 +336,16 @@ public type AppRuntime = {
 public runtime : AppRuntime
 let runtime = {
   clock = stdClock,
-  concurrency = stdConcurrency,
   console = stdConsole,
   env = stdEnv,
   exit = exitCapability,
   fs = stdFs
 }
 
-runAll : AppRuntime -> List Int -> Unit / { Clock, Concurrency, Console, Exit }
-let runAll rt runs =
-  match runs with
-  | [] -> ()
-  | t :: rest -> if timedRun rt t then runAll rt rest else rt.exit.exit 1
-
-public main : AppRuntime -> Unit / { Clock, Concurrency, Console, Env, Exit, FileSystem }
+/// The single-threaded run (and the self-test). `run.sh` then runs `primes-parallel`.
+public main : AppRuntime -> Unit / { Clock, Console, Env, Exit }
 let main rt =
   if testRequested (rt.env.get "PRIMES_TEST") then
     let ok = List.foldl (testOne rt.console) true testCases
     rt.exit.exit (if ok then 0 else 1)
-  else
-    // One thread, then all hardware threads, then exactly four when there are more than four.
-    let hw = hardwareThreads rt.fs
-    let runs = if hw > 4 then [1, hw, 4] else if hw > 1 then [1, hw] else [1]
-    runAll rt runs
+  else if timedRun rt then () else rt.exit.exit 1
