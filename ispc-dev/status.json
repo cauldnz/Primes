@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-17T02:43:49Z",
+  "updated_utc": "2026-10-17T02:44:17Z",
   "run": {
     "id": "ap-20261016T2335Z",
     "state": "running",
@@ -16,9 +16,9 @@
     "wakeup": "trig_01KSCgXfgBSqpc6dt3LbaW1z"
   },
   "current": {
-    "id": "fai-012",
+    "id": "r11-final",
     "phase": "evaluate",
-    "detail": "fai-012 and fai-013 queued on all three; fai-010b finishing"
+    "detail": "final scoreboard on all three pools"
   },
   "scoreboard": [
     {
@@ -2413,10 +2413,10 @@
       "entry": "fai",
       "tier": "extra-faithful",
       "kind": "tuning",
-      "verdict": "running",
+      "verdict": "rejected",
       "plain": "If the one-thread program marks factors up to 24 with patterns instead of up to 16, then it gets faster on both AMD chips, because that cut-off won on both in an earlier test.",
       "prediction": "1T +2-6% Zen 5, 0 to +1% Zen 3; 4T unchanged",
-      "note": "hc/fai-012-dense-24-1t a5c9032 on e80bf39; my own one-line change; check, test 46, fmt, self-test 39/39; local 1T 6,156 vs 5,755 (3 rounds) | 6 rounds vs e80bf39: Zen 5 1T +6.8% ± 0.3 (6/6), 4T +0.3%; Zen 3 1T +1.2% ± 0.3 (lower bound +0.9%), 4T -0.1%; Cobalt +2.4% / +0.1%. MORE ROUNDS on Zen 3 (10)"
+      "note": "hc/fai-012-dense-24-1t a5c9032 on e80bf39; my own one-line change; check, test 46, fmt, self-test 39/39; local 1T 6,156 vs 5,755 (3 rounds) | 6 rounds vs e80bf39: Zen 5 1T +6.8% ± 0.3 (6/6), 4T +0.3%; Zen 3 1T +1.2% ± 0.3 (lower bound +0.9%), 4T -0.1%; Cobalt +2.4% / +0.1%. MORE ROUNDS on Zen 3 (10) | 10 more Zen 3 rounds: 1T +1.0% ± 0.2 (9/9), lower bound +0.8%. REVERT by the rule (needs +1% lower bound on both Zens); never lost anywhere, Zen 5 +6.8%: flagged for Chris"
     },
     {
       "id": "fai-013",
@@ -2427,6 +2427,15 @@
       "plain": "If the threaded program marks factors up to 24 with patterns instead of up to 32, then it gets faster, because 24 gave the best four-thread results in an earlier test.",
       "prediction": "4T 0 to +2%; 1T unchanged",
       "note": "hc/fai-013-dense-24-threaded 2239fe6 on e80bf39; my own one-line change; checks pass, self-test 39/39; local 4T 6,711/7,094 vs 6,292/5,964 (2 rounds, noisy) | Azure vs e80bf39: Zen 5 4T +0.3% ± 1.1, Zen 3 4T +1.5% ± 0.9, Cobalt 4T +0.9%; 1T flat. REVERT (flat)"
+    },
+    {
+      "id": "r11-final",
+      "entry": "fai",
+      "tier": "extra-faithful",
+      "kind": "measurement",
+      "verdict": "running",
+      "plain": "If the final Fai program runs next to the first one and the other languages in the same rounds, then we get a fair before-and-after scoreboard, because every number comes from the same machines at the same time.",
+      "note": "cand = hc/fai-champion e80bf39, champ = Phase 0 baseline 1ce921d, controls plain OCaml, Rust, ISPC; 6 rounds on Zen 5, Zen 3, Cobalt"
     }
   ],
   "azure_queue": 0,
@@ -2436,39 +2445,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-17T00:58:13Z",
-      "level": "decision",
-      "text": "fai-004: KEEP; hc/fai-champion = aa159ee (fai-004 sits on fai-003). Why: lower bound +2.6% at 1T Zen 5, +1.9% at 4T Zen 3; Cobalt +2.2%; no loss anywhere. Expect: fai-005 (measured on fai-003) to be merged with fai-004 and checked.",
-      "id": "fai-004",
-      "what": "KEEP; hc/fai-champion = aa159ee (fai-004 sits on fai-003)",
-      "why": "lower bound +2.6% at 1T Zen 5, +1.9% at 4T Zen 3; Cobalt +2.2%; no loss anywhere",
-      "expect": "fai-005 (measured on fai-003) to be merged with fai-004 and checked"
-    },
-    {
-      "utc": "2026-10-17T00:58:13Z",
-      "level": "info",
-      "text": "fai-003 kept.. local gate passed (container Xeon, 3 interleaved rounds): 1T 1,845 vs 1,070 (1.72x), 4T 7,003 vs 4,341; self-test 13/13; dense limit 16, two runs per step; gdb 0 array copies. Agent 110k tokens, 43 calls, 10.5 min; first edit to first passing self-test 36 s; 0 mistakes caught by type, effect, contracts or self-test; 2 formatter fails; 2 slips caught in self-review | Azure: Zen 5 1T +68.5% ± 1.9 (6/6), 4T +67.7%; Zen 3 1T +64.9%, 4T +64.8% ± 1.4; Cobalt +67.1% / +66.9%. KEEP",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-17T00:58:13Z",
-      "level": "info",
-      "text": "fai-004 kept.. local gate (container, 6 interleaved rounds): 1T median 1,856 vs 1,777 (+4.4%, 5 of 6 rounds); 4T too noisy to read. Call-count estimate only about 2%. Self-test 13/13; gdb: no copy or grow (alloc_obj callers logged). Agent 107k tokens, 39 calls, 6.4 min; 0 mistakes past self-review | Azure vs fai-003: Zen 5 1T +4.2% ± 1.6 (6/6), 4T +3.1%; Zen 3 1T +1.4%, 4T +2.3% ± 0.5 (6/6); Cobalt +2.2% / +1.4%. KEEP; champion aa159ee",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-17T00:58:13Z",
-      "level": "info",
-      "text": "fai-005: evaluate. Azure rounds running on all three",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-17T00:58:13Z",
-      "level": "info",
-      "text": "Scoreboard, fai base on Zen 5 (EPYC 9V45, D16as_v7): 1800 → 3200 at 1T, 7200 → 12500 at 4 threads.",
-      "auto": true
-    },
     {
       "utc": "2026-10-17T00:58:13Z",
       "level": "info",
@@ -2786,6 +2762,41 @@
       "utc": "2026-10-17T02:36:27Z",
       "level": "info",
       "text": "fai-013 rejected.. hc/fai-013-dense-24-threaded 2239fe6 on e80bf39; my own one-line change; checks pass, self-test 39/39; local 4T 6,711/7,094 vs 6,292/5,964 (2 rounds, noisy) | Azure vs e80bf39: Zen 5 4T +0.3% ± 1.1, Zen 3 4T +1.5% ± 0.9, Cobalt 4T +0.9%; 1T flat. REVERT (flat)",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-17T02:44:17Z",
+      "level": "decision",
+      "text": "fai-012: REVERT by the keep rule; flag for Chris. Why: Zen 3 1T +1.0% ± 0.2 over 16 rounds (all won) leaves the lower bound at +0.8%; the remaining 4 rounds can't lift it; Zen 5 1T +6.8%, Cobalt +2.4%, no loss anywhere. Passed over: keeping it on judgement (the rule is the rule; Chris can overrule).",
+      "id": "fai-012",
+      "what": "REVERT by the keep rule; flag for Chris",
+      "why": "Zen 3 1T +1.0% ± 0.2 over 16 rounds (all won) leaves the lower bound at +0.8%; the remaining 4 rounds can't lift it; Zen 5 1T +6.8%, Cobalt +2.4%, no loss anywhere",
+      "instead": "keeping it on judgement (the rule is the rule; Chris can overrule)"
+    },
+    {
+      "utc": "2026-10-17T02:44:17Z",
+      "level": "decision",
+      "text": "r11-final: final scoreboard: champion e80bf39 against the Phase 0 baseline with all controls, 6 rounds, all three machines. Why: same-round before/after and controls for the report; no experiment can finish by the 04:04 cut-off and still leave time for both reports.",
+      "id": "r11-final",
+      "what": "final scoreboard: champion e80bf39 against the Phase 0 baseline with all controls, 6 rounds, all three machines",
+      "why": "same-round before/after and controls for the report; no experiment can finish by the 04:04 cut-off and still leave time for both reports"
+    },
+    {
+      "utc": "2026-10-17T02:44:17Z",
+      "level": "info",
+      "text": "fai-012 rejected.. hc/fai-012-dense-24-1t a5c9032 on e80bf39; my own one-line change; check, test 46, fmt, self-test 39/39; local 1T 6,156 vs 5,755 (3 rounds) | 6 rounds vs e80bf39: Zen 5 1T +6.8% ± 0.3 (6/6), 4T +0.3%; Zen 3 1T +1.2% ± 0.3 (lower bound +0.9%), 4T -0.1%; Cobalt +2.4% / +0.1%. MORE ROUNDS on Zen 3 (10) | 10 more Zen 3 rounds: 1T +1.0% ± 0.2 (9/9), lower bound +0.8%. REVERT by the rule (needs +1% lower bound on both Zens); never lost anywhere, Zen 5 +6.8%: flagged for Chris",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-17T02:44:17Z",
+      "level": "info",
+      "text": "r11-final (fai) running: ",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-17T02:44:17Z",
+      "level": "info",
+      "text": "r11-final: evaluate. final scoreboard on all three pools",
       "auto": true
     }
   ],
