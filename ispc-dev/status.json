@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-17T02:05:24Z",
+  "updated_utc": "2026-10-17T02:06:21Z",
   "run": {
     "id": "ap-20261016T2335Z",
     "state": "running",
@@ -16,9 +16,9 @@
     "wakeup": "trig_01PgjDCxhsMuR2Z2Q2MowVmA"
   },
   "current": {
-    "id": "fai-011",
+    "id": "fai-012",
     "phase": "evaluate",
-    "detail": "fai-011 and fai-010b running on all three pools"
+    "detail": "fai-012 and fai-013 queued on all three; fai-010b finishing"
   },
   "scoreboard": [
     {
@@ -2417,6 +2417,16 @@
       "plain": "If the one-thread program marks factors up to 24 with patterns instead of up to 16, then it gets faster on both AMD chips, because that cut-off won on both in an earlier test.",
       "prediction": "1T +2-6% Zen 5, 0 to +1% Zen 3; 4T unchanged",
       "note": "hc/fai-012-dense-24-1t a5c9032 on e80bf39; my own one-line change; check, test 46, fmt, self-test 39/39; local 1T 6,156 vs 5,755 (3 rounds)"
+    },
+    {
+      "id": "fai-013",
+      "entry": "fai",
+      "tier": "extra-faithful",
+      "kind": "tuning",
+      "verdict": "running",
+      "plain": "If the threaded program marks factors up to 24 with patterns instead of up to 32, then it gets faster, because 24 gave the best four-thread results in an earlier test.",
+      "prediction": "4T 0 to +2%; 1T unchanged",
+      "note": "hc/fai-013-dense-24-threaded 2239fe6 on e80bf39; my own one-line change; checks pass, self-test 39/39; local 4T 6,711/7,094 vs 6,292/5,964 (2 rounds, noisy)"
     }
   ],
   "azure_queue": 0,
@@ -2426,27 +2436,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-17T00:45:08Z",
-      "level": "info",
-      "text": "fai-007 (fai) running: ",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-17T00:45:08Z",
-      "level": "info",
-      "text": "fai-003: evaluate. Zen 5 and Zen 3 running; fai-004 and fai-005 queued; agents fai-006, fai-007",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-17T00:48:43Z",
-      "level": "decision",
-      "text": "fai-007: close as a finding; 4T stays on the concurrent path; multi-process left for Chris. Why: the compiler source and MEMORY.md show no supported switch, and the loophole is a data race; a multi-process 4T changes what the multi-thread figure means. Passed over: shipping the effect-hiding loophole (unsafe).",
-      "id": "fai-007",
-      "what": "close as a finding; 4T stays on the concurrent path; multi-process left for Chris",
-      "why": "the compiler source and MEMORY.md show no supported switch, and the loophole is a data race; a multi-process 4T changes what the multi-thread figure means",
-      "instead": "shipping the effect-hiding loophole (unsafe)"
-    },
     {
       "utc": "2026-10-17T00:48:43Z",
       "level": "info",
@@ -2774,6 +2763,27 @@
       "utc": "2026-10-17T02:05:24Z",
       "level": "info",
       "text": "Scoreboard, fai base on Cobalt 100 (D4ps_v6): 5600 → 6200 at 1T, 7800 → 8200 at 4 threads.",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-17T02:06:21Z",
+      "level": "decision",
+      "text": "fai-013: submit threaded dense limit 24 on the champion, alongside fai-012. Why: fai-010 (limit 24, push-built pass) gave +4.2-4.6% at 4T against limit 16, more than limit 32 gave (+2.5-3.7%); independent of fai-012, which only changes the 1T kernel. Expect: 4T 0 to +2%.",
+      "id": "fai-013",
+      "what": "submit threaded dense limit 24 on the champion, alongside fai-012",
+      "why": "fai-010 (limit 24, push-built pass) gave +4.2-4.6% at 4T against limit 16, more than limit 32 gave (+2.5-3.7%); independent of fai-012, which only changes the 1T kernel",
+      "expect": "4T 0 to +2%"
+    },
+    {
+      "utc": "2026-10-17T02:07:29Z",
+      "level": "info",
+      "text": "fai-013 (fai) running: ",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-17T02:07:29Z",
+      "level": "info",
+      "text": "fai-012: evaluate. fai-012 and fai-013 queued on all three; fai-010b finishing",
       "auto": true
     }
   ],

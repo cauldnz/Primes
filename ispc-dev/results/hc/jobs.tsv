@@ -331,3 +331,9 @@ id	pool	size	kind	outdir	submitted	state
 0148433193	hc-standard-d16as-v7	Standard_D16as_v7	fai	ispc-dev/results/hc/fai-010b-vs-champion	2026-10-17T01:48:51Z	open
 01485729510	hc-standard-d16a-v4	Standard_D16a_v4	fai	ispc-dev/results/hc/fai-010b-vs-champion	2026-10-17T01:49:06Z	open
 01491121043	hc-standard-d4ps-v6	Standard_D4ps_v6	fai	ispc-dev/results/hc/fai-010b-vs-champion	2026-10-17T01:49:19Z	open
+02052927255	hc-standard-d16as-v7	Standard_D16as_v7	fai	ispc-dev/results/hc/fai-012-dense-24-1t	2026-10-17T02:05:38Z	open
+0205446289	hc-standard-d16a-v4	Standard_D16a_v4	fai	ispc-dev/results/hc/fai-012-dense-24-1t	2026-10-17T02:05:53Z	open
+02055920058	hc-standard-d4ps-v6	Standard_D4ps_v6	fai	ispc-dev/results/hc/fai-012-dense-24-1t	2026-10-17T02:06:07Z	open
+02062718873	hc-standard-d16as-v7	Standard_D16as_v7	fai	ispc-dev/results/hc/fai-013-dense-24-threaded	2026-10-17T02:06:35Z	open
+02064116607	hc-standard-d16a-v4	Standard_D16a_v4	fai	ispc-dev/results/hc/fai-013-dense-24-threaded	2026-10-17T02:06:49Z	open
+02065415839	hc-standard-d4ps-v6	Standard_D4ps_v6	fai	ispc-dev/results/hc/fai-013-dense-24-threaded	2026-10-17T02:07:02Z	open
