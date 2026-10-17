@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-17T01:18:51Z",
+  "updated_utc": "2026-10-17T01:25:43Z",
   "run": {
     "id": "ap-20261016T2335Z",
     "state": "running",
@@ -2388,6 +2388,15 @@
       "plain": "If the cut-off for pattern-marked factors sits between the best values for the two AMD chips, then both gain or at least neither loses, because 32 helped Zen 5 and hurt Zen 3.",
       "prediction": "+1% to +4% at 1T on Zen 5, flat on Zen 3, +1-3% at 4T",
       "note": "hc/fai-010-dense-24 9b8e786 on fai-009 (f9c0ad0); my own change; check, test 36, fmt, self-test 13/13; local 1T 5,563 vs 5,427 (3 rounds, noise)"
+    },
+    {
+      "id": "fai-m2",
+      "entry": "fai",
+      "tier": "extra-faithful",
+      "kind": "measurement",
+      "verdict": "confirmed",
+      "plain": "If we measure the improved Fai program's size, memory and copying, then we can test the claims about tokens and memory management on the real design, because Phase 0 only measured a plain loop.",
+      "note": "Like for like (same design): Fai 4,772 o200k tokens without contracts (5,372 with) against plain OCaml 4,229: Fai 13% larger. Peak RSS: Fai 11.2 MB (1T and 4 threads) vs OCaml 194 MB (multi-domain GC setting). gdb: every sieve update in place; one sieve and one scratch per pass; no copy or grow paths hit. Agent 103k tokens, 36 calls, 6.5 min"
     }
   ],
   "azure_queue": 0,
@@ -2397,11 +2406,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-17T00:13:11Z",
-      "level": "info",
-      "text": "Waiting for fai-002 nodes to boot (start task about 8 min, then the Fai Docker build); next tick 00:26 UTC."
-    },
     {
       "utc": "2026-10-17T00:18:57Z",
       "level": "info",
@@ -2746,6 +2750,12 @@
       "id": "fai-m2",
       "what": "start a measurement agent: like-for-like source tokens, peak RSS and an in-place check on the merged champion",
       "why": "claims 3 and 4 need the champion's numbers, not Phase 0's plain loop"
+    },
+    {
+      "utc": "2026-10-17T01:25:43Z",
+      "level": "info",
+      "text": "fai-m2 (fai) confirmed: ",
+      "auto": true
     }
   ],
   "research": {

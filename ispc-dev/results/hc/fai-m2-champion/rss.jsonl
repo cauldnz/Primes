@@ -1,0 +1,9 @@
+{"cmd": "bfai/primes", "rc": 0, "maxrss_kb": 11344, "wall": 5.0, "out": ["cauldnz-fai-base;5406;5.000;1;algorithm=base,faithful=yes,bits=1"], "err": ""}
+{"cmd": "bfai/primes-parallel", "rc": 0, "maxrss_kb": 11240, "wall": 5.01, "out": ["cauldnz-fai-base;6654;5.003;4;algorithm=base,faithful=yes,bits=1"], "err": ""}
+{"cmd": "bml/primes", "rc": 0, "maxrss_kb": 194188, "wall": 10.01, "out": ["cauldnz-ocaml-base;21369;5.000086;1;algorithm=base,faithful=yes,bits=1", "cauldnz-ocaml-base;49732;5.001580;4;algorithm=base,faithful=yes,bits=1"], "err": ""}
+{"cmd": "bfai/primes", "rc": 0, "maxrss_kb": 11212, "wall": 5.0, "out": ["cauldnz-fai-base;5540;5.000;1;algorithm=base,faithful=yes,bits=1"], "err": ""}
+{"cmd": "bfai/primes-parallel", "rc": 0, "maxrss_kb": 11204, "wall": 5.01, "out": ["cauldnz-fai-base;7136;5.003;4;algorithm=base,faithful=yes,bits=1"], "err": ""}
+{"cmd": "bml/primes", "rc": 0, "maxrss_kb": 195060, "wall": 10.01, "out": ["cauldnz-ocaml-base;21646;5.000258;1;algorithm=base,faithful=yes,bits=1", "cauldnz-ocaml-base;49485;5.001721;4;algorithm=base,faithful=yes,bits=1"], "err": ""}
+{"cmd": "bfai/primes", "rc": 0, "maxrss_kb": 11220, "wall": 5.0, "out": ["cauldnz-fai-base;5291;5.000;1;algorithm=base,faithful=yes,bits=1"], "err": ""}
+{"cmd": "bfai/primes-parallel", "rc": 0, "maxrss_kb": 11204, "wall": 5.01, "out": ["cauldnz-fai-base;7234;5.001;4;algorithm=base,faithful=yes,bits=1"], "err": ""}
+{"cmd": "bml/primes", "rc": 0, "maxrss_kb": 192400, "wall": 10.01, "out": ["cauldnz-ocaml-base;21129;5.000138;1;algorithm=base,faithful=yes,bits=1", "cauldnz-ocaml-base;48142;5.001957;4;algorithm=base,faithful=yes,bits=1"], "err": ""}

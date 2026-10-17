@@ -82,3 +82,11 @@ One line each, with the experiment id, as they happen.
 - fai-006: The same dense limit (32) gained 8.5% on Zen 5 and lost 1.9% on Zen 3 at 1T: the
   pattern-OR versus per-mark break-even is chip-specific; the container screen (+5%) could not
   see it.
+- fai-m2: Like for like, the Fai program is larger than the OCaml one: 4,772 o200k tokens
+  without contracts (5,372 with) against 4,229. The plain-loop count from fai-m1 (2,945) had
+  flattered Fai; compare designs, not files. Claim 4 is not supported on source size.
+- fai-m2: Peak RSS 11.2 MB for both Fai binaries against 194 MB for OCaml's one process
+  (multi-domain GC setting); gdb confirms every update in place. Claim 3's memory half holds.
+- fai-m2: The 1T binary allocates small objects through an inline pool path that never calls
+  `alloc_obj`; counting `alloc_obj` callers alone found 7 of 13 sieves. Break on every
+  allocation site.
