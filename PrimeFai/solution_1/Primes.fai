@@ -65,28 +65,31 @@ let clearMultiples i step nbits bits =
 /// then one per step for the remaining zero to three (while i < lim + 3 step = nbits). Four
 /// parameters, not five: in Fai's concurrent mode a fifth live value spills the array. One self-recursive function, with no
 /// call out, so Fai compiles it as a loop that checks the array's ownership once.
+/// Words hold 32 bits, so masking with m = 0xFFFFFFFF changes nothing, but Fai's range
+/// analysis sees 0 <= word <= m and stores the word without an overflow-checked retag.
 clearMultiples4 : Int -> Int -> Int -> Array Int -> Array Int
 let clearMultiples4 i step lim bits =
+  let m = 0xFFFFFFFF
   if i < lim then
     let i1 = i + step
     let i2 = i1 + step
     let i3 = i2 + step
     let w0 = Int.shiftRightLogical i 5
     let b0 =
-      Array.unsafeSet w0 (Int.or (Array.unsafeGet w0 bits) (Int.shiftLeft 1 (Int.and i 31))) bits
+      Array.unsafeSet w0 (Int.and (Int.or (Array.unsafeGet w0 bits) (Int.shiftLeft 1 (Int.and i 31))) m) bits
     let w1 = Int.shiftRightLogical i1 5
     let b1 =
-      Array.unsafeSet w1 (Int.or (Array.unsafeGet w1 b0) (Int.shiftLeft 1 (Int.and i1 31))) b0
+      Array.unsafeSet w1 (Int.and (Int.or (Array.unsafeGet w1 b0) (Int.shiftLeft 1 (Int.and i1 31))) m) b0
     let w2 = Int.shiftRightLogical i2 5
     let b2 =
-      Array.unsafeSet w2 (Int.or (Array.unsafeGet w2 b1) (Int.shiftLeft 1 (Int.and i2 31))) b1
+      Array.unsafeSet w2 (Int.and (Int.or (Array.unsafeGet w2 b1) (Int.shiftLeft 1 (Int.and i2 31))) m) b1
     let w3 = Int.shiftRightLogical i3 5
     let b3 =
-      Array.unsafeSet w3 (Int.or (Array.unsafeGet w3 b2) (Int.shiftLeft 1 (Int.and i3 31))) b2
+      Array.unsafeSet w3 (Int.and (Int.or (Array.unsafeGet w3 b2) (Int.shiftLeft 1 (Int.and i3 31))) m) b2
     clearMultiples4 (i3 + step) step lim b3
   else if i < lim + 3 * step then
     let w = Int.shiftRightLogical i 5
-    let word = Int.or (Array.unsafeGet w bits) (Int.shiftLeft 1 (Int.and i 31))
+    let word = Int.and (Int.or (Array.unsafeGet w bits) (Int.shiftLeft 1 (Int.and i 31))) m
     clearMultiples4 (i + step) step lim (Array.unsafeSet w word bits)
   else
     bits
@@ -144,10 +147,11 @@ let patternOk p t pat =
 /// OR the pattern into the sieve: sieve slot w gets pattern slot v, v cycling over len slots.
 orPattern : Int -> Int -> Int -> Int -> Array Int -> Array Int -> Array Int
 let orPattern w v len nwords pat bits =
+  let m = 0xFFFFFFFF
   if w >= nwords then
     bits
   else
-    let word = Int.or (Array.unsafeGet w bits) (Array.unsafeGet v pat)
+    let word = Int.and (Int.or (Array.unsafeGet w bits) (Array.unsafeGet v pat)) m
     let v1 = if v + 1 = len then 0 else v + 1
     orPattern (w + 1) v1 len nwords pat (Array.unsafeSet w word bits)
 
@@ -155,13 +159,14 @@ let orPattern w v len nwords pat bits =
 /// for the pairs of runs from w up to stop (a whole number of pairs past the start).
 orPairs : Int -> Int -> Int -> Int -> Array Int -> Array Int -> Array Int
 let orPairs w v len stop pat bits =
+  let m = 0xFFFFFFFF
   if w >= stop then
     bits
   else
     let pw = Array.unsafeGet v pat
     let w2 = w + len
-    let b1 = Array.unsafeSet w (Int.or (Array.unsafeGet w bits) pw) bits
-    let b2 = Array.unsafeSet w2 (Int.or (Array.unsafeGet w2 b1) pw) b1
+    let b1 = Array.unsafeSet w (Int.and (Int.or (Array.unsafeGet w bits) pw) m) bits
+    let b2 = Array.unsafeSet w2 (Int.and (Int.or (Array.unsafeGet w2 b1) pw) m) b1
     if v + 1 = len then
       orPairs (w2 + 1) 0 len stop pat b2
     else
