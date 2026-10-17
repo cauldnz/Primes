@@ -4,6 +4,128 @@ Autopilot lock: ap-20261016T2335Z 2026-10-17T00:10Z
 **Last updated:** 2026-10-11 22:00 AEST. Living file; earlier versions are in
 `git log -p ispc-dev/STATUS.md`. Replies go in `ispc-dev/NEXT-STEPS.md`.
 
+## Morning report: run ap-20261016T2335Z, the Fai research climb (17 October 2026)
+
+Run 11, set by RUN-PLAN.md (run 11). Phase 0 ran 09:35-09:52 AEST in a shared session. Phases
+1 and 2 ran 10:09-13:30 AEST in a clean session (00:09-03:30 UTC). The box ended at 14:49
+AEST, but experiments stopped at 13:28 when every pool was deleted.
+- **Spend:** real spend is about NZ$3.30 (870 node-minutes) against a NZ$15 cap. The page reads
+  NZ$65.70 too high because of stale tally rows; see "Waiting for Chris".
+- **Rules:** no upstream PR, no contact with the Fai author, and the ISPC and OCaml entries
+  untouched.
+
+**Could Fai run the sieve? Yes, and quickly.** Setup took 17 minutes, including the install
+through a loopback mirror. The first faithful base sieve passed its self-test 109 s after
+sieve work began. The `fai` bench kind and the Dockerfile worked first time on x86 and Arm
+(Fai installs and builds in 37-42 s on a node).
+
+### Scoreboard (passes in 5 s, medians of 6 same-round counted rounds)
+
+| | Zen 5 1T | Zen 5 4T | Zen 3 1T | Zen 3 4T | Cobalt 1T | Cobalt 4T |
+|---|---:|---:|---:|---:|---:|---:|
+| Fai final (`hc/fai-champion` 84cc3eb, fai-014 task) | 10.8k | 13.0k | 6.3k | 6.4k | 7.6k | 8.3k |
+| Fai e80bf39 (r11-final) | 10.2k | 12.9k | 6.0k | 6.3k | 6.2k | 8.2k |
+| Fai Phase 0 baseline 1ce921d (r11-final) | 2.0k | 7.4k | 0.9k | 3.6k | 1.2k | 4.7k |
+| plain OCaml, same design (r11-final) | 32.9k | 120.6k | 17.2k | 65.9k | 3.4k | 13.0k |
+| mike-barber Rust (r11-final) | 126.2k | 469.9k | 53.5k | 211.0k | 42.9k | 171.4k |
+| our ISPC base (r11-final) | 139.0k | 517.7k | 56.8k | 224.4k | 42.0k | 168.1k |
+
+At one thread Fai went from 1/17 of plain OCaml to about 1/3 on Zen, and to 2.2 times OCaml on
+Cobalt, where OCaml pays the Arm store barrier. Per thread at 4T Fai is about 1/10 of OCaml on
+Zen. Fai's `Concurrency` effect switches the whole program to runtime calls for every array
+access, and there is no supported way round it (fai-007). Processes would get round it
+(fai-015, 3.4x locally), but Chris ruled them out.
+
+### The author's four claims (full report: `docs/agent-languages.md`, also published as a page)
+
+1. **Correctness: not supported, on weak evidence.** Across 15 agent runs no real mistake reached
+   the contracts, the self-test or Azure. Four slips were caught by name, type and effect
+   checks, four by the agents' own review, and eight by the formatter. Run 10 recorded no
+   compile errors or failed self-tests either. One contract hazard turned up: examples attach
+   to the wrong function silently.
+2. **Fast tooling: supported in absolute terms, not against OCaml.** `fai check` takes 0.22 s
+   and a native build 0.42 s, against 0.26 s for OCaml flambda and 0.46 s for OxCaml. First
+   edit to first passing self-test took 7 s to 3.5 min. Run 10's slow cycles came from
+   building the OxCaml toolchain, not from the compiler.
+3. **Speed: not supported on x86. Memory management: supported.**
+   - Speed: see the scoreboard.
+   - Memory: gdb showed every update in place and one sieve and one scratch per pass. Peak RSS
+     was 11.2 MB, against 194 MB for OCaml's one process.
+4. **Token efficiency: not supported.**
+   - Source: for the same design, Fai is 13% larger than OCaml without contracts (4,772 against
+     4,229 o200k tokens). The final two-kernel program is 40% larger (5,940).
+   - Agent effort: main-session tokens per decided experiment were 7.7M against run 10's 3.7M,
+     and agent tokens 3.9M against 3.0M.
+
+### Keeps and rejects by kind
+
+- **Kept: 5, all into `hc/fai-champion`.**
+  - fai-003, the OCaml design port (borrowed): +65% to +69%.
+  - fai-004, the pass for 3 built by pushing (borrowed): +2-4%. It was later superseded when
+    merging it with fai-005 lost at 1T.
+  - fai-005, the 1T binary without `Concurrency` (novel, Fai-specific): +187% to +273% at 1T.
+  - fai-011, a kernel per binary (novel): 1T +2.6% to +11.3%, 4T +5%.
+  - fai-014, the range-analysis mask (novel, Fai-specific): 1T +5.5% to +21.6%.
+- **Rejected: 7.**
+  - fai-006: limit 32 lost 1.9% on Zen 3 at 1T.
+  - fai-008: the unrolled loop lost at 4T.
+  - fai-009: the merge of fai-004 into fai-005 lost at 1T.
+  - fai-010: limit 24 shared by both programs lost on Zen 3 at 1T.
+  - fai-012: limit 24 in the 1T program missed the rule's edge (see below).
+  - fai-013: limit 24 in the threaded program was flat.
+  - fai-015: threads as processes, not measured (ruled out).
+- **Measurements and findings: 6.**
+  - fai-002, the A/A baseline.
+  - fai-007: no safe way to keep inline array access with threads.
+  - fai-m1 and fai-m2: source tokens, build times, RSS and in-place checks.
+  - The run 10 evidence reconstruction.
+  - The final scoreboard.
+- **Calibration:** 3 of 11 predictions in range on both Zens, 3 more on one. The biggest miss
+  was the `Concurrency` switch (predicted +10-40%, measured +212-273%).
+
+### Tokens (this session, 00:08-03:20 UTC; Phase 0 left out because it shared a session)
+
+| | Model calls | Tokens |
+|---|---:|---:|
+| Main session | 335 | 84.4M (83.5M cache reads, 0.67M writes, 224k output, 0.7k fresh) |
+| Background agents (15 runs; transcripts) | 453 in the 12 counted | 42.4M |
+
+Each agent run's own usage line gave 82k-172k tokens and 19-69 tool calls.
+
+### Lesson candidates
+
+The full list, one line each with experiment ids, is in `results/hc/fai-lessons.md`. The top
+four:
+1. **The compile mode decides speed.** In Fai, `Concurrency` in `main` slows every array access
+   in the program. Read the compiler before trusting a profile.
+2. **The optimiser rewards the right source shapes.** Fai's range analysis needs a mask bound
+   to a local, and owned loops must stay call-free. Only the compiler source documents either.
+3. **Each compile mode wants its own tuning.** The inline and call-based modes wanted opposite
+   changes, the way different architectures do.
+4. **Measure every merge.** A change kept on one base can lose on the next.
+
+### Waiting for Chris
+
+- **Cost log.** The three 00:23 rows in `results/cost-log.csv` bill about 5 days each. Editing
+  them was refused as log tampering. Correct them, or tell me how to mark them. The tally fix
+  is in.
+- **fai-012, a rule-edge case.** At 1T it gained +6.8% on Zen 5 and +1.0% ± 0.2 on Zen 3 (all
+  15 rounds won, lower bound +0.8%), and never lost anywhere. The rule says revert; your call.
+- **Notes for the Fai author** are in `drafts/fai-notes.md` and were not sent. The headline is
+  the whole-program concurrent mode (a 4.2x repro). Others: the literal-mask gap in range
+  analysis, the loop specialisation lost on any call, examples attaching to the wrong function,
+  and doc gaps.
+- **Champion README.** The README on `hc/fai-champion` doesn't yet describe fai-014's mask.
+
+### Three best next experiments
+
+1. Apply the range-analysis mask idea to the scan and the pattern build, and check
+   `shiftRightLogical`-free word indices that the analysis can prove in bounds.
+2. Re-run fai-012 (1T limit 24) on top of fai-014. The mask changes the per-mark cost and so
+   the break-even.
+3. If Fai ships per-task concurrent mode, re-measure 4T. On today's numbers that is the
+   largest gap left.
+
 ## Run 11 hourly review (01:20 UTC, 17 October)
 
 - Worked: the OCaml design port (+68%), the 1T binary without `Concurrency` (3x), and the push-built pass for 3 (+2-4%). The baseline A/A noise was within ±1.8%.

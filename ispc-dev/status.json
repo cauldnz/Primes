@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-17T03:28:33Z",
+  "updated_utc": "2026-10-17T03:30:22Z",
   "run": {
     "id": "ap-20261016T2335Z",
     "state": "running",
@@ -13,7 +13,8 @@
     "ends_utc": "2026-10-17T04:49:00Z",
     "background_runs": 0,
     "last_tick_utc": "2026-10-17T03:27:23Z",
-    "wakeup": "trig_01H7eowSUFFHLaY4HcjaWySm"
+    "wakeup": "trig_01H7eowSUFFHLaY4HcjaWySm",
+    "spend_note": "Real spend NZ$3.28 (870 node-minutes); the page figure includes NZ$65.70 of stale tally rows (00:23 UTC), awaiting Chris"
   },
   "current": null,
   "scoreboard": [
