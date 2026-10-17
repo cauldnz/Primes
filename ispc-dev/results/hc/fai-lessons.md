@@ -99,3 +99,5 @@ One line each, with the experiment id, as they happen.
   Read the test names in `fai test` output after moving code.
 - fai-011: Per-binary tuning with constants (not parameters) keeps Fai's owned-loop
   specialisation intact; the threaded kernel's self-test now runs inside the threaded binary.
+- fai-006/010: Dense limit 24 helped both binaries (4T +4% everywhere, 1T +7% Zen 5, +1% Zen 3),
+  where 32 lost on Zen 3 at 1T: a sweep step between two chips' optima can win on both.
