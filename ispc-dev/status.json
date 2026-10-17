@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-17T01:25:43Z",
+  "updated_utc": "2026-10-17T01:32:55Z",
   "run": {
     "id": "ap-20261016T2335Z",
     "state": "running",
@@ -8,11 +8,11 @@
     "mode_reason": "Run 11 resumed in a new session at 00:09 UTC; cached service-principal login still valid (checked first); Phase 0 done earlier (17 min).",
     "started_utc": "2026-10-16T23:35:00Z",
     "time_box_hours": 5,
-    "spend_nzd": 66.82,
+    "spend_nzd": 67.14,
     "spend_cap_nzd": 15,
     "ends_utc": "2026-10-17T04:49:00Z",
-    "background_runs": 6,
-    "last_tick_utc": "2026-10-17T01:16:15Z",
+    "background_runs": 4,
+    "last_tick_utc": "2026-10-17T01:32:55Z",
     "wakeup": "trig_012ixvpoTxfnPMt4Qt5JwRBz"
   },
   "current": {
@@ -2922,12 +2922,12 @@
     },
     "climber": {
       "totals": {
-        "calls": 6740,
-        "fresh": 13758,
-        "write": 15691910,
-        "read": 1431868469,
-        "output": 1989284,
-        "total": 1449563421
+        "calls": 6793,
+        "fresh": 13866,
+        "write": 15824084,
+        "read": 1439692846,
+        "output": 2001798,
+        "total": 1457532594
       },
       "runs": {
         "ap-20261009T0607Z": {
@@ -3001,11 +3001,11 @@
           "output": 200487
         },
         "ap-20261016T2335Z": {
-          "calls": 540,
-          "fresh": 1101,
-          "write": 1276336,
-          "read": 84298169,
-          "output": 105447
+          "calls": 593,
+          "fresh": 1209,
+          "write": 1408510,
+          "read": 92122546,
+          "output": 117961
         },
         "between runs": {
           "calls": 975,
@@ -3015,7 +3015,7 @@
           "output": 353905
         }
       },
-      "updated_utc": "2026-10-17T01:16:17Z"
+      "updated_utc": "2026-10-17T01:32:56Z"
     }
   }
 }
