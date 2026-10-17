@@ -31,7 +31,7 @@ round. Tokens were counted with one tokenizer, `tiktoken` 0.14.0 with `o200k_bas
 |---|---|---|
 | 1. Contracts and types catch agent mistakes early | Not supported in this run: almost nothing reached them | Weak (few real mistakes to catch) |
 | 2. Fast tooling | Supported in absolute terms; no faster than OCaml's compiler | Moderate |
-| 3a. Fast generated code | Not supported: a third of plain OCaml's speed per thread on Zen | Strong for this program |
+| 3a. Fast generated code | Not supported on x86: a third of plain OCaml at 1T on Zen, a tenth with threads; ahead of OCaml on Arm | Strong for this program |
 | 3b. Memory management (reuse, in place) | Supported: every update in place, 11 MB peak | Strong |
 | 4. Token efficiency | Not supported on source size or on agent tokens | Moderate on size; weak on agent tokens |
 
@@ -52,7 +52,18 @@ At one thread the Fai climb gained 4.2 to 6.5 times, and Fai reached a third of 
 Zen. On Cobalt it beat plain OCaml by 1.8 times, because OCaml pays an Arm store barrier there.
 With threads, Fai stays far behind: about a tenth of OCaml per thread on Zen.
 
-<!-- FAI014 -->
+After the final run, one more Fai-specific change was kept (fai-014). The words are masked with
+a local `m = 0xFFFFFFFF`, so Fai's range analysis can prove each stored word fits and drops the
+overflow-checked retag. Against e80bf39 in the same rounds it gained +5.5% at 1T on Zen 5,
++6.6% on Zen 3 and +21.6% on Cobalt, with 4T unchanged. The final champion, 84cc3eb, ran:
+
+| | Zen 5 | Zen 3 | Cobalt |
+|---|---:|---:|---:|
+| 1T | 10.8k | 6.3k | 7.6k |
+| 4T | 13.0k | 6.4k | 8.3k |
+
+That puts Fai at 0.33 and 0.37 of plain OCaml at 1T on Zen 5 and Zen 3, and 2.2 times OCaml on
+Cobalt.
 
 ## Claim 1: types, effects and contracts catch agent mistakes
 
@@ -67,7 +78,7 @@ record):
 | Self-review, before any tool ran | 4 | a wrong period formula, a wrong slot in an example, a nonsense example, a figure in a README |
 | Name, type and effect checking (`fai check`, build) | 4 | a module not visible across files, an unqualified effect name, a wrong method name, an effect declared but not used |
 | Contracts (`example`, `forall`) at `fai check` or `fai test` | 0 | (one planted off-by-one in Phase 0 was caught in 0.19 s) |
-| Formatter | 7 | layout only |
+| Formatter | 8 | layout only |
 | Self-test (`PRIMES_TEST=1`) | 0 | |
 | Azure build or self-test | 0 | |
 | Found only on the bench | 3 | fai-006, fai-008, fai-009: speed, not correctness |
@@ -177,21 +188,43 @@ per experiment than run 10.
 |---|---:|---:|
 | Fai, plain loop (Phase 0), no contracts | 2,595 | 2,067 |
 | Fai, OCaml design (fai-009), no contracts | 4,772 | 3,487 |
+| Fai, final champion (two kernels, e80bf39), no contracts | 5,940 | 4,332 |
+| Fai, final champion, with contracts | 6,814 | 5,206 |
 | Fai, OCaml design, with contracts | 5,372 | 4,087 |
 | plain OCaml (solution_4) | 4,229 | 3,056 |
 | ISPC base (solution_2) | 7,620 | 5,436 |
 | Rust, mike-barber, bit-extreme-hybrid slice (undercounts) | 4,069 | 2,788 |
 
-<!-- TOKENS-TABLE -->
+Agent effort, counted from Claude Code's transcripts with the same method as run 10:
+
+| | Run 10 (plain OCaml and OxCaml) | Run 11 (Fai) |
+|---|---:|---:|
+| Decided Azure experiments | 22 | 11 |
+| Measurements and findings (no Azure decision) | 7 | 7 |
+| Main-session model calls | 258 | 335 |
+| Main-session tokens | 82.1M | 84.4M |
+| Main-session tokens per decided experiment | 3.7M | 7.7M |
+| Background-agent transcript tokens | 66.3M | 42.4M |
+| Agent tokens per decided experiment | 3.0M | 3.9M |
+| Agent tokens per agent run (each run's own usage line) | about 0.1M (24 runs) | 82k-172k, median about 112k (12 runs) |
+
+Notes on the run 11 figures:
+- **Window.** They run to 03:20 UTC and leave out Phase 0, which shared a session with other
+  work. Main-session tokens are almost all cache reads (83.5M of 84.4M; output 224k).
+- **What the main session also did.** This run's main session also wrote this report, the run
+  10 reconstruction brief and the per-experiment records.
+
 
 **Verdict: not supported, on moderate evidence for source size and weak evidence for agent
 tokens.**
 - **Source size.** For the same design, Fai is 13% larger than OCaml without its contracts and
   27% larger with them. The split into two programs, forced by the concurrency mode, added 529
-  tokens.
-- **Agent tokens.** Per decided experiment, agent tokens came out close to run 10's. The
-  sessions differ in length and in the size of each experiment, so one run can't separate the
-  language from the work.
+  tokens. The final champion, with a kernel per program, is 5,940 tokens without contracts:
+  40% more than OCaml's 4,229.
+- **Agent tokens.** Per decided experiment, agents used 3.9M tokens against run 10's 3.0M, and
+  the main session about twice as many (7.7M against 3.7M). Run 11 had fewer, larger
+  experiments, more measurement work and this report. One run can't separate the language from
+  the work, but nothing here shows Fai saving tokens.
 
 ## Using Fai's own features
 
