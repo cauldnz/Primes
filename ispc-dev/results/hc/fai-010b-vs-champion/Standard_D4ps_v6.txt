@@ -122,3 +122,35 @@ cauldnz-ispc-base;84151;5.000192;2;algorithm=base,faithful=yes,bits=1
 cauldnz-ocaml-base;3415;5.001306;1;algorithm=base,faithful=yes,bits=1
 cauldnz-ocaml-base;12954;5.001521;4;algorithm=base,faithful=yes,bits=1
 == round 5 ctrl2
+mike-barber_bit-extreme-hybrid;42927;5.0000138283;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;85741;5.0001473427;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;171366;5.0001416206;4;algorithm=base,faithful=yes,bits=1
+== round 5 cand
+cauldnz-fai-base;5712;5.000;1;algorithm=base,faithful=yes,bits=1
+cauldnz-fai-base;8268;5.002;4;algorithm=base,faithful=yes,bits=1
+== round 5 champ
+cauldnz-fai-base;5579;5.000;1;algorithm=base,faithful=yes,bits=1
+cauldnz-fai-base;7788;5.002;4;algorithm=base,faithful=yes,bits=1
+== round 5 champ2
+cauldnz-fai-base;5578;5.000;1;algorithm=base,faithful=yes,bits=1
+cauldnz-fai-base;7804;5.001;4;algorithm=base,faithful=yes,bits=1
+== round 6 ctrl3
+cauldnz-ispc-base;42016;5.000023;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;168145;5.000130;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;84126;5.000097;2;algorithm=base,faithful=yes,bits=1
+== round 6 ctrl
+cauldnz-ocaml-base;3416;5.000704;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ocaml-base;12925;5.001642;4;algorithm=base,faithful=yes,bits=1
+== round 6 ctrl2
+mike-barber_bit-extreme-hybrid;42932;5.0001020432;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;85736;5.0001530647;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;171362;5.0001506805;4;algorithm=base,faithful=yes,bits=1
+== round 6 champ
+cauldnz-fai-base;5581;5.000;1;algorithm=base,faithful=yes,bits=1
+cauldnz-fai-base;7803;5.002;4;algorithm=base,faithful=yes,bits=1
+== round 6 cand
+cauldnz-fai-base;5714;5.000;1;algorithm=base,faithful=yes,bits=1
+cauldnz-fai-base;8273;5.002;4;algorithm=base,faithful=yes,bits=1
+== round 6 champ2
+cauldnz-fai-base;5579;5.000;1;algorithm=base,faithful=yes,bits=1
+cauldnz-fai-base;7801;5.002;4;algorithm=base,faithful=yes,bits=1
