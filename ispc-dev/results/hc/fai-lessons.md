@@ -31,3 +31,14 @@ One line each, with the experiment id, as they happen.
   language.
 - fai-m1: `fai daemon status` showed 0 commands served after `fai build` with the daemon
   running; the build may bypass the daemon in 0.1.0.
+- fai-003: Each Fai array access is a runtime call, so the dense-pattern design pays only while
+  there are more than about 1.25 multiples per slot (p below about 25 with 32-bit slots); the
+  dense limit fell from OCaml's 128 to 16. Limits tuned on native code don't carry over.
+- fai-003: The OCaml design port took 10.5 min of agent time; first edit to first passing
+  self-test 36 s; no mistake reached the type checker, contracts or self-test; two slips were
+  caught in the agent's own review before any tool ran, two formatter fails. Claim 1 still
+  rests on mutants, not real catches.
+- fai-003: Passing a uniquely owned scratch array through a read-only loop and reusing it did
+  not copy (gdb 0); Perceus restores the count before the next write.
+- run: hc-pool.sh tally billed 5 days because its meter state was left from the previous run;
+  a tally should reset state older than the run.

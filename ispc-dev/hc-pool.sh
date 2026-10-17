@@ -402,6 +402,9 @@ if os.path.exists(state):
         k, v = line.rstrip("\n").split("\t")
         if k == "@time": last_t = int(v)
         else: last[k] = int(v)
+if last_t is not None and now - last_t > 7200:
+    print(f"tally: meter state is {(now - last_t) // 3600} h old (a previous run); starting afresh, nothing billed")
+    last_t = None
 if last_t is not None:
     mins = max(0, (now - last_t) / 60)
     stamp = datetime.datetime.utcfromtimestamp(now).strftime("%Y-%m-%dT%H:%M:%SZ")

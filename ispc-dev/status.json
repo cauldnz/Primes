@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-17T00:23:41Z",
+  "updated_utc": "2026-10-17T00:25:48Z",
   "run": {
     "id": "ap-20261016T2335Z",
     "state": "running",
@@ -16,9 +16,9 @@
     "wakeup": "trig_01NAzR3ehJGv5Zt7VZicz3x8"
   },
   "current": {
-    "id": "fai-002",
+    "id": "fai-003",
     "phase": "evaluate",
-    "detail": "baseline task queued on Zen 5, Zen 3, Cobalt (6 rounds); nodes booting"
+    "detail": "queued on all three pools behind fai-002"
   },
   "scoreboard": [
     {
@@ -2272,7 +2272,8 @@
       "verdict": "running",
       "plain": "If small factors are marked by building their repeating pattern once and OR-ing it into the sieve a word at a time, then the Fai base gets several times faster, because each Fai array access is a runtime call and the pattern needs one call per word instead of one per composite.",
       "hypothesis": "Port the OCaml dense-pattern design to Fai (32-bit slots)",
-      "prediction": "2x-5x at 1T locally"
+      "prediction": "2x-5x at 1T locally",
+      "note": "local gate passed (container Xeon, 3 interleaved rounds): 1T 1,845 vs 1,070 (1.72x), 4T 7,003 vs 4,341; self-test 13/13; dense limit 16, two runs per step; gdb 0 array copies. Agent 110k tokens, 43 calls, 10.5 min; first edit to first passing self-test 36 s; 0 mistakes caught by type, effect, contracts or self-test; 2 formatter fails; 2 slips caught in self-review"
     },
     {
       "id": "fai-m1",
@@ -2291,27 +2292,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T22:55:51Z",
-      "level": "decision",
-      "text": "ox-016: KEEP after 8 more Zen 3 rounds; merge with ox-017 as ox-019 (4dc5560) and confirm against 2d1ae49. Why: Zen 3 4T +1.3% +-0.2 (lower bound +1.1%) over 8 rounds, Zen 5 +3.1%; both kept changes edit different functions of amd64/dense.ml.",
-      "id": "ox-016",
-      "what": "KEEP after 8 more Zen 3 rounds; merge with ox-017 as ox-019 (4dc5560) and confirm against 2d1ae49",
-      "why": "Zen 3 4T +1.3% +-0.2 (lower bound +1.1%) over 8 rounds, Zen 5 +3.1%; both kept changes edit different functions of amd64/dense.ml"
-    },
-    {
-      "utc": "2026-10-11T22:55:51Z",
-      "level": "info",
-      "text": "ox-018 on Cobalt: the dense copy does not allocate (6 minor words a pass). Each 64-bit store compiles to ldr, dmb ishld, str: OCaml 5 puts a load barrier before every store to mutable memory on Arm. One barrier per sieve word explains the Arm dense copy at 8 cycles a word, and likely plain OCaml's 15x gap to Rust on Cobalt. Upstream-worthy finding for OCaml on Arm."
-    },
-    {
-      "utc": "2026-10-11T22:55:51Z",
-      "level": "decision",
-      "text": "ox-020: background agent: diag build that prints the Arm assembly and timing of several 64-bit store forms (Bytes, int64#-indexed, Bigarray, bigstring, byte stores) on Cobalt. Why: the barrier is the Arm cost; the sparse loop's byte stores are not slow, so some store forms may compile without it; one Cobalt run can test them all side by side.",
-      "id": "ox-020",
-      "what": "background agent: diag build that prints the Arm assembly and timing of several 64-bit store forms (Bytes, int64#-indexed, Bigarray, bigstring, byte stores) on Cobalt",
-      "why": "the barrier is the Arm cost; the sparse loop's byte stores are not slow, so some store forms may compile without it; one Cobalt run can test them all side by side"
-    },
     {
       "utc": "2026-10-11T22:55:51Z",
       "level": "info",
@@ -2622,6 +2602,26 @@
       "utc": "2026-10-17T00:18:57Z",
       "level": "info",
       "text": "fai-m1 (fai) confirmed: ",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-17T00:25:48Z",
+      "level": "warn",
+      "text": "Spend reads NZ$65.70 too high: the first tally used meter state left by run 10 (12 October) and billed about 5 days per pool. Editing cost-log.csv was refused as log tampering, so the rows stay; Chris to decide. Real spend at 00:23 UTC about NZ$0.13 (3 pools x 13 min). hc-pool.sh tally now ignores meter state older than 2 h. Until fixed, real spend = page figure - NZ$65.70."
+    },
+    {
+      "utc": "2026-10-17T00:25:48Z",
+      "level": "decision",
+      "text": "fai-003: submit on Zen 5, Zen 3 and Cobalt, 6 rounds, against 1ce921d. Why: rebuilt here: self-test 13/13 and 1,839 passes at 1T; diff read: each dense multiple gets its own OR in the pattern build (clearMultiples on the scratch), scratch allocated per pass, scan over odd numbers from 3; local gate 1.72x. Expect: +60% to +80% at 1T and 4T on all three.",
+      "id": "fai-003",
+      "what": "submit on Zen 5, Zen 3 and Cobalt, 6 rounds, against 1ce921d",
+      "why": "rebuilt here: self-test 13/13 and 1,839 passes at 1T; diff read: each dense multiple gets its own OR in the pattern build (clearMultiples on the scratch), scratch allocated per pass, scan over odd numbers from 3; local gate 1.72x",
+      "expect": "+60% to +80% at 1T and 4T on all three"
+    },
+    {
+      "utc": "2026-10-17T00:25:48Z",
+      "level": "info",
+      "text": "fai-003: evaluate. queued on all three pools behind fai-002",
       "auto": true
     }
   ],
