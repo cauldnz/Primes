@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-17T00:49:19Z",
+  "updated_utc": "2026-10-17T00:55:27Z",
   "run": {
     "id": "ap-20261016T2335Z",
     "state": "running",
@@ -2374,12 +2374,6 @@
   ],
   "events": [
     {
-      "utc": "2026-10-11T23:49:28Z",
-      "level": "info",
-      "text": "Run ap-20261011T1929Z is stopped; spend NZ$7.72.",
-      "auto": true
-    },
-    {
       "utc": "2026-10-16T23:37:22Z",
       "level": "info",
       "text": "Run ap-20261016T2335Z started (run 11, Fai research climb; RUN-PLAN for run 11). Step 0: Azure blocked, service principal client secret expired (AADSTS7000222); Phase 0 only, in the container, stop before Phase 1. Knowledge base not available (no checkout or endpoint). Fai 0.1.0 (release commit ca5b9c8) installed via a loopback release mirror: the launcher ignores the proxy CA."
@@ -2717,6 +2711,11 @@
       "level": "info",
       "text": "fai-008 (fai) running: ",
       "auto": true
+    },
+    {
+      "utc": "2026-10-17T00:55:27Z",
+      "level": "info",
+      "text": "Chris: no multi-process runs. The 4T line stays one Fai program with Async.parallel threads; the multi-process route from fai-007 is closed."
     }
   ],
   "research": {

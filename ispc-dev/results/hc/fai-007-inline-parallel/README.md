@@ -38,8 +38,8 @@ Hiding `Concurrency` from the effect checker would be a data race, so it was not
 ## Processes, recorded only
 
 Fai can start processes. `std/io/ProcessHost.fai` defines a `Process` interface, and the raw
-effect doesn't switch on concurrent mode. Whether a multi-process 4T result is acceptable is
-for Chris to decide; nothing was built.
+effect doesn't switch on concurrent mode. Chris ruled it out on 17 October: the
+multi-thread runs stay one program with threads. Nothing was built.
 
 ## Minimal repro
 
