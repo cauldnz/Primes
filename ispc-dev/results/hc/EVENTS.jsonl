@@ -921,3 +921,6 @@
 {"utc": "2026-10-16T23:52:43Z", "level": "info", "text": "fai-001 (fai) confirmed: ", "auto": true}
 {"utc": "2026-10-16T23:53:33Z", "level": "info", "text": "Phase 0 done and recorded; run 11 handed over for a session clear (STATUS.md 'Run 11 handover'). Lock released, no pools running. Phases 1 and 2 resume in a new session."}
 {"utc": "2026-10-16T23:53:36Z", "level": "info", "text": "Run ap-20261016T2335Z is idle; spend NZ$0.", "auto": true}
+{"utc": "2026-10-17T00:09:33Z", "level": "info", "text": "Run 11 resumed in a clean session (00:09 UTC). Azure check passed: cached login valid, Batch account readable, no pools. Time box about 4 h 40 m (ends 04:49 UTC); NZ$15 cap, Spot only. Next: Phase 1, prove the fai bench kind on Azure."}
+{"utc": "2026-10-17T00:09:33Z", "level": "decision", "text": "run: resume at Phase 1. Why: Phase 0 done and pushed; the plan sets Phase 1 (bench) before the climb. Expect: first fai task proves the Dockerfile in about 20 min.", "id": "run", "what": "resume at Phase 1", "why": "Phase 0 done and pushed; the plan sets Phase 1 (bench) before the climb", "expect": "first fai task proves the Dockerfile in about 20 min"}
+{"utc": "2026-10-17T00:09:33Z", "level": "info", "text": "Run ap-20261016T2335Z is running; spend NZ$0.", "auto": true}

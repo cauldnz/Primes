@@ -1,16 +1,16 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-16T23:53:33Z",
+  "updated_utc": "2026-10-17T00:09:33Z",
   "run": {
     "id": "ap-20261016T2335Z",
-    "state": "idle",
+    "state": "running",
     "mode": "azure",
-    "mode_reason": "Azure restored 2026-10-17 with a new service-principal secret from Chris (expires 15 January); cached login; Batch account and group set inline for this session.",
+    "mode_reason": "Run 11 resumed in a new session at 00:09 UTC; cached service-principal login still valid (checked first); Phase 0 done earlier (17 min).",
     "started_utc": "2026-10-16T23:35:00Z",
     "time_box_hours": 5,
     "spend_nzd": 0,
     "spend_cap_nzd": 15,
-    "ends_utc": "2026-10-17T04:35:00Z",
+    "ends_utc": "2026-10-17T04:49:00Z",
     "background_runs": 0,
     "last_tick_utc": "2026-10-11T23:45:45Z",
     "wakeup": null
@@ -2259,26 +2259,6 @@
   ],
   "events": [
     {
-      "utc": "2026-10-11T22:18:32Z",
-      "level": "info",
-      "text": "Scoreboard, oxcaml base on Zen 5 (EPYC 9V45, D16as_v7): 64700 → 69300 at 1T, 236700 → 252500 at 4 threads.",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T22:18:32Z",
-      "level": "info",
-      "text": "Scoreboard, oxcaml base on Zen 3 (EPYC 7763, D16a_v4): 31400 → 32400 at 1T, 120300 → 124300 at 4 threads.",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T22:31:23Z",
-      "level": "decision",
-      "text": "ox-016: more rounds: 8 more on Zen 3 (separate log ox-016-four-runs-z3b). Why: Zen 5 +3.1% (lower bound +2.3%) clears the rule, Zen 3 sits on it: 4T lower bound +1.0%, mean +1.2%; analyze.py estimates about 7 more rounds.",
-      "id": "ox-016",
-      "what": "more rounds: 8 more on Zen 3 (separate log ox-016-four-runs-z3b)",
-      "why": "Zen 5 +3.1% (lower bound +2.3%) clears the rule, Zen 3 sits on it: 4T lower bound +1.0%, mean +1.2%; analyze.py estimates about 7 more rounds"
-    },
-    {
       "utc": "2026-10-11T22:31:23Z",
       "level": "decision",
       "text": "ox-017: hold the KEEP until Cobalt reports. Why: Zen 5 +3.3% (lower bound +3.2%), Zen 3 +8.3% after 3 rounds (4T lower bound +2.9%) pass the rule, but the Arm pattern code moved into scalar/dense.ml, so Cobalt is a gate this time; its run was lost to the DiskFull node and is queued again.",
@@ -2585,6 +2565,26 @@
       "utc": "2026-10-16T23:53:36Z",
       "level": "info",
       "text": "Run ap-20261016T2335Z is idle; spend NZ$0.",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-17T00:09:33Z",
+      "level": "info",
+      "text": "Run 11 resumed in a clean session (00:09 UTC). Azure check passed: cached login valid, Batch account readable, no pools. Time box about 4 h 40 m (ends 04:49 UTC); NZ$15 cap, Spot only. Next: Phase 1, prove the fai bench kind on Azure."
+    },
+    {
+      "utc": "2026-10-17T00:09:33Z",
+      "level": "decision",
+      "text": "run: resume at Phase 1. Why: Phase 0 done and pushed; the plan sets Phase 1 (bench) before the climb. Expect: first fai task proves the Dockerfile in about 20 min.",
+      "id": "run",
+      "what": "resume at Phase 1",
+      "why": "Phase 0 done and pushed; the plan sets Phase 1 (bench) before the climb",
+      "expect": "first fai task proves the Dockerfile in about 20 min"
+    },
+    {
+      "utc": "2026-10-17T00:09:33Z",
+      "level": "info",
+      "text": "Run ap-20261016T2335Z is running; spend NZ$0.",
       "auto": true
     }
   ],
