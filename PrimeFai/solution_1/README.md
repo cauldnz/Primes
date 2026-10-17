@@ -15,7 +15,7 @@ functional language compiled ahead of time with Cranelift.
 - The next factor is found by scanning the odd numbers upward from 3. Every composite gets its
   own single-bit OR, by one of two paths. The design is that of the author's plain OCaml entry
   ([PrimeOCaml/solution_4](../../PrimeOCaml/solution_4)), on 32-bit slots.
-  - **Dense factors (below 16 in `primes`, below 32 in `primes-parallel`).** The odd
+  - **Dense factors (below 24 in `primes`, below 32 in `primes-parallel`).** The odd
     multiples of `p` repeat every `p` slots. Each pass
     builds the pattern of four periods (`4p` slots, 128 multiples) in a scratch `Array Int`
     allocated with the sieve, with one read-OR-write per multiple, then ORs the pattern into
@@ -51,7 +51,8 @@ functional language compiled ahead of time with Cranelift.
   | Sieve built while marking 3 | −0.7% / −1.6% / −0.9% | +2.4% / +2.2% / +1.4% |
   | Dense limit 32 instead of 16 | +8.5% / −1.9% / +1.5% | +2.5% / +3.5% / +3.7% |
 
-  So `primes` uses `runSieve`: dense limit 16, the sieve allocated zeroed with `Array.repeat`,
+  So `primes` uses `runSieve`: dense limit 24 (a limit of 24 gained 6.8% at one thread on Zen 5
+  and 0.8% on Zen 3 against 16, where 32 lost on Zen 3), the sieve allocated zeroed with `Array.repeat`,
   and the unrolled sparse loop `clearMultiples4`. With the inline array path, that loop is
   about 26 instructions per multiple against 30 for the plain one, and the four-way loop is
   still a single self-recursive function with no calls, so Fai still checks the array's

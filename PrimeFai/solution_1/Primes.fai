@@ -112,7 +112,7 @@ let nextPrimeIndex i nbits bits =
 /// Factors below this are dense: their multiples are built into a pattern and ORed in.
 /// 16 in the single-threaded kernel, 32 in the threaded one (see the README).
 denseLimit : Int
-let denseLimit = 16
+let denseLimit = 24
 
 denseLimitThreaded : Int
 let denseLimitThreaded = 32
