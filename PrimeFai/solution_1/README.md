@@ -52,7 +52,8 @@ functional language compiled ahead of time with Cranelift.
   | Dense limit 32 instead of 16 | +8.5% / −1.9% / +1.5% | +2.5% / +3.5% / +3.7% |
 
   So `primes` uses `runSieve`: dense limit 24 (a limit of 24 gained 6.8% at one thread on Zen 5
-  and 0.8% on Zen 3 against 16, where 32 lost on Zen 3), the sieve allocated zeroed with `Array.repeat`,
+  and 0.8-1.2% on Zen 3 against 16, where 32 lost on Zen 3; measured again on top of the
+  mask below, it gained 2.3% on Zen 3 and 7-9% on Zen 5, with four threads unchanged), the sieve allocated zeroed with `Array.repeat`,
   and the unrolled sparse loop `clearMultiples4`. With the inline array path, that loop is
   about 26 instructions per multiple against 30 for the plain one, and the four-way loop is
   still a single self-recursive function with no calls, so Fai still checks the array's
