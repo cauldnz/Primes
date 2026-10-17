@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-17T00:12:34Z",
+  "updated_utc": "2026-10-17T00:13:11Z",
   "run": {
     "id": "ap-20261016T2335Z",
     "state": "running",
@@ -13,7 +13,7 @@
     "ends_utc": "2026-10-17T04:49:00Z",
     "background_runs": 0,
     "last_tick_utc": "2026-10-11T23:45:45Z",
-    "wakeup": null
+    "wakeup": "trig_01NAzR3ehJGv5Zt7VZicz3x8"
   },
   "current": {
     "id": "fai-002",
@@ -2284,20 +2284,6 @@
   "events": [
     {
       "utc": "2026-10-11T22:43:43Z",
-      "level": "decision",
-      "text": "ox-017: KEEP; hc/oxcaml-champion fast-forwarded to 2d1ae49. Why: analyze.py KEEP: lower bounds +3.2% Zen 5 (1T) and +4.5% Zen 3 (4T); Cobalt +0.0% at 1T, -0.1% at 4T, so the moved Arm code costs nothing.",
-      "id": "ox-017",
-      "what": "KEEP; hc/oxcaml-champion fast-forwarded to 2d1ae49",
-      "why": "analyze.py KEEP: lower bounds +3.2% Zen 5 (1T) and +4.5% Zen 3 (4T); Cobalt +0.0% at 1T, -0.1% at 4T, so the moved Arm code costs nothing"
-    },
-    {
-      "utc": "2026-10-11T22:43:43Z",
-      "level": "info",
-      "text": "ox-017 kept.. Zen 5 +3.3% 1T, Zen 3 +7.4%, Cobalt flat; champion 2d1ae49",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T22:43:43Z",
       "level": "info",
       "text": "Scoreboard, oxcaml base on Zen 5 (EPYC 9V45, D16as_v7): 69300 → 72400 at 1T, 252500 → 260900 at 4 threads.",
       "auto": true
@@ -2615,6 +2601,20 @@
       "level": "info",
       "text": "fai-002: evaluate. baseline task queued on Zen 5, Zen 3, Cobalt (6 rounds); nodes booting",
       "auto": true
+    },
+    {
+      "utc": "2026-10-17T00:13:03Z",
+      "level": "decision",
+      "text": "fai-m1: start a measurement agent for source tokens (one tokenizer) and container compile times. Why: claims 2 and 4 need the same base sieve counted with one tokenizer across Fai, OCaml, Rust, ISPC, and OCaml compile times on this container; second agent slot was free. Expect: Fai source smaller than ISPC and Rust in tokens; Fai builds under 1 s against several seconds for OCaml.",
+      "id": "fai-m1",
+      "what": "start a measurement agent for source tokens (one tokenizer) and container compile times",
+      "why": "claims 2 and 4 need the same base sieve counted with one tokenizer across Fai, OCaml, Rust, ISPC, and OCaml compile times on this container; second agent slot was free",
+      "expect": "Fai source smaller than ISPC and Rust in tokens; Fai builds under 1 s against several seconds for OCaml"
+    },
+    {
+      "utc": "2026-10-17T00:13:11Z",
+      "level": "info",
+      "text": "Waiting for fai-002 nodes to boot (start task about 8 min, then the Fai Docker build); next tick 00:26 UTC."
     }
   ],
   "research": {
