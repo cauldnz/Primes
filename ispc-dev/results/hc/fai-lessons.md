@@ -101,3 +101,6 @@ One line each, with the experiment id, as they happen.
   specialisation intact; the threaded kernel's self-test now runs inside the threaded binary.
 - fai-006/010: Dense limit 24 helped both binaries (4T +4% everywhere, 1T +7% Zen 5, +1% Zen 3),
   where 32 lost on Zen 3 at 1T: a sweep step between two chips' optima can win on both.
+- fai-011: Giving each binary the kernel that suits its compile mode turned two reverts (fai-008,
+  fai-009) and a split result (fai-006) into a keep on every machine: 1T +2.6% / +4.5% / +11.3%,
+  4T +5.1-5.3%. Splitting by compile mode is the Fai analogue of per-architecture kernels.

@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-17T02:03:50Z",
+  "updated_utc": "2026-10-17T02:05:24Z",
   "run": {
     "id": "ap-20261016T2335Z",
     "state": "running",
@@ -24,35 +24,35 @@
     {
       "machine": "Zen 5 (EPYC 9V45, D16as_v7)",
       "entry": "fai base",
-      "ours_1t": 10100,
-      "ours_mt": 12400,
+      "ours_1t": 10300,
+      "ours_mt": 13000,
       "rival": "mike-barber Rust",
-      "rival_1t": 125900,
-      "rival_mt": 470200,
+      "rival_1t": 126000,
+      "rival_mt": 470300,
       "threads": 4,
-      "source": "hc/fai-champion 9dbf524 = fai-005 d39783a (fai-009 task's champion label, results/hc/fai-009-champ-plus-005, 6 rounds, same-round medians; 4T in ours_mt/rival_mt); plain OCaml 32.8k/120.7k, ISPC 138.9k; baseline 1ce921d 1.8k/0.9k/1.2k"
+      "source": "hc/fai-champion e80bf39 (fai-011 task, results/hc/fai-011-per-binary, 6 rounds, same-round medians; 4T in ours_mt/rival_mt); plain OCaml 32.9k/121.1k, ISPC 139.0k; baseline 1ce921d 1.8k/0.9k/1.2k"
     },
     {
       "machine": "Zen 3 (EPYC 7763, D16a_v4)",
       "entry": "fai base",
-      "ours_1t": 5700,
-      "ours_mt": 6000,
+      "ours_1t": 5900,
+      "ours_mt": 6300,
       "rival": "mike-barber Rust",
-      "rival_1t": 52600,
+      "rival_1t": 52500,
       "rival_mt": 210400,
       "threads": 4,
-      "source": "hc/fai-champion 9dbf524 = fai-005 d39783a (fai-009 task's champion label, results/hc/fai-009-champ-plus-005, 6 rounds, same-round medians; 4T in ours_mt/rival_mt); plain OCaml 16.9k/66.1k, ISPC 56.0k; baseline 1ce921d 1.8k/0.9k/1.2k"
+      "source": "hc/fai-champion e80bf39 (fai-011 task, results/hc/fai-011-per-binary, 6 rounds, same-round medians; 4T in ours_mt/rival_mt); plain OCaml 16.9k/66.1k, ISPC 56.0k; baseline 1ce921d 1.8k/0.9k/1.2k"
     },
     {
       "machine": "Cobalt 100 (D4ps_v6)",
       "entry": "fai base",
-      "ours_1t": 5600,
-      "ours_mt": 7800,
+      "ours_1t": 6200,
+      "ours_mt": 8200,
       "rival": "mike-barber Rust",
       "rival_1t": 42900,
       "rival_mt": 171400,
       "threads": 4,
-      "source": "hc/fai-champion 9dbf524 = fai-005 d39783a (fai-009 task's champion label, results/hc/fai-009-champ-plus-005, 6 rounds, same-round medians; 4T in ours_mt/rival_mt); plain OCaml 3.4k/13.0k, ISPC 42.1k; baseline 1ce921d 1.8k/0.9k/1.2k"
+      "source": "hc/fai-champion e80bf39 (fai-011 task, results/hc/fai-011-per-binary, 6 rounds, same-round medians; 4T in ours_mt/rival_mt); plain OCaml 3.4k/13.0k, ISPC 42.2k; baseline 1ce921d 1.8k/0.9k/1.2k"
     },
     {
       "machine": "Zen 5 (EPYC 9V45, D16as_v7)",
@@ -2403,10 +2403,20 @@
       "entry": "fai",
       "tier": "extra-faithful",
       "kind": "novel",
-      "verdict": "running",
+      "verdict": "kept",
       "plain": "If the one-thread program and the threaded program each get the sieve code that suits how Fai compiles them, then both get faster, because the unrolled loop helps only inline code and the appended first pass helps only call-based code.",
       "prediction": "1T +2-5% on Zen (Cobalt +10%), 4T +4-7%",
-      "note": "hc/fai-011-per-binary e80bf39: 1T kernel = limit 16, Array.repeat start, unrolled sparse (fai-008); threaded kernel = limit 32, push-built pass for 3 (fai-004), plain sparse; selected by a Bool outside the loops; both kernels self-tested (39 lines) and covered by contracts (46). Local: 1T +10.5% (5/5), 4T -2.2% pooled over 14 rounds (noise about ±3%). Agent 150k tokens, 68 calls, 10.5 min; mistakes: 1 at fai test (examples attached to the wrong function, silent), 1 formatter"
+      "note": "hc/fai-011-per-binary e80bf39: 1T kernel = limit 16, Array.repeat start, unrolled sparse (fai-008); threaded kernel = limit 32, push-built pass for 3 (fai-004), plain sparse; selected by a Bool outside the loops; both kernels self-tested (39 lines) and covered by contracts (46). Local: 1T +10.5% (5/5), 4T -2.2% pooled over 14 rounds (noise about ±3%). Agent 150k tokens, 68 calls, 10.5 min; mistakes: 1 at fai test (examples attached to the wrong function, silent), 1 formatter | Azure vs 9dbf524: Zen 5 1T +2.6% ± 0.4, 4T +5.3% ± 0.8; Zen 3 1T +4.5% ± 0.4, 4T +5.1% ± 0.5; Cobalt +11.3% / +5.1%; 6/6 everywhere. KEEP; champion e80bf39"
+    },
+    {
+      "id": "fai-012",
+      "entry": "fai",
+      "tier": "extra-faithful",
+      "kind": "tuning",
+      "verdict": "running",
+      "plain": "If the one-thread program marks factors up to 24 with patterns instead of up to 16, then it gets faster on both AMD chips, because that cut-off won on both in an earlier test.",
+      "prediction": "1T +2-6% Zen 5, 0 to +1% Zen 3; 4T unchanged",
+      "note": "hc/fai-012-dense-24-1t a5c9032 on e80bf39; my own one-line change; check, test 46, fmt, self-test 39/39; local 1T 6,156 vs 5,755 (3 rounds)"
     }
   ],
   "azure_queue": 0,
@@ -2416,56 +2426,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-17T00:37:52Z",
-      "level": "info",
-      "text": "fai-005: evaluate. fai-002 finishing; fai-003, -004, -005 queued on all three pools",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-17T00:44:11Z",
-      "level": "decision",
-      "text": "fai-002: baseline confirmed; scoreboard set from it. Why: A/A within noise on all three, CPU lines right, both builds and self-tests pass on x86 and arm64.",
-      "id": "fai-002",
-      "what": "baseline confirmed; scoreboard set from it",
-      "why": "A/A within noise on all three, CPU lines right, both builds and self-tests pass on x86 and arm64"
-    },
-    {
-      "utc": "2026-10-17T00:44:11Z",
-      "level": "info",
-      "text": "fai-003 on Cobalt: +67.1% at 1T (CI ±0.1%) and +66.9% at 4T against 1ce921d, 6/6 rounds; Zen 5 and Zen 3 still running."
-    },
-    {
-      "utc": "2026-10-17T00:44:11Z",
-      "level": "info",
-      "text": "fai-002 confirmed.. Baseline per thread, 1T/4T: Zen 5 1.8k/1.8k (OCaml 30.4k, Rust 118.8k, ISPC 129.9k); Zen 3 0.9k/0.9k (OCaml 16.9k, Rust 52.6k); Cobalt 1.2k/1.2k (OCaml 3.4k, Rust 42.9k). A/A within ±1.2% (Zen 5 1T CI), ±1.8% (Zen 3 1T), ±0.1% (Cobalt). Dockerfile builds on x86 and arm64 (37-42 s). Fai is 1/17 of plain OCaml on Zen 5, 1/19 on Zen 3, but 1/2.8 on Cobalt, where OCaml pays the dmb barrier",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-17T00:45:07Z",
-      "level": "decision",
-      "text": "fai-006: start agent: re-sweep dense limit and periods on the inline 1T build (base fai-005). Why: fai-003 tuned the limit at 2-3 runtime calls per access; inline access moves the break-even (OCaml with inline access uses about 64 on 32-bit slots). Expect: +10-30% at 1T.",
-      "id": "fai-006",
-      "what": "start agent: re-sweep dense limit and periods on the inline 1T build (base fai-005)",
-      "why": "fai-003 tuned the limit at 2-3 runtime calls per access; inline access moves the break-even (OCaml with inline access uses about 64 on 32-bit slots)",
-      "expect": "+10-30% at 1T"
-    },
-    {
-      "utc": "2026-10-17T00:45:07Z",
-      "level": "decision",
-      "text": "fai-007: start agent: find a safe, supported way to run threads with inline array access; no loopholes. Why: 4T per thread now trails 1T by about 3x because Concurrency in main disables inlining program-wide; 4T is a deciding measure. Passed over: a multi-process 4T (Chris's call, recorded only). Expect: probably no supported route; the finding goes to the Fai notes.",
-      "id": "fai-007",
-      "what": "start agent: find a safe, supported way to run threads with inline array access; no loopholes",
-      "why": "4T per thread now trails 1T by about 3x because Concurrency in main disables inlining program-wide; 4T is a deciding measure",
-      "instead": "a multi-process 4T (Chris's call, recorded only)",
-      "expect": "probably no supported route; the finding goes to the Fai notes"
-    },
-    {
-      "utc": "2026-10-17T00:45:08Z",
-      "level": "info",
-      "text": "fai-006 (fai) running: ",
-      "auto": true
-    },
     {
       "utc": "2026-10-17T00:45:08Z",
       "level": "info",
@@ -2766,6 +2726,54 @@
       "utc": "2026-10-17T01:49:29Z",
       "level": "info",
       "text": "fai-011: evaluate. fai-011 and fai-010b running on all three pools",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-17T02:05:23Z",
+      "level": "decision",
+      "text": "fai-011: KEEP; hc/fai-champion fast-forwarded to e80bf39. Why: lower bound +4.5% at 4T on Zen 5 and +4.6% on Zen 3; 1T up on all three; no loss anywhere.",
+      "id": "fai-011",
+      "what": "KEEP; hc/fai-champion fast-forwarded to e80bf39",
+      "why": "lower bound +4.5% at 4T on Zen 5 and +4.6% on Zen 3; 1T up on all three; no loss anywhere"
+    },
+    {
+      "utc": "2026-10-17T02:05:24Z",
+      "level": "decision",
+      "text": "fai-012: submit 1T dense limit 24 on the champion. Why: fai-010 found 24 better than 16 on both Zens at 1T (+6.8%, +0.8%); in the per-binary design only the 1T kernel changes, so 4T should stay put. Passed over: the threaded limit (32 vs 24): next if time allows. Expect: 1T +2-6% Zen 5, flat Zen 3.",
+      "id": "fai-012",
+      "what": "submit 1T dense limit 24 on the champion",
+      "why": "fai-010 found 24 better than 16 on both Zens at 1T (+6.8%, +0.8%); in the per-binary design only the 1T kernel changes, so 4T should stay put",
+      "instead": "the threaded limit (32 vs 24): next if time allows",
+      "expect": "1T +2-6% Zen 5, flat Zen 3"
+    },
+    {
+      "utc": "2026-10-17T02:05:24Z",
+      "level": "info",
+      "text": "fai-011 kept.. hc/fai-011-per-binary e80bf39: 1T kernel = limit 16, Array.repeat start, unrolled sparse (fai-008); threaded kernel = limit 32, push-built pass for 3 (fai-004), plain sparse; selected by a Bool outside the loops; both kernels self-tested (39 lines) and covered by contracts (46). Local: 1T +10.5% (5/5), 4T -2.2% pooled over 14 rounds (noise about ±3%). Agent 150k tokens, 68 calls, 10.5 min; mistakes: 1 at fai test (examples attached to the wrong function, silent), 1 formatter | Azure vs 9dbf524: Zen 5 1T +2.6% ± 0.4, 4T +5.3% ± 0.8; Zen 3 1T +4.5% ± 0.4, 4T +5.1% ± 0.5; Cobalt +11.3% / +5.1%; 6/6 everywhere. KEEP; champion e80bf39",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-17T02:05:24Z",
+      "level": "info",
+      "text": "fai-012 (fai) running: ",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-17T02:05:24Z",
+      "level": "info",
+      "text": "Scoreboard, fai base on Zen 5 (EPYC 9V45, D16as_v7): 10100 → 10300 at 1T, 12400 → 13000 at 4 threads.",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-17T02:05:24Z",
+      "level": "info",
+      "text": "Scoreboard, fai base on Zen 3 (EPYC 7763, D16a_v4): 5700 → 5900 at 1T, 6000 → 6300 at 4 threads.",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-17T02:05:24Z",
+      "level": "info",
+      "text": "Scoreboard, fai base on Cobalt 100 (D4ps_v6): 5600 → 6200 at 1T, 7800 → 8200 at 4 threads.",
       "auto": true
     }
   ],
