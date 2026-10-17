@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-17T00:48:43Z",
+  "updated_utc": "2026-10-17T00:49:19Z",
   "run": {
     "id": "ap-20261016T2335Z",
     "state": "running",
@@ -2355,6 +2355,15 @@
       "plain": "If there is a safe way to keep Fai's fast inline array access while running several threads, then the multi-thread run gets about three times faster per thread, because today using threads anywhere slows every array access in the program.",
       "prediction": "research question; if a supported route exists, about 3x per thread at 4T",
       "note": "No safe, supported route in Fai 0.1.0: concurrent mode is one whole-program flag set from main's effect row; it routes all reference counting and array access through runtime calls (MEMORY.md D138/D139 calls per-object inline RC future work). Hiding Concurrency would race the non-atomic inline decrement; not built. Repro: one trivial Async.parallel makes a single-threaded array loop 4.2x slower (0.30 s vs 1.25 s). Agent 110k tokens, 34 calls, 3.3 min"
+    },
+    {
+      "id": "fai-008",
+      "entry": "fai",
+      "tier": "extra-faithful",
+      "kind": "borrowed (PrimeOCaml/solution_4 and mike-barber Rust unrolled sparse loops)",
+      "verdict": "running",
+      "plain": "If the loop that marks large factors handles several multiples per turn, then the one-thread run gets faster, because each turn of a Fai loop carries fixed checks that unrolling shares out.",
+      "prediction": "+5% to +20% at 1T over fai-005"
     }
   ],
   "azure_queue": 0,
@@ -2364,17 +2373,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T23:47:18Z",
-      "level": "info",
-      "text": "Scoreboard, oxcaml base on Zen 3 (EPYC 7763, D16a_v4): 37000 → 37200 at 1T, 136700 → 137000 at 4 threads.",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T23:49:28Z",
-      "level": "info",
-      "text": "Run ap-20261011T1929Z stopped at 09:50 AEST (4.35 h of 6): experiments done, final scoreboard in, all pools deleted (az batch pool list: 0), lock cleared, morning report and retrospective written. Waiting only on the final README branches (hc/oxcaml-final, hc/ocaml-final)."
-    },
     {
       "utc": "2026-10-11T23:49:28Z",
       "level": "info",
@@ -2702,6 +2700,22 @@
       "utc": "2026-10-17T00:48:43Z",
       "level": "info",
       "text": "fai-007 confirmed.. No safe, supported route in Fai 0.1.0: concurrent mode is one whole-program flag set from main's effect row; it routes all reference counting and array access through runtime calls (MEMORY.md D138/D139 calls per-object inline RC future work). Hiding Concurrency would race the non-atomic inline decrement; not built. Repro: one trivial Async.parallel makes a single-threaded array loop 4.2x slower (0.30 s vs 1.25 s). Agent 110k tokens, 34 calls, 3.3 min",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-17T00:49:19Z",
+      "level": "decision",
+      "text": "fai-008: start agent: unroll the sparse loop on the inline build. Why: sparse marks are about 85% of marks and the inline loop carries about 29 instructions per mark, several of them per-iteration checks. Passed over: a 62-bit layout (division by 62 cost more in fai-000). Expect: +5-20% at 1T.",
+      "id": "fai-008",
+      "what": "start agent: unroll the sparse loop on the inline build",
+      "why": "sparse marks are about 85% of marks and the inline loop carries about 29 instructions per mark, several of them per-iteration checks",
+      "instead": "a 62-bit layout (division by 62 cost more in fai-000)",
+      "expect": "+5-20% at 1T"
+    },
+    {
+      "utc": "2026-10-17T00:49:19Z",
+      "level": "info",
+      "text": "fai-008 (fai) running: ",
       "auto": true
     }
   ],
