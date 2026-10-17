@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-17T03:59:27Z",
+  "updated_utc": "2026-10-17T04:00:22Z",
   "run": {
     "id": "ap-20261016T2335Z",
     "state": "stopped",
@@ -2410,10 +2410,10 @@
       "entry": "fai",
       "tier": "extra-faithful",
       "kind": "tuning",
-      "verdict": "rejected",
+      "verdict": "kept",
       "plain": "If the one-thread program marks factors up to 24 with patterns instead of up to 16, then it gets faster on both AMD chips, because that cut-off won on both in an earlier test.",
       "prediction": "1T +2-6% Zen 5, 0 to +1% Zen 3; 4T unchanged",
-      "note": "hc/fai-012-dense-24-1t a5c9032 on e80bf39; my own one-line change; check, test 46, fmt, self-test 39/39; local 1T 6,156 vs 5,755 (3 rounds) | 6 rounds vs e80bf39: Zen 5 1T +6.8% ± 0.3 (6/6), 4T +0.3%; Zen 3 1T +1.2% ± 0.3 (lower bound +0.9%), 4T -0.1%; Cobalt +2.4% / +0.1%. MORE ROUNDS on Zen 3 (10) | 10 more Zen 3 rounds: 1T +1.0% ± 0.2 (9/9), lower bound +0.8%. REVERT by the rule (needs +1% lower bound on both Zens); never lost anywhere, Zen 5 +6.8%: flagged for Chris"
+      "note": "hc/fai-012-dense-24-1t a5c9032 on e80bf39; my own one-line change; check, test 46, fmt, self-test 39/39; local 1T 6,156 vs 5,755 (3 rounds) | 6 rounds vs e80bf39: Zen 5 1T +6.8% ± 0.3 (6/6), 4T +0.3%; Zen 3 1T +1.2% ± 0.3 (lower bound +0.9%), 4T -0.1%; Cobalt +2.4% / +0.1%. MORE ROUNDS on Zen 3 (10) | 10 more Zen 3 rounds: 1T +1.0% ± 0.2 (9/9), lower bound +0.8%. REVERT by the rule (needs +1% lower bound on both Zens); never lost anywhere, Zen 5 +6.8%: flagged for Chris | 17 Oct: KEPT by Chris's judgement (like hc-028): every round won, lower bound +0.8% on Zen 3; merge onto 84cc3eb subject to the fai-016 combination check"
     },
     {
       "id": "fai-013",
@@ -2453,6 +2453,16 @@
       "plain": "If the sieve uses a Fai feature that general-purpose languages lack, then it may get faster or clearer, because Fai was designed with features the climb has not used yet.",
       "prediction": "survey first; effect depends on the feature chosen",
       "note": "Feature survey (results/hc/fai-015-fai-feature). Candidate: threads as worker processes via ProcessHost.Process (no Concurrency, inline kernel in each): local 4T 18,824 vs 5,480 (3.4x). Not submitted: Chris ruled out multi-process runs. Agent 128k tokens, 52 calls, 7.5 min"
+    },
+    {
+      "id": "fai-016",
+      "entry": "fai",
+      "tier": "extra-faithful",
+      "kind": "merge",
+      "verdict": "running",
+      "plain": "If the kept cut-off change is combined with the current champion, then it should still help, because the two changes touch different parts of the one-thread program.",
+      "prediction": "1T +3-7% Zen 5, 0 to +1% Zen 3; 4T flat",
+      "note": "hc/fai-016-champ-plus-012 5277edb = 84cc3eb + fai-012; check, test 46, fmt, self-test 39/39; 6 rounds on Zen 5 and Zen 3 against 84cc3eb"
     }
   ],
   "azure_queue": 0,
@@ -2462,33 +2472,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-17T01:34:18Z",
-      "level": "info",
-      "text": "Scoreboard, fai base on Zen 5 (EPYC 9V45, D16as_v7): 3200 → 10100 at 1T, 12500 → 12400 at 4 threads.",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-17T01:34:18Z",
-      "level": "info",
-      "text": "Scoreboard, fai base on Zen 3 (EPYC 7763, D16a_v4): 1500 → 5700 at 1T, 6100 → 6000 at 4 threads.",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-17T01:34:18Z",
-      "level": "info",
-      "text": "Scoreboard, fai base on Cobalt 100 (D4ps_v6): 2000 → 5600 at 1T, 7900 → 7800 at 4 threads.",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-17T01:44:48Z",
-      "level": "decision",
-      "text": "fai-011: submit on all three against the champion 9dbf524. Why: rebuilt here: self-test 39/39 via run.sh; kernel chosen by a constant Bool per main, outside the loops; both kernels verified in their shipped compile mode; local 4T within noise. Expect: 1T +2-5% Zen (Cobalt +10%); 4T 0 to +5%.",
-      "id": "fai-011",
-      "what": "submit on all three against the champion 9dbf524",
-      "why": "rebuilt here: self-test 39/39 via run.sh; kernel chosen by a constant Bool per main, outside the loops; both kernels verified in their shipped compile mode; local 4T within noise",
-      "expect": "1T +2-5% Zen (Cobalt +10%); 4T 0 to +5%"
-    },
     {
       "utc": "2026-10-17T01:48:37Z",
       "level": "decision",
@@ -2794,6 +2777,35 @@
       "utc": "2026-10-17T03:59:27Z",
       "level": "info",
       "text": "Cost log: the three stale 00:23 UTC tally rows corrected to 13 node-minutes each (pools had been up since 00:10), Chris authorised 17 October; old values in git history. Run 11 spend now reads from the log directly."
+    },
+    {
+      "utc": "2026-10-17T04:00:22Z",
+      "level": "decision",
+      "text": "fai-012: KEPT by Chris's judgement. Why: Chris, 17 October: lower bound +0.8% on Zen 3 with all rounds won, Zen 5 +6.8%, no loss anywhere; same call as hc-028.",
+      "id": "fai-012",
+      "what": "KEPT by Chris's judgement",
+      "why": "Chris, 17 October: lower bound +0.8% on Zen 3 with all rounds won, Zen 5 +6.8%, no loss anywhere; same call as hc-028"
+    },
+    {
+      "utc": "2026-10-17T04:00:22Z",
+      "level": "decision",
+      "text": "fai-016: measure fai-012 on the champion before merging (KEEP-06). Why: fai-012 was measured on e80bf39; fai-014's mask changes the per-mark cost, so the combination needs its own 6 rounds on Zen 5 and Zen 3. Expect: 1T +3-7% Zen 5, flat Zen 3.",
+      "id": "fai-016",
+      "what": "measure fai-012 on the champion before merging (KEEP-06)",
+      "why": "fai-012 was measured on e80bf39; fai-014's mask changes the per-mark cost, so the combination needs its own 6 rounds on Zen 5 and Zen 3",
+      "expect": "1T +3-7% Zen 5, flat Zen 3"
+    },
+    {
+      "utc": "2026-10-17T04:00:22Z",
+      "level": "info",
+      "text": "fai-012 kept.. hc/fai-012-dense-24-1t a5c9032 on e80bf39; my own one-line change; check, test 46, fmt, self-test 39/39; local 1T 6,156 vs 5,755 (3 rounds) | 6 rounds vs e80bf39: Zen 5 1T +6.8% ± 0.3 (6/6), 4T +0.3%; Zen 3 1T +1.2% ± 0.3 (lower bound +0.9%), 4T -0.1%; Cobalt +2.4% / +0.1%. MORE ROUNDS on Zen 3 (10) | 10 more Zen 3 rounds: 1T +1.0% ± 0.2 (9/9), lower bound +0.8%. REVERT by the rule (needs +1% lower bound on both Zens); never lost anywhere, Zen 5 +6.8%: flagged for Chris | 17 Oct: KEPT by Chris's judgement (like hc-028): every round won, lower bound +0.8% on Zen 3; merge onto 84cc3eb subject to the fai-016 combination check",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-17T04:00:22Z",
+      "level": "info",
+      "text": "fai-016 (fai) running: ",
+      "auto": true
     }
   ],
   "research": {
