@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-17T01:18:15Z",
+  "updated_utc": "2026-10-17T01:18:51Z",
   "run": {
     "id": "ap-20261016T2335Z",
     "state": "running",
@@ -13,7 +13,7 @@
     "ends_utc": "2026-10-17T04:49:00Z",
     "background_runs": 6,
     "last_tick_utc": "2026-10-17T01:16:15Z",
-    "wakeup": "trig_01B8jUFQtvZiypT4nKfdzHKA"
+    "wakeup": "trig_012ixvpoTxfnPMt4Qt5JwRBz"
   },
   "current": {
     "id": "fai-005",
@@ -2398,15 +2398,6 @@
   ],
   "events": [
     {
-      "utc": "2026-10-17T00:13:03Z",
-      "level": "decision",
-      "text": "fai-m1: start a measurement agent for source tokens (one tokenizer) and container compile times. Why: claims 2 and 4 need the same base sieve counted with one tokenizer across Fai, OCaml, Rust, ISPC, and OCaml compile times on this container; second agent slot was free. Expect: Fai source smaller than ISPC and Rust in tokens; Fai builds under 1 s against several seconds for OCaml.",
-      "id": "fai-m1",
-      "what": "start a measurement agent for source tokens (one tokenizer) and container compile times",
-      "why": "claims 2 and 4 need the same base sieve counted with one tokenizer across Fai, OCaml, Rust, ISPC, and OCaml compile times on this container; second agent slot was free",
-      "expect": "Fai source smaller than ISPC and Rust in tokens; Fai builds under 1 s against several seconds for OCaml"
-    },
-    {
       "utc": "2026-10-17T00:13:11Z",
       "level": "info",
       "text": "Waiting for fai-002 nodes to boot (start task about 8 min, then the Fai Docker build); next tick 00:26 UTC."
@@ -2747,6 +2738,14 @@
       "level": "info",
       "text": "fai-010 (fai) running: ",
       "auto": true
+    },
+    {
+      "utc": "2026-10-17T01:18:51Z",
+      "level": "decision",
+      "text": "fai-m2: start a measurement agent: like-for-like source tokens, peak RSS and an in-place check on the merged champion. Why: claims 3 and 4 need the champion's numbers, not Phase 0's plain loop.",
+      "id": "fai-m2",
+      "what": "start a measurement agent: like-for-like source tokens, peak RSS and an in-place check on the merged champion",
+      "why": "claims 3 and 4 need the champion's numbers, not Phase 0's plain loop"
     }
   ],
   "research": {

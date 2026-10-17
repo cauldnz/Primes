@@ -323,3 +323,5 @@ id	pool	size	kind	outdir	submitted	state
 01032330554	hc-standard-d16a-v4	Standard_D16a_v4	fai	ispc-dev/results/hc/fai-008-sparse-unroll	2026-10-17T01:03:32Z	open
 01033723436	hc-standard-d4ps-v6	Standard_D4ps_v6	fai	ispc-dev/results/hc/fai-008-sparse-unroll	2026-10-17T01:03:45Z	open
 01180528734	hc-standard-d16as-v7	Standard_D16as_v7	fai	ispc-dev/results/hc/fai-010-dense-24	2026-10-17T01:18:14Z	open
+01182029033	hc-standard-d16a-v4	Standard_D16a_v4	fai	ispc-dev/results/hc/fai-010-dense-24	2026-10-17T01:18:28Z	open
+01183423180	hc-standard-d4ps-v6	Standard_D4ps_v6	fai	ispc-dev/results/hc/fai-010-dense-24	2026-10-17T01:18:42Z	open
