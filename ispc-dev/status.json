@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-17T01:06:23Z",
+  "updated_utc": "2026-10-17T01:06:33Z",
   "run": {
     "id": "ap-20261016T2335Z",
     "state": "running",
@@ -2389,15 +2389,6 @@
   "events": [
     {
       "utc": "2026-10-17T00:09:33Z",
-      "level": "decision",
-      "text": "run: resume at Phase 1. Why: Phase 0 done and pushed; the plan sets Phase 1 (bench) before the climb. Expect: first fai task proves the Dockerfile in about 20 min.",
-      "id": "run",
-      "what": "resume at Phase 1",
-      "why": "Phase 0 done and pushed; the plan sets Phase 1 (bench) before the climb",
-      "expect": "first fai task proves the Dockerfile in about 20 min"
-    },
-    {
-      "utc": "2026-10-17T00:09:33Z",
       "level": "info",
       "text": "Run ap-20261016T2335Z is running; spend NZ$0.",
       "auto": true
@@ -2740,6 +2731,11 @@
       "utc": "2026-10-17T01:06:23Z",
       "level": "info",
       "text": "Run 10 evidence reconstructed from the record (results/hc/fai-r10-evidence). Correction: run 10's '1,030 calls, 148.4M tokens' was main session plus agents (main 258 calls / 82.1M, agents 772 / 66.3M); per decided experiment 3.7M main, 3.0M agents. Agent: about 25 min."
+    },
+    {
+      "utc": "2026-10-17T01:06:33Z",
+      "level": "info",
+      "text": "Correction to the previous event: the run 10 evidence agent took 4.1 min (172k tokens, 38 tool calls), not 25 min."
     }
   ],
   "research": {
