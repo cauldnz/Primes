@@ -69,3 +69,15 @@ adds at most three new items. Background: `REVIEW-2026-10-10.md`.
   phase timers and assembly off a node; give it a name and an analyser (`tools/diag.py`) that
   prints the per-phase table, instead of grepping the raw log.
 
+
+## From run 11 (Fai, 17 October)
+
+- `hc-pool.sh tally` billed 5 days of node time from meter state left by run 10. Fixed in-run:
+  state older than 2 h now resets. The three bad 00:23 rows in `results/cost-log.csv` stay
+  until Chris decides how to correct them, because editing the log was refused. Until then,
+  the page's spend reads NZ$65.70 high.
+- `analyze.py` treats `Standard_*.stderr.txt` as machine logs when globbed as `Standard_*`
+  (prints "WRONG CHIP"); make it skip `*.stderr.txt`.
+- Add `hc-pool.sh cap <size> <n>` to change a running pool's node cap. The Cobalt pool ran at
+  1 node, which made it the queue's slow end. Changing the autoscale formula directly was
+  refused in-session.

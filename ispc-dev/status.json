@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-17T02:44:17Z",
+  "updated_utc": "2026-10-17T02:44:30Z",
   "run": {
     "id": "ap-20261016T2335Z",
     "state": "running",
@@ -2448,12 +2448,6 @@
     {
       "utc": "2026-10-17T00:58:13Z",
       "level": "info",
-      "text": "Scoreboard, fai base on Zen 3 (EPYC 7763, D16a_v4): 900 → 1500 at 1T, 3700 → 6100 at 4 threads.",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-17T00:58:13Z",
-      "level": "info",
       "text": "Scoreboard, fai base on Cobalt 100 (D4ps_v6): 1200 → 2000 at 1T, 4700 → 7900 at 4 threads.",
       "auto": true
     },
@@ -2798,6 +2792,11 @@
       "level": "info",
       "text": "r11-final: evaluate. final scoreboard on all three pools",
       "auto": true
+    },
+    {
+      "utc": "2026-10-17T02:44:30Z",
+      "level": "info",
+      "text": "Correction to the r11-final decision: about 80 minutes remained before the 04:04 cut-off, so one more experiment could have run. I chose the final scoreboard instead because the remaining ideas were small tuning steps (fai-012 and fai-013 were at the noise floor), and the reports and shutdown need the time."
     }
   ],
   "research": {

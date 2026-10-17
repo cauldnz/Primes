@@ -1,5 +1,37 @@
 # Run retrospectives (newest first)
 
+## ap-20261016T2335Z (2026-10-17, Phase 0 09:35-09:52 AEST, then 10:09-14:49 AEST): Fai
+
+- **Calibration: 3 of 11 predictions in range on both Zens** (fai-007, fai-011, fai-013), with 3
+  more in range on one Zen (fai-009 at 4T, fai-010 on Zen 3, fai-012 on Zen 3).
+  - Misses on the low side were native-code intuitions applied to Fai: the OCaml port (2-5x
+    predicted, 1.7x measured), the push-built pass (+5-15%, +2-4%), the 32 limit (+10-30%,
+    +8.5% and −1.9%).
+  - The big miss was on the high side: the 1T binary without `Concurrency` (+10-40% predicted,
+    +212-273% measured). That was a compiler mode switch nobody had read about.
+- **Cost per kept change:** 701 node-minutes to 02:45 UTC (about NZ$2.7) for 4 keeps in the
+  champion line (fai-003, fai-005, fai-011, plus fai-004, kept and then superseded), about 175
+  each. The final scoreboard is extra.
+- **Lost node-minutes:** none to preemption or idle floors. Cobalt ran one node, so its queue
+  lagged the x86 pools by up to one task.
+- **Protocol:**
+  - Every candidate had a local gate, a self-test, a diff read and a CPU-line check.
+  - Gains above 20% (fai-003, fai-005) were re-read line by line and rebuilt here before
+    submitting.
+  - Two merges were measured, not assumed: fai-009 lost where its parts had kept, and fai-010
+    was re-measured against the champion as fai-010b.
+  - Skipped: the first experiment on the entry was not a cycle profile. Phase 0's objdump and
+    gdb work stood in for it, and its conclusion ("each mark is two runtime calls") turned out
+    to hold only for the concurrent build.
+- **Harness items:**
+  1. `hc-pool.sh tally` billed 5 days of node time from meter state left by the previous run
+     (fixed: it now ignores state older than 2 h). The three bad rows remain in
+     `cost-log.csv` because the edit was refused; they need a correction rule or row.
+  2. `analyze.py` reads `*.stderr.txt` as a machine log when globbed as `Standard_*`; use
+     `Standard_*_v?.txt` or skip stderr files.
+  3. A way to raise a running pool's node cap (`hc-pool.sh cap`) would have halved the Cobalt
+     queue. The direct autoscale edit was refused in-session.
+
 ## ap-20261011T1929Z (2026-10-12, 05:29 to 11:29 AEST): OxCaml
 
 - Calibration: 6 of 22 predictions in range on both Zens (ox-002 on x86, ox-006, ox-008, ox-014,
