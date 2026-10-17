@@ -77,3 +77,8 @@ One line each, with the experiment id, as they happen.
   figure was the main session and the agent transcripts together (258 + 772 calls; 82.1M +
   66.3M). Label token totals by source when writing them, and record per-agent usage, as run 11
   does.
+- fai-005: On Azure the 1T split gave 3.1x (Zen 5), 3.7x (Zen 3) and 2.9x (Cobalt); Fai's 1T on
+  Cobalt (5.6k) now beats plain OCaml (3.4k), which pays the Arm store barrier.
+- fai-006: The same dense limit (32) gained 8.5% on Zen 5 and lost 1.9% on Zen 3 at 1T: the
+  pattern-OR versus per-mark break-even is chip-specific; the container screen (+5%) could not
+  see it.

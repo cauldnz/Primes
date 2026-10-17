@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-17T01:16:15Z",
+  "updated_utc": "2026-10-17T01:16:48Z",
   "run": {
     "id": "ap-20261016T2335Z",
     "state": "running",
@@ -2334,20 +2334,20 @@
       "entry": "fai",
       "tier": "extra-faithful",
       "kind": "novel",
-      "verdict": "running",
+      "verdict": "kept",
       "plain": "If the sieve is written in a form the Fai compiler turns into cheaper array calls, then each sparse mark costs less, because today every read and write is a full runtime call with bounds and reference checks.",
       "prediction": "+10% to +40% at 1T if such a form exists, else 0",
-      "note": "Finding: Concurrency in main makes the Fai compiler drop its inline array fast path for the whole program (emit.rs array_prim: if self.concurrent return None; entry.rs sets it from main effects). Split into primes (1T, no Concurrency: inline, unique-specialised loop, 29 instructions, 0 calls per mark) and primes-parallel (unchanged). Local 1T: 5,458 vs 1,813 (3.0x; my rerun 5,302-5,572 vs 1,710-1,799); 4T unchanged by design. Agent 140k tokens, 69 calls, 7.6 min; mistakes: 2 at build (module visibility, effect qualification), 1 formatter, 1 CLI usage"
+      "note": "Finding: Concurrency in main makes the Fai compiler drop its inline array fast path for the whole program (emit.rs array_prim: if self.concurrent return None; entry.rs sets it from main effects). Split into primes (1T, no Concurrency: inline, unique-specialised loop, 29 instructions, 0 calls per mark) and primes-parallel (unchanged). Local 1T: 5,458 vs 1,813 (3.0x; my rerun 5,302-5,572 vs 1,710-1,799); 4T unchanged by design. Agent 140k tokens, 69 calls, 7.6 min; mistakes: 2 at build (module visibility, effect qualification), 1 formatter, 1 CLI usage | Azure vs fai-003: Zen 5 1T +212.0% ± 6.8 (6/6), 4T +1.0%; Zen 3 1T +273.1% ± 3.6, 4T -0.7% ± 0.5; Cobalt +186.5% / +0.2%. KEEP. Cobalt 1T 5.6k beats plain OCaml 3.4k"
     },
     {
       "id": "fai-006",
       "entry": "fai",
       "tier": "extra-faithful",
       "kind": "tuning",
-      "verdict": "running",
+      "verdict": "rejected",
       "plain": "If the cut-off between pattern-marked and one-by-one-marked factors is raised now that array access is inline, then the one-thread run gets faster, because the old cut-off was tuned when every access was an expensive call.",
       "prediction": "+10% to +30% at 1T over fai-005",
-      "note": "denseLimit 16 -> 32 on fai-005; local sweep 16-128 x periods 2/4/8: 32 best, 64 -12%, 128 -30% (pattern OR costs nwords per dense prime). Gate 1T +5.1% (8/8 paired in round 2), 4T flat. Agent 82k tokens, 19 calls, 14 min; mistakes: 1 timing (picked too early), 1 self-review, 1 env"
+      "note": "denseLimit 16 -> 32 on fai-005; local sweep 16-128 x periods 2/4/8: 32 best, 64 -12%, 128 -30% (pattern OR costs nwords per dense prime). Gate 1T +5.1% (8/8 paired in round 2), 4T flat. Agent 82k tokens, 19 calls, 14 min; mistakes: 1 timing (picked too early), 1 self-review, 1 env | Azure vs fai-005: Zen 5 1T +8.5% ± 2.7, 4T +2.5%; Zen 3 1T -1.9% ± 0.6 (0/6), 4T +3.5%; Cobalt +1.5% / +3.7%. REVERT (Zen 3 1T loss). Chip-dependent: Zen 3's smaller L2? suggests 24"
     },
     {
       "id": "fai-007",
@@ -2387,38 +2387,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-17T00:09:33Z",
-      "level": "info",
-      "text": "Run ap-20261016T2335Z is running; spend NZ$0.",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-17T00:12:34Z",
-      "level": "decision",
-      "text": "fai-002: submit an A/A baseline on Zen 5, Zen 3 and Cobalt, 6 rounds. Why: proves the fai Dockerfile on x86 and arm64, gives the per-thread baseline and the noise floor in one task; submit refuses cand = champ so the variant changes only the README. Passed over: a dummy code change (would not be A/A). Expect: Dockerfile builds; Fai about 1/20 of OCaml solution_4 per thread.",
-      "id": "fai-002",
-      "what": "submit an A/A baseline on Zen 5, Zen 3 and Cobalt, 6 rounds",
-      "why": "proves the fai Dockerfile on x86 and arm64, gives the per-thread baseline and the noise floor in one task; submit refuses cand = champ so the variant changes only the README",
-      "instead": "a dummy code change (would not be A/A)",
-      "expect": "Dockerfile builds; Fai about 1/20 of OCaml solution_4 per thread"
-    },
-    {
-      "utc": "2026-10-17T00:12:34Z",
-      "level": "decision",
-      "text": "fai-003: start a background agent to port the OCaml dense-pattern design. Why: plan says port the OCaml base design first; Phase 0 profile: each mark is two runtime calls, so marks per word is the lever. Brief: branch hc/fai-003-ocaml-design off 1ce921d, PrimeFai/solution_1 only, 32-bit slots, dense pattern built with one OR per composite, local gate 3 interleaved rounds, cycle log with mistakes per stage, 30 min. Passed over: Fai-specific tweaks (later). Expect: 2x-5x at 1T locally.",
-      "id": "fai-003",
-      "what": "start a background agent to port the OCaml dense-pattern design",
-      "why": "plan says port the OCaml base design first; Phase 0 profile: each mark is two runtime calls, so marks per word is the lever. Brief: branch hc/fai-003-ocaml-design off 1ce921d, PrimeFai/solution_1 only, 32-bit slots, dense pattern built with one OR per composite, local gate 3 interleaved rounds, cycle log with mistakes per stage, 30 min",
-      "instead": "Fai-specific tweaks (later)",
-      "expect": "2x-5x at 1T locally"
-    },
-    {
-      "utc": "2026-10-17T00:12:34Z",
-      "level": "info",
-      "text": "fai-002 (fai) running: Baseline and harness proof: the fai Dockerfile builds on Azure (x86 and arm64) and an A/A task gives the noise floor",
-      "auto": true
-    },
     {
       "utc": "2026-10-17T00:12:34Z",
       "level": "info",
@@ -2736,6 +2704,35 @@
       "utc": "2026-10-17T01:06:33Z",
       "level": "info",
       "text": "Correction to the previous event: the run 10 evidence agent took 4.1 min (172k tokens, 38 tool calls), not 25 min."
+    },
+    {
+      "utc": "2026-10-17T01:16:48Z",
+      "level": "decision",
+      "text": "fai-005: KEEP; the champion moves only after the merge with fai-004 (fai-009) is measured. Why: lower bound +205% at 1T on Zen 5 and +270% on Zen 3; no loss of 1% anywhere (Zen 3 4T -0.7%); above 20%, so diff and code re-read and rebuilt before submitting; fresh builds on every node.",
+      "id": "fai-005",
+      "what": "KEEP; the champion moves only after the merge with fai-004 (fai-009) is measured",
+      "why": "lower bound +205% at 1T on Zen 5 and +270% on Zen 3; no loss of 1% anywhere (Zen 3 4T -0.7%); above 20%, so diff and code re-read and rebuilt before submitting; fresh builds on every node"
+    },
+    {
+      "utc": "2026-10-17T01:16:48Z",
+      "level": "decision",
+      "text": "fai-006: REVERT. Why: Zen 3 1T -1.9% (0/6) breaks the 1% loss rule, though Zen 5 1T gained 8.5% and every 4T gained. Expect: a compromise limit (24) might gain on both; queued as fai-010.",
+      "id": "fai-006",
+      "what": "REVERT",
+      "why": "Zen 3 1T -1.9% (0/6) breaks the 1% loss rule, though Zen 5 1T gained 8.5% and every 4T gained",
+      "expect": "a compromise limit (24) might gain on both; queued as fai-010"
+    },
+    {
+      "utc": "2026-10-17T01:16:48Z",
+      "level": "info",
+      "text": "fai-005 kept.. Finding: Concurrency in main makes the Fai compiler drop its inline array fast path for the whole program (emit.rs array_prim: if self.concurrent return None; entry.rs sets it from main effects). Split into primes (1T, no Concurrency: inline, unique-specialised loop, 29 instructions, 0 calls per mark) and primes-parallel (unchanged). Local 1T: 5,458 vs 1,813 (3.0x; my rerun 5,302-5,572 vs 1,710-1,799); 4T unchanged by design. Agent 140k tokens, 69 calls, 7.6 min; mistakes: 2 at build (module visibility, effect qualification), 1 formatter, 1 CLI usage | Azure vs fai-003: Zen 5 1T +212.0% ± 6.8 (6/6), 4T +1.0%; Zen 3 1T +273.1% ± 3.6, 4T -0.7% ± 0.5; Cobalt +186.5% / +0.2%. KEEP. Cobalt 1T 5.6k beats plain OCaml 3.4k",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-17T01:16:48Z",
+      "level": "info",
+      "text": "fai-006 rejected.. denseLimit 16 -> 32 on fai-005; local sweep 16-128 x periods 2/4/8: 32 best, 64 -12%, 128 -30% (pattern OR costs nwords per dense prime). Gate 1T +5.1% (8/8 paired in round 2), 4T flat. Agent 82k tokens, 19 calls, 14 min; mistakes: 1 timing (picked too early), 1 self-review, 1 env | Azure vs fai-005: Zen 5 1T +8.5% ± 2.7, 4T +2.5%; Zen 3 1T -1.9% ± 0.6 (0/6), 4T +3.5%; Cobalt +1.5% / +3.7%. REVERT (Zen 3 1T loss). Chip-dependent: Zen 3's smaller L2? suggests 24",
+      "auto": true
     }
   ],
   "research": {
