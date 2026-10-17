@@ -1,0 +1,19 @@
+module Repro
+
+fill : Int -> Int -> Array Int -> Array Int
+let fill i n a =
+  if i >= n then
+    a
+  else
+    let w = Int.and i 4095
+    fill (i + 1) n (Array.unsafeSet w (Int.or (Array.unsafeGet w a) i) a)
+
+passes : Int -> Int -> Int
+let passes k acc =
+  if k = 0 then acc else passes (k - 1) (acc + Array.unsafeGet 7 (fill 0 1000000 (Array.repeat 4096 0)))
+
+// Identical except that main also runs one trivial task; the sieve-like loop runs on main.
+main : Runtime -> Unit / { Console, Concurrency }
+let main rt =
+  let t = Async.parallel rt.concurrency [fun u -> 0]
+  rt.console.writeLine (Int.toString (passes 200 (List.length t)))

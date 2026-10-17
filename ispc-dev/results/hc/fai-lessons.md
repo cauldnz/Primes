@@ -56,3 +56,9 @@ One line each, with the experiment id, as they happen.
   did with SIMD: a mode switch in the compiler is invisible from the source and the docs.
 - fai-005: A single-file `fai build` sees sibling modules only when a `fai.toml` exists;
   `fai check/fmt/test` take one path (use `.`); cross-module effects are named `Module.Effect`.
+- fai-007: Fai's concurrent mode is a whole-program switch from `main`'s effect row; one trivial
+  `Async.parallel` makes all array code about 4x slower, and nothing scopes it. Multi-thread
+  per-thread speed in Fai 0.1.0 is capped by the compiler, not the sieve.
+- fai-007: The agent answered a compiler question in 3 minutes by reading the compiler's own
+  design log (`docs/MEMORY.md`) and source; `llms.txt` was silent. For agent-facing languages,
+  the performance model belongs in the agent docs.

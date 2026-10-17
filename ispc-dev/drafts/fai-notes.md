@@ -43,3 +43,19 @@ Tooling:
 Docs (from fai-005):
 - `fai build file.fai` sees sibling modules only with a `fai.toml` present; not in `llms.txt` section 5.
 - `fai check`, `fmt` and `test` take one path; a multi-file directory needs `.`.
+
+Concurrency (from fai-007; evidence and repro in `results/hc/fai-007-inline-parallel/`):
+- Repro: the same single-threaded `Array Int` loop runs 0.30 s with no `Concurrency` in `main`
+  and 1.25 s when `main` also runs one trivial `Async.parallel` task: 4.2 times slower from the
+  whole-program flag alone.
+- Suggested fixes, in the direction D139 already names:
+  - keep the inline fast path for local counts and send shared or immortal ones to
+    `fai_dup`/`fai_drop`; the inline increment already does this, the decrement only for
+    possibly immortal types;
+  - inline array get and set with the same check, plus the `rc == 1` test as an atomic load;
+  - re-read the pool base after suspension points, or keep the inline allocator in functions
+    with none.
+  An interim step: decide concurrent mode per function, not per program.
+- The cost is not in the docs. `llms.txt` and `docs/CLI.md` say nothing about it; only
+  `MEMORY.md` and a code comment do.
+- `Concurrency` declared in a row but not used is rejected (FAI5001), so a repro has to use it.
