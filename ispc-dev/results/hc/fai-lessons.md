@@ -73,3 +73,7 @@ One line each, with the experiment id, as they happen.
   tag and retag costs stay on every access. A 1T gain came with a local 4T loss in concurrent
   mode (register pressure across runtime calls): gate both paths.
 - fai-008: `/ 32` and `% 32` on Fai's signed Int add sign fix-ups; use shifts.
+- r10-evidence: Run 10's morning report gave "main session 1,030 calls, 148.4M tokens"; that
+  figure was the main session and the agent transcripts together (258 + 772 calls; 82.1M +
+  66.3M). Label token totals by source when writing them, and record per-agent usage, as run 11
+  does.

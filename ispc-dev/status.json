@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-17T01:03:25Z",
+  "updated_utc": "2026-10-17T01:06:23Z",
   "run": {
     "id": "ap-20261016T2335Z",
     "state": "running",
@@ -2389,11 +2389,6 @@
   "events": [
     {
       "utc": "2026-10-17T00:09:33Z",
-      "level": "info",
-      "text": "Run 11 resumed in a clean session (00:09 UTC). Azure check passed: cached login valid, Batch account readable, no pools. Time box about 4 h 40 m (ends 04:49 UTC); NZ$15 cap, Spot only. Next: Phase 1, prove the fai bench kind on Azure."
-    },
-    {
-      "utc": "2026-10-17T00:09:33Z",
       "level": "decision",
       "text": "run: resume at Phase 1. Why: Phase 0 done and pushed; the plan sets Phase 1 (bench) before the climb. Expect: first fai task proves the Dockerfile in about 20 min.",
       "id": "run",
@@ -2740,6 +2735,11 @@
       "level": "info",
       "text": "fai-009 (fai) running: ",
       "auto": true
+    },
+    {
+      "utc": "2026-10-17T01:06:23Z",
+      "level": "info",
+      "text": "Run 10 evidence reconstructed from the record (results/hc/fai-r10-evidence). Correction: run 10's '1,030 calls, 148.4M tokens' was main session plus agents (main 258 calls / 82.1M, agents 772 / 66.3M); per decided experiment 3.7M main, 3.0M agents. Agent: about 25 min."
     }
   ],
   "research": {
