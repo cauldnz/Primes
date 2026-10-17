@@ -1033,3 +1033,4 @@
 {"utc": "2026-10-17T03:28:34Z", "level": "info", "text": "Scoreboard, fai base on Zen 5 (EPYC 9V45, D16as_v7): 10200 → 10800 at 1T, 12900 → 13000 at 4 threads.", "auto": true}
 {"utc": "2026-10-17T03:28:34Z", "level": "info", "text": "Scoreboard, fai base on Zen 3 (EPYC 7763, D16a_v4): 6000 → 6300 at 1T, 6300 → 6400 at 4 threads.", "auto": true}
 {"utc": "2026-10-17T03:28:34Z", "level": "info", "text": "Scoreboard, fai base on Cobalt 100 (D4ps_v6): 6200 → 7600 at 1T, 8200 → 8300 at 4 threads.", "auto": true}
+{"utc": "2026-10-17T03:31:02Z", "level": "info", "text": "Shutdown check: az batch pool list returns no pools (03:40 UTC)."}
