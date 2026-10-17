@@ -23,7 +23,9 @@ functional language compiled ahead of time with Cranelift.
     two consecutive runs. The limit of 16 and the two runs per step were tuned when every
     array access was a runtime call (see below) and have not been re-tuned since.
   - **Factors of 16 and above (sparse).** Each multiple is set with its own read-OR-write, from
-    p² in steps of 2p.
+    p² in steps of 2p, four multiples to a loop step and then one at a time for the last
+    zero to three. The loop is one self-recursive function with no call out of it, which is
+    what lets Fai check the array's ownership once for the whole loop.
 - A new array (and pattern scratch) every pass. Fai has no mutation in the language: the array is threaded through
   tail-recursive loops and, because it is uniquely owned, `Array.unsafeSet` updates it in place
   (Perceus reference counting). A debugger count of the runtime's copy path shows zero copies

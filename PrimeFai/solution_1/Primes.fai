@@ -55,6 +55,50 @@ let clearMultiples i step nbits bits =
     let word = Int.or (Array.unsafeGet w bits) (Int.shiftLeft 1 (Int.and i 31))
     clearMultiples (i + step) step nbits (Array.unsafeSet w word bits)
 
+/// Sparse marking, four multiples per step: bits i, i + step, i + 2 step and i + 3 step each
+/// get their own read-OR-write while i + 3 step < nbits (that is, i < lim = nbits - 3 step),
+/// then one per step for the remaining zero to three (while i < lim + 3 step = nbits). Four
+/// parameters, not five: in Fai's concurrent mode a fifth live value spills the array. One self-recursive function, with no
+/// call out, so Fai compiles it as a loop that checks the array's ownership once.
+clearMultiples4 : Int -> Int -> Int -> Array Int -> Array Int
+let clearMultiples4 i step lim bits =
+  if i < lim then
+    let i1 = i + step
+    let i2 = i1 + step
+    let i3 = i2 + step
+    let w0 = Int.shiftRightLogical i 5
+    let b0 =
+      Array.unsafeSet w0 (Int.or (Array.unsafeGet w0 bits) (Int.shiftLeft 1 (Int.and i 31))) bits
+    let w1 = Int.shiftRightLogical i1 5
+    let b1 =
+      Array.unsafeSet w1 (Int.or (Array.unsafeGet w1 b0) (Int.shiftLeft 1 (Int.and i1 31))) b0
+    let w2 = Int.shiftRightLogical i2 5
+    let b2 =
+      Array.unsafeSet w2 (Int.or (Array.unsafeGet w2 b1) (Int.shiftLeft 1 (Int.and i2 31))) b1
+    let w3 = Int.shiftRightLogical i3 5
+    let b3 =
+      Array.unsafeSet w3 (Int.or (Array.unsafeGet w3 b2) (Int.shiftLeft 1 (Int.and i3 31))) b2
+    clearMultiples4 (i3 + step) step lim b3
+  else if i < lim + 3 * step then
+    let w = Int.shiftRightLogical i 5
+    let word = Int.or (Array.unsafeGet w bits) (Int.shiftLeft 1 (Int.and i 31))
+    clearMultiples4 (i + step) step lim (Array.unsafeSet w word bits)
+  else
+    bits
+example: clearMultiples4 0 1 (128 - 3) (Array.repeat 4 0) = Array.repeat 4 0xFFFFFFFF
+forall n: sparseOk (2 * Int.floorMod n 40 + 17) (Int.floorMod (n * 7) 30) 0 (clearMultiples4 (Int.floorMod (n * 7) 30) (2 * Int.floorMod n 40 + 17) (Int.floorMod (n * 7) 30 + 300 - 3 * (2 * Int.floorMod n 40 + 17)) (Array.repeat 12 0))
+
+/// True when bits t up to 383 of a 12-slot sieve are set exactly at s, s + p, s + 2p, ...
+/// below s + 300 (what clearMultiples4 from s with step p and nbits s + 300 should set).
+sparseOk : Int -> Int -> Int -> Array Int -> Bool
+let sparseOk p s t bits =
+  if t >= 384 then
+    true
+  else if isComposite t bits <> (t >= s && t < s + 300 && (t - s) % p = 0) then
+    false
+  else
+    sparseOk p s (t + 1) bits
+
 /// Index of the first unmarked odd number at or after index i.
 nextPrimeIndex : Int -> Int -> Array Int -> Int
 let nextPrimeIndex i nbits bits =
@@ -145,7 +189,7 @@ let sieveFrom i q nbits nwords pat bits =
     let pat1 = buildPattern p pat
     sieveFrom (j + 1) q nbits nwords pat1 (clearDense p nwords pat1 bits)
   else
-    sieveFrom (j + 1) q nbits nwords pat (clearMultiples (p * p / 2) p nbits bits)
+    sieveFrom (j + 1) q nbits nwords pat (clearMultiples4 (p * p / 2) p (nbits - 3 * p) bits)
 
 /// A new sieve for size, with its own pattern scratch, fully run.
 runSieve : Int -> Array Int
