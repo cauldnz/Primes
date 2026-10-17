@@ -115,7 +115,7 @@ denseLimit : Int
 let denseLimit = 16
 
 denseLimitThreaded : Int
-let denseLimitThreaded = 32
+let denseLimitThreaded = 24
 
 /// Periods of the pattern the scratch holds: one period is p slots, 32 multiples of p.
 periods : Int
