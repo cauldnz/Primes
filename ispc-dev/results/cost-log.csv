@@ -522,3 +522,6 @@
 2026-10-17T03:28:32Z,batch-tick,standard_d4ps_v6,1
 2026-10-17T03:28:32Z,batch-tick,standard_d16as_v7,1
 2026-10-17T03:28:32Z,batch-tick,standard_d16a_v4,1
+2026-10-17T05:09:00Z,batch-tick,standard_d16as_v7,36
+2026-10-17T05:10:00Z,batch-wrapup,standard_d16a_v4,40
+2026-10-17T05:10:00Z,batch-wrapup,standard_d16as_v7,32

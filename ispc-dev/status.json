@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-17T04:42:43Z",
+  "updated_utc": "2026-10-17T05:12:12Z",
   "run": {
     "id": "ap-20261016T2335Z",
     "state": "stopped",
@@ -8,7 +8,7 @@
     "mode_reason": "Run 11 resumed in a new session at 00:09 UTC; cached service-principal login still valid (checked first); Phase 0 done earlier (17 min).",
     "started_utc": "2026-10-16T23:35:00Z",
     "time_box_hours": 5,
-    "spend_nzd": 3.28,
+    "spend_nzd": 3.76,
     "spend_cap_nzd": 15,
     "ends_utc": "2026-10-17T04:49:00Z",
     "background_runs": 0,
@@ -2459,10 +2459,10 @@
       "entry": "fai",
       "tier": "extra-faithful",
       "kind": "merge",
-      "verdict": "running",
+      "verdict": "kept",
       "plain": "If the kept cut-off change is combined with the current champion, then it should still help, because the two changes touch different parts of the one-thread program.",
       "prediction": "1T +3-7% Zen 5, 0 to +1% Zen 3; 4T flat",
-      "note": "hc/fai-016-champ-plus-012 5277edb = 84cc3eb + fai-012; check, test 46, fmt, self-test 39/39; 6 rounds on Zen 5 and Zen 3 against 84cc3eb"
+      "note": "hc/fai-016-champ-plus-012 5277edb = 84cc3eb + fai-012; check, test 46, fmt, self-test 39/39; 6 rounds on Zen 5 and Zen 3 against 84cc3eb | Zen 3 1T +2.3% ± 1.2 (6/6), 4T -0.4%; Zen 5 three runs all noisy (A/A > 5%), medians 1T +7.4-8.8%, 4T flat; fresh-node run 1T +10.1% ± 8.1 (lower +2.0%), 4T +2.5%. KEEP; hc/fai-champion dfef16b. Zen 5 noise flagged for Chris"
     }
   ],
   "azure_queue": 0,
@@ -2472,30 +2472,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-17T01:49:29Z",
-      "level": "info",
-      "text": "fai-011: evaluate. fai-011 and fai-010b running on all three pools",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-17T02:05:23Z",
-      "level": "decision",
-      "text": "fai-011: KEEP; hc/fai-champion fast-forwarded to e80bf39. Why: lower bound +4.5% at 4T on Zen 5 and +4.6% on Zen 3; 1T up on all three; no loss anywhere.",
-      "id": "fai-011",
-      "what": "KEEP; hc/fai-champion fast-forwarded to e80bf39",
-      "why": "lower bound +4.5% at 4T on Zen 5 and +4.6% on Zen 3; 1T up on all three; no loss anywhere"
-    },
-    {
-      "utc": "2026-10-17T02:05:24Z",
-      "level": "decision",
-      "text": "fai-012: submit 1T dense limit 24 on the champion. Why: fai-010 found 24 better than 16 on both Zens at 1T (+6.8%, +0.8%); in the per-binary design only the 1T kernel changes, so 4T should stay put. Passed over: the threaded limit (32 vs 24): next if time allows. Expect: 1T +2-6% Zen 5, flat Zen 3.",
-      "id": "fai-012",
-      "what": "submit 1T dense limit 24 on the champion",
-      "why": "fai-010 found 24 better than 16 on both Zens at 1T (+6.8%, +0.8%); in the per-binary design only the 1T kernel changes, so 4T should stay put",
-      "instead": "the threaded limit (32 vs 24): next if time allows",
-      "expect": "1T +2-6% Zen 5, flat Zen 3"
-    },
     {
       "utc": "2026-10-17T02:05:24Z",
       "level": "info",
@@ -2810,6 +2786,26 @@
       "what": "Zen 3 passes; Zen 5 rerun also noisy, so a third Zen 5 run on a fresh node",
       "why": "Zen 3 1T +2.3% ± 1.2 (lower +1.1%), 4T -0.4%; Zen 5 runs 1 and 2 had A/A swings to +16.7% and -14.2%, medians +8.8% 1T and -0.3% 4T in both; a fresh pool gives a new node",
       "instead": "merging on medians (the rule decides on the interval)"
+    },
+    {
+      "utc": "2026-10-17T05:12:12Z",
+      "level": "decision",
+      "text": "fai-016: KEEP; fai-012 merged onto the champion (hc/fai-champion dfef16b). Why: Zen 3 passed cleanly; Zen 5 was noisy on three nodes but every run agreed (medians +7-9% at 1T, 4T flat) and the fresh-node run passes the interval rule; no 1%+ loss anywhere. Passed over: leaving it unmerged as inconclusive.",
+      "id": "fai-016",
+      "what": "KEEP; fai-012 merged onto the champion (hc/fai-champion dfef16b)",
+      "why": "Zen 3 passed cleanly; Zen 5 was noisy on three nodes but every run agreed (medians +7-9% at 1T, 4T flat) and the fresh-node run passes the interval rule; no 1%+ loss anywhere",
+      "instead": "leaving it unmerged as inconclusive"
+    },
+    {
+      "utc": "2026-10-17T05:12:12Z",
+      "level": "info",
+      "text": "Wrap-up: all pools deleted and confirmed (az batch pool list empty, 05:10 UTC). The meter reset under-billed the merge check, so its real node-minutes (Zen 3 40, Zen 5 32 more) were appended as batch-wrapup rows. Wrap-up spend about NZ$0.49; run 11 total NZ$3.76."
+    },
+    {
+      "utc": "2026-10-17T05:12:12Z",
+      "level": "info",
+      "text": "fai-016 kept.. hc/fai-016-champ-plus-012 5277edb = 84cc3eb + fai-012; check, test 46, fmt, self-test 39/39; 6 rounds on Zen 5 and Zen 3 against 84cc3eb | Zen 3 1T +2.3% ± 1.2 (6/6), 4T -0.4%; Zen 5 three runs all noisy (A/A > 5%), medians 1T +7.4-8.8%, 4T flat; fresh-node run 1T +10.1% ± 8.1 (lower +2.0%), 4T +2.5%. KEEP; hc/fai-champion dfef16b. Zen 5 noise flagged for Chris",
+      "auto": true
     }
   ],
   "research": {
