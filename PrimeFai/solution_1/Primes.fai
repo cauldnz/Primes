@@ -62,9 +62,8 @@ let clearMultiples i step nbits bits =
 
 /// Sparse marking, four multiples per step: bits i, i + step, i + 2 step and i + 3 step each
 /// get their own read-OR-write while i + 3 step < nbits (that is, i < lim = nbits - 3 step),
-/// then one per step for the remaining zero to three (while i < lim + 3 step = nbits). Four
-/// parameters, not five: in Fai's concurrent mode a fifth live value spills the array. One self-recursive function, with no
-/// call out, so Fai compiles it as a loop that checks the array's ownership once.
+/// then one per step for the remaining zero to three (while i < lim + 3 step = nbits). One
+/// self-recursive function, with no call out, so Fai compiles it as a loop that checks the array's ownership once.
 clearMultiples4 : Int -> Int -> Int -> Array Int -> Array Int
 let clearMultiples4 i step lim bits =
   if i < lim then
@@ -110,12 +109,8 @@ let nextPrimeIndex i nbits bits =
   if i < nbits && isComposite i bits then nextPrimeIndex (i + 1) nbits bits else i
 
 /// Factors below this are dense: their multiples are built into a pattern and ORed in.
-/// 16 in the single-threaded kernel, 32 in the threaded one (see the README).
 denseLimit : Int
 let denseLimit = 16
-
-denseLimitThreaded : Int
-let denseLimitThreaded = 32
 
 /// Periods of the pattern the scratch holds: one period is p slots, 32 multiples of p.
 periods : Int
@@ -187,8 +182,8 @@ let clearDense p nwords pat bits =
 
 /// The base algorithm: find the next prime p, mark its odd multiples from p * p (bit index
 /// p * p / 2, stepping p bits = 2p in value), repeat while p <= sqrt(size). Dense factors
-/// mark through the pattern scratch, the others one read-OR-write per multiple. This is the
-/// single-threaded kernel: dense below 16, sparse marking four multiples per step.
+/// mark through the pattern scratch, the others one read-OR-write per multiple: dense below
+/// 16, sparse marking four multiples per step.
 sieveFrom : Int -> Int -> Int -> Int -> Array Int -> Array Int -> Array Int
 let sieveFrom i q nbits nwords pat bits =
   let j = nextPrimeIndex i nbits bits
@@ -201,71 +196,12 @@ let sieveFrom i q nbits nwords pat bits =
   else
     sieveFrom (j + 1) q nbits nwords pat (clearMultiples4 (p * p / 2) p (nbits - 3 * p) bits)
 
-/// The same algorithm for the threaded kernel: dense below 32, sparse marking one multiple
-/// per step.
-sieveFromThreaded : Int -> Int -> Int -> Int -> Array Int -> Array Int -> Array Int
-let sieveFromThreaded i q nbits nwords pat bits =
-  let j = nextPrimeIndex i nbits bits
-  let p = 2 * j + 1
-  if p > q then
-    bits
-  else if p < denseLimitThreaded then
-    let pat1 = buildPattern p pat
-    sieveFromThreaded (j + 1) q nbits nwords pat1 (clearDense p nwords pat1 bits)
-  else
-    sieveFromThreaded (j + 1) q nbits nwords pat (clearMultiples (p * p / 2) p nbits bits)
-
-/// Push zero words until the sieve holds nwords.
-pushZeros : Int -> Array Int -> Array Int
-let pushZeros nwords bits =
-  if Array.length bits >= nwords then bits else pushZeros nwords (Array.push 0 bits)
-
-/// Push sieve words w up to nwords - 1 for factor 3, whose pattern repeats every three
-/// words: a is the pattern slot for word w, then b, then c. Each word is stored once,
-/// never read.
-pushThree : Int -> Int -> Int -> Int -> Int -> Array Int -> Array Int
-let pushThree w nwords a b c bits =
-  if w >= nwords then bits else pushThree (w + 1) nwords b c a (Array.push a bits)
-
-/// Start a pass. The sieve begins as one zero word, in an array with room for all nwords,
-/// and the scan from index 1 runs on it as on any sieve. The first prime it finds is 3
-/// (index 1) whenever 3 <= q. Its marking then builds the sieve: 3's pattern is built in
-/// the scratch (one OR per multiple), word 0 is ORed with pattern slot 0 and the other
-/// words are pushed from slots w mod 3; 3 itself is cleared again, and the scan goes on
-/// from index 2 as in `sieveFromThreaded`.
-startSieve : Int -> Int -> Int -> Array Int -> Array Int
-let startSieve q nbits nwords pat =
-  let first = Array.push 0 (Array.withCapacity nwords)
-  let j = nextPrimeIndex 1 nbits first
-  let p = 2 * j + 1
-  if p > q then
-    pushZeros nwords first
-  else if p = 3 then
-    let pat1 = buildPattern p pat
-    let a = Array.unsafeGet 0 pat1
-    let b = Array.unsafeGet 1 pat1
-    let c = Array.unsafeGet 2 pat1
-    let w0 = Array.unsafeSet 0 (Int.or (Array.unsafeGet 0 first) a) first
-    sieveFromThreaded (j + 1) q nbits nwords pat1 (clearBit j (pushThree 1 nwords b c a w0))
-  else
-    sieveFromThreaded j q nbits nwords pat (pushZeros nwords first)
-
-/// A new sieve for size, with its own pattern scratch, fully run by the single-threaded
-/// kernel.
+/// A new sieve for size, with its own pattern scratch.
 runSieve : Int -> Array Int
 let runSieve size =
   sieveFrom 1 (isqrt size) (bitCount size) (wordCount size) (Array.repeat (periods * denseLimit) 0) (Array.repeat (wordCount size) 0)
 forall n: Array.length (runSieve (smallSize n)) = wordCount (smallSize n)
 forall n: sieveOk 1 (bitCount (smallSize n)) (runSieve (smallSize n))
-
-/// The same for the threaded kernel, which builds the sieve while marking 3.
-runSieveThreaded : Int -> Array Int
-let runSieveThreaded size =
-  startSieve (isqrt size) (bitCount size) (wordCount size) (Array.repeat (periods * denseLimitThreaded) 0)
-forall n: Array.length (runSieveThreaded (smallSize n)) = wordCount (smallSize n)
-forall n: sieveOk 1 (bitCount (smallSize n)) (runSieveThreaded (smallSize n))
-example: Array.length (runSieveThreaded 0) = 1
-example: Array.length (runSieveThreaded 8) = 1
 
 /// True when bits i up to nbits - 1 are set exactly at the odd composites 2i + 1, checked by
 /// trial division.
@@ -297,15 +233,6 @@ example: primeCount 127 = 31
 example: primeCount 1000 = 168
 example: primeCount 16383 = 1900
 
-/// The count from the threaded kernel.
-public primeCountThreaded : Int -> Int
-let primeCountThreaded size = countPrimes size (runSieveThreaded size)
-example: primeCountThreaded 1 = 0
-example: primeCountThreaded 2 = 1
-example: primeCountThreaded 3 = 2
-example: primeCountThreaded 127 = 31
-example: primeCountThreaded 16383 = 1900
-
 collectFrom : List Int -> Int -> Array Int -> List Int
 let collectFrom acc i bits =
   if i < 1 then
@@ -323,7 +250,6 @@ forall n: List.all (fun p -> p = 2 || Int.floorMod p 2 = 1) (primesUpTo (smallSi
 forall n: List.all (fun p -> noOddDivisor p 3) (primesUpTo (smallSize n))
 forall n: List.all (fun p -> p <= smallSize n) (primesUpTo (smallSize n))
 forall n: primeCount (smallSize n) = naiveCount (smallSize n) 3 1
-forall n: primeCountThreaded (smallSize n) = primeCount (smallSize n)
 
 /// Reference count by trial division: 2 (when size >= 2) plus the odd primes from d.
 naiveCount : Int -> Int -> Int -> Int
@@ -346,16 +272,15 @@ let noOddDivisor p d =
 example: noOddDivisor 97 3
 example: not (noOddDivisor 91 3)
 
-/// Passes completed before the deadline, and the prime count of the first pass, with the
-/// threaded kernel when threaded is true.
-public worker : Clock -> Int -> Bool -> Int -> Int -> Int * Int / { Clock }
-let worker clock deadline threaded passes count =
+/// Passes completed before the deadline, and the prime count of the first pass.
+public worker : Clock -> Int -> Int -> Int -> Int * Int / { Clock }
+let worker clock deadline passes count =
   if clock.now () >= deadline then
     (passes, count)
   else
-    let bits = if threaded then runSieveThreaded sieveSize else runSieve sieveSize
+    let bits = runSieve sieveSize
     let c = if passes = 0 then countPrimes sieveSize bits else count
-    worker clock deadline threaded (passes + 1) c
+    worker clock deadline (passes + 1) c
 
 /// Milliseconds as seconds with three decimals.
 seconds : Int -> String
@@ -375,12 +300,12 @@ let report console threads elapsed results =
     let line = console.writeError "ERROR: wrong prime count"
     false
 
-/// One timed single-threaded run. Multi-threaded runs are in `PrimesParallel.fai`: a program
-/// whose `main` has the `Concurrency` effect is compiled without Fai's inline array fast path.
+/// One timed single-threaded run. Multi-threaded runs are in `PrimesParallel.fai`, which
+/// starts this program once per thread in worker mode (see `main`).
 timedRun : { clock : Clock, console : Console | _ } -> Bool / { Clock, Console }
 let timedRun rt =
   let start = rt.clock.now ()
-  let result = worker rt.clock (start + runMillis) false 0 0
+  let result = worker rt.clock (start + runMillis) 0 0
   report rt.console 1 (rt.clock.now () - start) [result]
 
 fst : Int * Int -> Int
@@ -410,15 +335,14 @@ let testCases = [
   (16383, 1900)
 ]
 
-/// Checks one size with one kernel (the threaded one when threaded is true).
-public testOne : Console -> Bool -> Bool -> Int * Int -> Bool / { Console }
-let testOne console threaded ok case =
+/// Checks one size.
+public testOne : Console -> Bool -> Int * Int -> Bool / { Console }
+let testOne console ok case =
   let (size, want) = case
-  let c = if threaded then primeCountThreaded size else primeCount size
+  let c = primeCount size
   let mark = if c = want then "1" else "0"
-  let kernel = if threaded then "threaded" else "single"
   let line =
-    console.writeLine (kernel ++ " size " ++ Int.toString size ++ " -> " ++ Int.toString c ++ " primes (expected " ++ Int.toString want ++ ") " ++ mark)
+    console.writeLine ("size " ++ Int.toString size ++ " -> " ++ Int.toString c ++ " primes (expected " ++ Int.toString want ++ ") " ++ mark)
   ok && c = want
 
 /// PRIMES_TEST is on when it holds a nonzero unsigned 32-bit number, as in the OCaml entry.
@@ -478,11 +402,29 @@ let runtime = {
   fs = stdFs
 }
 
-/// The single-threaded run (and the self-test). `run.sh` then runs `primes-parallel`.
+/// The single-threaded run (and the self-test). `run.sh` then runs `primes-parallel`, which
+/// starts this program with `--worker <deadline>` once per thread: one worker, its passes
+/// and first count printed for `primes-parallel` to add up.
 public main : AppRuntime -> Unit / { Clock, Console, Env, Exit }
 let main rt =
+  match workerDeadline (rt.env.args ()) with
+  | Some deadline ->
+    let (passes, count) = worker rt.clock deadline 0 0
+    rt.console.writeLine (Int.toString passes ++ " " ++ Int.toString count)
+  | None -> mainRun rt
+
+/// `--worker <deadline ms>`: the mode `primes-parallel` starts one process in per thread.
+public workerDeadline : List String -> Option Int
+let workerDeadline args =
+  match args with
+  | ["--worker", d] -> Int.fromString d
+  | _ -> None
+example: workerDeadline ["--worker", "12"] = Some 12
+example: workerDeadline [] = None
+
+mainRun : AppRuntime -> Unit / { Clock, Console, Env, Exit }
+let mainRun rt =
   if testRequested (rt.env.get "PRIMES_TEST") then
-    let ok1 = List.foldl (testOne rt.console false) true testCases
-    let ok = List.foldl (testOne rt.console true) ok1 testCases
+    let ok = List.foldl (testOne rt.console) true testCases
     rt.exit.exit (if ok then 0 else 1)
   else if timedRun rt then () else rt.exit.exit 1

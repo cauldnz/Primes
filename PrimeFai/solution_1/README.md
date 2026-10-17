@@ -15,61 +15,41 @@ functional language compiled ahead of time with Cranelift.
 - The next factor is found by scanning the odd numbers upward from 3. Every composite gets its
   own single-bit OR, by one of two paths. The design is that of the author's plain OCaml entry
   ([PrimeOCaml/solution_4](../../PrimeOCaml/solution_4)), on 32-bit slots.
-  - **Dense factors (below 16 in `primes`, below 32 in `primes-parallel`).** The odd
-    multiples of `p` repeat every `p` slots. Each pass
+  - **Dense factors (below 16).** The odd multiples of `p` repeat every `p` slots. Each pass
     builds the pattern of four periods (`4p` slots, 128 multiples) in a scratch `Array Int`
     allocated with the sieve, with one read-OR-write per multiple, then ORs the pattern into
     the sieve slot by slot from the period that holds p², and clears the bit of `p` itself when
     the pattern set it. Each step reads a pattern slot once and ORs it into the same slot of
     two consecutive runs.
   - **Sparse factors (the rest).** Each multiple is set with its own read-OR-write, from p² in
-    steps of 2p. In `primes` the loop handles four multiples per step (each still its own
-    read-OR-write), in `primes-parallel` one.
-- A new array (and pattern scratch) every pass. Fai has no mutation in the language: the array is threaded through
-  tail-recursive loops and, because it is uniquely owned, `Array.unsafeSet` updates it in place
-  (Perceus reference counting). A debugger count of the runtime's copy path shows zero copies
-  over the whole self-test.
-- Two programs, run one after the other by `run.sh`. Fai 0.1.0 compiles a whole program in
-  a "concurrent" mode when the effects of `main` include `Concurrency`, and that mode turns
-  off the inline array fast path: every `Array.unsafeGet` and `Array.unsafeSet` becomes a
-  call to `fai_array_get_borrowed` or `fai_array_set` (in the compiler,
-  `crates/fai-codegen/src/emit.rs`, `array_prim`). Without it, a read-OR-write of a sieve
-  slot is about 29 inline instructions and no calls, and the single-threaded run does 2.9
-  times the passes. So `primes` (`Primes.fai`) has no `Concurrency` effect: it does the
-  single-threaded run and the self-test. `primes-parallel` (`PrimesParallel.fai`, using the
-  worker from `Primes.fai` with the threaded kernel) does the multi-threaded runs: one independent sieve
-  loop per task with `Async.parallel`, each task counting its own passes until the shared
-  deadline. Those runs still pay the calls. The empty `fai.toml` makes the directory one
-  workspace, so `PrimesParallel.fai` can use `Primes`.
-- **Two kernels, one per binary.** The two binaries are compiled in different modes (below), and
-  they want different code, much as other entries carry a kernel per architecture. Measured on
-  Azure (Zen 5 / Zen 3 / Cobalt 100, six rounds each), against a single shared kernel:
-
-  | Change | `primes` (1 thread) | `primes-parallel` (4 threads) |
-  |---|---|---|
-  | Sparse loop unrolled four times | +2.4% / +4.3% / +11.3% | −2.5% / −2.2% / −2.5% |
-  | Sieve built while marking 3 | −0.7% / −1.6% / −0.9% | +2.4% / +2.2% / +1.4% |
-  | Dense limit 32 instead of 16 | +8.5% / −1.9% / +1.5% | +2.5% / +3.5% / +3.7% |
-
-  So `primes` uses `runSieve`: dense limit 16, the sieve allocated zeroed with `Array.repeat`,
-  and the unrolled sparse loop `clearMultiples4`. With the inline array path, that loop is
-  about 26 instructions per multiple against 30 for the plain one, and the four-way loop is
-  still a single self-recursive function with no calls, so Fai still checks the array's
-  ownership once per loop and not once per store. `primes-parallel` uses `runSieveThreaded`:
-  dense limit 32, the plain sparse loop (in the concurrent mode every array access is a runtime
-  call, and the larger unrolled body only adds spills), and a sieve built by pushes while
-  marking 3. That kernel starts from one zero word in an array with room for the whole sieve;
-  the scan from 3 runs on it as on any sieve and finds 3, and marking 3 then pushes each later
-  word from 3's pattern (built in the scratch with one OR per multiple), so each word is
-  written once rather than zeroed and then ORed. 3 itself is cleared again and the scan goes
-  on from 5.
+    steps of 2p, four multiples per loop step (each still its own read-OR-write). The loop is
+    a single self-recursive function with no calls, so Fai compiles it as a loop that checks
+    the array's ownership once, not once per store.
+- A new array (and pattern scratch) every pass. Fai has no mutation in the language: the array
+  is threaded through tail-recursive loops and, because it is uniquely owned, `Array.unsafeSet`
+  updates it in place (Perceus reference counting). A debugger count of the runtime's copy path
+  shows zero copies over the whole self-test.
+- **Threads are processes, started through Fai's process capability.** Fai 0.1.0 compiles a
+  whole program in a "concurrent" mode when the effects of `main` include `Concurrency`, and
+  that mode turns off the inline array fast path: every `Array.unsafeGet` and `Array.unsafeSet`
+  becomes a runtime call (in the compiler, `crates/fai-codegen/src/emit.rs`, `array_prim`),
+  about 2.9 times slower per thread. Starting a native process needs only the
+  `ProcessHost.Process` capability, not `Concurrency`, so `primes-parallel`
+  (`PrimesParallel.fai`) adds `ProcessHost.native` to its runtime record, starts `primes
+  --worker <deadline>` once per thread (each child runs the same single-threaded worker until
+  the shared deadline and prints its passes and first prime count), reads the outputs and adds
+  them up. Neither program has `Concurrency` in its effects, which `fai query caps` confirms,
+  so every thread runs the inline kernel. The time printed runs from before the first child
+  starts to after the last one is read. On a shared four-vCPU container this gave 3.4 times
+  the four-thread passes of the earlier `Async.parallel` version (median of five interleaved
+  runs, 18824 against 5480). The empty `fai.toml` makes the directory one workspace, so
+  `PrimesParallel.fai` can use `Primes`.
 - `Primes.fai` carries `example` and `forall` contracts (counts for small sizes, no even
   number above 2, no reported prime with an odd divisor up to its square root, counts equal to
-  trial division up to 4999, pattern bits set exactly at the odd multiples of p, both kernels
-  giving the same sieves and counts, every sieve bit equal to trial division), which
-  `fai check` and `fai test` run. The `PRIMES_TEST` self-test checks the 13 sizes with both
-  kernels in `primes`, then with the threaded kernel again in `primes-parallel`, as that binary
-  compiles it.
+  trial division up to 4999, pattern bits set exactly at the odd multiples of p, the sparse
+  loop's bits, every sieve bit equal to trial division), which `fai check` and `fai test` run.
+  The `PRIMES_TEST` self-test checks the 13 sizes in `primes`, which is also the program each
+  parallel worker runs.
 
 Two things the standard runtime lacks are worked around. There is no exit status, so `main`
 gets a small `Exit` capability over libc's `exit`. The only clock is `Clock.now`, wall-clock
@@ -94,8 +74,8 @@ PRIMES_TEST=1 ./run.sh    # prime counts for sizes 1 to 10^8; exit 0 if all matc
 On a shared four-vCPU Intel Xeon container:
 
 ```
-cauldnz-fai-base;6100;5.000;1;algorithm=base,faithful=yes,bits=1
-cauldnz-fai-base;6880;5.002;4;algorithm=base,faithful=yes,bits=1
+cauldnz-fai-base;6145;5.000;1;algorithm=base,faithful=yes,bits=1
+cauldnz-fai-base;18824;5.001;4;algorithm=base,faithful=yes,bits=1
 ```
 
 `primes` prints the line for one thread; `primes-parallel` prints one for all hardware

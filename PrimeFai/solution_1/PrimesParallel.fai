@@ -1,54 +1,111 @@
 module PrimesParallel
 
 // The multi-threaded runs of the Fai entry, built as the second binary `primes-parallel`.
-// It uses the sieve and the workers of `Primes.fai` unchanged; each task runs its own
-// sieves. Fai compiles a program whose `main` has the `Concurrency` effect without its
-// inline array fast path, so the single-threaded run is the separate binary `primes`.
-/// One timed run on `threads` tasks. False on a wrong count.
-timedRun : ParallelRuntime -> Int -> Bool / { Clock, Concurrency, Console }
-let timedRun rt threads =
+// Each thread is a process: `primes --worker <deadline>` runs the single-threaded worker
+// of `Primes.fai` until the shared deadline and prints its passes and first count. The
+// processes are started through Fai's native process capability, which (unlike
+// `Concurrency`) leaves the whole program in Fai's single-threaded mode, so every worker
+// keeps the inline array fast path.
+procOptions : ProcessHost.Options
+let procOptions = {
+  bufferBytes = 65536,
+  chunkBytes = 4096,
+  drainTimeoutMs = None,
+  graceMs = 1000,
+  pollMs = 10,
+  timeoutMs = None
+}
+
+workerCommand : String -> Int -> ProcessHost.Command
+let workerCommand exe deadline = {
+  arguments = ["--worker", Int.toString deadline],
+  directory = "",
+  edits = [],
+  executable = exe,
+  inherit = true,
+  stderrMode = 1,
+  stdinMode = 2,
+  stdoutMode = 0
+}
+
+/// Read a session's output to the end, as text.
+drain : ProcessHost.Process -> ProcessHost.Session -> String -> String / { ProcessHost.Process }
+let drain proc session acc =
+  match proc.next session with
+  | Ok (Some chunk) ->
+    match Bytes.toString chunk.bytes with
+    | Some text -> drain proc session (acc ++ text)
+    | None -> drain proc session acc
+  | _ -> acc
+
+/// "passes count" as a pair; (0, 0) when malformed, which `report` flags as a wrong count.
+parseResult : String -> Int * Int
+let parseResult text =
+  match String.split " " (String.trim text) with
+  | [a, b] ->
+    match (Int.fromString a, Int.fromString b) with
+    | (Some p, Some c) -> (p, c)
+    | _ -> (0, 0)
+  | _ -> (0, 0)
+example: parseResult "6100 78498\n" = (6100, 78498)
+example: parseResult "" = (0, 0)
+
+collect : ProcessHost.Process -> Result ProcessHost.Session ProcessHost.Error -> Int * Int / { ProcessHost.Process }
+let collect proc started =
+  match started with
+  | Err e -> (0, 0)
+  | Ok session ->
+    let r = parseResult (drain proc session "")
+    let closed = proc.close session
+    r
+
+/// One timed run on `threads` processes. False on a wrong count.
+timedRun : ParallelRuntime -> String -> Int -> Bool / { Clock, Console, ProcessHost.Process }
+let timedRun rt exe threads =
   let start = rt.clock.now ()
   let deadline = start + Primes.runMillis
-  let thunks = List.map (fun k -> startWorker rt.clock deadline) (List.range 0 threads)
-  let results = Async.parallel rt.concurrency thunks
+  let sessions =
+    List.map (fun k ->
+      rt.process.start [workerCommand exe deadline] procOptions) (List.range 0 threads)
+  let results = List.map (fun s -> collect rt.process s) sessions
   Primes.report rt.console threads (rt.clock.now () - start) results
-
-startWorker : Clock -> Int -> Unit -> Int * Int / { Clock }
-let startWorker clock deadline u = Primes.worker clock deadline true 0 0
 
 public type ParallelRuntime = {
   clock : Clock,
-  concurrency : Concurrency,
   console : Console,
   env : Env,
   exit : Primes.Exit,
-  fs : FileSystem
+  fs : FileSystem,
+  process : ProcessHost.Process
 }
 
 public runtime : ParallelRuntime
 let runtime = {
   clock = stdClock,
-  concurrency = stdConcurrency,
   console = stdConsole,
   env = stdEnv,
   exit = Primes.exitCapability,
-  fs = stdFs
+  fs = stdFs,
+  process = ProcessHost.native
 }
 
-runAll : ParallelRuntime -> List Int -> Unit / { Clock, Concurrency, Console, Primes.Exit }
-let runAll rt runs =
+runAll : ParallelRuntime -> String -> List Int -> Unit / { Clock, Console, Primes.Exit, ProcessHost.Process }
+let runAll rt exe runs =
   match runs with
   | [] -> ()
-  | t :: rest -> if timedRun rt t then runAll rt rest else rt.exit.exit 1
+  | t :: rest -> if timedRun rt exe t then runAll rt exe rest else rt.exit.exit 1
 
 /// All hardware threads, then exactly four when there are more than four. Nothing on one
-/// hardware thread. Under PRIMES_TEST, the threaded kernel's self-test, as compiled here.
-public main : ParallelRuntime -> Unit / { Clock, Concurrency, Console, Env, FileSystem, Primes.Exit }
+/// hardware thread. The argument is the path of `primes` (run.sh passes it).
+public main : ParallelRuntime -> Unit / { Clock, Console, Env, FileSystem, Primes.Exit, ProcessHost.Process }
 let main rt =
-  if Primes.testRequested (rt.env.get "PRIMES_TEST") then
-    let ok = List.foldl (Primes.testOne rt.console true) true Primes.testCases
-    if ok then () else rt.exit.exit 1
-  else
-    let hw = Primes.hardwareThreads rt.fs
-    let runs = if hw > 4 then [hw, 4] else if hw > 1 then [hw] else []
-    runAll rt runs
+  let exe =
+    match rt.env.args () with
+    | [path] -> path
+    | _ -> "./primes"
+  let hw = Primes.hardwareThreads rt.fs
+  let runs =
+    if Primes.testRequested (rt.env.get "PRIMES_TEST") then
+      []
+    else if hw > 4 then [hw, 4] else if hw > 1 then [hw] else []
+  runAll rt exe runs
