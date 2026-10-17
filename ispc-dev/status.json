@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-17T03:27:23Z",
+  "updated_utc": "2026-10-17T03:28:33Z",
   "run": {
     "id": "ap-20261016T2335Z",
     "state": "running",
@@ -15,44 +15,40 @@
     "last_tick_utc": "2026-10-17T03:27:23Z",
     "wakeup": "trig_01H7eowSUFFHLaY4HcjaWySm"
   },
-  "current": {
-    "id": "fai-014",
-    "phase": "evaluate",
-    "detail": "fai-014 (range-proof mask) on all three pools"
-  },
+  "current": null,
   "scoreboard": [
     {
       "machine": "Zen 5 (EPYC 9V45, D16as_v7)",
       "entry": "fai base",
-      "ours_1t": 10200,
-      "ours_mt": 12900,
+      "ours_1t": 10800,
+      "ours_mt": 13000,
       "rival": "mike-barber Rust",
-      "rival_1t": 126200,
-      "rival_mt": 469900,
+      "rival_1t": 126100,
+      "rival_mt": 470300,
       "threads": 4,
-      "source": "r11-final (results/hc/r11-final, 6 rounds, same-round medians, 17 Oct 02:45-03:00 UTC; hc/fai-champion e80bf39; 4T in ours_mt/rival_mt); plain OCaml 32.9k/120.6k, ISPC 139.0k/517.7k; baseline 2.0k/7.4k"
+      "source": "hc/fai-champion 84cc3eb (fai-014 task, results/hc/fai-014-range-proof, 6 rounds, same-round medians, 03:08-03:25 UTC; 4T in ours_mt/rival_mt); r11-final has the e80bf39 before/after; plain OCaml 32.8k/120.6k, ISPC 139.1k; baseline 2.0k/7.4k"
     },
     {
       "machine": "Zen 3 (EPYC 7763, D16a_v4)",
       "entry": "fai base",
-      "ours_1t": 6000,
-      "ours_mt": 6300,
+      "ours_1t": 6300,
+      "ours_mt": 6400,
       "rival": "mike-barber Rust",
-      "rival_1t": 53500,
-      "rival_mt": 211000,
+      "rival_1t": 52400,
+      "rival_mt": 210000,
       "threads": 4,
-      "source": "r11-final (results/hc/r11-final, 6 rounds, same-round medians, 17 Oct 02:45-03:00 UTC; hc/fai-champion e80bf39; 4T in ours_mt/rival_mt); plain OCaml 17.2k/65.9k, ISPC 56.8k/224.4k; baseline 0.9k/3.6k"
+      "source": "hc/fai-champion 84cc3eb (fai-014 task, results/hc/fai-014-range-proof, 6 rounds, same-round medians, 03:08-03:25 UTC; 4T in ours_mt/rival_mt); r11-final has the e80bf39 before/after; plain OCaml 16.9k/66.0k, ISPC 55.8k; baseline 0.9k/3.6k"
     },
     {
       "machine": "Cobalt 100 (D4ps_v6)",
       "entry": "fai base",
-      "ours_1t": 6200,
-      "ours_mt": 8200,
+      "ours_1t": 7600,
+      "ours_mt": 8300,
       "rival": "mike-barber Rust",
       "rival_1t": 42900,
-      "rival_mt": 171400,
+      "rival_mt": 171300,
       "threads": 4,
-      "source": "r11-final (results/hc/r11-final, 6 rounds, same-round medians, 17 Oct 02:45-03:00 UTC; hc/fai-champion e80bf39; 4T in ours_mt/rival_mt); plain OCaml 3.4k/13.0k, ISPC 42.0k/168.1k; baseline 1.2k/4.7k"
+      "source": "hc/fai-champion 84cc3eb (fai-014 task, results/hc/fai-014-range-proof, 6 rounds, same-round medians, 03:08-03:25 UTC; 4T in ours_mt/rival_mt); r11-final has the e80bf39 before/after; plain OCaml 3.4k/13.0k, ISPC 42.3k; baseline 1.2k/4.7k"
     },
     {
       "machine": "Zen 5 (EPYC 9V45, D16as_v7)",
@@ -2442,10 +2438,10 @@
       "entry": "fai",
       "tier": "extra-faithful",
       "kind": "novel",
-      "verdict": "running",
+      "verdict": "kept",
       "plain": "If the loops are written so Fai's compiler can prove every array index is in range, then it drops the per-access checks, because its range analysis removes checks it can prove unnecessary.",
       "prediction": "+5% to +20% at 1T if checks drop; 0 if the analysis cannot see the indices",
-      "note": "hc/fai-014-range-proof 84cc3eb: words masked with a local m = 0xFFFFFFFF in the 1T hot loops; Fai's range analysis then proves 0 <= word <= m and drops the overflow-checked retag (seto 15 -> 5 in clearMultiples4; 41 -> 36 instructions per mark on the fast path). Read bounds check stays (shifted index has no transfer rule). Local 1T +16% (5/5); my screen +10%. Agent 116k tokens, 44 calls, 7 min"
+      "note": "hc/fai-014-range-proof 84cc3eb: words masked with a local m = 0xFFFFFFFF in the 1T hot loops; Fai's range analysis then proves 0 <= word <= m and drops the overflow-checked retag (seto 15 -> 5 in clearMultiples4; 41 -> 36 instructions per mark on the fast path). Read bounds check stays (shifted index has no transfer rule). Local 1T +16% (5/5); my screen +10%. Agent 116k tokens, 44 calls, 7 min | Azure vs e80bf39: Zen 5 1T +5.5% ± 0.2 (6/6), 4T +0.1%; Zen 3 1T +6.6% ± 0.3 (6/6), 4T +1.1%; Cobalt +21.6% / +1.3%. KEEP; champion 84cc3eb (Cobalt >20%: diff re-read, mask is a no-op on 32-bit words)"
     },
     {
       "id": "fai-015",
@@ -2465,58 +2461,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-17T01:16:48Z",
-      "level": "info",
-      "text": "fai-006 rejected.. denseLimit 16 -> 32 on fai-005; local sweep 16-128 x periods 2/4/8: 32 best, 64 -12%, 128 -30% (pattern OR costs nwords per dense prime). Gate 1T +5.1% (8/8 paired in round 2), 4T flat. Agent 82k tokens, 19 calls, 14 min; mistakes: 1 timing (picked too early), 1 self-review, 1 env | Azure vs fai-005: Zen 5 1T +8.5% ± 2.7, 4T +2.5%; Zen 3 1T -1.9% ± 0.6 (0/6), 4T +3.5%; Cobalt +1.5% / +3.7%. REVERT (Zen 3 1T loss). Chip-dependent: Zen 3's smaller L2? suggests 24",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-17T01:18:15Z",
-      "level": "decision",
-      "text": "fai-010: submit dense limit 24 on fai-009 against fai-009. Why: fai-006 showed 32 is +8.5% on Zen 5 and -1.9% on Zen 3 at 1T, with every 4T up; 24 is the obvious split. Passed over: per-binary limits (more code, later if 24 is flat). Expect: +1-4% Zen 5 1T, flat Zen 3.",
-      "id": "fai-010",
-      "what": "submit dense limit 24 on fai-009 against fai-009",
-      "why": "fai-006 showed 32 is +8.5% on Zen 5 and -1.9% on Zen 3 at 1T, with every 4T up; 24 is the obvious split",
-      "instead": "per-binary limits (more code, later if 24 is flat)",
-      "expect": "+1-4% Zen 5 1T, flat Zen 3"
-    },
-    {
-      "utc": "2026-10-17T01:18:15Z",
-      "level": "info",
-      "text": "fai-010 (fai) running: ",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-17T01:18:51Z",
-      "level": "decision",
-      "text": "fai-m2: start a measurement agent: like-for-like source tokens, peak RSS and an in-place check on the merged champion. Why: claims 3 and 4 need the champion's numbers, not Phase 0's plain loop.",
-      "id": "fai-m2",
-      "what": "start a measurement agent: like-for-like source tokens, peak RSS and an in-place check on the merged champion",
-      "why": "claims 3 and 4 need the champion's numbers, not Phase 0's plain loop"
-    },
-    {
-      "utc": "2026-10-17T01:25:43Z",
-      "level": "info",
-      "text": "fai-m2 (fai) confirmed: ",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-17T01:34:18Z",
-      "level": "decision",
-      "text": "fai-009: REVERT; champion set to fai-005's tree (9dbf524, fast-forward over aa159ee). Why: the merge lost 1.6% at 1T on Zen 3 (0/6) against fai-005, though 4T gained 2.2-2.4%.",
-      "id": "fai-009",
-      "what": "REVERT; champion set to fai-005's tree (9dbf524, fast-forward over aa159ee)",
-      "why": "the merge lost 1.6% at 1T on Zen 3 (0/6) against fai-005, though 4T gained 2.2-2.4%"
-    },
-    {
-      "utc": "2026-10-17T01:34:18Z",
-      "level": "decision",
-      "text": "fai-008: REVERT. Why: 4T lost 2.2-2.5% on all three machines (0/6), though 1T gained 2.4-11.3%.",
-      "id": "fai-008",
-      "what": "REVERT",
-      "why": "4T lost 2.2-2.5% on all three machines (0/6), though 1T gained 2.4-11.3%"
-    },
     {
       "utc": "2026-10-17T01:34:18Z",
       "level": "decision",
@@ -2810,6 +2754,51 @@
       "utc": "2026-10-17T03:07:49Z",
       "level": "info",
       "text": "fai-014: evaluate. fai-014 (range-proof mask) on all three pools",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-17T03:28:33Z",
+      "level": "decision",
+      "text": "fai-014: KEEP; hc/fai-champion fast-forwarded to 84cc3eb. Why: lower bound +5.3% at 1T on Zen 5 and +6.3% on Zen 3, Cobalt +21.6%; no loss at 4T; Fai-specific (range analysis), as Chris asked.",
+      "id": "fai-014",
+      "what": "KEEP; hc/fai-champion fast-forwarded to 84cc3eb",
+      "why": "lower bound +5.3% at 1T on Zen 5 and +6.3% on Zen 3, Cobalt +21.6%; no loss at 4T; Fai-specific (range analysis), as Chris asked"
+    },
+    {
+      "utc": "2026-10-17T03:28:33Z",
+      "level": "decision",
+      "text": "run: stop experiments; every pool deleted (03:28 UTC). Why: fai-014 was the last candidate; nothing else is ready to submit before the 04:04 cut-off; the reports and shutdown need the remaining time.",
+      "id": "run",
+      "what": "stop experiments; every pool deleted (03:28 UTC)",
+      "why": "fai-014 was the last candidate; nothing else is ready to submit before the 04:04 cut-off; the reports and shutdown need the remaining time"
+    },
+    {
+      "utc": "2026-10-17T03:28:33Z",
+      "level": "info",
+      "text": "Pools: all three deleted at 03:28 UTC (hc-pool.sh down); az batch pool list shows them deleting."
+    },
+    {
+      "utc": "2026-10-17T03:28:34Z",
+      "level": "info",
+      "text": "fai-014 kept.. hc/fai-014-range-proof 84cc3eb: words masked with a local m = 0xFFFFFFFF in the 1T hot loops; Fai's range analysis then proves 0 <= word <= m and drops the overflow-checked retag (seto 15 -> 5 in clearMultiples4; 41 -> 36 instructions per mark on the fast path). Read bounds check stays (shifted index has no transfer rule). Local 1T +16% (5/5); my screen +10%. Agent 116k tokens, 44 calls, 7 min | Azure vs e80bf39: Zen 5 1T +5.5% ± 0.2 (6/6), 4T +0.1%; Zen 3 1T +6.6% ± 0.3 (6/6), 4T +1.1%; Cobalt +21.6% / +1.3%. KEEP; champion 84cc3eb (Cobalt >20%: diff re-read, mask is a no-op on 32-bit words)",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-17T03:28:34Z",
+      "level": "info",
+      "text": "Scoreboard, fai base on Zen 5 (EPYC 9V45, D16as_v7): 10200 → 10800 at 1T, 12900 → 13000 at 4 threads.",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-17T03:28:34Z",
+      "level": "info",
+      "text": "Scoreboard, fai base on Zen 3 (EPYC 7763, D16a_v4): 6000 → 6300 at 1T, 6300 → 6400 at 4 threads.",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-17T03:28:34Z",
+      "level": "info",
+      "text": "Scoreboard, fai base on Cobalt 100 (D4ps_v6): 6200 → 7600 at 1T, 8200 → 8300 at 4 threads.",
       "auto": true
     }
   ],
