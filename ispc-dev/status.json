@@ -24,24 +24,24 @@
     {
       "machine": "Zen 5 (EPYC 9V45, D16as_v7)",
       "entry": "fai base",
-      "ours_1t": 10300,
-      "ours_mt": 13000,
+      "ours_1t": 10200,
+      "ours_mt": 12900,
       "rival": "mike-barber Rust",
-      "rival_1t": 126000,
-      "rival_mt": 470300,
+      "rival_1t": 126200,
+      "rival_mt": 469900,
       "threads": 4,
-      "source": "hc/fai-champion e80bf39 (fai-011 task, results/hc/fai-011-per-binary, 6 rounds, same-round medians; 4T in ours_mt/rival_mt); plain OCaml 32.9k/121.1k, ISPC 139.0k; baseline 1ce921d 1.8k/0.9k/1.2k"
+      "source": "r11-final (results/hc/r11-final, 6 rounds, same-round medians, 17 Oct 02:45-03:00 UTC; hc/fai-champion e80bf39; 4T in ours_mt/rival_mt); plain OCaml 32.9k/120.6k, ISPC 139.0k/517.7k; baseline 2.0k/7.4k"
     },
     {
       "machine": "Zen 3 (EPYC 7763, D16a_v4)",
       "entry": "fai base",
-      "ours_1t": 5900,
+      "ours_1t": 6000,
       "ours_mt": 6300,
       "rival": "mike-barber Rust",
-      "rival_1t": 52500,
-      "rival_mt": 210400,
+      "rival_1t": 53500,
+      "rival_mt": 211000,
       "threads": 4,
-      "source": "hc/fai-champion e80bf39 (fai-011 task, results/hc/fai-011-per-binary, 6 rounds, same-round medians; 4T in ours_mt/rival_mt); plain OCaml 16.9k/66.1k, ISPC 56.0k; baseline 1ce921d 1.8k/0.9k/1.2k"
+      "source": "r11-final (results/hc/r11-final, 6 rounds, same-round medians, 17 Oct 02:45-03:00 UTC; hc/fai-champion e80bf39; 4T in ours_mt/rival_mt); plain OCaml 17.2k/65.9k, ISPC 56.8k/224.4k; baseline 0.9k/3.6k"
     },
     {
       "machine": "Cobalt 100 (D4ps_v6)",
@@ -52,7 +52,7 @@
       "rival_1t": 42900,
       "rival_mt": 171400,
       "threads": 4,
-      "source": "hc/fai-champion e80bf39 (fai-011 task, results/hc/fai-011-per-binary, 6 rounds, same-round medians; 4T in ours_mt/rival_mt); plain OCaml 3.4k/13.0k, ISPC 42.2k; baseline 1ce921d 1.8k/0.9k/1.2k"
+      "source": "r11-final (results/hc/r11-final, 6 rounds, same-round medians, 17 Oct 02:45-03:00 UTC; hc/fai-champion e80bf39; 4T in ours_mt/rival_mt); plain OCaml 3.4k/13.0k, ISPC 42.0k/168.1k; baseline 1.2k/4.7k"
     },
     {
       "machine": "Zen 5 (EPYC 9V45, D16as_v7)",
@@ -2433,9 +2433,9 @@
       "entry": "fai",
       "tier": "extra-faithful",
       "kind": "measurement",
-      "verdict": "running",
+      "verdict": "confirmed",
       "plain": "If the final Fai program runs next to the first one and the other languages in the same rounds, then we get a fair before-and-after scoreboard, because every number comes from the same machines at the same time.",
-      "note": "cand = hc/fai-champion e80bf39, champ = Phase 0 baseline 1ce921d, controls plain OCaml, Rust, ISPC; 6 rounds on Zen 5, Zen 3, Cobalt"
+      "note": "Final e80bf39 vs baseline 1ce921d, same rounds: 1T Zen 5 10.2k (+420%), Zen 3 6.0k (+553%), Cobalt 6.2k (+433%); 4T 12.9k/6.3k/8.2k (+73-75%). Plain OCaml 32.9k/17.2k/3.4k at 1T; Rust 126.2k/53.5k/42.9k; ISPC 139.0k/56.8k/42.0k"
     },
     {
       "id": "fai-014",
@@ -2463,25 +2463,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-17T01:03:17Z",
-      "level": "decision",
-      "text": "run: start an agent to reconstruct run 10's per-stage mistakes, build times and agent effort from the record. Why: the report's claims 1, 2 and 4 compare against run 10; doing it now leaves the last hour for the scoreboard and writing.",
-      "id": "run",
-      "what": "start an agent to reconstruct run 10's per-stage mistakes, build times and agent effort from the record",
-      "why": "the report's claims 1, 2 and 4 compare against run 10; doing it now leaves the last hour for the scoreboard and writing"
-    },
-    {
-      "utc": "2026-10-17T01:03:17Z",
-      "level": "info",
-      "text": "fai-009 (fai) running: ",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-17T01:06:23Z",
-      "level": "info",
-      "text": "Run 10 evidence reconstructed from the record (results/hc/fai-r10-evidence). Correction: run 10's '1,030 calls, 148.4M tokens' was main session plus agents (main 258 calls / 82.1M, agents 772 / 66.3M); per decided experiment 3.7M main, 3.0M agents. Agent: about 25 min."
-    },
     {
       "utc": "2026-10-17T01:06:33Z",
       "level": "info",
@@ -2807,6 +2788,24 @@
       "utc": "2026-10-17T02:59:28Z",
       "level": "info",
       "text": "fai-015 (fai) running: ",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-17T03:01:36Z",
+      "level": "info",
+      "text": "r11-final confirmed.. Final e80bf39 vs baseline 1ce921d, same rounds: 1T Zen 5 10.2k (+420%), Zen 3 6.0k (+553%), Cobalt 6.2k (+433%); 4T 12.9k/6.3k/8.2k (+73-75%). Plain OCaml 32.9k/17.2k/3.4k at 1T; Rust 126.2k/53.5k/42.9k; ISPC 139.0k/56.8k/42.0k",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-17T03:01:36Z",
+      "level": "info",
+      "text": "Scoreboard, fai base on Zen 5 (EPYC 9V45, D16as_v7): 10300 → 10200 at 1T, 13000 → 12900 at 4 threads.",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-17T03:01:36Z",
+      "level": "info",
+      "text": "Scoreboard, fai base on Zen 3 (EPYC 7763, D16a_v4): 5900 → 6000 at 1T, 6300 → 6300 at 4 threads.",
       "auto": true
     }
   ],
