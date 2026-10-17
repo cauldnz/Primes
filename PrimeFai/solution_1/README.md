@@ -55,7 +55,14 @@ functional language compiled ahead of time with Cranelift.
   and the unrolled sparse loop `clearMultiples4`. With the inline array path, that loop is
   about 26 instructions per multiple against 30 for the plain one, and the four-way loop is
   still a single self-recursive function with no calls, so Fai still checks the array's
-  ownership once per loop and not once per store. `primes-parallel` uses `runSieveThreaded`:
+  ownership once per loop and not once per store. In this kernel's hot loops (`clearMultiples4`,
+  `orPairs`, `orPattern`) every stored word is masked with `m`, a local bound to `0xFFFFFFFF`.
+  Each word holds 32 bits, so the mask changes nothing, but it lets Fai's range analysis prove
+  that the word fits a tagged integer. The store then skips its overflow-checked retag, about
+  five instructions per multiple. A literal mask doesn't work, because the analysis only reads
+  masks held in a local. Against the same build without the mask, the one-thread run gained
+  5.5% on Zen 5, 6.6% on Zen 3 and 21.6% on Cobalt 100 (six rounds on Azure, 17 October 2026).
+  `primes-parallel` uses `runSieveThreaded`:
   dense limit 32, the plain sparse loop (in the concurrent mode every array access is a runtime
   call, and the larger unrolled body only adds spills), and a sieve built by pushes while
   marking 3. That kernel starts from one zero word in an array with room for the whole sieve;
