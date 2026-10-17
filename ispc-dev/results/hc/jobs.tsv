@@ -310,3 +310,6 @@ id	pool	size	kind	outdir	submitted	state
 00350715345	hc-standard-d16as-v7	Standard_D16as_v7	fai	ispc-dev/results/hc/fai-004-push-three	2026-10-17T00:35:15Z	open
 00352132721	hc-standard-d16a-v4	Standard_D16a_v4	fai	ispc-dev/results/hc/fai-004-push-three	2026-10-17T00:35:30Z	open
 00353631642	hc-standard-d4ps-v6	Standard_D4ps_v6	fai	ispc-dev/results/hc/fai-004-push-three	2026-10-17T00:35:44Z	open
+00371630464	hc-standard-d16as-v7	Standard_D16as_v7	fai	ispc-dev/results/hc/fai-005-no-concurrency-1t	2026-10-17T00:37:24Z	open
+00373028208	hc-standard-d16a-v4	Standard_D16a_v4	fai	ispc-dev/results/hc/fai-005-no-concurrency-1t	2026-10-17T00:37:38Z	open
+0037449089	hc-standard-d4ps-v6	Standard_D4ps_v6	fai	ispc-dev/results/hc/fai-005-no-concurrency-1t	2026-10-17T00:37:52Z	open

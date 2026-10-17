@@ -5,6 +5,18 @@ ca5b9c8), on x86-64 Linux. Not filed upstream; Chris decides whether and how to 
 Evidence and repros: `results/hc/fai-000-feasibility/README.md` on `ispc-dev`.
 
 Performance:
+- **Largest finding.** A `Concurrency` effect anywhere in `main`'s effect row switches the whole
+  program to concurrent mode, and `array_prim` (`crates/fai-codegen/src/emit.rs`, about line 4182)
+  then returns `None`: no inline `Array` get or set anywhere, even for arrays that never leave one
+  task. The same read-OR-write sieve ran 3.0x the passes at one thread when built without
+  `Concurrency` in `main` (5,458 against 1,813 in 5 s, container Xeon). Repro: one loop, built
+  with and without `Concurrency` on `main`. A per-function mode, or an inline fast path with an
+  atomic reference-count check, would fix it. Nothing in the docs mentions it.
+- With inlining on, the unique-specialised `Array Int` loop still reloads the length every
+  iteration, tag-checks the loaded slot, overflow-checks the retag (`seto`, cold `make_int`) and
+  tag-checks before dropping the old element: 29 instructions per mark.
+- The "`unsafeGet`/`unsafeSet` compile to out-of-line calls" note below is true only of the
+  concurrent build.
 - A store into `Array Int` of a value outside 63 bits boxes it. A sieve with 64 bits per element
   ran 429 passes in 5 s against 1,097 with 32 bits per element.
 - `Array.unsafeGet` / `unsafeSet` compile to out-of-line runtime calls with a bounds check, a
@@ -27,3 +39,7 @@ Tooling:
   ignores `SSL_CERT_FILE`; the documented loopback mirror (`FAI_RELEASE_BASE_URL`) works around
   it, but honouring the system or `SSL_CERT_FILE` trust store would make the one-line installer
   work in such environments.
+
+Docs (from fai-005):
+- `fai build file.fai` sees sibling modules only with a `fai.toml` present; not in `llms.txt` section 5.
+- `fai check`, `fmt` and `test` take one path; a multi-file directory needs `.`.

@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-17T00:35:44Z",
+  "updated_utc": "2026-10-17T00:37:52Z",
   "run": {
     "id": "ap-20261016T2335Z",
     "state": "running",
@@ -16,9 +16,9 @@
     "wakeup": "trig_01UWpY2u5JHDyx5ALz9VRd1y"
   },
   "current": {
-    "id": "fai-003",
+    "id": "fai-005",
     "phase": "evaluate",
-    "detail": "queued on all three pools behind fai-002"
+    "detail": "fai-002 finishing; fai-003, -004, -005 queued on all three pools"
   },
   "scoreboard": [
     {
@@ -2301,7 +2301,8 @@
       "kind": "novel",
       "verdict": "running",
       "plain": "If the sieve is written in a form the Fai compiler turns into cheaper array calls, then each sparse mark costs less, because today every read and write is a full runtime call with bounds and reference checks.",
-      "prediction": "+10% to +40% at 1T if such a form exists, else 0"
+      "prediction": "+10% to +40% at 1T if such a form exists, else 0",
+      "note": "Finding: Concurrency in main makes the Fai compiler drop its inline array fast path for the whole program (emit.rs array_prim: if self.concurrent return None; entry.rs sets it from main effects). Split into primes (1T, no Concurrency: inline, unique-specialised loop, 29 instructions, 0 calls per mark) and primes-parallel (unchanged). Local 1T: 5,458 vs 1,813 (3.0x; my rerun 5,302-5,572 vs 1,710-1,799); 4T unchanged by design. Agent 140k tokens, 69 calls, 7.6 min; mistakes: 2 at build (module visibility, effect qualification), 1 formatter, 1 CLI usage"
     }
   ],
   "azure_queue": 0,
@@ -2311,20 +2312,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T23:13:42Z",
-      "level": "info",
-      "text": "ocaml-007 (ocaml-plain) rejected: ",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T23:20:48Z",
-      "level": "decision",
-      "text": "ox-019: REVERT; champion stays 2d1ae49; four runs per step is out. Why: the merge loses 1.2% at 4T on Zen 3 (the rule's 1% loss line) while Zen 5 gains 4.2%; ox-016 alone only cleared Zen 3 by 0.1 point, so the two changes don't add on Zen 3.",
-      "id": "ox-019",
-      "what": "REVERT; champion stays 2d1ae49; four runs per step is out",
-      "why": "the merge loses 1.2% at 4T on Zen 3 (the rule's 1% loss line) while Zen 5 gains 4.2%; ox-016 alone only cleared Zen 3 by 0.1 point, so the two changes don't add on Zen 3"
-    },
     {
       "utc": "2026-10-11T23:20:49Z",
       "level": "decision",
@@ -2641,6 +2628,21 @@
       "what": "submit on all three pools against fai-003 (87b495c), 6 rounds",
       "why": "rebuilt here: self-test 13/13; diff read: 3 is found by the scan on the real sieve, each multiple of 3 gets its own OR in the pattern, the push only copies pattern words; base is fai-003 so the task isolates this change",
       "expect": "+2% to +4% at 1T"
+    },
+    {
+      "utc": "2026-10-17T00:37:52Z",
+      "level": "decision",
+      "text": "fai-005: submit on all three pools against fai-003 (87b495c), 6 rounds; above the 20% line, so re-verified. Why: rebuilt here; self-test 13/13 via run.sh; my own interleaved 1T screen 3.0x; diff read: sieve code unchanged, only main split into two binaries; the 1T binary has a unique-specialised loop with no array calls. Azure builds it fresh on each node. Expect: 2.5x to 3.5x at 1T; 4T flat.",
+      "id": "fai-005",
+      "what": "submit on all three pools against fai-003 (87b495c), 6 rounds; above the 20% line, so re-verified",
+      "why": "rebuilt here; self-test 13/13 via run.sh; my own interleaved 1T screen 3.0x; diff read: sieve code unchanged, only main split into two binaries; the 1T binary has a unique-specialised loop with no array calls. Azure builds it fresh on each node",
+      "expect": "2.5x to 3.5x at 1T; 4T flat"
+    },
+    {
+      "utc": "2026-10-17T00:37:52Z",
+      "level": "info",
+      "text": "fai-005: evaluate. fai-002 finishing; fai-003, -004, -005 queued on all three pools",
+      "auto": true
     }
   ],
   "research": {

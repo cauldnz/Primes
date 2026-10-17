@@ -47,3 +47,12 @@ One line each, with the experiment id, as they happen.
   check on runtime copy sites alone misses push growth; log every `alloc_obj` caller instead.
 - fai-004: Count runtime calls per pass before predicting a Fai gain: the push-built pass for 3
   saves about 2% of calls; the prediction of +5-15% assumed native-code costs.
+- fai-005: The biggest Fai gain was not in the sieve: `Concurrency` in `main`'s effect row turns
+  off the compiler's inline array fast path for the whole program (emit.rs `array_prim`), so
+  every get and set became a runtime call. A 1T binary without `Concurrency` ran 3x faster with
+  the same sieve code. Phase 0's "each mark is two runtime calls" was true only of the
+  concurrent build; read the compiler before trusting a profile's explanation.
+- fai-005: The prediction (+10-40%) missed by an order of magnitude upward, as run 10's misses
+  did with SIMD: a mode switch in the compiler is invisible from the source and the docs.
+- fai-005: A single-file `fai build` sees sibling modules only when a `fai.toml` exists;
+  `fai check/fmt/test` take one path (use `.`); cross-module effects are named `Module.Effect`.
