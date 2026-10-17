@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-17T02:36:08Z",
+  "updated_utc": "2026-10-17T02:36:27Z",
   "run": {
     "id": "ap-20261016T2335Z",
     "state": "running",
@@ -2423,10 +2423,10 @@
       "entry": "fai",
       "tier": "extra-faithful",
       "kind": "tuning",
-      "verdict": "running",
+      "verdict": "rejected",
       "plain": "If the threaded program marks factors up to 24 with patterns instead of up to 32, then it gets faster, because 24 gave the best four-thread results in an earlier test.",
       "prediction": "4T 0 to +2%; 1T unchanged",
-      "note": "hc/fai-013-dense-24-threaded 2239fe6 on e80bf39; my own one-line change; checks pass, self-test 39/39; local 4T 6,711/7,094 vs 6,292/5,964 (2 rounds, noisy)"
+      "note": "hc/fai-013-dense-24-threaded 2239fe6 on e80bf39; my own one-line change; checks pass, self-test 39/39; local 4T 6,711/7,094 vs 6,292/5,964 (2 rounds, noisy) | Azure vs e80bf39: Zen 5 4T +0.3% ± 1.1, Zen 3 4T +1.5% ± 0.9, Cobalt 4T +0.9%; 1T flat. REVERT (flat)"
     }
   ],
   "azure_queue": 0,
@@ -2436,19 +2436,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-17T00:55:27Z",
-      "level": "info",
-      "text": "Chris: no multi-process runs. The 4T line stays one Fai program with Async.parallel threads; the multi-process route from fai-007 is closed."
-    },
-    {
-      "utc": "2026-10-17T00:58:13Z",
-      "level": "decision",
-      "text": "fai-003: KEEP; champion fast-forwarded. Why: lower bound +66.6% at 1T on Zen 5 and +63.4% at 4T on Zen 3; Cobalt +67%; above 20%, so rules re-read line by line before submitting and built fresh on each node.",
-      "id": "fai-003",
-      "what": "KEEP; champion fast-forwarded",
-      "why": "lower bound +66.6% at 1T on Zen 5 and +63.4% at 4T on Zen 3; Cobalt +67%; above 20%, so rules re-read line by line before submitting and built fresh on each node"
-    },
     {
       "utc": "2026-10-17T00:58:13Z",
       "level": "decision",
@@ -2785,6 +2772,20 @@
       "utc": "2026-10-17T02:21:57Z",
       "level": "info",
       "text": "fai-010 rejected.. hc/fai-010-dense-24 9b8e786 on fai-009 (f9c0ad0); my own change; check, test 36, fmt, self-test 13/13; local 1T 5,563 vs 5,427 (3 rounds, noise) | Azure vs fai-009: Zen 5 1T +6.8% ± 0.5, 4T +4.2%; Zen 3 1T +0.8% ± 0.3, 4T +4.3% ± 0.4; Cobalt +3.3% / +4.6%. KEEP vs its base, but fai-009 lost to the champion: re-measuring against 9dbf524 (fai-010b) | fai-010b vs champion 9dbf524: Zen 5 1T +6.2%, 4T +6.9%; Zen 3 1T -1.3% (0/6), 4T +6.0%; Cobalt +2.4% / +6.1%. REVERT on Zen 3 1T; its limit-24 idea continues per kernel in fai-012/013",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-17T02:36:27Z",
+      "level": "decision",
+      "text": "fai-013: REVERT. Why: threaded limit 24 vs 32 is within noise at 4T on Zen 5 (+0.3%) and below +1% at the lower bound on Zen 3.",
+      "id": "fai-013",
+      "what": "REVERT",
+      "why": "threaded limit 24 vs 32 is within noise at 4T on Zen 5 (+0.3%) and below +1% at the lower bound on Zen 3"
+    },
+    {
+      "utc": "2026-10-17T02:36:27Z",
+      "level": "info",
+      "text": "fai-013 rejected.. hc/fai-013-dense-24-threaded 2239fe6 on e80bf39; my own one-line change; checks pass, self-test 39/39; local 4T 6,711/7,094 vs 6,292/5,964 (2 rounds, noisy) | Azure vs e80bf39: Zen 5 4T +0.3% ± 1.1, Zen 3 4T +1.5% ± 0.9, Cobalt 4T +0.9%; 1T flat. REVERT (flat)",
       "auto": true
     }
   ],
