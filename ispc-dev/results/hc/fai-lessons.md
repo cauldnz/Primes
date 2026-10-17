@@ -90,3 +90,7 @@ One line each, with the experiment id, as they happen.
 - fai-m2: The 1T binary allocates small objects through an inline pool path that never calls
   `alloc_obj`; counting `alloc_obj` callers alone found 7 of 13 sieves. Break on every
   allocation site.
+- fai-008/009: The inline 1T binary and the call-based threaded binary want opposite changes:
+  unrolling helps 1T (+2-11%) and hurts 4T (−2.5%); the push-built pass for 3 helps 4T (+2%)
+  and hurts 1T (−1.6%). In Fai the compile mode, not the chip, is the main axis for tuning.
+- fai-004: A change kept on one base lost when merged onto a later keep; measure every merge.
