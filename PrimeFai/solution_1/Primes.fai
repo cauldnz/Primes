@@ -29,7 +29,12 @@ let bitCount size = (size + 1) / 2
 
 /// Number of 32-bit words holding those bits (at least one).
 wordCount : Int -> Int
-let wordCount size = Int.shiftRightLogical (bitCount size + 31) 5
+let wordCount size =
+  let n = Int.shiftRightLogical (bitCount size + 31) 5
+  if n < 1 then 1 else n
+example: wordCount 0 = 1
+example: wordCount 63 = 1
+example: wordCount 65 = 2
 
 /// Largest q with q * q <= n.
 isqrt : Int -> Int
@@ -147,10 +152,57 @@ let sieveFrom i q nbits nwords pat bits =
   else
     sieveFrom (j + 1) q nbits nwords pat (clearMultiples (p * p / 2) p nbits bits)
 
+/// Push zero words until the sieve holds nwords.
+pushZeros : Int -> Array Int -> Array Int
+let pushZeros nwords bits =
+  if Array.length bits >= nwords then bits else pushZeros nwords (Array.push 0 bits)
+
+/// Push sieve words w up to nwords - 1 for factor 3, whose pattern repeats every three
+/// words: a is the pattern slot for word w, then b, then c. Each word is stored once,
+/// never read.
+pushThree : Int -> Int -> Int -> Int -> Int -> Array Int -> Array Int
+let pushThree w nwords a b c bits =
+  if w >= nwords then bits else pushThree (w + 1) nwords b c a (Array.push a bits)
+
+/// Start a pass. The sieve begins as one zero word, in an array with room for all nwords,
+/// and the scan from index 1 runs on it as on any sieve. The first prime it finds is 3
+/// (index 1) whenever 3 <= q. Its marking then builds the sieve: 3's pattern is built in
+/// the scratch (one OR per multiple), word 0 is ORed with pattern slot 0 and the other
+/// words are pushed from slots w mod 3; 3 itself is cleared again, and the scan goes on
+/// from index 2 as in `sieveFrom`.
+startSieve : Int -> Int -> Int -> Array Int -> Array Int
+let startSieve q nbits nwords pat =
+  let first = Array.push 0 (Array.withCapacity nwords)
+  let j = nextPrimeIndex 1 nbits first
+  let p = 2 * j + 1
+  if p > q then
+    pushZeros nwords first
+  else if p = 3 then
+    let pat1 = buildPattern p pat
+    let a = Array.unsafeGet 0 pat1
+    let b = Array.unsafeGet 1 pat1
+    let c = Array.unsafeGet 2 pat1
+    let w0 = Array.unsafeSet 0 (Int.or (Array.unsafeGet 0 first) a) first
+    sieveFrom (j + 1) q nbits nwords pat1 (clearBit j (pushThree 1 nwords b c a w0))
+  else
+    sieveFrom j q nbits nwords pat (pushZeros nwords first)
+
 /// A new sieve for size, with its own pattern scratch, fully run.
 runSieve : Int -> Array Int
 let runSieve size =
-  sieveFrom 1 (isqrt size) (bitCount size) (wordCount size) (Array.repeat (periods * denseLimit) 0) (Array.repeat (wordCount size) 0)
+  startSieve (isqrt size) (bitCount size) (wordCount size) (Array.repeat (periods * denseLimit) 0)
+forall n: Array.length (runSieve (smallSize n)) = wordCount (smallSize n)
+forall n: sieveOk 1 (bitCount (smallSize n)) (runSieve (smallSize n))
+example: Array.length (runSieve 0) = 1
+example: Array.length (runSieve 8) = 1
+
+/// True when bits i up to nbits - 1 are set exactly at the odd composites 2i + 1, checked by
+/// trial division.
+sieveOk : Int -> Int -> Array Int -> Bool
+let sieveOk i nbits bits =
+  if i >= nbits then
+    true
+  else if isComposite i bits = noOddDivisor (2 * i + 1) 3 then false else sieveOk (i + 1) nbits bits
 
 countFrom : Int -> Int -> Int -> Array Int -> Int
 let countFrom acc i nbits bits =

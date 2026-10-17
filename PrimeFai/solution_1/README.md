@@ -24,17 +24,24 @@ functional language compiled ahead of time with Cranelift.
     `fai_array_set`), so this costs 2.5 calls per slot against 2 per multiple, and pays below
     about p = 25. A local sweep found 16, 24 and 32 within the noise, with 16 ahead; two runs
     per step gained 8.5% over one at one thread.
+  - **The first factor, 3, builds the sieve.** A pass starts its sieve as one zero slot in an
+    array allocated with room for every slot (`Array.withCapacity`); the scan finds 3 there.
+    Its pattern is built in the scratch as above, and the sieve's slots are then pushed from
+    it, one `Array.push` per slot, stored without being read (the OCaml entry's "the pass
+    for 3 stores every word"). This replaces the zero fill and the read-OR-write of every
+    slot for 3. The array has its full capacity from the start, so no push reallocates.
   - **Factors of 16 and above (sparse).** Each multiple is set with its own read-OR-write, from
     p² in steps of 2p.
 - A new array (and pattern scratch) every pass. Fai has no mutation in the language: the array is threaded through
   tail-recursive loops and, because it is uniquely owned, `Array.unsafeSet` updates it in place
-  (Perceus reference counting). A debugger count of the runtime's copy path shows zero copies
+  (Perceus reference counting). A debugger count of the runtime's copy and grow paths shows zero copies
   over the whole self-test.
 - The multi-threaded runs start one independent sieve loop per task with `Async.parallel`;
   each task counts its own passes until the shared deadline.
 - `Primes.fai` carries `example` and `forall` contracts (counts for small sizes, no even
   number above 2, no reported prime with an odd divisor up to its square root, counts equal to
-  trial division up to 4999, pattern bits set exactly at the odd multiples of p), which
+  trial division up to 4999, pattern bits set exactly at the odd multiples of p, every sieve
+  bit set exactly at the odd composites, the sieve holding exactly its slot count), which
   `fai check` and `fai test` run.
 
 Two things the standard runtime lacks are worked around. There is no exit status, so `main`
