@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-17T01:48:37Z",
+  "updated_utc": "2026-10-17T01:49:29Z",
   "run": {
     "id": "ap-20261016T2335Z",
     "state": "running",
@@ -13,12 +13,12 @@
     "ends_utc": "2026-10-17T04:49:00Z",
     "background_runs": 3,
     "last_tick_utc": "2026-10-17T01:48:14Z",
-    "wakeup": "trig_01KxLCJjH8WKe6gvrBMnXq9w"
+    "wakeup": "trig_01PgjDCxhsMuR2Z2Q2MowVmA"
   },
   "current": {
-    "id": "fai-005",
+    "id": "fai-011",
     "phase": "evaluate",
-    "detail": "fai-005 finishing; fai-006, -008, -009 queued on all three"
+    "detail": "fai-011 and fai-010b running on all three pools"
   },
   "scoreboard": [
     {
@@ -2417,24 +2417,6 @@
   ],
   "events": [
     {
-      "utc": "2026-10-17T00:35:44Z",
-      "level": "decision",
-      "text": "fai-004: submit on all three pools against fai-003 (87b495c), 6 rounds. Why: rebuilt here: self-test 13/13; diff read: 3 is found by the scan on the real sieve, each multiple of 3 gets its own OR in the pattern, the push only copies pattern words; base is fai-003 so the task isolates this change. Expect: +2% to +4% at 1T.",
-      "id": "fai-004",
-      "what": "submit on all three pools against fai-003 (87b495c), 6 rounds",
-      "why": "rebuilt here: self-test 13/13; diff read: 3 is found by the scan on the real sieve, each multiple of 3 gets its own OR in the pattern, the push only copies pattern words; base is fai-003 so the task isolates this change",
-      "expect": "+2% to +4% at 1T"
-    },
-    {
-      "utc": "2026-10-17T00:37:52Z",
-      "level": "decision",
-      "text": "fai-005: submit on all three pools against fai-003 (87b495c), 6 rounds; above the 20% line, so re-verified. Why: rebuilt here; self-test 13/13 via run.sh; my own interleaved 1T screen 3.0x; diff read: sieve code unchanged, only main split into two binaries; the 1T binary has a unique-specialised loop with no array calls. Azure builds it fresh on each node. Expect: 2.5x to 3.5x at 1T; 4T flat.",
-      "id": "fai-005",
-      "what": "submit on all three pools against fai-003 (87b495c), 6 rounds; above the 20% line, so re-verified",
-      "why": "rebuilt here; self-test 13/13 via run.sh; my own interleaved 1T screen 3.0x; diff read: sieve code unchanged, only main split into two binaries; the 1T binary has a unique-specialised loop with no array calls. Azure builds it fresh on each node",
-      "expect": "2.5x to 3.5x at 1T; 4T flat"
-    },
-    {
       "utc": "2026-10-17T00:37:52Z",
       "level": "info",
       "text": "fai-005: evaluate. fai-002 finishing; fai-003, -004, -005 queued on all three pools",
@@ -2774,6 +2756,17 @@
       "what": "KEEP against fai-009, but re-measure against the champion before moving it",
       "why": "its base fai-009 lost 1.6% at 1T on Zen 3 to the champion; chaining the two estimates leaves Zen 3 1T near -0.8%, too close to the 1% loss rule to call by arithmetic",
       "expect": "Zen 5 1T +5-7%, Zen 3 1T -1% to +1%, 4T +6%"
+    },
+    {
+      "utc": "2026-10-17T01:49:20Z",
+      "level": "info",
+      "text": "Tokens so far (this session, from 00:08 UTC, transcripts): main 271 calls, 57.2M (56.5M cache reads, 0.53M writes, 173k output, 0.6k fresh); 10 background agents 377 calls, 35.0M (agent output counts look under-recorded, as in run 10). Phase 0 (shared session) not included."
+    },
+    {
+      "utc": "2026-10-17T01:49:29Z",
+      "level": "info",
+      "text": "fai-011: evaluate. fai-011 and fai-010b running on all three pools",
+      "auto": true
     }
   ],
   "research": {
