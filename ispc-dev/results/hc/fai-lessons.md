@@ -24,3 +24,10 @@ One line each, with the experiment id, as they happen.
   language. Phase 2 should port the OCaml design first, as planned.
 - fai-001: `bits=1` holds for the logic (one bit per odd number), but 32 bits per 64-bit slot
   means about 2 bits of memory per candidate; say so in the report.
+- fai-m1: On one 300-line file the compilers are all sub-second: Fai native build 0.42 s,
+  `fai check` 0.22 s, OCaml 5.2 flambda 0.26 s (type-check 0.03 s), OxCaml 0.46 s. The fast
+  tooling claim holds in absolute terms but Fai is not faster than OCaml here; run 10's slow
+  cycles were Docker and opam, not the compiler. Compare like with like before crediting a
+  language.
+- fai-m1: `fai daemon status` showed 0 commands served after `fai build` with the daemon
+  running; the build may bypass the daemon in 0.1.0.

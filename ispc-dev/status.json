@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-17T00:13:11Z",
+  "updated_utc": "2026-10-17T00:18:57Z",
   "run": {
     "id": "ap-20261016T2335Z",
     "state": "running",
@@ -2273,6 +2273,15 @@
       "plain": "If small factors are marked by building their repeating pattern once and OR-ing it into the sieve a word at a time, then the Fai base gets several times faster, because each Fai array access is a runtime call and the pattern needs one call per word instead of one per composite.",
       "hypothesis": "Port the OCaml dense-pattern design to Fai (32-bit slots)",
       "prediction": "2x-5x at 1T locally"
+    },
+    {
+      "id": "fai-m1",
+      "entry": "fai",
+      "tier": "extra-faithful",
+      "kind": "measurement",
+      "verdict": "confirmed",
+      "plain": "If we count the same sieve in four languages with one tokenizer and time each compiler on this machine, then we can test the claims about token use and fast tooling, because both need like-for-like numbers.",
+      "note": "o200k tokens: Fai plain base 2,945 (2,595 without contracts), OCaml solution_4 4,229, ISPC base 7,620, Rust src 14,549 (hybrid slice about 4,069); designs differ. Build: fai build 0.42 s, fai check 0.22 s, OCaml flambda 0.26 s, OxCaml 0.46 s"
     }
   ],
   "azure_queue": 0,
@@ -2282,18 +2291,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T22:43:43Z",
-      "level": "info",
-      "text": "Scoreboard, oxcaml base on Zen 5 (EPYC 9V45, D16as_v7): 69300 → 72400 at 1T, 252500 → 260900 at 4 threads.",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T22:43:43Z",
-      "level": "info",
-      "text": "Scoreboard, oxcaml base on Zen 3 (EPYC 7763, D16a_v4): 32400 → 37000 at 1T, 124300 → 136700 at 4 threads.",
-      "auto": true
-    },
     {
       "utc": "2026-10-11T22:55:51Z",
       "level": "decision",
@@ -2615,6 +2612,17 @@
       "utc": "2026-10-17T00:13:11Z",
       "level": "info",
       "text": "Waiting for fai-002 nodes to boot (start task about 8 min, then the Fai Docker build); next tick 00:26 UTC."
+    },
+    {
+      "utc": "2026-10-17T00:18:57Z",
+      "level": "info",
+      "text": "fai-m1 done (background agent, 89k tokens, 28 calls, 5.5 min): one tokenizer (o200k_base) across four sources; container compile times. Fai is not faster to build than OCaml on one file; all are sub-second."
+    },
+    {
+      "utc": "2026-10-17T00:18:57Z",
+      "level": "info",
+      "text": "fai-m1 (fai) confirmed: ",
+      "auto": true
     }
   ],
   "research": {
