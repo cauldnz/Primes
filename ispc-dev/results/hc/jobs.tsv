@@ -301,12 +301,12 @@ id	pool	size	kind	outdir	submitted	state
 2332454431	hc-standard-d4ps-v6	Standard_D4ps_v6	ocaml	ispc-dev/results/hc/r10-final	2026-10-11T23:32:57Z	done
 06182627207	hc-standard-d16as-v7	Standard_D16as_v7	base	ispc-dev/results/hc/f2-on-submitted	2026-10-12T06:18:35Z	done
 06193728001	hc-standard-d16a-v4	Standard_D16a_v4	base	ispc-dev/results/hc/f2-on-submitted	2026-10-12T06:19:46Z	done
-0011125706	hc-standard-d16as-v7	Standard_D16as_v7	fai	ispc-dev/results/hc/fai-002-baseline	2026-10-17T00:11:20Z	open
-00112630918	hc-standard-d16a-v4	Standard_D16a_v4	fai	ispc-dev/results/hc/fai-002-baseline	2026-10-17T00:11:34Z	open
-0011403827	hc-standard-d4ps-v6	Standard_D4ps_v6	fai	ispc-dev/results/hc/fai-002-baseline	2026-10-17T00:11:49Z	open
+0011125706	hc-standard-d16as-v7	Standard_D16as_v7	fai	ispc-dev/results/hc/fai-002-baseline	2026-10-17T00:11:20Z	done
+00112630918	hc-standard-d16a-v4	Standard_D16a_v4	fai	ispc-dev/results/hc/fai-002-baseline	2026-10-17T00:11:34Z	done
+0011403827	hc-standard-d4ps-v6	Standard_D4ps_v6	fai	ispc-dev/results/hc/fai-002-baseline	2026-10-17T00:11:49Z	done
 00251116474	hc-standard-d16as-v7	Standard_D16as_v7	fai	ispc-dev/results/hc/fai-003-ocaml-design	2026-10-17T00:25:19Z	open
 00252523243	hc-standard-d16a-v4	Standard_D16a_v4	fai	ispc-dev/results/hc/fai-003-ocaml-design	2026-10-17T00:25:33Z	open
-00253911902	hc-standard-d4ps-v6	Standard_D4ps_v6	fai	ispc-dev/results/hc/fai-003-ocaml-design	2026-10-17T00:25:48Z	open
+00253911902	hc-standard-d4ps-v6	Standard_D4ps_v6	fai	ispc-dev/results/hc/fai-003-ocaml-design	2026-10-17T00:25:48Z	done
 00350715345	hc-standard-d16as-v7	Standard_D16as_v7	fai	ispc-dev/results/hc/fai-004-push-three	2026-10-17T00:35:15Z	open
 00352132721	hc-standard-d16a-v4	Standard_D16a_v4	fai	ispc-dev/results/hc/fai-004-push-three	2026-10-17T00:35:30Z	open
 00353631642	hc-standard-d4ps-v6	Standard_D4ps_v6	fai	ispc-dev/results/hc/fai-004-push-three	2026-10-17T00:35:44Z	open

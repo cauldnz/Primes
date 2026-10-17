@@ -1,0 +1,44 @@
+Architecture:                            aarch64
+CPU(s):                                  4
+Model name:                              Neoverse-N2
+BIOS Model name:                         Cobalt 100 None CPU @ 3.4GHz
+AVX-512: no
+kind=fai rounds=6 id=00353631642
+build cand
+build cand seconds: 3
+build champ
+build champ seconds: 0
+build ctx
+build ctx seconds: 2
+build ctx3
+build ctx3 seconds: 0
+self-test cand: 13 ok, 0 bad, exit=0
+self-test champ: 13 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-fai-base;1988;5.001;1;algorithm=base,faithful=yes,bits=1
+cauldnz-fai-base;7889;5.002;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ
+cauldnz-fai-base;1948;5.000;1;algorithm=base,faithful=yes,bits=1
+cauldnz-fai-base;7784;5.002;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ2
+cauldnz-fai-base;1945;5.000;1;algorithm=base,faithful=yes,bits=1
+cauldnz-fai-base;7795;5.002;4;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl
+cauldnz-ocaml-base;3413;5.000949;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ocaml-base;13118;5.001639;4;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl2
+mike-barber_bit-extreme-hybrid;42892;5.0000314713;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;85739;5.0002031326;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;171265;5.0001516342;4;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl3
+cauldnz-ispc-base;41934;5.000024;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;168142;5.000128;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;84152;5.000150;2;algorithm=base,faithful=yes,bits=1
+== round 1 ctrl2
+mike-barber_bit-extreme-hybrid;42855;5.0000386238;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;85743;5.0002460480;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;171284;5.0001468658;4;algorithm=base,faithful=yes,bits=1
+== round 1 cand
+cauldnz-fai-base;1990;5.000;1;algorithm=base,faithful=yes,bits=1
+cauldnz-fai-base;7890;5.002;4;algorithm=base,faithful=yes,bits=1
+== round 1 ctrl
