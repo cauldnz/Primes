@@ -1,0 +1,48 @@
+Architecture:                            aarch64
+CPU(s):                                  4
+Model name:                              Neoverse-N2
+BIOS Model name:                         Cobalt 100 None CPU @ 3.4GHz
+AVX-512: no
+kind=fai rounds=6 id=0145214571
+build cand
+build cand seconds: 3
+build champ
+build champ seconds: 1
+build ctx
+build ctx seconds: 1
+build ctx3
+build ctx3 seconds: 1
+self-test cand: 39 ok, 0 bad, exit=0
+self-test champ: 13 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-fai-base;6210;5.000;1;algorithm=base,faithful=yes,bits=1
+cauldnz-fai-base;8195;5.002;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ
+cauldnz-fai-base;5581;5.000;1;algorithm=base,faithful=yes,bits=1
+cauldnz-fai-base;7807;5.001;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ2
+cauldnz-fai-base;5582;5.000;1;algorithm=base,faithful=yes,bits=1
+cauldnz-fai-base;7797;5.001;4;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl
+cauldnz-ocaml-base;3414;5.001462;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ocaml-base;12907;5.001043;4;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl2
+mike-barber_bit-extreme-hybrid;42892;5.0001015663;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;85765;5.0001568794;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;171310;5.0001683235;4;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl3
+cauldnz-ispc-base;42002;5.000042;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;168128;5.000120;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;84143;5.000110;2;algorithm=base,faithful=yes,bits=1
+== round 1 ctrl3
+cauldnz-ispc-base;42333;5.000071;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;168140;5.000179;4;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;84144;5.000126;2;algorithm=base,faithful=yes,bits=1
+== round 1 ctrl
+cauldnz-ocaml-base;3416;5.001436;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ocaml-base;13007;5.001842;4;algorithm=base,faithful=yes,bits=1
+== round 1 ctrl2
+mike-barber_bit-extreme-hybrid;42930;5.0000905991;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;85771;5.0002222061;2;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;171306;5.0001602173;4;algorithm=base,faithful=yes,bits=1
+== round 1 cand

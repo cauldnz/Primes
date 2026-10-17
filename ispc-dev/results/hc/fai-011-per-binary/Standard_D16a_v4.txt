@@ -1,0 +1,47 @@
+Architecture:                            x86_64
+CPU(s):                                  16
+Model name:                              AMD EPYC 7763 64-Core Processor
+BIOS Model name:                         AMD EPYC 7763 64-Core Processor                 None CPU @ 2.4GHz
+AVX-512: no
+kind=fai rounds=6 id=01450724184
+build cand
+build cand seconds: 5
+build champ
+build champ seconds: 1
+build ctx
+build ctx seconds: 2
+build ctx3
+build ctx3 seconds: 1
+self-test cand: 39 ok, 0 bad, exit=0
+self-test champ: 13 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-fai-base;5921;5.000;1;algorithm=base,faithful=yes,bits=1
+cauldnz-fai-base;13483;5.005;16;algorithm=base,faithful=yes,bits=1
+cauldnz-fai-base;6292;5.002;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ
+cauldnz-fai-base;5635;5.000;1;algorithm=base,faithful=yes,bits=1
+cauldnz-fai-base;12749;5.005;16;algorithm=base,faithful=yes,bits=1
+cauldnz-fai-base;6050;5.002;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ2
+cauldnz-fai-base;5671;5.000;1;algorithm=base,faithful=yes,bits=1
+cauldnz-fai-base;12750;5.005;16;algorithm=base,faithful=yes,bits=1
+cauldnz-fai-base;6036;5.002;4;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl
+cauldnz-ocaml-base;16891;5.000039;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ocaml-base;131024;5.003063;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ocaml-base;66517;5.005749;4;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl2
+mike-barber_bit-extreme-hybrid;52591;5.0000681877;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;210631;5.0001239777;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;420994;5.0002059937;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;411150;5.0004591942;16;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl3
+cauldnz-ispc-base;55938;5.000068;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;431344;5.000321;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;448033;5.000143;8;algorithm=base,faithful=yes,bits=1
+cauldnz-ispc-base;223969;5.000080;4;algorithm=base,faithful=yes,bits=1
+== round 1 champ
+cauldnz-fai-base;5663;5.000;1;algorithm=base,faithful=yes,bits=1
+cauldnz-fai-base;12766;5.005;16;algorithm=base,faithful=yes,bits=1
+cauldnz-fai-base;6041;5.003;4;algorithm=base,faithful=yes,bits=1
+== round 1 cand
