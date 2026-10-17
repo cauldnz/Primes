@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-17T00:44:11Z",
+  "updated_utc": "2026-10-17T00:45:07Z",
   "run": {
     "id": "ap-20261016T2335Z",
     "state": "running",
@@ -16,9 +16,9 @@
     "wakeup": "trig_01UWpY2u5JHDyx5ALz9VRd1y"
   },
   "current": {
-    "id": "fai-005",
+    "id": "fai-003",
     "phase": "evaluate",
-    "detail": "fai-002 finishing; fai-003, -004, -005 queued on all three pools"
+    "detail": "Zen 5 and Zen 3 running; fai-004 and fai-005 queued; agents fai-006, fai-007"
   },
   "scoreboard": [
     {
@@ -2336,6 +2336,24 @@
       "plain": "If the sieve is written in a form the Fai compiler turns into cheaper array calls, then each sparse mark costs less, because today every read and write is a full runtime call with bounds and reference checks.",
       "prediction": "+10% to +40% at 1T if such a form exists, else 0",
       "note": "Finding: Concurrency in main makes the Fai compiler drop its inline array fast path for the whole program (emit.rs array_prim: if self.concurrent return None; entry.rs sets it from main effects). Split into primes (1T, no Concurrency: inline, unique-specialised loop, 29 instructions, 0 calls per mark) and primes-parallel (unchanged). Local 1T: 5,458 vs 1,813 (3.0x; my rerun 5,302-5,572 vs 1,710-1,799); 4T unchanged by design. Agent 140k tokens, 69 calls, 7.6 min; mistakes: 2 at build (module visibility, effect qualification), 1 formatter, 1 CLI usage"
+    },
+    {
+      "id": "fai-006",
+      "entry": "fai",
+      "tier": "extra-faithful",
+      "kind": "tuning",
+      "verdict": "running",
+      "plain": "If the cut-off between pattern-marked and one-by-one-marked factors is raised now that array access is inline, then the one-thread run gets faster, because the old cut-off was tuned when every access was an expensive call.",
+      "prediction": "+10% to +30% at 1T over fai-005"
+    },
+    {
+      "id": "fai-007",
+      "entry": "fai",
+      "tier": "extra-faithful",
+      "kind": "novel",
+      "verdict": "running",
+      "plain": "If there is a safe way to keep Fai's fast inline array access while running several threads, then the multi-thread run gets about three times faster per thread, because today using threads anywhere slows every array access in the program.",
+      "prediction": "research question; if a supported route exists, about 3x per thread at 4T"
     }
   ],
   "azure_queue": 0,
@@ -2345,37 +2363,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T23:20:49Z",
-      "level": "info",
-      "text": "r10-final: evaluate. final scoreboard: Zen 5 and Zen 3, 6 rounds; Cobalt waits for ox-021",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T23:32:57Z",
-      "level": "decision",
-      "text": "ox-021: KEEP under the target-specific rule; hc/oxcaml-champion fast-forwarded to 37e493e; flag for Chris: an Arm-only change decided on Cobalt alone. Why: Cobalt +61.4% at 1T (5/5, A/A flat); scalar/ is not compiled on x86, so Zen and Intel binaries are byte-identical and the Zen final runs of 2d1ae49 stand for 37e493e. Over 20%: the mechanism was measured first (ox-018 asm, ox-020 store forms), the self-test passed on the node, and the pattern build keeps one single-bit OR per multiple.",
-      "id": "ox-021",
-      "what": "KEEP under the target-specific rule; hc/oxcaml-champion fast-forwarded to 37e493e; flag for Chris: an Arm-only change decided on Cobalt alone",
-      "why": "Cobalt +61.4% at 1T (5/5, A/A flat); scalar/ is not compiled on x86, so Zen and Intel binaries are byte-identical and the Zen final runs of 2d1ae49 stand for 37e493e. Over 20%: the mechanism was measured first (ox-018 asm, ox-020 store forms), the self-test passed on the node, and the pattern build keeps one single-bit OR per multiple"
-    },
-    {
-      "utc": "2026-10-11T23:32:57Z",
-      "level": "info",
-      "text": "ox-021 kept.. Cobalt +61.4% 1T, +55.8% 4T; x86 byte-identical; champion 37e493e",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T23:32:57Z",
-      "level": "info",
-      "text": "Scoreboard, oxcaml base on Cobalt 100 (D4ps_v6): 7300 → 11800 at 1T, 27000 → 41900 at 4 threads.",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-11T23:47:18Z",
-      "level": "info",
-      "text": "Final scoreboard in (results/hc/r10-final). OxCaml at 1T: Zen 5 72.2k, Zen 3 37.2k, Cobalt 11.8k; plain OCaml 32.9k, 18.2k, 3.4k. All pools taken down at 23:47 UTC. Spend NZ$7.72."
-    },
     {
       "utc": "2026-10-11T23:47:18Z",
       "level": "info",
@@ -2674,6 +2661,43 @@
       "utc": "2026-10-17T00:44:11Z",
       "level": "info",
       "text": "fai-002 confirmed.. Baseline per thread, 1T/4T: Zen 5 1.8k/1.8k (OCaml 30.4k, Rust 118.8k, ISPC 129.9k); Zen 3 0.9k/0.9k (OCaml 16.9k, Rust 52.6k); Cobalt 1.2k/1.2k (OCaml 3.4k, Rust 42.9k). A/A within ±1.2% (Zen 5 1T CI), ±1.8% (Zen 3 1T), ±0.1% (Cobalt). Dockerfile builds on x86 and arm64 (37-42 s). Fai is 1/17 of plain OCaml on Zen 5, 1/19 on Zen 3, but 1/2.8 on Cobalt, where OCaml pays the dmb barrier",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-17T00:45:07Z",
+      "level": "decision",
+      "text": "fai-006: start agent: re-sweep dense limit and periods on the inline 1T build (base fai-005). Why: fai-003 tuned the limit at 2-3 runtime calls per access; inline access moves the break-even (OCaml with inline access uses about 64 on 32-bit slots). Expect: +10-30% at 1T.",
+      "id": "fai-006",
+      "what": "start agent: re-sweep dense limit and periods on the inline 1T build (base fai-005)",
+      "why": "fai-003 tuned the limit at 2-3 runtime calls per access; inline access moves the break-even (OCaml with inline access uses about 64 on 32-bit slots)",
+      "expect": "+10-30% at 1T"
+    },
+    {
+      "utc": "2026-10-17T00:45:07Z",
+      "level": "decision",
+      "text": "fai-007: start agent: find a safe, supported way to run threads with inline array access; no loopholes. Why: 4T per thread now trails 1T by about 3x because Concurrency in main disables inlining program-wide; 4T is a deciding measure. Passed over: a multi-process 4T (Chris's call, recorded only). Expect: probably no supported route; the finding goes to the Fai notes.",
+      "id": "fai-007",
+      "what": "start agent: find a safe, supported way to run threads with inline array access; no loopholes",
+      "why": "4T per thread now trails 1T by about 3x because Concurrency in main disables inlining program-wide; 4T is a deciding measure",
+      "instead": "a multi-process 4T (Chris's call, recorded only)",
+      "expect": "probably no supported route; the finding goes to the Fai notes"
+    },
+    {
+      "utc": "2026-10-17T00:45:08Z",
+      "level": "info",
+      "text": "fai-006 (fai) running: ",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-17T00:45:08Z",
+      "level": "info",
+      "text": "fai-007 (fai) running: ",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-17T00:45:08Z",
+      "level": "info",
+      "text": "fai-003: evaluate. Zen 5 and Zen 3 running; fai-004 and fai-005 queued; agents fai-006, fai-007",
       "auto": true
     }
   ],
