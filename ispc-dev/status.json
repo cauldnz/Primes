@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-17T03:01:51Z",
+  "updated_utc": "2026-10-17T03:07:49Z",
   "run": {
     "id": "ap-20261016T2335Z",
     "state": "running",
@@ -17,8 +17,8 @@
   },
   "current": {
     "id": "fai-014",
-    "phase": "implement",
-    "detail": "agents fai-014 (bounds proofs) and fai-015 (Fai feature survey) working"
+    "phase": "evaluate",
+    "detail": "fai-014 (range-proof mask) on all three pools"
   },
   "scoreboard": [
     {
@@ -2444,16 +2444,18 @@
       "kind": "novel",
       "verdict": "running",
       "plain": "If the loops are written so Fai's compiler can prove every array index is in range, then it drops the per-access checks, because its range analysis removes checks it can prove unnecessary.",
-      "prediction": "+5% to +20% at 1T if checks drop; 0 if the analysis cannot see the indices"
+      "prediction": "+5% to +20% at 1T if checks drop; 0 if the analysis cannot see the indices",
+      "note": "hc/fai-014-range-proof 84cc3eb: words masked with a local m = 0xFFFFFFFF in the 1T hot loops; Fai's range analysis then proves 0 <= word <= m and drops the overflow-checked retag (seto 15 -> 5 in clearMultiples4; 41 -> 36 instructions per mark on the fast path). Read bounds check stays (shifted index has no transfer rule). Local 1T +16% (5/5); my screen +10%. Agent 116k tokens, 44 calls, 7 min"
     },
     {
       "id": "fai-015",
       "entry": "fai",
       "tier": "extra-faithful",
-      "kind": "novel",
-      "verdict": "running",
+      "kind": "measurement",
+      "verdict": "rejected",
       "plain": "If the sieve uses a Fai feature that general-purpose languages lack, then it may get faster or clearer, because Fai was designed with features the climb has not used yet.",
-      "prediction": "survey first; effect depends on the feature chosen"
+      "prediction": "survey first; effect depends on the feature chosen",
+      "note": "Feature survey (results/hc/fai-015-fai-feature). Candidate: threads as worker processes via ProcessHost.Process (no Concurrency, inline kernel in each): local 4T 18,824 vs 5,480 (3.4x). Not submitted: Chris ruled out multi-process runs. Agent 128k tokens, 52 calls, 7.5 min"
     }
   ],
   "azure_queue": 0,
@@ -2463,34 +2465,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-17T01:06:33Z",
-      "level": "info",
-      "text": "Correction to the previous event: the run 10 evidence agent took 4.1 min (172k tokens, 38 tool calls), not 25 min."
-    },
-    {
-      "utc": "2026-10-17T01:16:48Z",
-      "level": "decision",
-      "text": "fai-005: KEEP; the champion moves only after the merge with fai-004 (fai-009) is measured. Why: lower bound +205% at 1T on Zen 5 and +270% on Zen 3; no loss of 1% anywhere (Zen 3 4T -0.7%); above 20%, so diff and code re-read and rebuilt before submitting; fresh builds on every node.",
-      "id": "fai-005",
-      "what": "KEEP; the champion moves only after the merge with fai-004 (fai-009) is measured",
-      "why": "lower bound +205% at 1T on Zen 5 and +270% on Zen 3; no loss of 1% anywhere (Zen 3 4T -0.7%); above 20%, so diff and code re-read and rebuilt before submitting; fresh builds on every node"
-    },
-    {
-      "utc": "2026-10-17T01:16:48Z",
-      "level": "decision",
-      "text": "fai-006: REVERT. Why: Zen 3 1T -1.9% (0/6) breaks the 1% loss rule, though Zen 5 1T gained 8.5% and every 4T gained. Expect: a compromise limit (24) might gain on both; queued as fai-010.",
-      "id": "fai-006",
-      "what": "REVERT",
-      "why": "Zen 3 1T -1.9% (0/6) breaks the 1% loss rule, though Zen 5 1T gained 8.5% and every 4T gained",
-      "expect": "a compromise limit (24) might gain on both; queued as fai-010"
-    },
-    {
-      "utc": "2026-10-17T01:16:48Z",
-      "level": "info",
-      "text": "fai-005 kept.. Finding: Concurrency in main makes the Fai compiler drop its inline array fast path for the whole program (emit.rs array_prim: if self.concurrent return None; entry.rs sets it from main effects). Split into primes (1T, no Concurrency: inline, unique-specialised loop, 29 instructions, 0 calls per mark) and primes-parallel (unchanged). Local 1T: 5,458 vs 1,813 (3.0x; my rerun 5,302-5,572 vs 1,710-1,799); 4T unchanged by design. Agent 140k tokens, 69 calls, 7.6 min; mistakes: 2 at build (module visibility, effect qualification), 1 formatter, 1 CLI usage | Azure vs fai-003: Zen 5 1T +212.0% ± 6.8 (6/6), 4T +1.0%; Zen 3 1T +273.1% ± 3.6, 4T -0.7% ± 0.5; Cobalt +186.5% / +0.2%. KEEP. Cobalt 1T 5.6k beats plain OCaml 3.4k",
-      "auto": true
-    },
     {
       "utc": "2026-10-17T01:16:48Z",
       "level": "info",
@@ -2806,6 +2780,36 @@
       "utc": "2026-10-17T03:01:36Z",
       "level": "info",
       "text": "Scoreboard, fai base on Zen 3 (EPYC 7763, D16a_v4): 5900 → 6000 at 1T, 6300 → 6300 at 4 threads.",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-17T03:07:21Z",
+      "level": "decision",
+      "text": "fai-015: do not submit; record the survey and the process finding. Why: the candidate runs the 4T line as separate processes, which Chris ruled out at 00:51 UTC; the survey is the result Chris asked for. Passed over: measuring it anyway (it can't be kept).",
+      "id": "fai-015",
+      "what": "do not submit; record the survey and the process finding",
+      "why": "the candidate runs the 4T line as separate processes, which Chris ruled out at 00:51 UTC; the survey is the result Chris asked for",
+      "instead": "measuring it anyway (it can't be kept)"
+    },
+    {
+      "utc": "2026-10-17T03:07:21Z",
+      "level": "decision",
+      "text": "fai-014: submit on all three against e80bf39. Why: rebuilt here: self-test 39/39; diff read: the mask is a no-op on 32-bit words, so semantics and base rules are unchanged; local +10-16% at 1T; uses Fai's range analysis, as Chris asked. Expect: 1T +8% to +16%, 4T flat.",
+      "id": "fai-014",
+      "what": "submit on all three against e80bf39",
+      "why": "rebuilt here: self-test 39/39; diff read: the mask is a no-op on 32-bit words, so semantics and base rules are unchanged; local +10-16% at 1T; uses Fai's range analysis, as Chris asked",
+      "expect": "1T +8% to +16%, 4T flat"
+    },
+    {
+      "utc": "2026-10-17T03:07:49Z",
+      "level": "info",
+      "text": "fai-015 rejected.. Feature survey (results/hc/fai-015-fai-feature). Candidate: threads as worker processes via ProcessHost.Process (no Concurrency, inline kernel in each): local 4T 18,824 vs 5,480 (3.4x). Not submitted: Chris ruled out multi-process runs. Agent 128k tokens, 52 calls, 7.5 min",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-17T03:07:49Z",
+      "level": "info",
+      "text": "fai-014: evaluate. fai-014 (range-proof mask) on all three pools",
       "auto": true
     }
   ],

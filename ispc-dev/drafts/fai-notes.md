@@ -74,3 +74,18 @@ Contracts (from fai-011):
   function it calls, and nothing warns. Repro: `f`, then `g`, then `example: f 1 = 1` is
   tested and reported under `g`. A warning when an example doesn't mention the declaration
   it's attached to would catch it.
+
+Range analysis (from fai-014):
+- `transfer_mask` (`bounds.rs`, about lines 461-473) ignores a literal mask, because
+  `atom_term` accepts only locals and the literal 0. So `Int.and x 0xFFFFFFFF` proves nothing
+  until the mask is bound to a local. With `let m = 0xFFFFFFFF` the retag's `seto` check goes
+  away, and the sieve ran 10-16% faster at one thread. Letting `atom_term_off` take literal
+  masks would make the obvious source work.
+- Rules for `shiftRightLogical x k` (0 <= result <= 2^(64-k) - 1) and for `IntOr` or `IntXor`
+  of two bounded non-negative operands would remove these checks with no source trick. The
+  shift rule would also give a word index its `w >= 0` fact.
+
+Processes (from fai-015):
+- `ProcessHost.native` gives parallelism without concurrent codegen, but `llms.txt` says the
+  `process` package needs `Concurrency`. Only `samples/NativeProcess.fai` shows the raw form.
+  There is no "spawn self" helper.

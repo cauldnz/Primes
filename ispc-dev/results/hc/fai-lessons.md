@@ -104,3 +104,13 @@ One line each, with the experiment id, as they happen.
 - fai-011: Giving each binary the kernel that suits its compile mode turned two reverts (fai-008,
   fai-009) and a split result (fai-006) into a keep on every machine: 1T +2.6% / +4.5% / +11.3%,
   4T +5.1-5.3%. Splitting by compile mode is the Fai analogue of per-architecture kernels.
+- fai-014: Fai's range analysis drops the overflow-checked retag on a store when it can prove
+  the word fits, but only if the mask is bound to a local (`let m = 0xFFFFFFFF`); a literal
+  mask proves nothing. +10-16% at 1T locally from a no-op `Int.and`. A language-specific
+  optimiser rewards source written for it, and only its source code says how.
+- fai-014: After a successful `unsafeGet w a`, the `unsafeSet w` on the same array is proven
+  safe; a shifted index (`shr i 5`) can't be proven in bounds without a guard as costly as
+  the check.
+- fai-015: `ProcessHost.Process` gives parallelism without Fai's concurrent codegen (3.4x at 4T
+  locally); ruled out by Chris (no multi-process runs). The fact appears only in a sample's
+  effect row, not in llms.txt.
