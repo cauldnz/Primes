@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-17T00:29:13Z",
+  "updated_utc": "2026-10-17T00:29:29Z",
   "run": {
     "id": "ap-20261016T2335Z",
     "state": "running",
@@ -13,7 +13,7 @@
     "ends_utc": "2026-10-17T04:49:00Z",
     "background_runs": 6,
     "last_tick_utc": "2026-10-17T00:29:13Z",
-    "wakeup": "trig_01NAzR3ehJGv5Zt7VZicz3x8"
+    "wakeup": "trig_01UWpY2u5JHDyx5ALz9VRd1y"
   },
   "current": {
     "id": "fai-003",
@@ -2311,12 +2311,6 @@
   ],
   "events": [
     {
-      "utc": "2026-10-11T23:11:51Z",
-      "level": "info",
-      "text": "ox-021 (oxcaml) running: ",
-      "auto": true
-    },
-    {
       "utc": "2026-10-11T23:13:42Z",
       "level": "decision",
       "text": "ocaml-007: reject at the local gate; not sent to Azure, not even Cobalt alone. Why: 38% slower locally on x86, past the 30% gate; plain OCaml has one source for all targets, so the x86 loss would ship with the Arm gain. A per-architecture file (as the OxCaml line has) is the follow-up, left for the next run. Passed over: a Cobalt-only measurement of e7e8016.",
@@ -2641,6 +2635,11 @@
       "level": "info",
       "text": "fai-005 (fai) running: ",
       "auto": true
+    },
+    {
+      "utc": "2026-10-17T00:29:29Z",
+      "level": "info",
+      "text": "Tick 00:29: fai-002 at round 3 of 6 on Zen 5 (each round about 4 min; six labels with 3-4 thread lines each). fai-003 queued behind it. Real spend about NZ$0.21 (page minus NZ$65.70). Next tick 00:42."
     }
   ],
   "research": {
