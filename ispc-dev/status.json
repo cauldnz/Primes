@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-17T00:29:29Z",
+  "updated_utc": "2026-10-17T00:35:44Z",
   "run": {
     "id": "ap-20261016T2335Z",
     "state": "running",
@@ -2291,7 +2291,8 @@
       "kind": "borrowed (PrimeOCaml/solution_4 pass for 3; ISPC init-with-3)",
       "verdict": "running",
       "plain": "If each pass builds its sieve by appending the pattern of 3 instead of zero-filling and then OR-ing it in, then it gets faster, because that turns three runtime calls per word into one.",
-      "prediction": "+5% to +15% at 1T over fai-003"
+      "prediction": "+5% to +15% at 1T over fai-003",
+      "note": "local gate (container, 6 interleaved rounds): 1T median 1,856 vs 1,777 (+4.4%, 5 of 6 rounds); 4T too noisy to read. Call-count estimate only about 2%. Self-test 13/13; gdb: no copy or grow (alloc_obj callers logged). Agent 107k tokens, 39 calls, 6.4 min; 0 mistakes past self-review"
     },
     {
       "id": "fai-005",
@@ -2310,15 +2311,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T23:13:42Z",
-      "level": "decision",
-      "text": "ocaml-007: reject at the local gate; not sent to Azure, not even Cobalt alone. Why: 38% slower locally on x86, past the 30% gate; plain OCaml has one source for all targets, so the x86 loss would ship with the Arm gain. A per-architecture file (as the OxCaml line has) is the follow-up, left for the next run. Passed over: a Cobalt-only measurement of e7e8016.",
-      "id": "ocaml-007",
-      "what": "reject at the local gate; not sent to Azure, not even Cobalt alone",
-      "why": "38% slower locally on x86, past the 30% gate; plain OCaml has one source for all targets, so the x86 loss would ship with the Arm gain. A per-architecture file (as the OxCaml line has) is the follow-up, left for the next run",
-      "instead": "a Cobalt-only measurement of e7e8016"
-    },
     {
       "utc": "2026-10-11T23:13:42Z",
       "level": "info",
@@ -2640,6 +2632,15 @@
       "utc": "2026-10-17T00:29:29Z",
       "level": "info",
       "text": "Tick 00:29: fai-002 at round 3 of 6 on Zen 5 (each round about 4 min; six labels with 3-4 thread lines each). fai-003 queued behind it. Real spend about NZ$0.21 (page minus NZ$65.70). Next tick 00:42."
+    },
+    {
+      "utc": "2026-10-17T00:35:44Z",
+      "level": "decision",
+      "text": "fai-004: submit on all three pools against fai-003 (87b495c), 6 rounds. Why: rebuilt here: self-test 13/13; diff read: 3 is found by the scan on the real sieve, each multiple of 3 gets its own OR in the pattern, the push only copies pattern words; base is fai-003 so the task isolates this change. Expect: +2% to +4% at 1T.",
+      "id": "fai-004",
+      "what": "submit on all three pools against fai-003 (87b495c), 6 rounds",
+      "why": "rebuilt here: self-test 13/13; diff read: 3 is found by the scan on the real sieve, each multiple of 3 gets its own OR in the pattern, the push only copies pattern words; base is fai-003 so the task isolates this change",
+      "expect": "+2% to +4% at 1T"
     }
   ],
   "research": {

@@ -42,3 +42,8 @@ One line each, with the experiment id, as they happen.
   not copy (gdb 0); Perceus restores the count before the next write.
 - run: hc-pool.sh tally billed 5 days because its meter state was left from the previous run;
   a tally should reset state older than the run.
+- fai-004: The compiler inlines `Array.push`'s fast path into the calling loop (growth goes
+  through `fai_alloc_array` from compiled code), while get and set stay runtime calls. A gdb
+  check on runtime copy sites alone misses push growth; log every `alloc_obj` caller instead.
+- fai-004: Count runtime calls per pass before predicting a Fai gain: the push-built pass for 3
+  saves about 2% of calls; the prediction of +5-15% assumed native-code costs.
