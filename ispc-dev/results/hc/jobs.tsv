@@ -344,5 +344,6 @@ id	pool	size	kind	outdir	submitted	state
 03072715353	hc-standard-d16as-v7	Standard_D16as_v7	fai	ispc-dev/results/hc/fai-014-range-proof	2026-10-17T03:07:35Z	done
 03074112164	hc-standard-d16a-v4	Standard_D16a_v4	fai	ispc-dev/results/hc/fai-014-range-proof	2026-10-17T03:07:49Z	done
 03075532551	hc-standard-d4ps-v6	Standard_D4ps_v6	fai	ispc-dev/results/hc/fai-014-range-proof	2026-10-17T03:08:03Z	done
-03583126615	hc-standard-d16as-v7	Standard_D16as_v7	fai	ispc-dev/results/hc/fai-016-champ-plus-012	2026-10-17T03:58:40Z	open
+03583126615	hc-standard-d16as-v7	Standard_D16as_v7	fai	ispc-dev/results/hc/fai-016-champ-plus-012	2026-10-17T03:58:40Z	done
 03585520251	hc-standard-d16a-v4	Standard_D16a_v4	fai	ispc-dev/results/hc/fai-016-champ-plus-012	2026-10-17T03:59:03Z	open
+0423466482	hc-standard-d16as-v7	Standard_D16as_v7	fai	ispc-dev/results/hc/fai-016-champ-plus-012-z5rerun	2026-10-17T04:24:09Z	open

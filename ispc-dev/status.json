@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-17T04:00:22Z",
+  "updated_utc": "2026-10-17T04:24:09Z",
   "run": {
     "id": "ap-20261016T2335Z",
     "state": "stopped",
@@ -2473,15 +2473,6 @@
   ],
   "events": [
     {
-      "utc": "2026-10-17T01:48:37Z",
-      "level": "decision",
-      "text": "fai-010: KEEP against fai-009, but re-measure against the champion before moving it. Why: its base fai-009 lost 1.6% at 1T on Zen 3 to the champion; chaining the two estimates leaves Zen 3 1T near -0.8%, too close to the 1% loss rule to call by arithmetic. Expect: Zen 5 1T +5-7%, Zen 3 1T -1% to +1%, 4T +6%.",
-      "id": "fai-010",
-      "what": "KEEP against fai-009, but re-measure against the champion before moving it",
-      "why": "its base fai-009 lost 1.6% at 1T on Zen 3 to the champion; chaining the two estimates leaves Zen 3 1T near -0.8%, too close to the 1% loss rule to call by arithmetic",
-      "expect": "Zen 5 1T +5-7%, Zen 3 1T -1% to +1%, 4T +6%"
-    },
-    {
       "utc": "2026-10-17T01:49:20Z",
       "level": "info",
       "text": "Tokens so far (this session, from 00:08 UTC, transcripts): main 271 calls, 57.2M (56.5M cache reads, 0.53M writes, 173k output, 0.6k fresh); 10 background agents 377 calls, 35.0M (agent output counts look under-recorded, as in run 10). Phase 0 (shared session) not included."
@@ -2806,6 +2797,15 @@
       "level": "info",
       "text": "fai-016 (fai) running: ",
       "auto": true
+    },
+    {
+      "utc": "2026-10-17T04:24:09Z",
+      "level": "decision",
+      "text": "fai-016: Zen 5 inconclusive (noisy node); rerun 6 rounds. Why: the A/A pair moved -1.2% to +16.7% at 1T and one 4T round was -12.2%; AUTOPILOT 5 says mark inconclusive and rerun. Expect: Zen 5 1T +3-8%, 4T flat.",
+      "id": "fai-016",
+      "what": "Zen 5 inconclusive (noisy node); rerun 6 rounds",
+      "why": "the A/A pair moved -1.2% to +16.7% at 1T and one 4T round was -12.2%; AUTOPILOT 5 says mark inconclusive and rerun",
+      "expect": "Zen 5 1T +3-8%, 4T flat"
     }
   ],
   "research": {
