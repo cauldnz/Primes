@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-17T03:30:22Z",
+  "updated_utc": "2026-10-17T03:31:02Z",
   "run": {
     "id": "ap-20261016T2335Z",
     "state": "running",
@@ -2464,16 +2464,6 @@
   "events": [
     {
       "utc": "2026-10-17T01:34:18Z",
-      "level": "decision",
-      "text": "fai-011: start agent: per-binary kernels (1T: unrolled sparse, limit 16, repeat start; threaded: push-built pass for 3, limit 32, plain sparse). Why: fai-004, -006, -008 split cleanly by compile mode: inline 1T and call-based 4T want opposite changes; one program per mode lets each keep its own, like per-architecture kernels. Passed over: fai-010 alone (still running; a single limit can't suit both modes). Expect: 1T +2-5%, 4T +4-7%.",
-      "id": "fai-011",
-      "what": "start agent: per-binary kernels (1T: unrolled sparse, limit 16, repeat start; threaded: push-built pass for 3, limit 32, plain sparse)",
-      "why": "fai-004, -006, -008 split cleanly by compile mode: inline 1T and call-based 4T want opposite changes; one program per mode lets each keep its own, like per-architecture kernels",
-      "instead": "fai-010 alone (still running; a single limit can't suit both modes)",
-      "expect": "1T +2-5%, 4T +4-7%"
-    },
-    {
-      "utc": "2026-10-17T01:34:18Z",
       "level": "info",
       "text": "fai-008 rejected.. sparse loop unrolled x4 in one self-recursive function (31de5cc on fai-005): 30 -> 26 instructions per mark inline; local 1T +3.3% (4/5), 4T -6.7% (0/3, load 2-4). A call on the exit branch silently drops the unique-array loop specialisation. Agent 123k tokens, 50 calls, 11.5 min | Azure vs fai-005: Zen 5 1T +2.4%, 4T -2.5%; Zen 3 1T +4.3% (6/6), 4T -2.2% (0/6); Cobalt +11.3% / -2.5%. REVERT on 4T losses",
       "auto": true
@@ -2801,6 +2791,11 @@
       "level": "info",
       "text": "Scoreboard, fai base on Cobalt 100 (D4ps_v6): 6200 → 7600 at 1T, 8200 → 8300 at 4 threads.",
       "auto": true
+    },
+    {
+      "utc": "2026-10-17T03:31:02Z",
+      "level": "info",
+      "text": "Shutdown check: az batch pool list returns no pools (03:40 UTC)."
     }
   ],
   "research": {

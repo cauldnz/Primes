@@ -115,7 +115,7 @@ four:
   the whole-program concurrent mode (a 4.2x repro). Others: the literal-mask gap in range
   analysis, the loop specialisation lost on any call, examples attaching to the wrong function,
   and doc gaps.
-- **Champion README.** The README on `hc/fai-champion` doesn't yet describe fai-014's mask.
+- **Champion README.** The README on `hc/fai-champion` (d3e9731) now describes fai-014's mask; README only, code unchanged from 84cc3eb.
 
 ### Three best next experiments
 
