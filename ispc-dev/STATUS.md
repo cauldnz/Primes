@@ -13,10 +13,12 @@ with run 10). No upstream PR, ever.
 - **Time and spend:** Phase 0 took 17 minutes (23:35-23:52 UTC). The 5-hour box restarts at the
   new session's start, less those 17 minutes: about 4 h 40 m. Spend so far NZ$0 (cap NZ$15).
   No pools running at handover.
-- **Azure:** the old service-principal secret expired; Chris issued a new one (expires
-  15 January). It is meant to be in the environment's variables (`AZURE_*`); log in with the
-  runbook's "In-session login". Batch account and group names come from Chris's prompt, never
-  from a file.
+- **Azure, first thing:** the secret is NOT in the environment's variables. Step 0 of the new
+  session: `az account show` and a harmless Batch read. The container's cached login may still
+  work (it was made with Chris's new secret, which expires 15 January). If either fails, ask
+  Chris to paste the secret into the chat, log in with it (`az login --service-principal` with
+  the app and tenant from `az account show`), and never echo, log or commit it. Batch account
+  and group names come from Chris's prompt, never from a file.
 - **Fai:** 0.1.0, release commit ca5b9c8, installed at `/opt/fai` (`export PATH=/opt/fai/bin:$PATH
   FAI_HOME=/opt/fai`). If the container is fresh: the launcher ignores the proxy CA, so fetch
   `release.json`, `SHA256SUMS` and the two x86-64 Linux tarballs from the v0.1.0 release with

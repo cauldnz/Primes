@@ -50,7 +50,8 @@ Phase 0 ran in a session shared with run 10 and the F2 measurement, so its main-
 are not comparable with run 10's (which began after a clear). At the Phase 0 / Phase 1 boundary,
 once the Phase 0 agent has reported and everything is pushed, Chris clears the session and a new
 one resumes run 11 from git (`STATUS.md` "Run 11 handover", `status.json`, the ledger). The
-secret goes into the environment's variables first, so the new session logs in without it.
+secret can't go into the environment's variables, so the new session checks Azure first and
+asks Chris to paste the secret if the cached login has gone.
 In the report, claim 4 leads with background-agent tokens and source size; main-session tokens
 are split into new input plus output against cache reads, with Phase 0's marked as shared.
 
