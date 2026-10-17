@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-17T00:09:33Z",
+  "updated_utc": "2026-10-17T00:12:34Z",
   "run": {
     "id": "ap-20261016T2335Z",
     "state": "running",
@@ -15,7 +15,11 @@
     "last_tick_utc": "2026-10-11T23:45:45Z",
     "wakeup": null
   },
-  "current": null,
+  "current": {
+    "id": "fai-002",
+    "phase": "evaluate",
+    "detail": "baseline task queued on Zen 5, Zen 3, Cobalt (6 rounds); nodes booting"
+  },
   "scoreboard": [
     {
       "machine": "Zen 5 (EPYC 9V45, D16as_v7)",
@@ -2249,6 +2253,26 @@
       "verdict": "confirmed",
       "commit": "1ce921d",
       "note": "local: 1.1k passes at 1T, 20x below OCaml solution_4 and 2.1x below the same loop in plain OCaml; self-test 13/13"
+    },
+    {
+      "id": "fai-002",
+      "entry": "fai",
+      "tier": "extra-faithful",
+      "kind": "tuning",
+      "verdict": "running",
+      "plain": "If the Fai base runs on the Azure bench next to the OCaml, Rust and ISPC controls, then we get its real speed per thread, because the container only screens.",
+      "hypothesis": "Baseline and harness proof: the fai Dockerfile builds on Azure (x86 and arm64) and an A/A task gives the noise floor",
+      "note": "A/A: hc/fai-002-baseline 2a2fae9 is the champion with a README comment only"
+    },
+    {
+      "id": "fai-003",
+      "entry": "fai",
+      "tier": "extra-faithful",
+      "kind": "borrowed (PrimeOCaml/solution_4, hc/ocaml-final)",
+      "verdict": "running",
+      "plain": "If small factors are marked by building their repeating pattern once and OR-ing it into the sieve a word at a time, then the Fai base gets several times faster, because each Fai array access is a runtime call and the pattern needs one call per word instead of one per composite.",
+      "hypothesis": "Port the OCaml dense-pattern design to Fai (32-bit slots)",
+      "prediction": "2x-5x at 1T locally"
     }
   ],
   "azure_queue": 0,
@@ -2258,39 +2282,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-11T22:31:23Z",
-      "level": "decision",
-      "text": "ox-017: hold the KEEP until Cobalt reports. Why: Zen 5 +3.3% (lower bound +3.2%), Zen 3 +8.3% after 3 rounds (4T lower bound +2.9%) pass the rule, but the Arm pattern code moved into scalar/dense.ml, so Cobalt is a gate this time; its run was lost to the DiskFull node and is queued again.",
-      "id": "ox-017",
-      "what": "hold the KEEP until Cobalt reports",
-      "why": "Zen 5 +3.3% (lower bound +3.2%), Zen 3 +8.3% after 3 rounds (4T lower bound +2.9%) pass the rule, but the Arm pattern code moved into scalar/dense.ml, so Cobalt is a gate this time; its run was lost to the DiskFull node and is queued again"
-    },
-    {
-      "utc": "2026-10-11T22:31:23Z",
-      "level": "info",
-      "text": "Three Cobalt jobs marked LOST by collect (the disk-full node's standalone, diag and ox-017 tasks); diag and ox-017 were resubmitted at 22:21."
-    },
-    {
-      "utc": "2026-10-11T22:32:39Z",
-      "level": "info",
-      "text": "ox-012 Cobalt profile (champion 4f1ba99, scalar kernels): dense copy 561 us per pass (80%), sparse 97 us (14%), pattern build 23 us, total 699 us. Zen 3 for comparison: dense copy 55 us, sparse 85 us. Arm64 OxCaml allows unaligned access (backend/arm64/arch.ml at tag 5.2.0minus-39), so the loads should be single instructions; next, ox-018 checks for allocation and dumps the Arm assembly."
-    },
-    {
-      "utc": "2026-10-11T22:32:39Z",
-      "level": "decision",
-      "text": "ox-018: background agent: diag build that reports words allocated per pass and prints the Arm assembly of the scalar dense loop, run on Cobalt. Why: the Arm dense copy costs 8 cycles a word against about 2 for the same source on x86; the cheapest test of the boxing suspicion is Gc counters plus the compiled loop from the Arm node. Passed over: guessing another Arm loop form.",
-      "id": "ox-018",
-      "what": "background agent: diag build that reports words allocated per pass and prints the Arm assembly of the scalar dense loop, run on Cobalt",
-      "why": "the Arm dense copy costs 8 cycles a word against about 2 for the same source on x86; the cheapest test of the boxing suspicion is Gc counters plus the compiled loop from the Arm node",
-      "instead": "guessing another Arm loop form"
-    },
-    {
-      "utc": "2026-10-11T22:32:39Z",
-      "level": "info",
-      "text": "ox-012 confirmed.. Cobalt: dense copy 561 us/pass = 80% of the pass (Zen 3 AVX: 55 us); sparse 97 us (Zen 3: 85); the Arm gap is the scalar dense copy",
-      "auto": true
-    },
     {
       "utc": "2026-10-11T22:43:43Z",
       "level": "decision",
@@ -2585,6 +2576,44 @@
       "utc": "2026-10-17T00:09:33Z",
       "level": "info",
       "text": "Run ap-20261016T2335Z is running; spend NZ$0.",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-17T00:12:34Z",
+      "level": "decision",
+      "text": "fai-002: submit an A/A baseline on Zen 5, Zen 3 and Cobalt, 6 rounds. Why: proves the fai Dockerfile on x86 and arm64, gives the per-thread baseline and the noise floor in one task; submit refuses cand = champ so the variant changes only the README. Passed over: a dummy code change (would not be A/A). Expect: Dockerfile builds; Fai about 1/20 of OCaml solution_4 per thread.",
+      "id": "fai-002",
+      "what": "submit an A/A baseline on Zen 5, Zen 3 and Cobalt, 6 rounds",
+      "why": "proves the fai Dockerfile on x86 and arm64, gives the per-thread baseline and the noise floor in one task; submit refuses cand = champ so the variant changes only the README",
+      "instead": "a dummy code change (would not be A/A)",
+      "expect": "Dockerfile builds; Fai about 1/20 of OCaml solution_4 per thread"
+    },
+    {
+      "utc": "2026-10-17T00:12:34Z",
+      "level": "decision",
+      "text": "fai-003: start a background agent to port the OCaml dense-pattern design. Why: plan says port the OCaml base design first; Phase 0 profile: each mark is two runtime calls, so marks per word is the lever. Brief: branch hc/fai-003-ocaml-design off 1ce921d, PrimeFai/solution_1 only, 32-bit slots, dense pattern built with one OR per composite, local gate 3 interleaved rounds, cycle log with mistakes per stage, 30 min. Passed over: Fai-specific tweaks (later). Expect: 2x-5x at 1T locally.",
+      "id": "fai-003",
+      "what": "start a background agent to port the OCaml dense-pattern design",
+      "why": "plan says port the OCaml base design first; Phase 0 profile: each mark is two runtime calls, so marks per word is the lever. Brief: branch hc/fai-003-ocaml-design off 1ce921d, PrimeFai/solution_1 only, 32-bit slots, dense pattern built with one OR per composite, local gate 3 interleaved rounds, cycle log with mistakes per stage, 30 min",
+      "instead": "Fai-specific tweaks (later)",
+      "expect": "2x-5x at 1T locally"
+    },
+    {
+      "utc": "2026-10-17T00:12:34Z",
+      "level": "info",
+      "text": "fai-002 (fai) running: Baseline and harness proof: the fai Dockerfile builds on Azure (x86 and arm64) and an A/A task gives the noise floor",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-17T00:12:34Z",
+      "level": "info",
+      "text": "fai-003 (fai) running: Port the OCaml dense-pattern design to Fai (32-bit slots)",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-17T00:12:34Z",
+      "level": "info",
+      "text": "fai-002: evaluate. baseline task queued on Zen 5, Zen 3, Cobalt (6 rounds); nodes booting",
       "auto": true
     }
   ],
