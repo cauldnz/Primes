@@ -4,6 +4,14 @@ Autopilot lock: ap-20261016T2335Z 2026-10-17T00:10Z
 **Last updated:** 2026-10-11 22:00 AEST. Living file; earlier versions are in
 `git log -p ispc-dev/STATUS.md`. Replies go in `ispc-dev/NEXT-STEPS.md`.
 
+## Run 11 hourly review (01:20 UTC, 17 October)
+
+- Worked: the OCaml design port (+68%), the 1T binary without `Concurrency` (3x), and the push-built pass for 3 (+2-4%). The baseline A/A noise was within ±1.8%.
+- Didn't work: a dense limit of 32 (+8.5% on Zen 5, −1.9% on Zen 3 at 1T). There is no safe inline path for threads (fai-007, a finding).
+- Protocol: local gate, self-test and diff read before every submit; >20% gains re-read; every CPU line checked. Cobalt has 1 node, so it is the queue's slow end (raising the cap was refused by the permission check).
+- Spend: real about NZ$1.5; the page reads NZ$65.70 high because of the stale tally rows (waiting for Chris).
+- Next: fai-009 (merge) decides the champion; fai-008 and fai-010 queued; then the final scoreboard by about 03:30 and the report. The remaining ideas are small (tuning, loop shape), so the time left is better spent on evidence and writing than on more marginal experiments.
+
 ## Run 11 handover (Phase 0 done, 2026-10-17 10:55 AEST): resume here in a new session
 
 Run `ap-20261016T2335Z`, the Fai research climb. Plan: `RUN-PLAN.md` (run 11). Chris clears the
