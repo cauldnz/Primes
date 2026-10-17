@@ -62,3 +62,14 @@ One line each, with the experiment id, as they happen.
 - fai-007: The agent answered a compiler question in 3 minutes by reading the compiler's own
   design log (`docs/MEMORY.md`) and source; `llms.txt` was silent. For agent-facing languages,
   the performance model belongs in the agent docs.
+- fai-006: The dense-limit break-even depends on bits per slot: with 32-bit slots the best limit
+  was 32, half of what OCaml's 64-bit words suggest; 64 lost 12%, 128 lost 30%.
+- fai-006: Single 5-second runs on the container vary by about ±8%; finalists need 8 or more
+  paired interleaved rounds, not 2-3 run screens.
+- fai-008: A self-recursive Fai array loop loses its uniquely-owned specialisation if its body
+  calls any other function, even only on the exit branch (`array_loop.rs` `Scan::walk`). It
+  passed every check; only objdump and timing caught it.
+- fai-008: Unrolling saves only loop overhead in Fai (30 to 26 instructions per mark); bounds,
+  tag and retag costs stay on every access. A 1T gain came with a local 4T loss in concurrent
+  mode (register pressure across runtime calls): gate both paths.
+- fai-008: `/ 32` and `% 32` on Fai's signed Int add sign fix-ups; use shifts.

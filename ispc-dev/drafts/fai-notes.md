@@ -59,3 +59,12 @@ Concurrency (from fai-007; evidence and repro in `results/hc/fai-007-inline-para
 - The cost is not in the docs. `llms.txt` and `docs/CLI.md` say nothing about it; only
   `MEMORY.md` and a code comment do.
 - `Concurrency` declared in a row but not used is rejected (FAI5001), so a repro has to use it.
+
+Codegen (from fai-008):
+- A self-recursive array loop loses the uniquely-owned loop plan if its body calls any other
+  function, even only on the exit branch (`array_loop.rs`, `Scan::walk`). Repro:
+  `let loop i xs = if i >= 8 then other xs else loop (i + 1) (Array.unsafeSet i 1 xs)` gets
+  a reference-count check per iteration; returning `xs` instead does not.
+- The range analysis (`bounds.rs`, `integer_in_range`) ignores bitwise operators, so
+  `Int.and x 0xFFFFFFFF` can't prove that a retag fits, and every store keeps a `seto` check.
+- `fai` needs `FAI_HOME` even when `/opt/fai/bin` is on PATH ("no default compiler").

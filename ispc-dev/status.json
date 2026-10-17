@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-17T00:58:13Z",
+  "updated_utc": "2026-10-17T01:03:17Z",
   "run": {
     "id": "ap-20261016T2335Z",
     "state": "running",
@@ -18,7 +18,7 @@
   "current": {
     "id": "fai-005",
     "phase": "evaluate",
-    "detail": "Azure rounds running on all three"
+    "detail": "fai-005 finishing; fai-006, -008, -009 queued on all three"
   },
   "scoreboard": [
     {
@@ -2346,7 +2346,8 @@
       "kind": "tuning",
       "verdict": "running",
       "plain": "If the cut-off between pattern-marked and one-by-one-marked factors is raised now that array access is inline, then the one-thread run gets faster, because the old cut-off was tuned when every access was an expensive call.",
-      "prediction": "+10% to +30% at 1T over fai-005"
+      "prediction": "+10% to +30% at 1T over fai-005",
+      "note": "denseLimit 16 -> 32 on fai-005; local sweep 16-128 x periods 2/4/8: 32 best, 64 -12%, 128 -30% (pattern OR costs nwords per dense prime). Gate 1T +5.1% (8/8 paired in round 2), 4T flat. Agent 82k tokens, 19 calls, 14 min; mistakes: 1 timing (picked too early), 1 self-review, 1 env"
     },
     {
       "id": "fai-007",
@@ -2365,7 +2366,18 @@
       "kind": "borrowed (PrimeOCaml/solution_4 and mike-barber Rust unrolled sparse loops)",
       "verdict": "running",
       "plain": "If the loop that marks large factors handles several multiples per turn, then the one-thread run gets faster, because each turn of a Fai loop carries fixed checks that unrolling shares out.",
-      "prediction": "+5% to +20% at 1T over fai-005"
+      "prediction": "+5% to +20% at 1T over fai-005",
+      "note": "sparse loop unrolled x4 in one self-recursive function (31de5cc on fai-005): 30 -> 26 instructions per mark inline; local 1T +3.3% (4/5), 4T -6.7% (0/3, load 2-4). A call on the exit branch silently drops the unique-array loop specialisation. Agent 123k tokens, 50 calls, 11.5 min"
+    },
+    {
+      "id": "fai-009",
+      "entry": "fai",
+      "tier": "extra-faithful",
+      "kind": "merge",
+      "verdict": "running",
+      "plain": "If the two kept changes (the pass for 3 by appending, and the one-thread program without threads) are combined, then their gains add up, because they change different parts of the program.",
+      "prediction": "+2% to +4% over fai-005 at 1T and 4T",
+      "note": "hc/fai-009-champ-plus-005 f9c0ad0 = champion aa159ee + fai-005; README conflict resolved by hand; check, test (36), fmt, self-test pass; measured against fai-005 d39783a"
     }
   ],
   "azure_queue": 0,
@@ -2375,37 +2387,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-16T23:52:43Z",
-      "level": "decision",
-      "text": "fai-001: accept Phase 0: Fai can run the sieve (20x below our OCaml base locally, inside the 100x stop line); hc/fai-champion = 1ce921d. Why: rebuilt here, PRIMES_TEST=1 exits 0, check 0.25 s and build 0.59 s; code read: one read-OR-write per composite, a new array each pass, odd-only scan. 32 bits per slot is the faster layout because Fai boxes values outside 63 bits.",
-      "id": "fai-001",
-      "what": "accept Phase 0: Fai can run the sieve (20x below our OCaml base locally, inside the 100x stop line); hc/fai-champion = 1ce921d",
-      "why": "rebuilt here, PRIMES_TEST=1 exits 0, check 0.25 s and build 0.59 s; code read: one read-OR-write per composite, a new array each pass, odd-only scan. 32 bits per slot is the faster layout because Fai boxes values outside 63 bits"
-    },
-    {
-      "utc": "2026-10-16T23:52:43Z",
-      "level": "info",
-      "text": "fai-000 (fai) confirmed: ",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-16T23:52:43Z",
-      "level": "info",
-      "text": "fai-001 (fai) confirmed: ",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-16T23:53:33Z",
-      "level": "info",
-      "text": "Phase 0 done and recorded; run 11 handed over for a session clear (STATUS.md 'Run 11 handover'). Lock released, no pools running. Phases 1 and 2 resume in a new session."
-    },
-    {
-      "utc": "2026-10-16T23:53:36Z",
-      "level": "info",
-      "text": "Run ap-20261016T2335Z is idle; spend NZ$0.",
-      "auto": true
-    },
     {
       "utc": "2026-10-17T00:09:33Z",
       "level": "info",
@@ -2717,6 +2698,47 @@
       "utc": "2026-10-17T00:58:13Z",
       "level": "info",
       "text": "Scoreboard, fai base on Cobalt 100 (D4ps_v6): 1200 → 2000 at 1T, 4700 → 7900 at 4 threads.",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-17T01:01:46Z",
+      "level": "decision",
+      "text": "fai-006: submit on all three against fai-005 (d39783a). Why: one-line change (limit 32), self-test via the agent and diff read; local +5% at 1T. Expect: +3% to +6% at 1T, flat at 4T.",
+      "id": "fai-006",
+      "what": "submit on all three against fai-005 (d39783a)",
+      "why": "one-line change (limit 32), self-test via the agent and diff read; local +5% at 1T",
+      "expect": "+3% to +6% at 1T, flat at 4T"
+    },
+    {
+      "utc": "2026-10-17T01:01:46Z",
+      "level": "decision",
+      "text": "fai-009: submit the champion + fai-005 merge against fai-005 alone. Why: fai-005 was measured on fai-003, fai-004 on fai-003; the combination needs its own check before either path moves the champion. Expect: +2% to +4%.",
+      "id": "fai-009",
+      "what": "submit the champion + fai-005 merge against fai-005 alone",
+      "why": "fai-005 was measured on fai-003, fai-004 on fai-003; the combination needs its own check before either path moves the champion",
+      "expect": "+2% to +4%"
+    },
+    {
+      "utc": "2026-10-17T01:03:17Z",
+      "level": "decision",
+      "text": "fai-008: submit on all three against fai-005 despite the local 4T loss. Why: rebuilt here: self-test 13/13; each multiple keeps its own read-OR-write; local 4T was measured under load 2-4 with another agent benchmarking, so Azure decides; the 4T loss rule will reject it if real. Expect: 1T +3% to +8%; 4T -2% to -7% (likely REVERT).",
+      "id": "fai-008",
+      "what": "submit on all three against fai-005 despite the local 4T loss",
+      "why": "rebuilt here: self-test 13/13; each multiple keeps its own read-OR-write; local 4T was measured under load 2-4 with another agent benchmarking, so Azure decides; the 4T loss rule will reject it if real",
+      "expect": "1T +3% to +8%; 4T -2% to -7% (likely REVERT)"
+    },
+    {
+      "utc": "2026-10-17T01:03:17Z",
+      "level": "decision",
+      "text": "run: start an agent to reconstruct run 10's per-stage mistakes, build times and agent effort from the record. Why: the report's claims 1, 2 and 4 compare against run 10; doing it now leaves the last hour for the scoreboard and writing.",
+      "id": "run",
+      "what": "start an agent to reconstruct run 10's per-stage mistakes, build times and agent effort from the record",
+      "why": "the report's claims 1, 2 and 4 compare against run 10; doing it now leaves the last hour for the scoreboard and writing"
+    },
+    {
+      "utc": "2026-10-17T01:03:17Z",
+      "level": "info",
+      "text": "fai-009 (fai) running: ",
       "auto": true
     }
   ],
