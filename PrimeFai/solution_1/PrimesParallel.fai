@@ -14,7 +14,7 @@ let timedRun rt threads =
   Primes.report rt.console threads (rt.clock.now () - start) results
 
 startWorker : Clock -> Int -> Unit -> Int * Int / { Clock }
-let startWorker clock deadline u = Primes.worker clock deadline 0 0
+let startWorker clock deadline u = Primes.worker clock deadline true 0 0
 
 public type ParallelRuntime = {
   clock : Clock,
@@ -42,11 +42,12 @@ let runAll rt runs =
   | t :: rest -> if timedRun rt t then runAll rt rest else rt.exit.exit 1
 
 /// All hardware threads, then exactly four when there are more than four. Nothing on one
-/// hardware thread, or under PRIMES_TEST (the self-test is in `primes`).
+/// hardware thread. Under PRIMES_TEST, the threaded kernel's self-test, as compiled here.
 public main : ParallelRuntime -> Unit / { Clock, Concurrency, Console, Env, FileSystem, Primes.Exit }
 let main rt =
   if Primes.testRequested (rt.env.get "PRIMES_TEST") then
-    ()
+    let ok = List.foldl (Primes.testOne rt.console true) true Primes.testCases
+    if ok then () else rt.exit.exit 1
   else
     let hw = Primes.hardwareThreads rt.fs
     let runs = if hw > 4 then [hw, 4] else if hw > 1 then [hw] else []
