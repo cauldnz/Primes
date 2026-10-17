@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-17T02:36:27Z",
+  "updated_utc": "2026-10-17T02:36:38Z",
   "run": {
     "id": "ap-20261016T2335Z",
     "state": "running",
@@ -13,7 +13,7 @@
     "ends_utc": "2026-10-17T04:49:00Z",
     "background_runs": 1,
     "last_tick_utc": "2026-10-17T02:36:08Z",
-    "wakeup": "trig_01S2vrtbpMTFMu257PQDb3U7"
+    "wakeup": "trig_01KSCgXfgBSqpc6dt3LbaW1z"
   },
   "current": {
     "id": "fai-012",
