@@ -1,5 +1,5 @@
 # Status from the Claude Code session
-Autopilot lock: ap-20261016T2335Z 2026-10-17T00:10Z
+
 
 **Last updated:** 2026-10-11 22:00 AEST. Living file; earlier versions are in
 `git log -p ispc-dev/STATUS.md`. Replies go in `ispc-dev/NEXT-STEPS.md`.
@@ -36,7 +36,7 @@ Zen. Fai's `Concurrency` effect switches the whole program to runtime calls for 
 access, and there is no supported way round it (fai-007). Processes would get round it
 (fai-015, 3.4x locally), but Chris ruled them out.
 
-### The author's four claims (full report: `docs/agent-languages.md`, also published as a page)
+### The author's four claims (full report: `docs/agent-languages.md`; page: https://claude.ai/artifact/JTSfoVqVgtqewQPDW9q4tU, private until shared)
 
 1. **Correctness: not supported, on weak evidence.** Across 15 agent runs no real mistake reached
    the contracts, the self-test or Azure. Four slips were caught by name, type and effect

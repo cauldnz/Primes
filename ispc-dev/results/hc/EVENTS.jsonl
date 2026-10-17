@@ -1034,3 +1034,5 @@
 {"utc": "2026-10-17T03:28:34Z", "level": "info", "text": "Scoreboard, fai base on Zen 3 (EPYC 7763, D16a_v4): 6000 → 6300 at 1T, 6300 → 6400 at 4 threads.", "auto": true}
 {"utc": "2026-10-17T03:28:34Z", "level": "info", "text": "Scoreboard, fai base on Cobalt 100 (D4ps_v6): 6200 → 7600 at 1T, 8200 → 8300 at 4 threads.", "auto": true}
 {"utc": "2026-10-17T03:31:02Z", "level": "info", "text": "Shutdown check: az batch pool list returns no pools (03:40 UTC)."}
+{"utc": "2026-10-17T03:33:54Z", "level": "info", "text": "Run 11 stopped at 03:50 UTC. Every pool deleted and confirmed (az batch pool list empty). Champion hc/fai-champion 84cc3eb (README d3e9731). Reports: morning report in STATUS.md, docs/agent-languages.md (published as a page), RETRO.md. Real spend about NZ$3.30 (870 node-minutes). Lock released."}
+{"utc": "2026-10-17T03:33:54Z", "level": "info", "text": "Run ap-20261016T2335Z is stopped; spend NZ$68.97.", "auto": true}

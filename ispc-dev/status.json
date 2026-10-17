@@ -1,9 +1,9 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-17T03:31:02Z",
+  "updated_utc": "2026-10-17T03:33:54Z",
   "run": {
     "id": "ap-20261016T2335Z",
-    "state": "running",
+    "state": "stopped",
     "mode": "azure",
     "mode_reason": "Run 11 resumed in a new session at 00:09 UTC; cached service-principal login still valid (checked first); Phase 0 done earlier (17 min).",
     "started_utc": "2026-10-16T23:35:00Z",
@@ -13,7 +13,7 @@
     "ends_utc": "2026-10-17T04:49:00Z",
     "background_runs": 0,
     "last_tick_utc": "2026-10-17T03:27:23Z",
-    "wakeup": "trig_01H7eowSUFFHLaY4HcjaWySm",
+    "wakeup": null,
     "spend_note": "Real spend NZ$3.28 (870 node-minutes); the page figure includes NZ$65.70 of stale tally rows (00:23 UTC), awaiting Chris"
   },
   "current": null,
@@ -2465,18 +2465,6 @@
     {
       "utc": "2026-10-17T01:34:18Z",
       "level": "info",
-      "text": "fai-008 rejected.. sparse loop unrolled x4 in one self-recursive function (31de5cc on fai-005): 30 -> 26 instructions per mark inline; local 1T +3.3% (4/5), 4T -6.7% (0/3, load 2-4). A call on the exit branch silently drops the unique-array loop specialisation. Agent 123k tokens, 50 calls, 11.5 min | Azure vs fai-005: Zen 5 1T +2.4%, 4T -2.5%; Zen 3 1T +4.3% (6/6), 4T -2.2% (0/6); Cobalt +11.3% / -2.5%. REVERT on 4T losses",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-17T01:34:18Z",
-      "level": "info",
-      "text": "fai-009 rejected.. hc/fai-009-champ-plus-005 f9c0ad0 = champion aa159ee + fai-005; README conflict resolved by hand; check, test (36), fmt, self-test pass; measured against fai-005 d39783a | Azure vs fai-005: Zen 5 1T -0.7%, 4T +2.4%; Zen 3 1T -1.6% (0/6), 4T +2.2%; Cobalt -0.9% / +1.4%. REVERT; the push-built pass helps the call-based 4T binary and hurts the inline 1T one",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-17T01:34:18Z",
-      "level": "info",
       "text": "fai-011 (fai) running: ",
       "auto": true
     },
@@ -2796,6 +2784,17 @@
       "utc": "2026-10-17T03:31:02Z",
       "level": "info",
       "text": "Shutdown check: az batch pool list returns no pools (03:40 UTC)."
+    },
+    {
+      "utc": "2026-10-17T03:33:54Z",
+      "level": "info",
+      "text": "Run 11 stopped at 03:50 UTC. Every pool deleted and confirmed (az batch pool list empty). Champion hc/fai-champion 84cc3eb (README d3e9731). Reports: morning report in STATUS.md, docs/agent-languages.md (published as a page), RETRO.md. Real spend about NZ$3.30 (870 node-minutes). Lock released."
+    },
+    {
+      "utc": "2026-10-17T03:33:54Z",
+      "level": "info",
+      "text": "Run ap-20261016T2335Z is stopped; spend NZ$68.97.",
+      "auto": true
     }
   ],
   "research": {
