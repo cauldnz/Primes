@@ -53,3 +53,5 @@ cauldnz-fai-base;4360;5.003;4;algorithm=base,faithful=yes,bits=1
 
 The program prints one line for one thread, one for all hardware threads and, when there are
 more than four, one for exactly four.
+
+<!-- fai-002: A/A baseline task; the code is identical to the champion. -->
