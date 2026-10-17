@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-17T00:57:18Z",
+  "updated_utc": "2026-10-17T00:58:13Z",
   "run": {
     "id": "ap-20261016T2335Z",
     "state": "running",
@@ -16,43 +16,43 @@
     "wakeup": "trig_01WVEcDo8wE4rBeWwrr5jJjW"
   },
   "current": {
-    "id": "fai-003",
+    "id": "fai-005",
     "phase": "evaluate",
-    "detail": "Zen 5 and Zen 3 running; fai-004 and fai-005 queued; agents fai-006, fai-007"
+    "detail": "Azure rounds running on all three"
   },
   "scoreboard": [
     {
       "machine": "Zen 5 (EPYC 9V45, D16as_v7)",
       "entry": "fai base",
-      "ours_1t": 1800,
-      "ours_mt": 7200,
+      "ours_1t": 3200,
+      "ours_mt": 12500,
       "rival": "mike-barber Rust",
-      "rival_1t": 118800,
-      "rival_mt": 460500,
+      "rival_1t": 116400,
+      "rival_mt": 459300,
       "threads": 4,
-      "source": "fai-002 A/A baseline (results/hc/fai-002-baseline, 6 rounds, same-round medians; hc/fai-champion 1ce921d; 4T in ours_mt/rival_mt); plain OCaml 30.4k/117.5k, ISPC base 129.9k/504.2k"
+      "source": "hc/fai-champion aa159ee (fai-004 task, results/hc/fai-004-push-three, 6 rounds, same-round medians; 4T in ours_mt/rival_mt); plain OCaml 31.1k/117.8k, ISPC 130.6k; baseline 1ce921d 1.8k/0.9k/1.2k"
     },
     {
       "machine": "Zen 3 (EPYC 7763, D16a_v4)",
       "entry": "fai base",
-      "ours_1t": 900,
-      "ours_mt": 3700,
+      "ours_1t": 1500,
+      "ours_mt": 6100,
       "rival": "mike-barber Rust",
       "rival_1t": 52600,
       "rival_mt": 210200,
       "threads": 4,
-      "source": "fai-002 A/A baseline (results/hc/fai-002-baseline, 6 rounds, same-round medians; hc/fai-champion 1ce921d; 4T in ours_mt/rival_mt); plain OCaml 16.9k/66.2k, ISPC base 56.0k/223.5k"
+      "source": "hc/fai-champion aa159ee (fai-004 task, results/hc/fai-004-push-three, 6 rounds, same-round medians; 4T in ours_mt/rival_mt); plain OCaml 17.0k/66.2k, ISPC 56.0k; baseline 1ce921d 1.8k/0.9k/1.2k"
     },
     {
       "machine": "Cobalt 100 (D4ps_v6)",
       "entry": "fai base",
-      "ours_1t": 1200,
-      "ours_mt": 4700,
+      "ours_1t": 2000,
+      "ours_mt": 7900,
       "rival": "mike-barber Rust",
       "rival_1t": 42900,
-      "rival_mt": 171300,
+      "rival_mt": 171400,
       "threads": 4,
-      "source": "fai-002 A/A baseline (results/hc/fai-002-baseline, 6 rounds, same-round medians; hc/fai-champion 1ce921d; 4T in ours_mt/rival_mt); plain OCaml 3.4k/13.0k, ISPC base 42.1k/168.1k"
+      "source": "hc/fai-champion aa159ee (fai-004 task, results/hc/fai-004-push-three, 6 rounds, same-round medians; 4T in ours_mt/rival_mt); plain OCaml 3.4k/13.0k, ISPC 42.3k; baseline 1ce921d 1.8k/0.9k/1.2k"
     },
     {
       "machine": "Zen 5 (EPYC 9V45, D16as_v7)",
@@ -2302,11 +2302,13 @@
       "entry": "fai",
       "tier": "extra-faithful",
       "kind": "borrowed (PrimeOCaml/solution_4, hc/ocaml-final)",
-      "verdict": "running",
+      "verdict": "kept",
       "plain": "If small factors are marked by building their repeating pattern once and OR-ing it into the sieve a word at a time, then the Fai base gets several times faster, because each Fai array access is a runtime call and the pattern needs one call per word instead of one per composite.",
       "hypothesis": "Port the OCaml dense-pattern design to Fai (32-bit slots)",
       "prediction": "2x-5x at 1T locally",
-      "note": "local gate passed (container Xeon, 3 interleaved rounds): 1T 1,845 vs 1,070 (1.72x), 4T 7,003 vs 4,341; self-test 13/13; dense limit 16, two runs per step; gdb 0 array copies. Agent 110k tokens, 43 calls, 10.5 min; first edit to first passing self-test 36 s; 0 mistakes caught by type, effect, contracts or self-test; 2 formatter fails; 2 slips caught in self-review"
+      "note": "local gate passed (container Xeon, 3 interleaved rounds): 1T 1,845 vs 1,070 (1.72x), 4T 7,003 vs 4,341; self-test 13/13; dense limit 16, two runs per step; gdb 0 array copies. Agent 110k tokens, 43 calls, 10.5 min; first edit to first passing self-test 36 s; 0 mistakes caught by type, effect, contracts or self-test; 2 formatter fails; 2 slips caught in self-review | Azure: Zen 5 1T +68.5% ± 1.9 (6/6), 4T +67.7%; Zen 3 1T +64.9%, 4T +64.8% ± 1.4; Cobalt +67.1% / +66.9%. KEEP",
+      "delta_zen5_1t": "+68.5%",
+      "delta_zen3_4t": "+64.8%"
     },
     {
       "id": "fai-m1",
@@ -2322,10 +2324,10 @@
       "entry": "fai",
       "tier": "extra-faithful",
       "kind": "borrowed (PrimeOCaml/solution_4 pass for 3; ISPC init-with-3)",
-      "verdict": "running",
+      "verdict": "kept",
       "plain": "If each pass builds its sieve by appending the pattern of 3 instead of zero-filling and then OR-ing it in, then it gets faster, because that turns three runtime calls per word into one.",
       "prediction": "+5% to +15% at 1T over fai-003",
-      "note": "local gate (container, 6 interleaved rounds): 1T median 1,856 vs 1,777 (+4.4%, 5 of 6 rounds); 4T too noisy to read. Call-count estimate only about 2%. Self-test 13/13; gdb: no copy or grow (alloc_obj callers logged). Agent 107k tokens, 39 calls, 6.4 min; 0 mistakes past self-review"
+      "note": "local gate (container, 6 interleaved rounds): 1T median 1,856 vs 1,777 (+4.4%, 5 of 6 rounds); 4T too noisy to read. Call-count estimate only about 2%. Self-test 13/13; gdb: no copy or grow (alloc_obj callers logged). Agent 107k tokens, 39 calls, 6.4 min; 0 mistakes past self-review | Azure vs fai-003: Zen 5 1T +4.2% ± 1.6 (6/6), 4T +3.1%; Zen 3 1T +1.4%, 4T +2.3% ± 0.5 (6/6); Cobalt +2.2% / +1.4%. KEEP; champion aa159ee"
     },
     {
       "id": "fai-005",
@@ -2373,59 +2375,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-16T23:37:22Z",
-      "level": "info",
-      "text": "Run ap-20261016T2335Z started (run 11, Fai research climb; RUN-PLAN for run 11). Step 0: Azure blocked, service principal client secret expired (AADSTS7000222); Phase 0 only, in the container, stop before Phase 1. Knowledge base not available (no checkout or endpoint). Fai 0.1.0 (release commit ca5b9c8) installed via a loopback release mirror: the launcher ignores the proxy CA."
-    },
-    {
-      "utc": "2026-10-16T23:37:22Z",
-      "level": "info",
-      "text": "Run ap-20261016T2335Z started (local mode).",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-16T23:37:22Z",
-      "level": "info",
-      "text": "fai-000: plan. Phase 0: feasibility in the container",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-16T23:38:27Z",
-      "level": "decision",
-      "text": "fai-000: background agent: Phase 0 feasibility (questions a-j with evidence, plain faithful sieve on hc/fai-base, cycle log for claims 1 and 2, local screen against plain OCaml). Why: RUN-PLAN Phase 0; Azure is blocked, so all of this runs in the container; one agent keeps the cycle log consistent. Expect: in-place updates via unique references; 3x to 10x slower than plain OCaml locally.",
-      "id": "fai-000",
-      "what": "background agent: Phase 0 feasibility (questions a-j with evidence, plain faithful sieve on hc/fai-base, cycle log for claims 1 and 2, local screen against plain OCaml)",
-      "why": "RUN-PLAN Phase 0; Azure is blocked, so all of this runs in the container; one agent keeps the cycle log consistent",
-      "expect": "in-place updates via unique references; 3x to 10x slower than plain OCaml locally"
-    },
-    {
-      "utc": "2026-10-16T23:39:00Z",
-      "level": "decision",
-      "text": "run: two outputs: the normal dashboard (status.json, ledger, events as usual) and a separate report, docs/agent-languages.md published as a page, on whether agent-specific languages help. Why: Chris asked for both (2026-10-17); the report is built around the author's claims with evidence collected per stage during the run, compared with run 10's OCaml and OxCaml lines.",
-      "id": "run",
-      "what": "two outputs: the normal dashboard (status.json, ledger, events as usual) and a separate report, docs/agent-languages.md published as a page, on whether agent-specific languages help",
-      "why": "Chris asked for both (2026-10-17); the report is built around the author's claims with evidence collected per stage during the run, compared with run 10's OCaml and OxCaml lines"
-    },
-    {
-      "utc": "2026-10-16T23:39:42Z",
-      "level": "info",
-      "text": "Azure access restored with a new service-principal secret (expires 15 January): Batch account reachable, no pools running. Phase 1 can start once Phase 0 passes."
-    },
-    {
-      "utc": "2026-10-16T23:41:17Z",
-      "level": "info",
-      "text": "RUN-PLAN updated from Chris's full prompt: claims 3 (in-place evidence) and 4 (token efficiency) added, lesson candidates in results/hc/fai-lessons.md, notes for the Fai author drafted in drafts/fai-notes.md (no upstream contact)."
-    },
-    {
-      "utc": "2026-10-16T23:49:21Z",
-      "level": "decision",
-      "text": "run: clear the session at the Phase 0 / Phase 1 boundary; the new session resumes run 11 from a handover note in STATUS.md. Why: Phase 0 shares this session with run 10, which skews main-session tokens per experiment (claim 4); agents' tokens, cycle logs and the scoreboard are unaffected. Passed over: restarting run 11 from scratch.",
-      "id": "run",
-      "what": "clear the session at the Phase 0 / Phase 1 boundary; the new session resumes run 11 from a handover note in STATUS.md",
-      "why": "Phase 0 shares this session with run 10, which skews main-session tokens per experiment (claim 4); agents' tokens, cycle logs and the scoreboard are unaffected",
-      "instead": "restarting run 11 from scratch"
-    },
     {
       "utc": "2026-10-16T23:52:43Z",
       "level": "decision",
@@ -2716,6 +2665,59 @@
       "utc": "2026-10-17T00:55:27Z",
       "level": "info",
       "text": "Chris: no multi-process runs. The 4T line stays one Fai program with Async.parallel threads; the multi-process route from fai-007 is closed."
+    },
+    {
+      "utc": "2026-10-17T00:58:13Z",
+      "level": "decision",
+      "text": "fai-003: KEEP; champion fast-forwarded. Why: lower bound +66.6% at 1T on Zen 5 and +63.4% at 4T on Zen 3; Cobalt +67%; above 20%, so rules re-read line by line before submitting and built fresh on each node.",
+      "id": "fai-003",
+      "what": "KEEP; champion fast-forwarded",
+      "why": "lower bound +66.6% at 1T on Zen 5 and +63.4% at 4T on Zen 3; Cobalt +67%; above 20%, so rules re-read line by line before submitting and built fresh on each node"
+    },
+    {
+      "utc": "2026-10-17T00:58:13Z",
+      "level": "decision",
+      "text": "fai-004: KEEP; hc/fai-champion = aa159ee (fai-004 sits on fai-003). Why: lower bound +2.6% at 1T Zen 5, +1.9% at 4T Zen 3; Cobalt +2.2%; no loss anywhere. Expect: fai-005 (measured on fai-003) to be merged with fai-004 and checked.",
+      "id": "fai-004",
+      "what": "KEEP; hc/fai-champion = aa159ee (fai-004 sits on fai-003)",
+      "why": "lower bound +2.6% at 1T Zen 5, +1.9% at 4T Zen 3; Cobalt +2.2%; no loss anywhere",
+      "expect": "fai-005 (measured on fai-003) to be merged with fai-004 and checked"
+    },
+    {
+      "utc": "2026-10-17T00:58:13Z",
+      "level": "info",
+      "text": "fai-003 kept.. local gate passed (container Xeon, 3 interleaved rounds): 1T 1,845 vs 1,070 (1.72x), 4T 7,003 vs 4,341; self-test 13/13; dense limit 16, two runs per step; gdb 0 array copies. Agent 110k tokens, 43 calls, 10.5 min; first edit to first passing self-test 36 s; 0 mistakes caught by type, effect, contracts or self-test; 2 formatter fails; 2 slips caught in self-review | Azure: Zen 5 1T +68.5% ± 1.9 (6/6), 4T +67.7%; Zen 3 1T +64.9%, 4T +64.8% ± 1.4; Cobalt +67.1% / +66.9%. KEEP",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-17T00:58:13Z",
+      "level": "info",
+      "text": "fai-004 kept.. local gate (container, 6 interleaved rounds): 1T median 1,856 vs 1,777 (+4.4%, 5 of 6 rounds); 4T too noisy to read. Call-count estimate only about 2%. Self-test 13/13; gdb: no copy or grow (alloc_obj callers logged). Agent 107k tokens, 39 calls, 6.4 min; 0 mistakes past self-review | Azure vs fai-003: Zen 5 1T +4.2% ± 1.6 (6/6), 4T +3.1%; Zen 3 1T +1.4%, 4T +2.3% ± 0.5 (6/6); Cobalt +2.2% / +1.4%. KEEP; champion aa159ee",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-17T00:58:13Z",
+      "level": "info",
+      "text": "fai-005: evaluate. Azure rounds running on all three",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-17T00:58:13Z",
+      "level": "info",
+      "text": "Scoreboard, fai base on Zen 5 (EPYC 9V45, D16as_v7): 1800 → 3200 at 1T, 7200 → 12500 at 4 threads.",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-17T00:58:13Z",
+      "level": "info",
+      "text": "Scoreboard, fai base on Zen 3 (EPYC 7763, D16a_v4): 900 → 1500 at 1T, 3700 → 6100 at 4 threads.",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-17T00:58:13Z",
+      "level": "info",
+      "text": "Scoreboard, fai base on Cobalt 100 (D4ps_v6): 1200 → 2000 at 1T, 4700 → 7900 at 4 threads.",
+      "auto": true
     }
   ],
   "research": {
