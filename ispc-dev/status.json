@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-17T02:21:30Z",
+  "updated_utc": "2026-10-17T02:21:57Z",
   "run": {
     "id": "ap-20261016T2335Z",
     "state": "running",
@@ -2384,10 +2384,10 @@
       "entry": "fai",
       "tier": "extra-faithful",
       "kind": "tuning",
-      "verdict": "running",
+      "verdict": "rejected",
       "plain": "If the cut-off for pattern-marked factors sits between the best values for the two AMD chips, then both gain or at least neither loses, because 32 helped Zen 5 and hurt Zen 3.",
       "prediction": "+1% to +4% at 1T on Zen 5, flat on Zen 3, +1-3% at 4T",
-      "note": "hc/fai-010-dense-24 9b8e786 on fai-009 (f9c0ad0); my own change; check, test 36, fmt, self-test 13/13; local 1T 5,563 vs 5,427 (3 rounds, noise) | Azure vs fai-009: Zen 5 1T +6.8% ± 0.5, 4T +4.2%; Zen 3 1T +0.8% ± 0.3, 4T +4.3% ± 0.4; Cobalt +3.3% / +4.6%. KEEP vs its base, but fai-009 lost to the champion: re-measuring against 9dbf524 (fai-010b)"
+      "note": "hc/fai-010-dense-24 9b8e786 on fai-009 (f9c0ad0); my own change; check, test 36, fmt, self-test 13/13; local 1T 5,563 vs 5,427 (3 rounds, noise) | Azure vs fai-009: Zen 5 1T +6.8% ± 0.5, 4T +4.2%; Zen 3 1T +0.8% ± 0.3, 4T +4.3% ± 0.4; Cobalt +3.3% / +4.6%. KEEP vs its base, but fai-009 lost to the champion: re-measuring against 9dbf524 (fai-010b) | fai-010b vs champion 9dbf524: Zen 5 1T +6.2%, 4T +6.9%; Zen 3 1T -1.3% (0/6), 4T +6.0%; Cobalt +2.4% / +6.1%. REVERT on Zen 3 1T; its limit-24 idea continues per kernel in fai-012/013"
     },
     {
       "id": "fai-m2",
@@ -2416,7 +2416,7 @@
       "verdict": "running",
       "plain": "If the one-thread program marks factors up to 24 with patterns instead of up to 16, then it gets faster on both AMD chips, because that cut-off won on both in an earlier test.",
       "prediction": "1T +2-6% Zen 5, 0 to +1% Zen 3; 4T unchanged",
-      "note": "hc/fai-012-dense-24-1t a5c9032 on e80bf39; my own one-line change; check, test 46, fmt, self-test 39/39; local 1T 6,156 vs 5,755 (3 rounds)"
+      "note": "hc/fai-012-dense-24-1t a5c9032 on e80bf39; my own one-line change; check, test 46, fmt, self-test 39/39; local 1T 6,156 vs 5,755 (3 rounds) | 6 rounds vs e80bf39: Zen 5 1T +6.8% ± 0.3 (6/6), 4T +0.3%; Zen 3 1T +1.2% ± 0.3 (lower bound +0.9%), 4T -0.1%; Cobalt +2.4% / +0.1%. MORE ROUNDS on Zen 3 (10)"
     },
     {
       "id": "fai-013",
@@ -2436,28 +2436,6 @@
     "Close the Zig-over-ISPC wheel gap, starting from the compiled code"
   ],
   "events": [
-    {
-      "utc": "2026-10-17T00:48:43Z",
-      "level": "info",
-      "text": "fai-007 confirmed.. No safe, supported route in Fai 0.1.0: concurrent mode is one whole-program flag set from main's effect row; it routes all reference counting and array access through runtime calls (MEMORY.md D138/D139 calls per-object inline RC future work). Hiding Concurrency would race the non-atomic inline decrement; not built. Repro: one trivial Async.parallel makes a single-threaded array loop 4.2x slower (0.30 s vs 1.25 s). Agent 110k tokens, 34 calls, 3.3 min",
-      "auto": true
-    },
-    {
-      "utc": "2026-10-17T00:49:19Z",
-      "level": "decision",
-      "text": "fai-008: start agent: unroll the sparse loop on the inline build. Why: sparse marks are about 85% of marks and the inline loop carries about 29 instructions per mark, several of them per-iteration checks. Passed over: a 62-bit layout (division by 62 cost more in fai-000). Expect: +5-20% at 1T.",
-      "id": "fai-008",
-      "what": "start agent: unroll the sparse loop on the inline build",
-      "why": "sparse marks are about 85% of marks and the inline loop carries about 29 instructions per mark, several of them per-iteration checks",
-      "instead": "a 62-bit layout (division by 62 cost more in fai-000)",
-      "expect": "+5-20% at 1T"
-    },
-    {
-      "utc": "2026-10-17T00:49:19Z",
-      "level": "info",
-      "text": "fai-008 (fai) running: ",
-      "auto": true
-    },
     {
       "utc": "2026-10-17T00:55:27Z",
       "level": "info",
@@ -2784,6 +2762,29 @@
       "utc": "2026-10-17T02:07:29Z",
       "level": "info",
       "text": "fai-012: evaluate. fai-012 and fai-013 queued on all three; fai-010b finishing",
+      "auto": true
+    },
+    {
+      "utc": "2026-10-17T02:21:56Z",
+      "level": "decision",
+      "text": "fai-010: REVERT (fai-010b against the champion lost 1.3% at 1T on Zen 3). Why: the shared limit 24 with the push-built pass loses at 1T on Zen 3; the per-kernel tests (fai-012, fai-013) carry the idea on.",
+      "id": "fai-010",
+      "what": "REVERT (fai-010b against the champion lost 1.3% at 1T on Zen 3)",
+      "why": "the shared limit 24 with the push-built pass loses at 1T on Zen 3; the per-kernel tests (fai-012, fai-013) carry the idea on"
+    },
+    {
+      "utc": "2026-10-17T02:21:57Z",
+      "level": "decision",
+      "text": "fai-012: 10 more rounds on Zen 3. Why: Zen 5 1T +6.8% is clear; Zen 3 1T +1.2% with lower bound +0.9% straddles the +1% line; analyze.py asks for about 8 more. Expect: Zen 3 1T +1.0% to +1.4%.",
+      "id": "fai-012",
+      "what": "10 more rounds on Zen 3",
+      "why": "Zen 5 1T +6.8% is clear; Zen 3 1T +1.2% with lower bound +0.9% straddles the +1% line; analyze.py asks for about 8 more",
+      "expect": "Zen 3 1T +1.0% to +1.4%"
+    },
+    {
+      "utc": "2026-10-17T02:21:57Z",
+      "level": "info",
+      "text": "fai-010 rejected.. hc/fai-010-dense-24 9b8e786 on fai-009 (f9c0ad0); my own change; check, test 36, fmt, self-test 13/13; local 1T 5,563 vs 5,427 (3 rounds, noise) | Azure vs fai-009: Zen 5 1T +6.8% ± 0.5, 4T +4.2%; Zen 3 1T +0.8% ± 0.3, 4T +4.3% ± 0.4; Cobalt +3.3% / +4.6%. KEEP vs its base, but fai-009 lost to the champion: re-measuring against 9dbf524 (fai-010b) | fai-010b vs champion 9dbf524: Zen 5 1T +6.2%, 4T +6.9%; Zen 3 1T -1.3% (0/6), 4T +6.0%; Cobalt +2.4% / +6.1%. REVERT on Zen 3 1T; its limit-24 idea continues per kernel in fai-012/013",
       "auto": true
     }
   ],
