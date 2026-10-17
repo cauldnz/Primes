@@ -15,14 +15,16 @@ functional language compiled ahead of time with Cranelift.
 - The next factor is found by scanning the odd numbers upward from 3. Every composite gets its
   own single-bit OR, by one of two paths. The design is that of the author's plain OCaml entry
   ([PrimeOCaml/solution_4](../../PrimeOCaml/solution_4)), on 32-bit slots.
-  - **Factors below 16 (dense).** The odd multiples of `p` repeat every `p` slots. Each pass
+  - **Factors below 32 (dense).** The odd multiples of `p` repeat every `p` slots. Each pass
     builds the pattern of four periods (`4p` slots, 128 multiples) in a scratch `Array Int`
     allocated with the sieve, with one read-OR-write per multiple, then ORs the pattern into
     the sieve slot by slot from the period that holds p², and clears the bit of `p` itself when
     the pattern set it. Each step reads a pattern slot once and ORs it into the same slot of
-    two consecutive runs. The limit of 16 and the two runs per step were tuned when every
-    array access was a runtime call (see below) and have not been re-tuned since.
-  - **Factors of 16 and above (sparse).** Each multiple is set with its own read-OR-write, from
+    two consecutive runs. The limit of 32 was re-tuned for the inline array path of `primes`
+    (it was 16 when every access was a runtime call); 48, 64 and 128 are about 4%, 12% and
+    30% slower, and two or eight periods are no better than four. The parallel binary shares
+    the setting.
+  - **Factors of 32 and above (sparse).** Each multiple is set with its own read-OR-write, from
     p² in steps of 2p.
 - A new array (and pattern scratch) every pass. Fai has no mutation in the language: the array is threaded through
   tail-recursive loops and, because it is uniquely owned, `Array.unsafeSet` updates it in place
