@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_utc": "2026-10-17T03:01:00Z",
+  "updated_utc": "2026-10-17T03:01:51Z",
   "run": {
     "id": "ap-20261016T2335Z",
     "state": "running",
@@ -13,12 +13,12 @@
     "ends_utc": "2026-10-17T04:49:00Z",
     "background_runs": 0,
     "last_tick_utc": "2026-10-17T03:01:00Z",
-    "wakeup": "trig_01XDEuUDaeDFtTo3QnpJBdYv"
+    "wakeup": "trig_01VZqK5r5CKM8HA2fLCwxhdT"
   },
   "current": {
-    "id": "r11-final",
-    "phase": "evaluate",
-    "detail": "final scoreboard on all three pools"
+    "id": "fai-014",
+    "phase": "implement",
+    "detail": "agents fai-014 (bounds proofs) and fai-015 (Fai feature survey) working"
   },
   "scoreboard": [
     {
