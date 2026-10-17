@@ -1,0 +1,38 @@
+Architecture:                            x86_64
+CPU(s):                                  16
+Model name:                              AMD EPYC 9V45 96-Core Processor
+BIOS Model name:                         AMD EPYC 9V45 96-Core Processor                 None CPU @ 2.6GHz
+AVX-512: yes
+kind=fai rounds=6 id=0011125706
+build cand
+build cand seconds: 42
+build champ
+build champ seconds: 1
+build ctx
+build ctx seconds: 122
+build ctx3
+build ctx3 seconds: 58
+self-test cand: 13 ok, 0 bad, exit=0
+self-test champ: 13 ok, 0 bad, exit=0
+== round warmup cand
+cauldnz-fai-base;1823;5.000;1;algorithm=base,faithful=yes,bits=1
+cauldnz-fai-base;14166;5.005;16;algorithm=base,faithful=yes,bits=1
+cauldnz-fai-base;7077;5.002;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ
+cauldnz-fai-base;1833;5.002;1;algorithm=base,faithful=yes,bits=1
+cauldnz-fai-base;14255;5.003;16;algorithm=base,faithful=yes,bits=1
+cauldnz-fai-base;7141;5.002;4;algorithm=base,faithful=yes,bits=1
+== round warmup champ2
+cauldnz-fai-base;1807;5.001;1;algorithm=base,faithful=yes,bits=1
+cauldnz-fai-base;14344;5.004;16;algorithm=base,faithful=yes,bits=1
+cauldnz-fai-base;7173;5.002;4;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl
+cauldnz-ocaml-base;30781;5.000037;1;algorithm=base,faithful=yes,bits=1
+cauldnz-ocaml-base;203682;5.007316;16;algorithm=base,faithful=yes,bits=1
+cauldnz-ocaml-base;114920;5.005757;4;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl2
+mike-barber_bit-extreme-hybrid;117728;5.0000309944;1;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;454135;5.0001015663;4;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;885994;5.0002737045;8;algorithm=base,faithful=yes,bits=1
+mike-barber_bit-extreme-hybrid;850503;5.0004544258;16;algorithm=base,faithful=yes,bits=1
+== round warmup ctrl3
