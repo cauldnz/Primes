@@ -14,9 +14,9 @@ RUN curl -fsSLO https://github.com/Krzysztof-Cieslak/fai/releases/download/v${FA
     && fai --version
 
 WORKDIR /opt/app
-COPY Primes.fai build.sh ./
+COPY Primes.fai PrimesParallel.fai fai.toml build.sh run.sh ./
 RUN sh build.sh
 
 FROM ubuntu:24.04
-COPY --from=build /opt/app/primes /usr/local/bin/primes
-ENTRYPOINT [ "/usr/local/bin/primes" ]
+COPY --from=build /opt/app/primes /opt/app/primes-parallel /opt/app/run.sh /usr/local/bin/
+ENTRYPOINT [ "/usr/local/bin/run.sh" ]

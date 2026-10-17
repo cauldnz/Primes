@@ -1,0 +1,53 @@
+module PrimesParallel
+
+// The multi-threaded runs of the Fai entry, built as the second binary `primes-parallel`.
+// It uses the sieve and the workers of `Primes.fai` unchanged; each task runs its own
+// sieves. Fai compiles a program whose `main` has the `Concurrency` effect without its
+// inline array fast path, so the single-threaded run is the separate binary `primes`.
+/// One timed run on `threads` tasks. False on a wrong count.
+timedRun : ParallelRuntime -> Int -> Bool / { Clock, Concurrency, Console }
+let timedRun rt threads =
+  let start = rt.clock.now ()
+  let deadline = start + Primes.runMillis
+  let thunks = List.map (fun k -> startWorker rt.clock deadline) (List.range 0 threads)
+  let results = Async.parallel rt.concurrency thunks
+  Primes.report rt.console threads (rt.clock.now () - start) results
+
+startWorker : Clock -> Int -> Unit -> Int * Int / { Clock }
+let startWorker clock deadline u = Primes.worker clock deadline 0 0
+
+public type ParallelRuntime = {
+  clock : Clock,
+  concurrency : Concurrency,
+  console : Console,
+  env : Env,
+  exit : Primes.Exit,
+  fs : FileSystem
+}
+
+public runtime : ParallelRuntime
+let runtime = {
+  clock = stdClock,
+  concurrency = stdConcurrency,
+  console = stdConsole,
+  env = stdEnv,
+  exit = Primes.exitCapability,
+  fs = stdFs
+}
+
+runAll : ParallelRuntime -> List Int -> Unit / { Clock, Concurrency, Console, Primes.Exit }
+let runAll rt runs =
+  match runs with
+  | [] -> ()
+  | t :: rest -> if timedRun rt t then runAll rt rest else rt.exit.exit 1
+
+/// All hardware threads, then exactly four when there are more than four. Nothing on one
+/// hardware thread, or under PRIMES_TEST (the self-test is in `primes`).
+public main : ParallelRuntime -> Unit / { Clock, Concurrency, Console, Env, FileSystem, Primes.Exit }
+let main rt =
+  if Primes.testRequested (rt.env.get "PRIMES_TEST") then
+    ()
+  else
+    let hw = Primes.hardwareThreads rt.fs
+    let runs = if hw > 4 then [hw, 4] else if hw > 1 then [hw] else []
+    runAll rt runs

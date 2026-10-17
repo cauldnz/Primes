@@ -14,7 +14,7 @@ let sieveSize = 1000000
 expected : Int
 let expected = 78498
 
-runMillis : Int
+public runMillis : Int
 let runMillis = 5000
 
 label : String
@@ -266,7 +266,7 @@ example: noOddDivisor 97 3
 example: not (noOddDivisor 91 3)
 
 /// Passes completed before the deadline, and the prime count of the first pass.
-worker : Clock -> Int -> Int -> Int -> Int * Int / { Clock }
+public worker : Clock -> Int -> Int -> Int -> Int * Int / { Clock }
 let worker clock deadline passes count =
   if clock.now () >= deadline then
     (passes, count)
@@ -275,35 +275,31 @@ let worker clock deadline passes count =
     let c = if passes = 0 then countPrimes sieveSize bits else count
     worker clock deadline (passes + 1) c
 
-startWorker : Clock -> Int -> Unit -> Int * Int / { Clock }
-let startWorker clock deadline u = worker clock deadline 0 0
-
 /// Milliseconds as seconds with three decimals.
 seconds : Int -> String
 let seconds ms = Int.toString (ms / 1000) ++ "." ++ String.padStart 3 "0" (Int.toString (ms % 1000))
 example: seconds 5001 = "5.001"
 example: seconds 5020 = "5.020"
 
-/// One timed run on `threads` tasks, each running its own sieves. False on a wrong count.
-timedRun : { clock : Clock, concurrency : Concurrency, console : Console | _ } -> Int -> Bool / { Clock, Concurrency, Console }
-let timedRun rt threads =
-  let start = rt.clock.now ()
-  let deadline = start + runMillis
-  let results =
-    if threads = 1 then
-      [worker rt.clock deadline 0 0]
-    else
-      let thunks = List.map (fun k -> startWorker rt.clock deadline) (List.range 0 threads)
-      Async.parallel rt.concurrency thunks
-  let elapsed = rt.clock.now () - start
+/// Writes the result line for one timed run of `threads` workers. False on a wrong count.
+public report : Console -> Int -> Int -> List (Int * Int) -> Bool / { Console }
+let report console threads elapsed results =
   let passes = List.sum (List.map (fun r -> fst r) results)
   if List.all (fun r -> snd r = expected) results then
     let line =
-      rt.console.writeLine (label ++ ";" ++ Int.toString passes ++ ";" ++ seconds elapsed ++ ";" ++ Int.toString threads ++ ";" ++ tags)
+      console.writeLine (label ++ ";" ++ Int.toString passes ++ ";" ++ seconds elapsed ++ ";" ++ Int.toString threads ++ ";" ++ tags)
     true
   else
-    let line = rt.console.writeError "ERROR: wrong prime count"
+    let line = console.writeError "ERROR: wrong prime count"
     false
+
+/// One timed single-threaded run. Multi-threaded runs are in `PrimesParallel.fai`: a program
+/// whose `main` has the `Concurrency` effect is compiled without Fai's inline array fast path.
+timedRun : { clock : Clock, console : Console | _ } -> Bool / { Clock, Console }
+let timedRun rt =
+  let start = rt.clock.now ()
+  let result = worker rt.clock (start + runMillis) 0 0
+  report rt.console 1 (rt.clock.now () - start) [result]
 
 fst : Int * Int -> Int
 let fst pair =
@@ -342,7 +338,7 @@ let testOne console ok case =
   ok && c = want
 
 /// PRIMES_TEST is on when it holds a nonzero unsigned 32-bit number, as in the OCaml entry.
-testRequested : Option String -> Bool
+public testRequested : Option String -> Bool
 let testRequested value =
   match value with
   | None -> false
@@ -359,7 +355,7 @@ example: not (testRequested None)
 example: not (testRequested (Some "-1"))
 
 /// Hardware threads: the "processor" lines of /proc/cpuinfo, at least 1.
-hardwareThreads : FileSystem -> Int / { FileSystem }
+public hardwareThreads : FileSystem -> Int / { FileSystem }
 let hardwareThreads fs =
   match Path.fromString "/proc/cpuinfo" with
   | Err e -> 1
@@ -383,7 +379,6 @@ let exitCapability = { Exit with exit code = cExit code }
 
 public type AppRuntime = {
   clock : Clock,
-  concurrency : Concurrency,
   console : Console,
   env : Env,
   exit : Exit,
@@ -393,26 +388,16 @@ public type AppRuntime = {
 public runtime : AppRuntime
 let runtime = {
   clock = stdClock,
-  concurrency = stdConcurrency,
   console = stdConsole,
   env = stdEnv,
   exit = exitCapability,
   fs = stdFs
 }
 
-runAll : AppRuntime -> List Int -> Unit / { Clock, Concurrency, Console, Exit }
-let runAll rt runs =
-  match runs with
-  | [] -> ()
-  | t :: rest -> if timedRun rt t then runAll rt rest else rt.exit.exit 1
-
-public main : AppRuntime -> Unit / { Clock, Concurrency, Console, Env, Exit, FileSystem }
+/// The single-threaded run (and the self-test). `run.sh` then runs `primes-parallel`.
+public main : AppRuntime -> Unit / { Clock, Console, Env, Exit }
 let main rt =
   if testRequested (rt.env.get "PRIMES_TEST") then
     let ok = List.foldl (testOne rt.console) true testCases
     rt.exit.exit (if ok then 0 else 1)
-  else
-    // One thread, then all hardware threads, then exactly four when there are more than four.
-    let hw = hardwareThreads rt.fs
-    let runs = if hw > 4 then [1, hw, 4] else if hw > 1 then [1, hw] else [1]
-    runAll rt runs
+  else if timedRun rt then () else rt.exit.exit 1
