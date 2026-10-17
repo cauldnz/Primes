@@ -60,17 +60,97 @@ nextPrimeIndex : Int -> Int -> Array Int -> Int
 let nextPrimeIndex i nbits bits =
   if i < nbits && isComposite i bits then nextPrimeIndex (i + 1) nbits bits else i
 
-/// The base algorithm: find the next prime p, clear its odd multiples from p * p
-/// (bit index p * p / 2, stepping p bits = 2p in value), repeat while p <= sqrt(size).
-sieveFrom : Int -> Int -> Int -> Array Int -> Array Int
-let sieveFrom i q nbits bits =
+/// Factors below this are dense: their multiples are built into a pattern and ORed in.
+denseLimit : Int
+let denseLimit = 16
+
+/// Periods of the pattern the scratch holds: one period is p slots, 32 multiples of p.
+periods : Int
+let periods = 4
+
+/// Zero slots k to n - 1.
+zeroFrom : Int -> Int -> Array Int -> Array Int
+let zeroFrom k n pat = if k >= n then pat else zeroFrom (k + 1) n (Array.unsafeSet k 0 pat)
+
+/// The pattern of `periods` periods for odd factor p, built in the scratch: bit t = p/2 + jp
+/// (the odd number p(2j + 1)) for j = 0 .. 32 * periods - 1, each set by its own OR.
+buildPattern : Int -> Array Int -> Array Int
+let buildPattern p pat = clearMultiples (p / 2) p (32 * periods * p) (zeroFrom 0 (periods * p) pat)
+example: Array.unsafeGet 0 (buildPattern 3 (Array.repeat 16 0)) = 0x92492492
+example: Array.unsafeGet 1 (buildPattern 3 (Array.repeat 16 0)) = 0x24924924
+forall n: patternOk (2 * Int.floorMod n 16 + 3) 0 (buildPattern (2 * Int.floorMod n 16 + 3) (Array.repeat (periods * 35) 7))
+
+/// True when bits t up to 32 * periods * p - 1 of the pattern are set exactly at the odd
+/// multiples of p.
+patternOk : Int -> Int -> Array Int -> Bool
+let patternOk p t pat =
+  if t >= 32 * periods * p then
+    true
+  else if isComposite t pat <> ((2 * t + 1) % p = 0) then false else patternOk p (t + 1) pat
+
+/// OR the pattern into the sieve: sieve slot w gets pattern slot v, v cycling over len slots.
+orPattern : Int -> Int -> Int -> Int -> Array Int -> Array Int -> Array Int
+let orPattern w v len nwords pat bits =
+  if w >= nwords then
+    bits
+  else
+    let word = Int.or (Array.unsafeGet w bits) (Array.unsafeGet v pat)
+    let v1 = if v + 1 = len then 0 else v + 1
+    orPattern (w + 1) v1 len nwords pat (Array.unsafeSet w word bits)
+
+/// Two runs per step: pattern slot v is read once and ORed into sieve slots w and w + len,
+/// for the pairs of runs from w up to stop (a whole number of pairs past the start).
+orPairs : Int -> Int -> Int -> Int -> Array Int -> Array Int -> Array Int
+let orPairs w v len stop pat bits =
+  if w >= stop then
+    bits
+  else
+    let pw = Array.unsafeGet v pat
+    let w2 = w + len
+    let b1 = Array.unsafeSet w (Int.or (Array.unsafeGet w bits) pw) bits
+    let b2 = Array.unsafeSet w2 (Int.or (Array.unsafeGet w2 b1) pw) b1
+    if v + 1 = len then
+      orPairs (w2 + 1) 0 len stop pat b2
+    else
+      orPairs (w + 1) (v + 1) len stop pat b2
+
+/// Clear bit i (used to restore a dense factor p that its own pattern marked).
+clearBit : Int -> Array Int -> Array Int
+let clearBit i bits =
+  let w = Int.shiftRightLogical i 5
+  Array.unsafeSet w (Int.and (Array.unsafeGet w bits) (Int.complement (Int.shiftLeft 1 (Int.and i 31)))) bits
+
+/// Dense marking for odd p < denseLimit. Periods start at slot multiples of p; ORing starts
+/// at the period holding p * p. Its smaller multiples are composite too, except p itself,
+/// which is in period 0 only and is cleared again after.
+clearDense : Int -> Int -> Array Int -> Array Int -> Array Int
+let clearDense p nwords pat bits =
+  let j = p / 2
+  let c0 = p * p / 2 / 32 / p * p
+  let len = periods * p
+  let stop = if nwords > c0 then c0 + (nwords - c0) / (2 * len) * (2 * len) else c0
+  let marked = orPattern stop 0 len nwords pat (orPairs c0 0 len stop pat bits)
+  if c0 = 0 then clearBit j marked else marked
+
+/// The base algorithm: find the next prime p, mark its odd multiples from p * p (bit index
+/// p * p / 2, stepping p bits = 2p in value), repeat while p <= sqrt(size). Dense factors
+/// mark through the pattern scratch, the others one read-OR-write per multiple.
+sieveFrom : Int -> Int -> Int -> Int -> Array Int -> Array Int -> Array Int
+let sieveFrom i q nbits nwords pat bits =
   let j = nextPrimeIndex i nbits bits
   let p = 2 * j + 1
-  if p > q then bits else sieveFrom (j + 1) q nbits (clearMultiples (p * p / 2) p nbits bits)
+  if p > q then
+    bits
+  else if p < denseLimit then
+    let pat1 = buildPattern p pat
+    sieveFrom (j + 1) q nbits nwords pat1 (clearDense p nwords pat1 bits)
+  else
+    sieveFrom (j + 1) q nbits nwords pat (clearMultiples (p * p / 2) p nbits bits)
 
-/// A new sieve for size, fully run.
+/// A new sieve for size, with its own pattern scratch, fully run.
 runSieve : Int -> Array Int
-let runSieve size = sieveFrom 1 (isqrt size) (bitCount size) (Array.repeat (wordCount size) 0)
+let runSieve size =
+  sieveFrom 1 (isqrt size) (bitCount size) (wordCount size) (Array.repeat (periods * denseLimit) 0) (Array.repeat (wordCount size) 0)
 
 countFrom : Int -> Int -> Int -> Array Int -> Int
 let countFrom acc i nbits bits =
@@ -110,6 +190,15 @@ forall n: List.length (primesUpTo (smallSize n)) = primeCount (smallSize n)
 forall n: List.all (fun p -> p = 2 || Int.floorMod p 2 = 1) (primesUpTo (smallSize n))
 forall n: List.all (fun p -> noOddDivisor p 3) (primesUpTo (smallSize n))
 forall n: List.all (fun p -> p <= smallSize n) (primesUpTo (smallSize n))
+forall n: primeCount (smallSize n) = naiveCount (smallSize n) 3 1
+
+/// Reference count by trial division: 2 (when size >= 2) plus the odd primes from d.
+naiveCount : Int -> Int -> Int -> Int
+let naiveCount size d acc =
+  if size < 2 then
+    0
+  else if d > size then acc else naiveCount size (d + 2) (if noOddDivisor d 3 then acc + 1 else acc)
+example: naiveCount 100 3 1 = 25
 
 /// Spreads a generated Int (which `fai test` keeps within its max size, 100 by default)
 /// over the sizes 0 to 4999.
