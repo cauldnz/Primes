@@ -1,5 +1,10 @@
 # Notes for the Fai author (draft, not sent)
 
+Superseded for posting by `drafts/fai-issues.md` (two issues, rebuilt repros, after a cold read as
+the author would see these notes, 17 October). The cold read found these notes duplicated the
+concurrency finding with two numbers, used our project's jargon and gave fix designs before
+repros. Kept below as the working record.
+
 From run 11, a research climb of the Primes drag-race base sieve in Fai 0.1.0 (release commit
 ca5b9c8), on x86-64 Linux. Not filed upstream; Chris decides whether and how to share.
 Evidence and repros: `results/hc/fai-000-feasibility/README.md` on `ispc-dev`.
