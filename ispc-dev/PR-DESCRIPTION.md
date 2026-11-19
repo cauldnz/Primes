@@ -1,10 +1,12 @@
 <!--
 PR text for PlummersSoftwareLLC/Primes, target branch drag-race.
 Title: [ISPC] Add ISPC solutions 1 (wheel) and 2 (base)
-Code: hc/ispc-landing-4 (d2ef0d6), one commit on upstream drag-race c4e42f00 (#1095, the wheel
-rules). Same code as hc/ispc-landing-2 (6cd85cd) and landing-3 (36a1616): landing-4 changes
-comments only, and every object build.sh produces (plus both NEON targets) is byte-identical
-to landing-3's. READMEs and source comments carry the 12 October cold-read fixes. solution_3
+Code: hc/ispc-landing-5 (96a4990), one commit on upstream drag-race bd2d511 (19 November
+fetch: base-image guidance now Alpine 3.24, then Ubuntu 24.04, b98a396; weekly no-cache CI
+build, 3ce8924). Code files are byte-identical to hc/ispc-landing-4 (d2ef0d6); landing-5 adds
+one sentence to each README's Docker section on why the Dockerfile uses Ubuntu 24.04, not
+Alpine 3.24. Landing-4 was the same code as landing-2 (6cd85cd) and landing-3 (36a1616), with
+comment-only changes. solution_3
 (the tables wheel) was dropped on 12 October; see LAUNCH-PLAN.md step 0.
 Numbers: run 9 final scoreboard (STATUS.md, morning report of run ap-20261011T0645Z; logs in
 results/hc/r9-final-wheel and r9-final-base, 6 rounds; solution_1 = "champ" rows of the wheel
@@ -69,7 +71,7 @@ In the same official results, mike-barber's Rust leads the faithful 1-bit base e
 ## ISPC as a language
 
 - Intel released ISPC as open source in 2011 and still maintains it ([source](https://github.com/ispc/ispc), [documentation](https://ispc.github.io/)).
-- It is packaged in Debian and Ubuntu. Both Dockerfiles install Ubuntu 24.04's `ispc` package, so nothing is fetched from outside the distribution.
+- It is packaged in Debian, Ubuntu and Alpine. Both Dockerfiles install Ubuntu 24.04's `ispc` package, so nothing is fetched from outside the distribution. Alpine 3.24's ISPC (1.30) fails to link these entries (an undefined reference to its `print` helper), so they use Ubuntu, the guidance's next option.
 - It has users outside this repository: Unreal Engine's Chaos physics ([Intel article](https://www.intel.com/content/www/us/en/developer/articles/technical/unreal-engines-new-chaos-physics-system-screams-with-in-depth-intel-cpu-optimizations.html), [GDC talk](https://gdcvault.com/play/1026686/Intel-ISPC-in-Unreal-Engine)), Intel's Embree and OSPRay rendering libraries, and Open Image Denoise, whose CPU build [requires it](https://github.com/RenderKit/oidn).
 
 ## Notes

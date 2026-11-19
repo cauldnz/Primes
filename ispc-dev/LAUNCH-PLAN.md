@@ -89,6 +89,20 @@ F1 or F2 arrives as a small follow-up PR to our own entry.
   fixes to both READMEs and to source comments only: every object `build.sh` produces, and both
   NEON targets, are byte-identical to landing-3's, so the code is still that of `hc/ispc-final`
   (216629d). hadolint clean and `PRIMES_TEST=1` exit 0 for both. solution_3 is out (step 0).
+- [W] Done 19 November: **`hc/ispc-landing-5` = 96a4990**, pushed. One commit on upstream
+  `drag-race` bd2d511 (95 commits past c4e42f00), the same message and no-reply author and
+  committer as landing-4. Code files are byte-identical to landing-4 (`git diff` on everything
+  but the READMEs is empty). Each README's Docker section gains one sentence: Alpine 3.24 does
+  package ISPC (1.30, x86-64 and arm64), but these entries don't link with it (undefined
+  `__do_print`, ISPC's `print` helper, even for a single target), so the Dockerfile uses Ubuntu
+  24.04's `ispc` (1.22), the next option in the new guidance (b98a396). Upstream changes since
+  c4e42f00 that touch us: that guidance, and the weekly no-cache CI build (3ce8924), which our
+  Dockerfiles pass (no-cache builds). No new rules for wheel or base; no other ISPC PR
+  (#1067-#1106 checked).
+  - Verified: hadolint 2.12.0 with `config/hadolint.yml` clean on both; `docker build
+    --no-cache`, `PRIMES_TEST=1` (exit 0) and normal output on amd64 (container Xeon).
+    Zen 5 and Cobalt runs on Batch: pending; the environment's service-principal secret had
+    expired on 19 November.
 - [W] Check against CONTRIBUTING.md line by line:
   - Dockerfile builds from Ubuntu packages only (it does: `apt-get install ispc`); hadolint clean
     (hadolint 2.12.0 with `config/hadolint.yml`: no findings on either Dockerfile, 12 October);
